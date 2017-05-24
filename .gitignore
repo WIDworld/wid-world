@@ -1,0 +1,15 @@
+# Temporary working file
+work-data/*
+
+# Output data
+data-output/*
+
+# Output report
+report-output/*/*.png
+report-output/*/*.pdf
+
+# OS X crap
+.DS_Store
+
+# Office crap
+~$*
