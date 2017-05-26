@@ -14,6 +14,7 @@ clear all
 
 // WID folder directory
 global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
