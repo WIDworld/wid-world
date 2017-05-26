@@ -14,7 +14,7 @@ clear all
 
 // WID folder directory
 global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+*global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
@@ -56,6 +56,7 @@ global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
+global nz_data "$input_data_dir/newzealand-data"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"
@@ -156,6 +157,9 @@ do "$do_dir/add-us-data.do"
 
 // Add China data
 do "$do_dir/add-china-data.do"
+
+// Add New Zealand data
+do "$do_dir/add-nz-data.do"
 
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
