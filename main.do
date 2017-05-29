@@ -13,14 +13,14 @@
 clear all
 
 // WID folder directory
-global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-*global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-global project_dir "~/GitHub/wid-world"
-*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
+*global project_dir "~/GitHub/wid-world"
+global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -369,6 +369,9 @@ do "$do_dir/export-units.do"
 // Export the main database
 do "$do_dir/create-main-db.do"
 do "$work_dir/export-main-db.do"
+
+// Compute Pareto beta coefficients
+do "$do_dir/calculate-beta-coeff.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"
