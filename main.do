@@ -46,11 +46,7 @@ global eastern_bloc_data "$input_data_dir/eastern-bloc-data"
 global eurostat_data     "$input_data_dir/eurostat-data"
 global argentina_data    "$input_data_dir/argentina-data"
 global east_germany_data "$input_data_dir/east-germany-data"
-global country_codes     "$input_data_dir/country-codes"
-global stat_desc         "$input_data_dir/stat-desc"
-global sources_table     "$input_data_dir/sources/sources-table.xlsx"
 global zucman_data       "$input_data_dir/missing-wealth"
-global ilo_data          "$input_data_dir/ilo-data"
 global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
@@ -78,10 +74,10 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    1
-global plot_nfi_countries  1
-global plot_imputation_cfc 1
-global export_with_labels  1
+global plot_missing_nfi    0
+global plot_nfi_countries  0
+global plot_imputation_cfc 0
+global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
 global world_summary_market 0
@@ -366,7 +362,7 @@ do "$do_dir/export-units.do"
 
 // Export the main database
 do "$do_dir/create-main-db.do"
-do "$work_dir/export-main-db.do"
+do "$do_dir/export-main-db.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"

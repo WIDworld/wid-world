@@ -52,13 +52,13 @@ restore
 
 reshape long value, i(alpha2 p2 year) j(widcode) string
 
+append using "`totals'"
+
 // Capital and labor income are not ordered with respect to total income
 replace widcode = substr(widcode, 1, 1) + "pllin" + substr(widcode, 7, .) ///
 	if (substr(widcode, 2, 5) == "ptlin")
 replace widcode = substr(widcode, 1, 1) + "pkkin" + substr(widcode, 7, .) ///
 	if (substr(widcode, 2, 5) == "ptkin")
-
-append using "`totals'"
 
 drop if missing(value)
 
