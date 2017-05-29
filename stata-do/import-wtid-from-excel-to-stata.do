@@ -10,7 +10,7 @@ foreach country of local countrylist {
 	display "--> `country'...", _continue
 	quietly {
 		import delimited using "$wtid_data/csv/`country'.csv", clear varnames(1) encoding("utf8")
-		
+
 		// Store source
 		local source = v2[3]
 		
@@ -54,6 +54,10 @@ foreach country of local countrylist {
 		drop in 1/7
 		
 		// Reshape
+		cleanchars *, in(",") out(".")
+		foreach var of varlist v*{
+		cap replace `var' = subinstr(`var'," ","",.) 
+		}
 		destring *, replace
 		drop if (year >= .) // Drop empty rows
 		reshape long value, i(year) j(col)

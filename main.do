@@ -20,6 +20,7 @@ global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
 
 // Project directory
 global project_dir "~/GitHub/wid-world"
+*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -56,7 +57,6 @@ global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
-global nz_data "$input_data_dir/newzealand-data"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"
@@ -102,7 +102,7 @@ global world_summary_market 0
 *ssc install quandl
 
 // You need to update Stata to the 14.1 version
-version 14.1
+*version 14.1
 
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
@@ -157,9 +157,6 @@ do "$do_dir/add-us-data.do"
 
 // Add China data
 do "$do_dir/add-china-data.do"
-
-// Add New Zealand data
-do "$do_dir/add-nz-data.do"
 
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
