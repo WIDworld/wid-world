@@ -13,12 +13,14 @@
 clear all
 
 // WID folder directory
-global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-global project_dir "~/GitHub/wid-world"
+*global project_dir "~/GitHub/wid-world"
+global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -96,7 +98,7 @@ global world_summary_market 0
 *ssc install quandl
 
 // You need to update Stata to the 14.1 version
-version 14.1
+*version 14.1
 
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
@@ -363,6 +365,9 @@ do "$do_dir/export-units.do"
 // Export the main database
 do "$do_dir/create-main-db.do"
 do "$do_dir/export-main-db.do"
+
+// Compute Pareto beta coefficients
+do "$do_dir/calculate-beta-coeff.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"
