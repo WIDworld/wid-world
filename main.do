@@ -13,14 +13,14 @@
 clear all
 
 // WID folder directory
-*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-*global project_dir "~/GitHub/wid-world"
-global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
+global project_dir "~/GitHub/wid-world" // macOS, Unix
+*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -62,10 +62,10 @@ global currency_codes "$input_data_dir/currency-codes"
 global work_data "$project_dir/work-data"
 
 // Directory with reports from the programs
-global report_output "$project_dir/report-output"
+global report_output "$wid_dir/WIDGraphsTables"
 
 // Directory with the output
-global output_dir "$project_dir/data-output"
+global output_dir "$wid_dir/WIDData"
 
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
@@ -76,9 +76,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    0
-global plot_nfi_countries  0
-global plot_imputation_cfc 0
+global plot_missing_nfi    1
+global plot_nfi_countries  1
+global plot_imputation_cfc 1
 global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
@@ -97,8 +97,8 @@ global world_summary_market 0
 *ssc install carryforward
 *ssc install quandl
 
-// You need to update Stata to the 14.1 version
-*version 14.1
+// You need to update Stata to the 14 version
+version 14
 
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
@@ -348,6 +348,9 @@ do "$do_dir/calibrate-dina.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
+// Compute Pareto coefficients
+do "$do_dir/calculate-pareto-coef.do"
+
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
@@ -365,9 +368,6 @@ do "$do_dir/export-units.do"
 // Export the main database
 do "$do_dir/create-main-db.do"
 do "$do_dir/export-main-db.do"
-
-// Compute Pareto beta coefficients
-do "$do_dir/calculate-beta-coeff.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"

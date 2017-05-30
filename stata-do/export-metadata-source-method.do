@@ -1,4 +1,4 @@
-use "$work_data/add-france-data-metadata.dta", clear
+use "$work_data/calculate-pareto-coef-output-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 
 // Add population notes

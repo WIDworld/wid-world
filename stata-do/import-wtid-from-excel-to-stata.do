@@ -9,7 +9,7 @@ local firstiter 1
 foreach country of local countrylist {
 	display "--> `country'...", _continue
 	quietly {
-		import delimited using "$wtid_data/csv/`country'.csv", clear varnames(1) encoding("utf8")
+		import delimited using "$wtid_data/csv/`country'.csv", clear varnames(1) encoding("utf8") stringcols(_all) 
 
 		// Store source
 		local source = v2[3]
@@ -54,11 +54,12 @@ foreach country of local countrylist {
 		drop in 1/7
 		
 		// Reshape
-		cleanchars *, in(",") out(".")
-		foreach var of varlist v*{
-		cap replace `var' = subinstr(`var'," ","",.) 
+		foreach var of varlist value* {
+			replace `var' = subinstr(`var', ",", ".", .) 
+			replace `var' = subinstr(`var', " ", "", .) 
 		}
 		destring *, replace
+		*exit 1
 		drop if (year >= .) // Drop empty rows
 		reshape long value, i(year) j(col)
 		

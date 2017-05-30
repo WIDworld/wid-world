@@ -1,6 +1,6 @@
 // Label the variables ------------------------------------------------------ //
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calculate-pareto-coef-output.dta", clear
 
 keep widcode
 duplicates drop
@@ -48,7 +48,7 @@ foreach c of local widcode_list {
 
 // Reshape the dataset ------------------------------------------------------ //
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calculate-pareto-coef-output.dta", clear
 
 reshape wide value, i(iso year p) j(widcode) string
 

@@ -31,19 +31,20 @@ use "$work_data/calculate-per-capita-series-output.dta", clear
 
 drop currency
 
-generate sixlet = substr(widcode, 1, 6)
+generate onelet = substr(widcode, 1, 1)
+generate fivelet = substr(widcode, 2, 5)
 generate pop = substr(widcode, 7, 3)
 generate vartype = substr(widcode, 10, 1)
 
-keep if sixlet == "afiinc"
+keep if fivelet == "fiinc" & inlist(onelet, "a", "t")
 
 merge n:1 iso year using "`factor'", nogenerate keep(match)
 
 replace value = value*factor
-replace sixlet = "aptinc"
-replace widcode = sixlet + pop + vartype
+replace fivelet = "ptinc"
+replace widcode = onelet + fivelet + pop + vartype
 
-drop factor sixlet pop vartype
+drop factor onelet fivelet pop vartype
 
 drop if inlist(iso, "CN", "FR", "US")
 

@@ -174,6 +174,7 @@ if ($plot_missing_nfi) {
 		sort(year) title("Missing net foreign income") xtitle("year") ytitle("% of world GDP") ///
 		legend(cols(1)) ylabel(-1 "-1%" -0.5 "-0.5%" 0 "0%" 0.5 "0.5%") ///
 		note("Source: IMF Balance of Payment Statistics")
+	capture mkdir "$report_output/missing-nfi"
 	graph export "$report_output/missing-nfi/missing-nfi.png", width(2000) replace
 	graph export "$report_output/missing-nfi/missing-nfi.pdf", replace
 	graph close
