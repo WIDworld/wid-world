@@ -96,6 +96,7 @@ global world_summary_market 0
 *ssc install egenmore
 *ssc install carryforward
 *ssc install quandl
+*dropmiss (help dropmiss and select link)
 
 // You need to update Stata to the 14 version
 version 14
