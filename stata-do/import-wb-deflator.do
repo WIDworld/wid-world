@@ -15,7 +15,6 @@ drop indicatorname indicatorcode
 reshape long year, i(countryname countrycode) j(j)
 rename year value
 rename j year
-cap drop v62
 
 // Identify countries
 countrycode countryname, generate(iso) from("wb")
