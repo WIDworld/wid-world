@@ -1,7 +1,9 @@
-import delimited "$imf_data/world-economic-outlook/WEOApr2016all.csv", ///
-	clear delimiter(";") varnames(1) rowrange(1:8405) encoding("utf8")
+import delimited "$imf_data/world-economic-outlook/WEOApr2017all.csv", ///
+	clear delimiter(";") varnames(1) encoding("utf8")
 
-foreach v of varlist v10-v51 {
+dropmiss, obs force
+
+foreach v of varlist v* {
 	local year: var label `v'
 	if ("`year'" == "") {
 		drop `v'
@@ -19,9 +21,11 @@ drop iso weocountrycode weosubjectcode subjectdescriptor subjectnotes units ///
 countrycode country, generate(iso) from("imf weo")
 drop country
 
+
 reshape long def_imf, i(iso) j(year)
 drop if def_imf >= .
-drop if year > 2015
+quietly sum estimatesstartafter
+drop if year > `r(max)'
 
 rename def_imf def_weo
 
