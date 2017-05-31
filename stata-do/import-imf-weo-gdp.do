@@ -1,7 +1,9 @@
-import delimited "$imf_data/world-economic-outlook/WEOApr2016all.csv", ///
-	clear delimiter(";") varnames(1) rowrange(1:8405) encoding("utf8")
+import delimited "$imf_data/world-economic-outlook/WEO.csv", ///
+	clear delimiter(";") varnames(1) encoding("utf8")
 
-foreach v of varlist v10-v51 {
+dropmiss, obs force
+
+foreach v of varlist v* {
 	local year: var label `v'
 	if ("`year'" == "") {
 		drop `v'
@@ -16,13 +18,17 @@ keep if weosubjectcode == "NGDP"
 drop iso weocountrycode weosubjectcode subjectdescriptor subjectnotes units ///
 	scale countryseriesspecificnotes
 
+replace country="Côte d'Ivoire" if country=="C�te d'Ivoire"
+replace country="São Tomé and Príncipe" if country=="S�o Tom� and Pr�ncipe"
+
 countrycode country, generate(iso) from("imf weo")
 drop country
 
 reshape long value, i(iso) j(year)
 drop if value >= .
 
-drop if year > 2015
+qui sum estimatesstartafter
+drop if year > `r(max)'
 
 replace value = value*1e9
 rename value gdp_lcu_weo

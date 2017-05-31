@@ -2,22 +2,25 @@ import excel "$wb_data/global-economic-monitor/GDP at market prices, current LCU
 	clear allstring
 sxpose, clear
 
-drop _var2
-foreach v of varlist _var3-_var22 {
+ds _var1, not
+foreach v of varlist `r(varlist)' {
 	local year = `v'[1]
 	rename `v' value`year'
 }
 drop in 1
-drop value2016
 destring value*, replace force
+dropmiss, force
+
 rename _var1 country
 
 countrycode country, generate(iso) from("wb gem")
 drop country
 
+/*
 // Identify problems in the data
 replace value2015 = . if (iso == "AR")
 replace value2015 = . if (iso == "IR")
+*/
 
 assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
 

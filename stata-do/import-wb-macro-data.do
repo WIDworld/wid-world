@@ -17,8 +17,8 @@ import delimited "$wb_data/nfi/API_NY.GSR.NFCY.CD_DS2_en_csv_v2.csv", ///
 append using "`wb_macro_data'"
 
 // Rename year variables
-drop v60 v61
-foreach v of varlist v5-v59 {
+dropmiss, force
+foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'
 }

@@ -1,4 +1,4 @@
-import delimited "$imf_data/world-economic-outlook/WEOApr2017all.csv", ///
+import delimited "$imf_data/world-economic-outlook/WEO.csv", ///
 	clear delimiter(";") varnames(1) encoding("utf8")
 
 dropmiss, obs force
