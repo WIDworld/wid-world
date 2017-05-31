@@ -13,8 +13,7 @@ dropmiss, force
 destring value*, replace force ignore(",")
 rename _var1 country
 
-cap countrycode country, generate(iso) from("wb gem")
-replace iso="BA" if country=="Bosnia and Herzegovina"
+countrycode country, generate(iso) from("wb gem")
 drop country
 
 reshape long value, i(iso) j(date) string

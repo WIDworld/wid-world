@@ -27,7 +27,7 @@ foreach file of local allfiles {
 	drop if (footnotesection == 1)
 	drop footnotesection valuefootnotes*
 	
-	if (`first' != 1) {
+	if(`first' != 1) {
 		append using "`unsna'"
 	}
 	save "`unsna'", replace

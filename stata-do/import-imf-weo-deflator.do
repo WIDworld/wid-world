@@ -18,6 +18,10 @@ keep if weosubjectcode == "NGDP_D"
 drop iso weocountrycode weosubjectcode subjectdescriptor subjectnotes units ///
 	scale countryseriesspecificnotes
 
+replace country="Côte d'Ivoire" if country=="C�te d'Ivoire"
+replace country="São Tomé and Príncipe" if country=="S�o Tom� and Pr�ncipe"
+
+
 countrycode country, generate(iso) from("imf weo")
 drop country
 
