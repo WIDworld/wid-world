@@ -75,7 +75,7 @@ local time_string = subinstr("`c_time_date'", ":", "_", .)
 local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
-// Store current year in a global macro to match sources and year-specific commands
+// Store current year in global to match WEO source and previsions threshold year
 global year 2017
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
