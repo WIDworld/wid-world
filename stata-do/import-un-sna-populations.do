@@ -4,6 +4,8 @@ import delimited "$un_data/populations/sna/unsd_snaAma.csv", ///
 // Identify countries ------------------------------------------------------- //
 
 // Drop regions
+replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
+replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
 countrycode countryorarea, generate(iso) from("un sna main")
 drop countryorarea
 

@@ -362,8 +362,8 @@ replace source = `"[URL][URL_LINK]https://arklemsenglish.wordpress.com/gdp/[/URL
 replace source = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' ///
 	+ `"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if regexm(index_source, "_un")
 
-replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
+replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2017/01/weodata/index.aspx[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
 
 replace source = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddison_Wu_22_Feb_07.pdf[/URL_LINK][URL_TEXT]Maddison, "' ///
 	+ `"Angus and Wu, Harry. China’s Economic Performance: How Fast Has GDP Grown; How "' ///

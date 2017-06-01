@@ -14,6 +14,8 @@ import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate.csv", ///
 	clear delimiter(";") encoding("utf8")
 
 // Identify countries
+replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
+replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
 countrycode country, generate(iso) from("un sna main")	
 
 // Our series for Palestine are in Israeli New Shequel, while the UN series are

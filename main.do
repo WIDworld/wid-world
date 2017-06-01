@@ -75,6 +75,9 @@ local time_string = subinstr("`c_time_date'", ":", "_", .)
 local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
+// Store current year in a global macro to match sources and year-specific commands
+global year 2017
+
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
 global plot_missing_nfi    1
 global plot_nfi_countries  1
@@ -165,6 +168,9 @@ do "$do_dir/import-wb-metadata.do"
 // -------------------------------------------------------------------------- //
 // Import external national accounts data
 // -------------------------------------------------------------------------- //
+
+// Fetch the UN SNA detailed tables
+*do "$do_dir/fetch-un-sna-detailed-tables.do"
 
 // Import the UN SNA detailed tables
 do "$do_dir/import-un-sna-detailed-tables.do"

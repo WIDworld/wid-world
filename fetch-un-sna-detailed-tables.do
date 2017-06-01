@@ -1,46 +1,23 @@
 // UN SNA Table codes
-local table_codes ///
-	101 102 103 ///
-    201 202 203 204 205 206 ///
-    301 302 ///
-    401 402 403 404 405 406 407 408 409 ///
-    501 502
+local table_codes 401 402
 
 // Corresponding table names
-local table_names `"`"Table 1.1 Gross domestic product by expenditures at current prices"'"'
-local table_names `"`table_names' `"Table 1.2 Gross domestic product by expenditures at constant prices"'"'
-local table_names `"`table_names' `"Table 1.3 Relations among product, income, savings, and net lending aggregates"'"'
-local table_names `"`table_names' `"Table 2.1 Value added by industries at current prices (ISIC Rev. 3)"'"'
-local table_names `"`table_names' `"Table 2.2 Value added by industries at constant prices (ISIC Rev. 3)"'"'
-local table_names `"`table_names' `"Table 2.3 Output, gross value added, and fixed assets by industries at current prices (ISIC Rev. 3)"'"'
-local table_names `"`table_names' `"Table 2.4 Value added by industries at current prices (ISIC Rev. 4)"'"'
-local table_names `"`table_names' `"Table 2.5 Value added by industries at constant prices (ISIC Rev. 4)"'"'
-local table_names `"`table_names' `"Table 2.6 Output, gross value added and fixed assets by industries at current prices (ISIC Rev. 4)"'"'
-local table_names `"`table_names' `"Table 3.1 Government final consumption expenditure by function at current prices"'"'
-local table_names `"`table_names' `"Table 3.2 Individual consumption expenditure of households, NPISHs, and general government at current prices"'"'
 local table_names `"`table_names' `"Table 4.1 Total Economy (S.1)"'"'
 local table_names `"`table_names' `"Table 4.2 Rest of the world (S.2)"'"'
-local table_names `"`table_names' `"Table 4.3 Non-financial Corporations (S.11)"'"'
-local table_names `"`table_names' `"Table 4.4 Financial Corporations (S.12)"'"'
-local table_names `"`table_names' `"Table 4.5 General Government (S.13)"'"'
-local table_names `"`table_names' `"Table 4.6 Households (S.14)"'"'
-local table_names `"`table_names' `"Table 4.7 Non-profit institutions serving households (S.15)"'"'
-local table_names `"`table_names' `"Table 4.8 Combined Sectors: Non-Financial and Financial Corporations (S.11 + S.12)"'"'
-local table_names `"`table_names' `"Table 4.9 Combined Sectors: Households and NPISH (S.14 + S.15)"'"'
-local table_names `"`table_names' `"Table 5.1 Cross classification of Gross value added by industries and institutional sectors (ISIC Rev. 3)"'"'
-local table_names `"`table_names' `"Table 5.2 Cross classification of Gross value added by industries and institutional sectors (ISIC Rev. 4)"'"'
 
 // Create the directory for storing UN SNA raw tables, if necessary
-capture mkdir "C:\Users\Amory\Documents\GitHub\wid-world\work-data\un-sna-detailed"
+capture mkdir "$work_data/un-sna-detailed"
 
 // Create temporary directory for dowloading and unzipping files
-local download_dir "C:\Users\Amory\Documents\GitHub\wid-world\work-data\download"
+local download_dir "$work_data/download"
 capture mkdir "`download_dir'"
 local working_dir `c(pwd)'
 cd "`download_dir'"
 
+
+
 // Loop over tables
-forvalues i = 1/22 {
+forvalues i = 1/2 {
 	local name: word `i' of `table_names'
 	local code: word `i' of `table_codes'
 	
@@ -118,5 +95,11 @@ forvalues i = 1/22 {
 	quietly save "../un-sna-detailed/`code'.dta", replace
 }
 
+// Copy new data to un-sna-detailed
+copy "$work_data/un-sna-detailed/401.dta" "$un_data/sna-detailed/401.dta" 
+copy "$work_data/un-sna-detailed/402.dta" "$un_data/sna-detailed/402.dta"
+
 // Restore old working directory
 cd "`working_dir'"
+
+

@@ -1,6 +1,6 @@
 // PPPs
 use "$work_data/ppp.dta", clear
-keep if year == 2015
+keep if year == 2016
 keep iso ppp
 tempfile ppp
 save "`ppp'"
@@ -64,7 +64,7 @@ if ($plot_imputation_cfc) {
 	foreach iso of local iso_list {
 		graph twoway connected log_gdp_hp log_gdp year if (iso == "`iso'"), ///
 			title("Real Gross Domestic Product") subtitle("`iso'") ///
-			xscale(range(1810 2015)) xlabel(1810(10)2015, angle(vertical)) ///
+			xscale(range(1810 2016)) xlabel(1810(10)2016, angle(vertical)) ///
 			xtitle("Year") ytitle("log(real GDP)") symbol(none none) ///
 			legend(order(1 "Filtered GDP" 2 "Raw GDP"))
 		graph export "$report_output/impute-cfc/gdp-`iso'.pdf", replace
@@ -196,7 +196,7 @@ if ($plot_imputation_cfc) {
 		graph twoway (rarea cfc_lb_pred cfc_ub_pred year, color("166 206 227") lwidth(0)) ///
 			(connected cfc_pct_pred year, symbol(none) color("8 48 107")) if (iso == `iso'), ///
 			ytitle("% of GDP") yscale(range(0 45)) ylabel(0(5)45, format(%2.0f)) ///
-			xscale(range(1810 2015)) xlabel(1810(10)2015, angle(vertical)) ///
+			xscale(range(1810 2016)) xlabel(1810(10)2016, angle(vertical)) ///
 			legend(order(2 "Consumption of fixed capital" 1 "80% prediction interval")) ///
 			title("Imputation of the consumption of fixed capital") subtitle("`cc'")
 		graph export "$report_output/impute-cfc/cfc-imputation-`cc'.pdf", replace

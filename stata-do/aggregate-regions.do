@@ -2,7 +2,7 @@ use "$work_data/add-populations-output.dta", clear
 
 // Store PPP and exchange rates as an extra variable
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == 2015
+keep if year == 2016
 keep iso widcode value
 reshape wide value, i(iso) j(widcode) string
 foreach v of varlist value* {
@@ -127,7 +127,7 @@ replace value = value_pppeur if substr(widcode, 1, 6) != "npopul"
 
 // Calculate implied PPP and market exchange rates based on net national income
 preserve
-keep if year == 2015
+keep if year == 2016
 foreach v in pppusd pppeur pppcny excusd exceur exccny {
 	generate `v' = value/value_`v' if widcode == "mnninc999i"
 }

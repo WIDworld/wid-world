@@ -165,8 +165,8 @@ replace growth_src = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/Chin
 	"Maddison, Angus and Wu, Harry. China’s Economic Performance: " + ///
 	"How Fast Has GDP Grown; How Big is it Compared to the USA? (2007). Series " + ///
 	"updated by Prof. Harry Wu.[/URL_TEXT][/URL]; " if (growth_src == "Maddison and Wu (2007)")
-replace growth_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' ///
+replace growth_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' ///
 	if inlist(growth_src, "IMF World Economic Outlook", "IMF World Economic Outlook (forecast)")
 replace growth_src = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' + ///
 	`"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if (growth_src == "UN SNA main tables")
@@ -217,8 +217,8 @@ replace src = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddi
 	"Maddison, Angus and Wu, Harry. China’s Economic Performance: " + ///
 	"How Fast Has GDP Grown; How Big is it Compared to the USA? (2007). Series " + ///
 	"updated by Prof. Harry Wu.[/URL_TEXT][/URL]; " if (src == "Maddison and Wu (2007)")
-replace src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' ///
+replace src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' ///
 	if inlist(src, "IMF World Economic Outlook", "IMF World Economic Outlook (forecast)")
 replace src = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' + ///
 	`"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if (src == "UN SNA main tables")
@@ -285,8 +285,8 @@ replace src = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddi
 	"Maddison, Angus and Wu, Harry. China’s Economic Performance: " + ///
 	"How Fast Has GDP Grown; How Big is it Compared to the USA? (2007). Series " + ///
 	"updated by Prof. Harry Wu.[/URL_TEXT][/URL]; " if (src == "Maddison and Wu (2007)")
-replace src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' ///
+replace src = `"[URL][URL_LINK]https://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' ///
 	if inlist(src, "IMF World Economic Outlook", "IMF World Economic Outlook (forecast)")
 replace src = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' + ///
 	`"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if (src == "UN SNA main tables")
