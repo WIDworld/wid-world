@@ -1,6 +1,6 @@
 // PPPs
 use "$work_data/ppp.dta", clear
-keep if year == 2016
+keep if year == $pastyear
 keep iso ppp
 tempfile ppp
 save "`ppp'"

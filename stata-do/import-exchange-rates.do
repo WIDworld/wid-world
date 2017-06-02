@@ -15,9 +15,10 @@ drop if (currency == "YUN")
 // Loop over currencies and get exchange rates from Quandl
 quietly levelsof currency, local(currencies)
 
+local downloadyear $pastyear
 foreach CUR of local currencies {
 	// Get data
-	quandl, quandlcode(CURRFX/USD`CUR') start(2016-01-01) end(2016-12-31) ///
+	quandl, quandlcode(CURRFX/USD`CUR') start(`downloadyear'-01-01) end(`downloadyear'-12-31) ///
 		auth(j3SA6jh-S4pZxGf9aF2y) clear
 	
 	collapse (mean) rate

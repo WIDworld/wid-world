@@ -26,7 +26,7 @@ drop if (iso == "WO")
 drop if inrange(iso, "QB", "QZ")
 
 drop if (xlceup999i >= .)
-keep if year == 2015
+keep if year == $pastyear
 
 if ($world_summary_market) {
 	keep iso mgdpro999i mnninc999i npopul999i xlceux999i mconfc999i mnnfin999i

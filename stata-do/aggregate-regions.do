@@ -2,7 +2,7 @@ use "$work_data/add-populations-output.dta", clear
 
 // Store PPP and exchange rates as an extra variable
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == 2016
+keep if year == $pastyear
 keep iso widcode value
 reshape wide value, i(iso) j(widcode) string
 foreach v of varlist value* {

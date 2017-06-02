@@ -75,8 +75,11 @@ local time_string = subinstr("`c_time_date'", ":", "_", .)
 local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
-// Store current year in global to match WEO source and previsions threshold year
-global year 2017
+// Store current year and to match WEO source and commands
+global year 2017 // this year matches WEO source in calculate-price-index
+				 // and calculate-national-accounts
+global pastyear 2016 // this year matches commands in gdp-vs-nni,
+					 // import-exchange-rates, aggregate-regions, impute-cfc
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
 global plot_missing_nfi    1
