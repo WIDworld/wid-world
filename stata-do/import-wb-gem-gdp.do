@@ -22,7 +22,11 @@ replace value2015 = . if (iso == "AR")
 replace value2015 = . if (iso == "IR")
 */
 
+// Uzbekistan has problematic value for 2016
+drop if iso=="UZ"
+
 assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
+assert abs(value2016 - value2015)/value2016 < 0.5 if (value2016 < .)
 
 reshape long value, i(iso) j(year)
 drop if value >= .

@@ -77,7 +77,7 @@ replace notelev = "Waldenstrom" if (notelev == "wid") & (iso == "SE")
 replace notelev = "the UN SNA main tables" if (notelev == "un2")
 replace notelev = "the World Bank" if (notelev == "wb")
 replace notelev = "Maddison and Wu (2007)" if (notelev == "mw")
-replace notelev = "the IMF World Economic Outlook 04/2016" if (notelev == "weo_noest")
+replace notelev = "the IMF World Economic Outlook 04/$year" if (notelev == "weo_noest")
 drop gdp_lcu_weo_noest
 
 // Generate growth rates
@@ -118,13 +118,22 @@ foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 		if (growth_src == "growth_un1_serie`i'")
 }
 
-// As a last resort: use 2014 growth rate in 2015
+// As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made
 egen lastyear = max(year), by(iso)
 expand 2 if (lastyear == 2014) & (year == 2014), generate(newobs)
 replace year = 2015 if newobs
 sort iso year
 replace growth_src = "the value for the previous year" if (growth >= .) & (year == 2014)
 replace growth = growth[_n - 1] if (growth >= .) & (year == 2014)
+drop newobs lastyear
+
+// As a last resort: use 2015 growth rate in 2016. 2017 update: 25 changes made
+egen lastyear = max(year), by(iso)
+expand 2 if (lastyear == 2015) & (year == 2015), generate(newobs)
+replace year = 2016 if newobs
+sort iso year
+replace growth_src = "the value for the previous year" if (growth >= .) & (year == 2015)
+replace growth = growth[_n - 1] if (growth >= .) & (year == 2015)
 drop newobs lastyear
 
 generate growth_after = growth[_n - 1] if (year > refyear)
