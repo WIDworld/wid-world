@@ -56,6 +56,15 @@ drop if (iso == "SS") & (year < 2008)
 // Remove within-country regions
 drop if strlen(iso) > 2
 
+// Create a balanced panel of countries for regions with not all countries available for the whole period
+sort region2 iso year, stable
+by region2: egen num1=nvals(year) if inlist(region2, "Caribbean", "Northern America", ///
+										"Oceania (excl. Australia and New Zealand)")
+by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean", "Northern America", ///
+										"Oceania (excl. Australia and New Zealand)")
+drop if num1!=num2
+drop num1 num2
+
 // Check that the composition of groups does not change over time
 preserve
 egen niso = nvals(iso), by(region2 year)
@@ -127,7 +136,7 @@ replace value = value_pppeur if substr(widcode, 1, 6) != "npopul"
 
 // Calculate implied PPP and market exchange rates based on net national income
 preserve
-keep if year == 2016
+keep if year == $pastyear
 foreach v in pppusd pppeur pppcny excusd exceur exccny {
 	generate `v' = value/value_`v' if widcode == "mnninc999i"
 }

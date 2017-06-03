@@ -1,3 +1,4 @@
+// GDP
 import delimited "$un_data/sna-main/gdp/gdp-current.csv", ///
 	clear delimiter(";") encoding("utf8")
 rename grossdomesticproduct gdp
@@ -5,13 +6,19 @@ rename grossdomesticproduct gdp
 tempfile gdp
 save "`gdp'"
 
+// GNI
 import delimited "$un_data/sna-main/gni/gni-current.csv", ///
 	clear delimiter(";") encoding("utf8")
+
+// Dropping Ethiopian GNI 1987-1989 (no GDP data)
+drop if countryorarea=="Ethiopia" & inlist(year,1987,1988,1989)
+
 rename grossnationalincome gni
 merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
 
 save "`gdp'", replace
 
+// GDP Current USD
 import delimited "$un_data/sna-main/gdp/gdp-usd-current.csv", ///
 	clear delimiter(";") encoding("utf8")
 drop currency
@@ -19,6 +26,8 @@ rename grossdomesticproduct gdp_usd
 replace gdp_usd = subinstr(gdp_usd, ",", ".", 1)
 destring gdp_usd, replace
 merge 1:1 countryorarea year using "`gdp'", assert(match master) keep(match) nogenerate
+
+destring gni gdp, replace dpcomma
 
 // Identify countries ------------------------------------------------------- //
 countrycode countryorarea, generate(iso) from("un sna main")

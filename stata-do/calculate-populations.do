@@ -254,6 +254,29 @@ replace npopul999i = npopul999i_un - npopul999i_wid if (iso == "DD")
 replace npopul992i = npopul992i_un - npopul992i_wid if (iso == "DD")
 drop newobs
 
+// Estimate missing $pastyear populations from past growth rate //////////////////////// HERE
+preserve
+keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
+bysort iso: gen obs=_N
+qui tab obs
+assert `r(r)'==2 // check only last year is missing for each country
+expand 2 if obs==2 & year==$pastyear - 1, gen(newobs)
+replace year=$pastyear if newobs==1
+replace growth_src_npopul999i="npopul999i_un" if newobs==1
+// Only npopul999i_un is available for these countries
+gen growth_factor = .
+sort iso year
+by iso: replace growth_factor = (npopul999i_un[_n])/(npopul999i_un[_n-1]) if (year==$pastyear - 1)
+by iso: replace npopul999i_un=npopul999i_un[_n - 1]*growth_factor[_n - 1] if newobs==1
+keep if newobs==1
+replace npopul999i_un=round(npopul999i_un)
+drop obs growth_factor
+tempfile imputed
+save "`imputed'"
+restore
+append using "`imputed'"
+
+
 // Generate children population
 generate npopul991i = npopul999i - npopul992i
 
@@ -288,7 +311,7 @@ foreach v of varlist resc_* {
 	replace `v' = `widcode'_un if (`v' >= .)
 }
 
-keep iso year resc_* minyear maxyear haswid growth_src_npopul999i
+keep iso year resc_* minyear maxyear haswid newobs growth_src_npopul999i
 
 // Reshape back to long format
 reshape long resc_, i(iso year) j(widcode) string
@@ -300,8 +323,8 @@ drop growth_src_npopul999i
 // Generate the notes
 preserve
 
-keep iso minyear maxyear haswid
-keep if (minyear < .) & (maxyear < .)
+keep iso minyear maxyear haswid newobs
+keep if ((minyear < .) & (maxyear < .)) | (newobs==1)
 duplicates drop
 
 // Country-specific notes
@@ -339,17 +362,20 @@ replace method = "Adult and total population estimated as a difference between "
 	"the UN World Population Prospects (2015) for total Germany, and Piketty and Zucman (2013) " + ////
 	"data for West Germany. Data on other population subcategories also come from the UN World Population " + ///
 	"Prospects (2015), rescaled to match the East German totals." if (iso == "DD")
-	
+
+replace method = "Total $pastyear population estimated by extending past year observed population growth rate. " + ///
+	"Data on other years comes from the UN World Population Prospects (2015)"if (newobs==1)	
+
 generate sixlet = "npopul"
 
-drop haswid minyear maxyear
+drop haswid minyear maxyear newobs
 
 save "$work_data/population-metadata.dta", replace
 
 restore
 	
 keep if value < .
-drop haswid minyear maxyear
+drop haswid minyear maxyear newobs
 
 // Round to the nearest integer
 replace value = round(value, 1)
