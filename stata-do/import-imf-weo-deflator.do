@@ -28,8 +28,8 @@ drop country
 
 reshape long def_imf, i(iso) j(year)
 drop if def_imf >= .
-quietly sum estimatesstartafter
-drop if year > `r(max)'
+
+drop if year>$pastyear
 
 rename def_imf def_weo
 
