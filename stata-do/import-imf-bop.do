@@ -70,6 +70,7 @@ save "`gdp_usd'"
 import delimited "$imf_data/balance-of-payments/primary-income-details.csv", ///
 	clear encoding("utf8")
 
+cap rename ïcountryname countryname
 kountry countrycode, from(imfn) to(iso2c)
 rename _ISO2C_ iso
 replace iso = "CW" if (countryname == "Curacao")

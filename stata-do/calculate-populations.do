@@ -254,7 +254,7 @@ replace npopul999i = npopul999i_un - npopul999i_wid if (iso == "DD")
 replace npopul992i = npopul992i_un - npopul992i_wid if (iso == "DD")
 drop newobs
 
-// Estimate missing $pastyear populations from past growth rate //////////////////////// HERE
+// Estimate missing $pastyear populations from past growth rate
 preserve
 keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
 bysort iso: gen obs=_N
@@ -364,7 +364,7 @@ replace method = "Adult and total population estimated as a difference between "
 	"Prospects (2015), rescaled to match the East German totals." if (iso == "DD")
 
 replace method = "Total $pastyear population estimated by extending past year observed population growth rate. " + ///
-	"Data on other years comes from the UN World Population Prospects (2015)"if (newobs==1)	
+	"Data on other years comes from the UN World Population Prospects (2015)" if (newobs==1)	
 
 generate sixlet = "npopul"
 

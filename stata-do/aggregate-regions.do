@@ -56,6 +56,7 @@ drop if (iso == "SS") & (year < 2008)
 // Remove within-country regions
 drop if strlen(iso) > 2
 
+/*
 // Create a balanced panel of countries for regions with not all countries available for the whole period
 sort region2 iso year, stable
 by region2: egen num1=nvals(year) if inlist(region2, "Caribbean", "Northern America", ///
@@ -64,6 +65,7 @@ by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean", "Northern 
 										"Oceania (excl. Australia and New Zealand)")
 drop if num1!=num2
 drop num1 num2
+*/
 
 // Check that the composition of groups does not change over time
 preserve
