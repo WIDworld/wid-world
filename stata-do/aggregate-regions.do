@@ -28,7 +28,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & substr(widcode, 10, 1) != "t") ///
 drop if year < 1950
 
 // Add PPP and exchange rates
-merge n:1 iso using "`pppexc'", nogenerate keep(match)
+merge n:1 iso using "`pppexc'", nogenerate
 
 // Add regions
 merge n:1 iso using "$work_data/import-country-codes-output", ///
@@ -67,6 +67,7 @@ drop if num1!=num2
 drop num1 num2
 */
 
+/*
 // Check that the composition of groups does not change over time
 preserve
 egen niso = nvals(iso), by(region2 year)
@@ -93,6 +94,7 @@ assert valiso2 == 2 if (region2 == "Western Europe")
 assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
 restore
+*/
 
 // Convert to common currencies
 foreach v of varlist ppp* exc* {

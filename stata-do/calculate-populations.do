@@ -78,9 +78,9 @@ drop if (iso == "KS") // Kosovo data will be recalculated from Serbia
 
 generate a = value_sna/value_wpp if (iso == "RS")
 egen b = mode(a) if (iso == "RS"), by(year)
-// In 2015, use 2014 value for fraction of Tanzania population
-quietly levelsof b if (iso == "RS") & (year == 2014), local(value2014)
-replace b = `value2014' if (iso == "RS") & (year == 2015)
+// In 2016, use 2015 value for fraction of Serbia population
+quietly levelsof b if (iso == "RS") & (year == 2015), local(value2015)
+replace b = `value2015' if (iso == "RS") & (year == 2016)
 expand 2 if (iso == "RS"), generate(new)
 replace value = value_wpp*b if (new == 0) & (iso == "RS")
 replace value = value_wpp*(1 - b) if (new == 1) & (iso == "RS")
@@ -95,9 +95,9 @@ drop if (iso == "ZZ") // Zanzibar data will be recalculated from Tanzania
 
 generate a = value_sna/value_wpp if (iso == "TZ") & (year >= 1990)
 egen b = mode(a) if (iso == "TZ") & (year >= 1990), by(year)
-// In 2015, use 2014 value for fraction of Serbia population
-quietly levelsof b if (iso == "TZ") & (year == 2014), local(value2014)
-replace b = `value2014' if (iso == "TZ") & (year == 2015)
+// In 2016, use 2015 value for fraction of Tanzania population
+quietly levelsof b if (iso == "TZ") & (year == 2015), local(value2015)
+replace b = `value2015' if (iso == "TZ") & (year == 2016)
 expand 2 if (iso == "TZ") & (year >= 1990), generate(new)
 replace value = value_wpp*b if (new == 0) & (iso == "TZ")
 replace value = value_wpp*(1 - b) if (new == 1) & (iso == "TZ")
@@ -108,9 +108,9 @@ drop a b new
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population
 // as before. (The difference is, Northern Cyprus is never included in the data.)
 generate a = value_sna/value_wpp if (iso == "CY") & (year >= 1974)
-// In 2015, use 2014 value for fraction of Cyprus population
-quietly levelsof a if (iso == "CY") & (year == 2014), local(value2014)
-replace a = `value2014' if (iso == "CY") & (year == 2015)
+// In 2016, use 2015 value for fraction of Cyprus population
+quietly levelsof a if (iso == "CY") & (year == 2015), local(value2015)
+replace a = `value2015' if (iso == "CY") & (year == 2016)
 replace value = value_wpp*a if (iso == "CY") & (year >= 1974)
 drop a
 
