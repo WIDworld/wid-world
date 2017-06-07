@@ -163,9 +163,6 @@ do "$do_dir/add-us-data.do"
 // Add China data
 do "$do_dir/add-china-data.do"
 
-// Add UK data
-do "$do_dir/add-uk-data.do"
-
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
@@ -356,6 +353,9 @@ do "$do_dir/add-us-states.do"
 
 // Add France data
 do "$do_dir/add-france-data.do"
+
+// Add UK data
+do "$do_dir/add-uk-data.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"

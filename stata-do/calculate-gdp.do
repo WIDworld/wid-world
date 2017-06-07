@@ -1,5 +1,5 @@
 // Start with the WID data
-use "$work_data/add-uk-data-output.dta", clear
+use "$work_data/add-china-data-output.dta", clear
 
 keep if widcode == "mgdpro999i"
 drop p widcode

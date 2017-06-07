@@ -1,13 +1,13 @@
 // Import all the data ------------------------------------------------------ //
 
 // Start with WID price indices
-use "$work_data/add-uk-data-output.dta", clear
+use "$work_data/add-china-data-output.dta", clear
 keep if inlist(widcode, "icpixx999i", "inyixx999i")
 drop p
 
 // Add source for the WID data
 generate sixlet = substr(widcode, 1, 6)
-merge n:1 iso sixlet using "$work_data/add-uk-data-metadata.dta", ///
+merge n:1 iso sixlet using "$work_data/add-china-data-metadata.dta", ///
 	nogenerate assert(match using) keep(master match) keepusing(source)
 drop sixlet
 
