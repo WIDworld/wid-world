@@ -84,6 +84,7 @@ rename `v' value`v'
 }
 reshape long value, i(iso year p) j(widcode) string
 drop if mi(value)
+gen currency="GBP" if widcode=="ahweal992i"
 
 tempfile ukdata
 save "`ukdata'", replace
