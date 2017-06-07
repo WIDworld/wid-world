@@ -394,5 +394,8 @@ do "$do_dir/export-countries.do"
 // Compare the world distribution of NNI vs. GDP
 do "$do_dir/gdp-vs-nni.do"
 
+// Evolution of GDP and population in all countries
+do "$do_dir/plot-gdp-population.do"
+
 // Evolution of CFC and NFI in selected countries
 do "$do_dir/plot-cfc-nfi.do"
