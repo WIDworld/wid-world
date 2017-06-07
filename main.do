@@ -13,14 +13,14 @@
 clear all
 
 // WID folder directory
-*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-*global project_dir "~/GitHub/wid-world" // macOS, Unix
-global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
+global project_dir "~/GitHub/wid-world" // macOS, Unix
+*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -84,9 +84,9 @@ global pastyear 2016 // this year matches commands in gdp-vs-nni,
 					 // and other do-files
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    1
-global plot_nfi_countries  1
-global plot_imputation_cfc 1
+global plot_missing_nfi    0
+global plot_nfi_countries  0
+global plot_imputation_cfc 0
 global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)

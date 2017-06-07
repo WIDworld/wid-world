@@ -27,7 +27,10 @@ replace gdp_usd = subinstr(gdp_usd, ",", ".", 1)
 destring gdp_usd, replace
 merge 1:1 countryorarea year using "`gdp'", assert(match master) keep(match) nogenerate
 
-destring gni gdp, replace dpcomma
+replace gni = subinstr(gni, ",", ".", 1)
+replace gdp = subinstr(gni, ",", ".", 1)
+destring gni gdp, replace
+confirm numeric variable gni gdp
 
 // Identify countries ------------------------------------------------------- //
 countrycode countryorarea, generate(iso) from("un sna main")
