@@ -60,32 +60,52 @@ rename value value_sna
 assert abs(value_wpp - value_sna)/value_wpp < 1e-3 ///
 	if (value_sna < .) & (value_wpp < .) & !inlist(iso, "CY", "KP", "RS", "TZ")
 
-// For North Korea, the history of demographic reporting is somewhat choatic,
+// For North Korea, the history of demographic reporting is somewhat chaotic,
 // and the number between both sources differ by about 10% before 1989, the
 // year of the first release of official data. As far as I know, there are
 // no good reasons for such a discrepancy, so we keep the WPP numbers, which
 // are certainly more up to date.
 generate value = value_wpp if (iso == "KP")
 
-// In Serbia, WPP data include the Kosovo, wich is reported separately in the
-// national accounts. We know the population for Serbia only using the SNA
-// numbers, so we adjust all other categories proportionately.
-// We exclude data from before 1990, with does refer to the entire entity
-// Serbia + Kosovo in the SNA population data. It is not a problem since
-// there is no associated economic data before that date
-drop if (year < 1990) & (iso == "RS")
-drop if (iso == "KS") // Kosovo data will be recalculated from Serbia
+// WPP data do not include Kosovo, which is part of Serbia. We use the
+// ratio Kosovo/Serbia in SNA to attribute Kosovo population subcategories.
+preserve
+	keep if inlist(iso, "KS", "RS")
+	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
+	generate a = value_snaKS/value_snaRS
+	egen b = mode(a), by(year)
+	// In 2016, use 2015 value
+	quietly levelsof b if (year == 2015), local(value2015)
+	replace b = `value2015' if (year == 2016)
+	replace value = value_wppRS*b
+	generate iso = "KS"
+	keep iso year age sex value
+	drop if missing(value)
+	tempfile kosovo
+	save "`kosovo'"
+restore
+drop if iso == "KS"
+append using "`kosovo'"
 
-generate a = value_sna/value_wpp if (iso == "RS")
-egen b = mode(a) if (iso == "RS"), by(year)
-// In 2016, use 2015 value for fraction of Serbia population
-quietly levelsof b if (iso == "RS") & (year == 2015), local(value2015)
-replace b = `value2015' if (iso == "RS") & (year == 2016)
-expand 2 if (iso == "RS"), generate(new)
-replace value = value_wpp*b if (new == 0) & (iso == "RS")
-replace value = value_wpp*(1 - b) if (new == 1) & (iso == "RS")
-replace iso = "KS" if (new == 1) & (iso == "RS")
-drop a b new
+// In Serbia, WPP data include the Kosovo, wich is reported separately in the
+// national accounts after 1998. We know the population for Serbia only using
+// the SNA numbers, so we adjust all other categories proportionately.
+preserve
+	keep if iso == "RS"
+	generate a = value_sna/value_wpp if (iso == "RS")
+	egen b = mode(a) if (iso == "RS"), by(year)
+	// In 2016, use 2015 value
+	quietly levelsof b if (year == 2015), local(value2015)
+	replace b = `value2015' if (year == 2016)
+	// Use WPP population before 1990
+	replace b = 1 if missing(b)
+	replace value = b*value_wpp
+	keep iso year age sex value
+	tempfile serbia
+	save "`serbia'"
+restore
+drop if iso == "RS"
+append using "`serbia'"
 
 // The WPP merges Tanzania and Zanzibar at all dates. In the NA, they are
 // separated starting in 1990. Therefore, before 1990, we keep the WPP data,

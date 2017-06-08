@@ -43,6 +43,9 @@ drop if (iso == "CS") & (year > 1990)
 
 drop if (iso == "DD") & (year >= 1991)
 
+// Kosovo considered part of Serbia before 1999
+drop if (iso == "KS") & (year < 1999)
+
 generate inUSSR = 0
 replace inUSSR = 1 if inlist(iso, "AM", "AZ", "BY", "EE", "GE", "KZ", "KG")
 replace inUSSR = 1 if inlist(iso, "LV", "LT", "MD", "RU", "TJ")
