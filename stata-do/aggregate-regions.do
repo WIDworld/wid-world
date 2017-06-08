@@ -59,18 +59,15 @@ drop if (iso == "SS") & (year < 2008)
 // Remove within-country regions
 drop if strlen(iso) > 2
 
-/*
-// Create a balanced panel of countries for regions with not all countries available for the whole period
+
+// Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
 sort region2 iso year, stable
-by region2: egen num1=nvals(year) if inlist(region2, "Caribbean", "Northern America", ///
-										"Oceania (excl. Australia and New Zealand)")
-by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean", "Northern America", ///
-										"Oceania (excl. Australia and New Zealand)")
+by region2: egen num1=nvals(year) if inlist(region2, "Caribbean")
+by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
 drop if num1!=num2
 drop num1 num2
-*/
 
-/*
+
 // Check that the composition of groups does not change over time
 preserve
 egen niso = nvals(iso), by(region2 year)
@@ -97,7 +94,7 @@ assert valiso2 == 2 if (region2 == "Western Europe")
 assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
 restore
-*/
+
 
 // Convert to common currencies
 foreach v of varlist ppp* exc* {
