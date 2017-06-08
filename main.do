@@ -399,3 +399,10 @@ do "$do_dir/plot-gdp-population.do"
 
 // Evolution of CFC and NFI in selected countries
 do "$do_dir/plot-cfc-nfi.do"
+
+// -------------------------------------------------------------------------- //
+// Sanity checks when updating database
+// -------------------------------------------------------------------------- //
+
+*do "$do_dir/update-check.do"
+
