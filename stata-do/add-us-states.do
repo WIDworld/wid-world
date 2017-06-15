@@ -123,7 +123,7 @@ save "`us_states'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
-generate source = "Frank, Sommelier, Price & Saez (2015); "
+generate source = "Frank, Sommeiller, Price & Saez (2015); "
 generate method = ""
 tempfile meta
 save "`meta'"
