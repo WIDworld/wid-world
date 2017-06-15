@@ -13,14 +13,14 @@
 clear all
 
 // WID folder directory
-global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-*global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-global project_dir "~/GitHub/wid-world" // macOS, Unix
-*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
+*global project_dir "~/GitHub/wid-world" // macOS, Unix
+global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -399,3 +399,10 @@ do "$do_dir/plot-gdp-population.do"
 
 // Evolution of CFC and NFI in selected countries
 do "$do_dir/plot-cfc-nfi.do"
+
+// -------------------------------------------------------------------------- //
+// Sanity checks when updating database
+// -------------------------------------------------------------------------- //
+
+*do "$do_dir/update-check.do"
+
