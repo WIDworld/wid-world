@@ -215,23 +215,21 @@ by iso year: egen index=mean(ind)
 replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o")
 drop ind*
 
+// Check that values for 2013-2014 are consistent with other data
 /*
 preserve
-keep if iso=="US-AK" & p=="p95" & widcode=="sfiinc992t"
-tsset year
-tsline value
+	keep if iso=="US-AK" & p=="p95" & widcode=="sfiinc992t"
+	tsset year
+	tsline value
 restore
-
 preserve
-keep if iso=="US-AK" & p=="p95" & widcode=="afiinc992t"
-tsset year
-tsline value
+	keep if iso=="US-AK" & p=="p95" & widcode=="afiinc992t"
+	tsset year
+	tsline value
 restore
-
 preserve
-keep if iso=="US-AK" & widcode=="mfiinc992t"
-tsset year
-tsline value
+	keep if iso=="US-AK" & widcode=="mfiinc992t"
+	tsset year
 	tsline value
 restore
 preserve
