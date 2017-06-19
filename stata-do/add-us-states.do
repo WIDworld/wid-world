@@ -87,8 +87,7 @@ rename N_TaxUnit npopul992t_pall
 rename N_TaxReturn ntaxre992t_pall
 drop CPI2014 st country AGI
 
-// average values
-
+// Average values
 gen afiinc992t_p90=sfiinc992t_p90*mfiinc992t_pall/(npopul992t_pall*0.1)
 gen afiinc992t_p95=sfiinc992t_p95*mfiinc992t_pall/(npopul992t_pall*0.05)
 gen afiinc992t_p99p100=sfiinc992t_p99*mfiinc992t_pall/(npopul992t_pall*0.01)
@@ -209,12 +208,13 @@ append using "`states_wtid'"
 append using "`popul'"
 append using "`price_index'"
 
-sort iso year
+// Convert to real
+sort iso year widcode
+gen ind=value if widcode=="inyixx999i"
+by iso year: egen index=mean(ind)
+replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o")
+drop ind*
 
-tempfile us_states
-save "`us_states'"
-
-// Check data consistency with new 2013-2014 data
 /*
 preserve
 keep if iso=="US-AK" & p=="p95" & widcode=="sfiinc992t"
@@ -232,14 +232,18 @@ preserve
 keep if iso=="US-AK" & widcode=="mfiinc992t"
 tsset year
 tsline value
+	tsline value
 restore
-
 preserve
-keep if iso=="US-AK" & p=="pall" & widcode=="npopul992t"
-tsset year
-tsline value
+	keep if iso=="US-AK" & p=="pall" & widcode=="npopul992t"
+	tsset year
+	tsline value
 restore
 */
+
+tempfile us_states
+save "`us_states'"
+
 
 // Make metadata
 generate sixlet = substr(widcode, 1, 6)
