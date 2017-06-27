@@ -15,6 +15,9 @@ reshape wide value source, i(iso year) j(widcode) string
 rename valueicpixx999i cpi_wid
 rename valueinyixx999i def_wid
 
+// Correct issue in Indonesia
+replace cpi_wid = cpi_wid*10 if (iso == "ID") & (year <= 1965)
+
 // Add external data
 merge 1:1 iso year using "$work_data/wb-cpi.dta", ///
 	nogenerate update assert(using master match)
