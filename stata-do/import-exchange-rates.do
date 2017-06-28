@@ -34,6 +34,10 @@ replace rate = 3                 if (currency == "SSP")
 replace rate = 15.45             if (currency == "ERN")
 replace rate = 4.0091*0.61712015 if (currency == "YUN")
 
+// Correct 2016 exchange rate for Venezuela
+assert $pastyear == 2016
+replace rate=128.47871 if currency=="VEF"
+
 // Generate exchange rates with euro and yuan
 rename rate valuexlcusx999i
 // Exchange rate with euro
