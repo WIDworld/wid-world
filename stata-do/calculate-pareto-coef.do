@@ -2,7 +2,7 @@ use "$work_data/clean-up-output.dta", clear
 
 // Keep thresholds and top averages only
 keep if (substr(widcode, 1, 1) == "a" & regexm(p, "^p([0-9\.]+)p100$")) | ///
-	(substr(widcode, 1, 1) == "t" & regexm(p, "^p([0-9\.]+)$"))
+	(substr(widcode, 1, 1) == "t" & regexm(p, "^p([0-9\.]+)p100$"))
 
 // Split widcode
 generate onelet = substr(widcode, 1, 1)
