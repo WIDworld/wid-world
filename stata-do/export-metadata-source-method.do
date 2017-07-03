@@ -31,6 +31,19 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
 
+// Add note on Venezualian exchange rate correction for 2016
+preserve
+assert $pastyear == 2016
+drop if _n>1
+replace iso="VE"
+replace sixlet="xlcusx"
+replace method="We extend the 2010 official exchange rate to 2016 using US and Venezualian price indices"
+replace source="WID.world computations"
+tempfile VE_xrate
+save "`VE_xrate'"
+restore
+append using "`VE_xrate'"
+
 // Split the six-letter code
 generate OneLet = substr(sixlet, 1, 1)
 generate TwoLet = substr(sixlet, 2, 2)

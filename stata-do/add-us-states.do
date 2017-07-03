@@ -169,6 +169,7 @@ replace year=2014 if mi(year)
 
 drop if inlist(country, "Midwest", "Northeast", "South", "United States", "West")
 count if year==2013
+assert r(N)==51
 
 merge n:1 country using "`states_codes'", nogenerate assert(match) keepusing(iso)
 drop country
@@ -179,7 +180,7 @@ gen mfiinc999t_pall= mfiinc992t_pall
 gen mfiinc992i_pall= mfiinc992t_pall
 gen mfiinc999i_pall=mfiinc992t_pall
 
-reshape long afiinc992t afiinc999t sfiinc992t mfiinc992t mfiinc999t mfiinc992i mfiinc999i ntaxre992t npopul992t afiinc999i, i(year iso) j(p) string
+reshape long afiinc992t afiinc999t sfiinc992t mfiinc992t mfiinc999t mfiinc992i mfiinc999i ntaxre992t npopul992t afiinc999i tfiinc992t, i(year iso) j(p) string
 
 replace p = subinstr(p, "_","",.)
 replace p = "p99.5" if p == "p995"
@@ -229,6 +230,11 @@ preserve
 restore
 preserve
 	keep if iso=="US-AK" & widcode=="mfiinc992t"
+	tsset year
+	tsline value
+restore
+preserve
+	keep if iso=="US-AK" & p=="p95" & widcode=="tfiinc992t"
 	tsset year
 	tsline value
 restore
