@@ -65,6 +65,9 @@ generate currency = "EUR" if inlist(substr(widcode, 1, 1), "a", "t")
 
 compress
 drop if missing(value)
+
+drop if (p!="p0p100" & substr(widcode, 1, 1)=="n")
+
 save "`france'", replace
 
 // Make metadata
