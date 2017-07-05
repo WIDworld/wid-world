@@ -157,6 +157,9 @@ do "$do_dir/calculate-average-over.do"
 // Add data from researchers
 // -------------------------------------------------------------------------- //
 
+// Add Ivory Coast data
+do "$do_dir/add-ivory-coast-data.do"
+
 // Add US data
 do "$do_dir/add-us-data.do"
 
