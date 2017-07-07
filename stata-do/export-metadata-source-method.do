@@ -1,5 +1,6 @@
 use "$work_data/calculate-pareto-coef-output-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
+duplicates drop iso sixlet, force
 
 // Add population notes
 merge 1:1 iso sixlet using "$work_data/population-metadata.dta", nogenerate update replace
@@ -52,6 +53,11 @@ generate ThreeLet = substr(sixlet, 4, 3)
 // Clean source & method
 replace method = strtrim(method)
 replace source = strtrim(source)
+
+// Fix China exchange rate source
+drop if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
+qui count if (iso=="CN" & sixlet=="xlcusx")
+assert r(N)==1
 
 duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0

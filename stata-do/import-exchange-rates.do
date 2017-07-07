@@ -103,7 +103,7 @@ drop if currency=="EUR" & year<2000
 drop if inlist(iso,"VE","SY") & (year<$pastyear)
 
 // Replace exchange rate by 1 for El Salvadore and Liberia (series in dollars)
-replace value==1 if inlist(iso,"SV","LR")
+replace value=1 if inlist(iso,"SV","LR")
 
 // Append
 append using "`xrate'"

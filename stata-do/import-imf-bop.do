@@ -36,9 +36,9 @@ rename xrateama lcu2usd
 tempfile lcu2usd
 save "`lcu2usd'", replace
 
-// Use our data for the 2015 exchange rate
+// Use our data for the $pastyear exchange rate
 use "$work_data/exchange-rates.dta", clear
-keep if widcode == "xlcusx999i"
+keep if widcode == "xlcusx999i" & year==$pastyear
 keep iso currency value year
 rename value lcu2usd
 
