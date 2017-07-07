@@ -72,6 +72,9 @@ rename source Source
 // Remove duplicates
 collapse (firstnm) Method Source, by(TwoLet ThreeLet Alpha2)
 
+// Fix issue with some method metadata
+replace Method="" if Method=="Calculated by WID.world as the ratio of top average over corresponding threshold."
+
 order Alpha2 TwoLet ThreeLet Method Source
 
 sort Alpha2 TwoLet ThreeLet
@@ -82,3 +85,7 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 
 capture mkdir "$output_dir/$time/metadata"
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
+
+
+
+
