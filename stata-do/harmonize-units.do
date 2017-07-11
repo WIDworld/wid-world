@@ -1,8 +1,25 @@
 use "$work_data/add-new-wid-codes-output-data.dta", clear
 
 // Correct some units in Greece
-replace value = value/100 if iso == "GR" & inlist(substr(widcode, 3, 4), "weal", "wnfa")
-replace value = value*100 if iso == "GR" & widcode == "mnweal999i"
+replace value = value/100 if iso == "GR" & widcode == "mgwnfa999i"
+
+// Check for Greece
+/*
+keep if iso == "GR"
+keep if unit == "billion current euro"
+
+preserve
+keep if variable == "national income"
+keep year value
+rename value nninc
+tempfile nninc
+save "`nninc'"
+restore
+
+merge n:1 year using "`nninc'"
+
+replace value = value/nninc
+*/
 
 // Normalize unit variable
 replace unit = strtrim(stritrim(strlower(unit)))

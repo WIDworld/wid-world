@@ -14,6 +14,8 @@ keep if substr(widcode, 1, 1) == "m"
 
 // Drop Tobin's Q
 drop if substr(widcode, 4, 3) == "toq"
+// Drop fiscal income
+drop if substr(widcode, 1, 6) == "mfiinc"
 
 merge n:1 iso year using "`pop'", nogenerate keep(match)
 
