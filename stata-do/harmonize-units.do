@@ -2,6 +2,7 @@ use "$work_data/add-new-wid-codes-output-data.dta", clear
 
 // Correct some units in Greece
 replace value = value/100 if iso == "GR" & widcode == "mgwnfa999i"
+replace value = value/100 if iso == "GR" & widcode == "mgweal999i"
 
 // Check for Greece
 /*
