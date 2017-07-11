@@ -169,7 +169,6 @@ foreach year in `year' 1993 1998 2002 2008 2014{
 
 rename country iso
 rename perc p
-duplicates drop iso year p widcode, force
 
 // Drop percentiles above p99
 split p, parse("p")
@@ -178,6 +177,8 @@ drop if p2>99
 drop if p=="p99p99.1"
 drop p1 p2 p3
 
+duplicates drop iso year p widcode, force
+
 tempfile ivorycoast
 save "`ivorycoast'"
 
@@ -185,8 +186,8 @@ save "`ivorycoast'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
-generate source = `"[URL][URL_LINK][/URL_LINK][URL_TEXT]"' ///
-	+ `"Czajka, Léo. "' ///
+generate source = `"[URL][URL_LINK]http://wid.world/document/income-inequality-cote-divoire-1985-2014-wid-world-working-paper-201708/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Czajka, Léo. "' ///
 	+ `"Income Inequality in Côte d`=char(39)'Ivoire : 1985-2014[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta

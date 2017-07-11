@@ -1,5 +1,6 @@
 use "$work_data/calculate-pareto-coef-output-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
+duplicates drop iso sixlet, force
 
 // Add population notes
 merge 1:1 iso sixlet using "$work_data/population-metadata.dta", nogenerate update replace
@@ -53,6 +54,11 @@ generate ThreeLet = substr(sixlet, 4, 3)
 replace method = strtrim(method)
 replace source = strtrim(source)
 
+// Fix China exchange rate source
+drop if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
+qui count if (iso=="CN" & sixlet=="xlcusx")
+assert r(N)==1
+
 duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0
 drop duplicate
@@ -66,6 +72,9 @@ rename source Source
 // Remove duplicates
 collapse (firstnm) Method Source, by(TwoLet ThreeLet Alpha2)
 
+// Fix issue with some method metadata
+replace Method="" if Method=="Calculated by WID.world as the ratio of top average over corresponding threshold."
+
 order Alpha2 TwoLet ThreeLet Method Source
 
 sort Alpha2 TwoLet ThreeLet
@@ -76,3 +85,7 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 
 capture mkdir "$output_dir/$time/metadata"
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
+
+
+
+

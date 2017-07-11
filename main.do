@@ -393,7 +393,7 @@ do "$do_dir/export-countries.do"
 // -------------------------------------------------------------------------- //
 // Report some of the results
 // -------------------------------------------------------------------------- //
-
+/*
 // Compare the world distribution of NNI vs. GDP
 do "$do_dir/gdp-vs-nni.do"
 
@@ -407,5 +407,5 @@ do "$do_dir/plot-cfc-nfi.do"
 // Sanity checks when updating database
 // -------------------------------------------------------------------------- //
 
-*do "$do_dir/update-check.do"
-
+do "$do_dir/update-check.do"
+*/
