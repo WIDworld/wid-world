@@ -2,13 +2,14 @@ import excel "$wb_data/global-economic-monitor/GDP Deflator at Market Prices, LC
 	clear allstring
 sxpose, clear
 
-drop _var2
-foreach v of varlist _var3-_var82 {
+ds _var1, not
+foreach v of varlist `r(varlist)'{
 	local year = `v'[1]
 	rename `v' value`year'
 }
 drop in 1
-drop value2016*
+dropmiss, force
+
 destring value*, replace force ignore(",")
 rename _var1 country
 

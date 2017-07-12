@@ -1,6 +1,8 @@
 import delimited "$wb_data/CPI/API_FP.CPI.TOTL_DS2_en_csv_v2.csv", ///
 	rowrange(3) varnames(4) clear encoding("utf8")
-foreach v of varlist v5-v61 {
+	
+dropmiss, force
+foreach v of varlist v*{
 	local year: var label `v'
 	if ("`year'" == "") {
 		drop `v'

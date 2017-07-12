@@ -53,6 +53,7 @@ global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
+global uk_data 			 "$input_data_dir/uk-data"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"
@@ -67,6 +68,9 @@ global report_output "$wid_dir/WIDGraphsTables"
 // Directory with the output
 global output_dir "$wid_dir/WIDData"
 
+// Directory with the summary table
+global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
+
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
 local c_time = c(current_time)
@@ -75,10 +79,17 @@ local time_string = subinstr("`c_time_date'", ":", "_", .)
 local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
+// Store current and past years and to update WEO source and commands
+global year 2017 // this year matches WEO source in calculate-price-index
+				 // and calculate-national-accounts
+global pastyear 2016 // this year matches commands in gdp-vs-nni,
+					 // import-exchange-rates, aggregate-regions, impute-cfc,
+					 // and other do-files
+
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    1
-global plot_nfi_countries  1
-global plot_imputation_cfc 1
+global plot_missing_nfi    0
+global plot_nfi_countries  0
+global plot_imputation_cfc 0
 global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
@@ -96,6 +107,7 @@ global world_summary_market 0
 *ssc install egenmore
 *ssc install carryforward
 *ssc install quandl
+*dropmiss (help dropmiss and select link)
 
 // You need to update Stata to the 14 version
 version 14
@@ -148,6 +160,9 @@ do "$do_dir/calculate-average-over.do"
 // Add data from researchers
 // -------------------------------------------------------------------------- //
 
+// Add Ivory Coast data
+do "$do_dir/add-ivory-coast-data.do"
+
 // Add US data
 do "$do_dir/add-us-data.do"
 
@@ -164,6 +179,9 @@ do "$do_dir/import-wb-metadata.do"
 // -------------------------------------------------------------------------- //
 // Import external national accounts data
 // -------------------------------------------------------------------------- //
+
+// Fetch the UN SNA detailed tables
+*do "$do_dir/fetch-un-sna-detailed-tables.do"
 
 // Import the UN SNA detailed tables
 do "$do_dir/import-un-sna-detailed-tables.do"
@@ -342,6 +360,9 @@ do "$do_dir/add-us-states.do"
 // Add France data
 do "$do_dir/add-france-data.do"
 
+// Add UK data
+do "$do_dir/add-uk-data.do"
+
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
 
@@ -372,6 +393,7 @@ do "$do_dir/export-main-db.do"
 // Export the list of countries
 do "$do_dir/export-countries.do"
 
+/*
 // -------------------------------------------------------------------------- //
 // Report some of the results
 // -------------------------------------------------------------------------- //
@@ -379,5 +401,22 @@ do "$do_dir/export-countries.do"
 // Compare the world distribution of NNI vs. GDP
 do "$do_dir/gdp-vs-nni.do"
 
+// Evolution of GDP and population in all countries
+do "$do_dir/plot-gdp-population.do"
+
 // Evolution of CFC and NFI in selected countries
 do "$do_dir/plot-cfc-nfi.do"
+
+// -------------------------------------------------------------------------- //
+// Sanity checks when updating database to a new year
+// -------------------------------------------------------------------------- //
+
+do "$do_dir/update-check.do"
+
+// -------------------------------------------------------------------------- //
+// Summary table
+// -------------------------------------------------------------------------- //
+
+do "$do_dir/create-summary-table.do"
+
+*/

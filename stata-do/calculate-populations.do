@@ -60,32 +60,52 @@ rename value value_sna
 assert abs(value_wpp - value_sna)/value_wpp < 1e-3 ///
 	if (value_sna < .) & (value_wpp < .) & !inlist(iso, "CY", "KP", "RS", "TZ")
 
-// For North Korea, the history of demographic reporting is somewhat choatic,
+// For North Korea, the history of demographic reporting is somewhat chaotic,
 // and the number between both sources differ by about 10% before 1989, the
 // year of the first release of official data. As far as I know, there are
 // no good reasons for such a discrepancy, so we keep the WPP numbers, which
 // are certainly more up to date.
 generate value = value_wpp if (iso == "KP")
 
-// In Serbia, WPP data include the Kosovo, wich is reported separately in the
-// national accounts. We know the population for Serbia only using the SNA
-// numbers, so we adjust all other categories proportionately.
-// We exclude data from before 1990, with does refer to the entire entity
-// Serbia + Kosovo in the SNA population data. It is not a problem since
-// there is no associated economic data before that date
-drop if (year < 1990) & (iso == "RS")
-drop if (iso == "KS") // Kosovo data will be recalculated from Serbia
+// WPP data do not include Kosovo, which is part of Serbia. We use the
+// ratio Kosovo/Serbia in SNA to attribute Kosovo population subcategories.
+preserve
+	keep if inlist(iso, "KS", "RS")
+	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
+	generate a = value_snaKS/value_snaRS
+	egen b = mode(a), by(year)
+	// In 2016, use 2015 value
+	quietly levelsof b if (year == 2015), local(value2015)
+	replace b = `value2015' if (year == 2016)
+	replace value = value_wppRS*b
+	generate iso = "KS"
+	keep iso year age sex value
+	drop if missing(value)
+	tempfile kosovo
+	save "`kosovo'"
+restore
+drop if iso == "KS"
+append using "`kosovo'"
 
-generate a = value_sna/value_wpp if (iso == "RS")
-egen b = mode(a) if (iso == "RS"), by(year)
-// In 2015, use 2014 value for fraction of Tanzania population
-quietly levelsof b if (iso == "RS") & (year == 2014), local(value2014)
-replace b = `value2014' if (iso == "RS") & (year == 2015)
-expand 2 if (iso == "RS"), generate(new)
-replace value = value_wpp*b if (new == 0) & (iso == "RS")
-replace value = value_wpp*(1 - b) if (new == 1) & (iso == "RS")
-replace iso = "KS" if (new == 1) & (iso == "RS")
-drop a b new
+// In Serbia, WPP data include the Kosovo, wich is reported separately in the
+// national accounts after 1998. We know the population for Serbia only using
+// the SNA numbers, so we adjust all other categories proportionately.
+preserve
+	keep if iso == "RS"
+	generate a = value_sna/value_wpp if (iso == "RS")
+	egen b = mode(a) if (iso == "RS"), by(year)
+	// In 2016, use 2015 value
+	quietly levelsof b if (year == 2015), local(value2015)
+	replace b = `value2015' if (year == 2016)
+	// Use WPP population before 1990
+	replace b = 1 if missing(b)
+	replace value = b*value_wpp
+	keep iso year age sex value
+	tempfile serbia
+	save "`serbia'"
+restore
+drop if iso == "RS"
+append using "`serbia'"
 
 // The WPP merges Tanzania and Zanzibar at all dates. In the NA, they are
 // separated starting in 1990. Therefore, before 1990, we keep the WPP data,
@@ -95,9 +115,9 @@ drop if (iso == "ZZ") // Zanzibar data will be recalculated from Tanzania
 
 generate a = value_sna/value_wpp if (iso == "TZ") & (year >= 1990)
 egen b = mode(a) if (iso == "TZ") & (year >= 1990), by(year)
-// In 2015, use 2014 value for fraction of Serbia population
-quietly levelsof b if (iso == "TZ") & (year == 2014), local(value2014)
-replace b = `value2014' if (iso == "TZ") & (year == 2015)
+// In 2016, use 2015 value for fraction of Tanzania population
+quietly levelsof b if (iso == "TZ") & (year == 2015), local(value2015)
+replace b = `value2015' if (iso == "TZ") & (year == 2016)
 expand 2 if (iso == "TZ") & (year >= 1990), generate(new)
 replace value = value_wpp*b if (new == 0) & (iso == "TZ")
 replace value = value_wpp*(1 - b) if (new == 1) & (iso == "TZ")
@@ -108,9 +128,9 @@ drop a b new
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population
 // as before. (The difference is, Northern Cyprus is never included in the data.)
 generate a = value_sna/value_wpp if (iso == "CY") & (year >= 1974)
-// In 2015, use 2014 value for fraction of Cyprus population
-quietly levelsof a if (iso == "CY") & (year == 2014), local(value2014)
-replace a = `value2014' if (iso == "CY") & (year == 2015)
+// In 2016, use 2015 value for fraction of Cyprus population
+quietly levelsof a if (iso == "CY") & (year == 2015), local(value2015)
+replace a = `value2015' if (iso == "CY") & (year == 2016)
 replace value = value_wpp*a if (iso == "CY") & (year >= 1974)
 drop a
 
@@ -254,6 +274,29 @@ replace npopul999i = npopul999i_un - npopul999i_wid if (iso == "DD")
 replace npopul992i = npopul992i_un - npopul992i_wid if (iso == "DD")
 drop newobs
 
+// Estimate missing $pastyear populations from past growth rate
+preserve
+keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
+bysort iso: gen obs=_N
+qui tab obs
+assert `r(r)'==2 // check only last year is missing for each country
+expand 2 if obs==2 & year==$pastyear - 1, gen(newobs)
+replace year=$pastyear if newobs==1
+replace growth_src_npopul999i="npopul999i_un" if newobs==1
+// Only npopul999i_un is available for these countries
+gen growth_factor = .
+sort iso year
+by iso: replace growth_factor = (npopul999i_un[_n])/(npopul999i_un[_n-1]) if (year==$pastyear - 1)
+by iso: replace npopul999i_un=npopul999i_un[_n - 1]*growth_factor[_n - 1] if newobs==1
+keep if newobs==1
+replace npopul999i_un=round(npopul999i_un)
+drop obs growth_factor
+tempfile imputed
+save "`imputed'"
+restore
+append using "`imputed'"
+
+
 // Generate children population
 generate npopul991i = npopul999i - npopul992i
 
@@ -288,7 +331,7 @@ foreach v of varlist resc_* {
 	replace `v' = `widcode'_un if (`v' >= .)
 }
 
-keep iso year resc_* minyear maxyear haswid growth_src_npopul999i
+keep iso year resc_* minyear maxyear haswid newobs growth_src_npopul999i
 
 // Reshape back to long format
 reshape long resc_, i(iso year) j(widcode) string
@@ -300,8 +343,8 @@ drop growth_src_npopul999i
 // Generate the notes
 preserve
 
-keep iso minyear maxyear haswid
-keep if (minyear < .) & (maxyear < .)
+keep iso minyear maxyear haswid newobs
+keep if ((minyear < .) & (maxyear < .)) | (newobs==1)
 duplicates drop
 
 // Country-specific notes
@@ -339,17 +382,20 @@ replace method = "Adult and total population estimated as a difference between "
 	"the UN World Population Prospects (2015) for total Germany, and Piketty and Zucman (2013) " + ////
 	"data for West Germany. Data on other population subcategories also come from the UN World Population " + ///
 	"Prospects (2015), rescaled to match the East German totals." if (iso == "DD")
-	
+
+replace method = "Total $pastyear population estimated by extending past year observed population growth rate. " + ///
+	"Data on other years comes from the UN World Population Prospects (2015)" if (newobs==1)	
+
 generate sixlet = "npopul"
 
-drop haswid minyear maxyear
+drop haswid minyear maxyear newobs
 
 save "$work_data/population-metadata.dta", replace
 
 restore
 	
 keep if value < .
-drop haswid minyear maxyear
+drop haswid minyear maxyear newobs
 
 // Round to the nearest integer
 replace value = round(value, 1)

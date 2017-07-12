@@ -14,6 +14,8 @@ import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate.csv", ///
 	clear delimiter(";") encoding("utf8")
 
 // Identify countries
+replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
+replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
 countrycode country, generate(iso) from("un sna main")	
 
 // Our series for Palestine are in Israeli New Shequel, while the UN series are
@@ -34,9 +36,9 @@ rename xrateama lcu2usd
 tempfile lcu2usd
 save "`lcu2usd'", replace
 
-// Use our data for the 2015 exchange rate
+// Use our data for the $pastyear exchange rate
 use "$work_data/exchange-rates.dta", clear
-keep if widcode == "xlcusx999i"
+keep if widcode == "xlcusx999i" & year==$pastyear
 keep iso currency value year
 rename value lcu2usd
 
@@ -68,6 +70,7 @@ save "`gdp_usd'"
 import delimited "$imf_data/balance-of-payments/primary-income-details.csv", ///
 	clear encoding("utf8")
 
+cap rename ïcountryname countryname
 kountry countrycode, from(imfn) to(iso2c)
 rename _ISO2C_ iso
 replace iso = "CW" if (countryname == "Curacao")

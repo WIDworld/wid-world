@@ -15,6 +15,9 @@ reshape wide value source, i(iso year) j(widcode) string
 rename valueicpixx999i cpi_wid
 rename valueinyixx999i def_wid
 
+// Correct issue in Indonesia
+replace cpi_wid = cpi_wid*10 if (iso == "ID") & (year <= 1965)
+
 // Add external data
 merge 1:1 iso year using "$work_data/wb-cpi.dta", ///
 	nogenerate update assert(using master match)
@@ -59,7 +62,7 @@ egen nval = nvals(iso year)
 // For China: we only keep the Maddison-Wu data before 1978, and the WID after
 foreach v of varlist cpi_* def_* {
 	replace `v' = . if ("`v'" != "def_mw") & (iso == "CN") & (year < 1978)
-	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & inrange(year, 1979, 2015)
+	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year>1979)
 }
 
 // For Argentine: only keep ARKLEMS data from 1994 to 2013 (same problem)
@@ -103,14 +106,17 @@ foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_un def_wb d
 }
 assert index_source != ""
 
+
 // In Zanzibar, use Tanzania to fill gap
-expand 2 if (iso == "TZ") & (inrange(year, 1964, 1990) | year == 2015), generate(newobs)
+qui sum year if iso=="ZZ"
+expand 2 if (iso == "TZ") & (inrange(year, 1964, 1990) | year >`r(max)'), generate(newobs)
 replace iso = "ZZ" if newobs
 replace index_source = index_source + "_tza" if newobs
 foreach v of varlist def_* cpi_* {
 	replace `v' = . if newobs
 }
 drop newobs
+
 
 // In Uganda 1960-1970, use the average of Kenya and Tanzania, who shared their currency
 // with Uganda during most of the period.
@@ -199,7 +205,8 @@ replace iso = "CN-RU" if newobs
 drop newobs
 
 // In Yugoslavia, we freeze the price index after 1990
-forvalues y = 1991/2015 {
+qui sum year
+forvalues y = 1991/`r(max)' {
 	local nobs = _N + 1
 	set obs `nobs'
 	replace iso = "YU" in l
@@ -235,7 +242,8 @@ by iso: carryforward delta_index, replace cfindic(carriedforward)
 replace index_source = "carryforward" if carriedforward
 
 // Former Netherlands Antilles: use the average inflation of Curacao and Sint Marteen
-forvalues y = 2013/2015 {
+qui sum year
+forvalues y = 2013/`r(max)' {
 	summarize delta_index if inlist(iso, "CW", "SX") & (year == `y'), meanonly
 	local avg = r(mean)
 	replace delta_index = `avg' if (iso == "AN") & (year == `y')
@@ -357,8 +365,8 @@ replace source = `"[URL][URL_LINK]https://arklemsenglish.wordpress.com/gdp/[/URL
 replace source = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' ///
 	+ `"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if regexm(index_source, "_un")
 
-replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
+replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2017/01/weodata/index.aspx[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
 
 replace source = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddison_Wu_22_Feb_07.pdf[/URL_LINK][URL_TEXT]Maddison, "' ///
 	+ `"Angus and Wu, Harry. China’s Economic Performance: How Fast Has GDP Grown; How "' ///

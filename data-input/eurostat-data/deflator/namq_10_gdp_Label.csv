@@ -1,8 +1,8 @@
 "DATASET: GDP and main components  (output, expenditure and income) [namq_10_gdp]"
 
-"LAST UPDATE: 21.07.16 11:55:34"
+"LAST UPDATE: 30.05.17 20:16:00"
 
-"EXTRACTION DATE: 25.07.16 14:58:47"
+"EXTRACTION DATE: 31.05.17 11:12:05"
 
 "SOURCE OF DATA: Eurostat"
 
@@ -172,18 +172,39 @@
 "2015Q3"
 "2015Q4"
 "2016Q1"
+"2016Q2"
+"2016Q3"
+"2016Q4"
+"2017Q1"
 
 "GEO"
 "Euro area (19 countries)"
 
 "UNIT"
-"Price index (implicit deflator), 2010=100, euro"
+"Price index (implicit deflator), 2010=100, national currency"
 
 "S_ADJ"
-"Unadjusted data (i.e. neither seasonally adjusted nor calendar adjusted data)"
+"NSA"
 
 "NA_ITEM"
 "Gross domestic product at market prices"
+"External balance of goods and services"
+
+"No footnotes available"
+
+"Available flags:"
+"b","break in time series"
+"c","confidential"
+"d","definition differs, see metadata"
+"e","estimated"
+"f","forecast"
+"i","see metadata (phased out)"
+"n","not significant"
+"p","provisional"
+"r","revised"
+"s","Eurostat estimate (phased out)"
+"u","low reliability"
+"z","not applicable"
 
 "Special value:"
 ":","not available"

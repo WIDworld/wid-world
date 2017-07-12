@@ -2,8 +2,8 @@ import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 // Rename year variables
-drop v60 v61
-foreach v of varlist v5-v59 {
+dropmiss, force
+foreach v of varlist v*{
 	local year: variable label `v'
 	rename `v' value`year'
 }

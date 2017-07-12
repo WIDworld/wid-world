@@ -2,7 +2,7 @@ use "$work_data/add-populations-output.dta", clear
 
 // Store PPP and exchange rates as an extra variable
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == 2015
+keep if year == $pastyear
 keep iso widcode value
 reshape wide value, i(iso) j(widcode) string
 foreach v of varlist value* {
@@ -28,7 +28,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & substr(widcode, 10, 1) != "t") ///
 drop if year < 1950
 
 // Add PPP and exchange rates
-merge n:1 iso using "`pppexc'", nogenerate keep(match)
+merge n:1 iso using "`pppexc'", nogenerate
 
 // Add regions
 merge n:1 iso using "$work_data/import-country-codes-output", ///
@@ -43,6 +43,9 @@ drop if (iso == "CS") & (year > 1990)
 
 drop if (iso == "DD") & (year >= 1991)
 
+// Kosovo considered part of Serbia before 1999
+drop if (iso == "KS") & (year < 1999)
+
 generate inUSSR = 0
 replace inUSSR = 1 if inlist(iso, "AM", "AZ", "BY", "EE", "GE", "KZ", "KG")
 replace inUSSR = 1 if inlist(iso, "LV", "LT", "MD", "RU", "TJ")
@@ -55,6 +58,15 @@ drop if (iso == "SS") & (year < 2008)
 
 // Remove within-country regions
 drop if strlen(iso) > 2
+
+
+// Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
+sort region2 iso year, stable
+by region2: egen num1=nvals(year) if inlist(region2, "Caribbean")
+by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
+drop if num1!=num2
+drop num1 num2
+
 
 // Check that the composition of groups does not change over time
 preserve
@@ -77,11 +89,12 @@ assert valiso2 == 1 if (region2 == "Eastern Asia")
 assert valiso2 == 1 if (region2 == "South-Eastern Asia")
 assert valiso2 == 1 if (region2 == "Southern Asia")
 assert valiso2 == 2 if (region2 == "Western Asia")
-assert valiso2 == 2 if (region2 == "Eastern Europe")
+assert valiso2 == 3 if (region2 == "Eastern Europe")
 assert valiso2 == 2 if (region2 == "Western Europe")
 assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
 restore
+
 
 // Convert to common currencies
 foreach v of varlist ppp* exc* {
@@ -127,7 +140,7 @@ replace value = value_pppeur if substr(widcode, 1, 6) != "npopul"
 
 // Calculate implied PPP and market exchange rates based on net national income
 preserve
-keep if year == 2015
+keep if year == $pastyear
 foreach v in pppusd pppeur pppcny excusd exceur exccny {
 	generate `v' = value/value_`v' if widcode == "mnninc999i"
 }

@@ -1,38 +1,5 @@
-local allfiles $un_data/sna-detailed/UNdata_NA_S1_1945_1999.txt ///
-	$un_data/sna-detailed/UNdata_NA_S1_2000_2010.txt ///
-	$un_data/sna-detailed/UNdata_NA_S1_2011_2014.txt ///
-	$un_data/sna-detailed/UNdata_NA_S2_1945_1990.txt ///
-	$un_data/sna-detailed/UNdata_NA_S2_1991_2010.txt ///
-	$un_data/sna-detailed/UNdata_NA_S2_2011_2014.txt
-
-tempfile unsna
-local first 1
-foreach file of local allfiles {
-	import delimited `"`file'"', delimit(";") clear stringcols(12) encoding("utf8")
-	
-	// Footnotes
-	split valuefootnotes, parse(",")
-	local nvars = r(nvars)
-	drop valuefootnotes
-	generate footnotesection = sum(countryorarea == "footnote_SeqID")
-	forvalue i = 1/`nvars' {
-		generate footnote`i' = ""
-		quietly levelsof valuefootnotes`i', local(footnotes)
-		foreach fn of local footnotes {
-			quietly levelsof sna93tablecode if (footnotesection == 1) & ///
-				(countryorarea == "`fn'"), local(fntext)
-			replace footnote`i' = `fntext' if (valuefootnotes`i' == "`fn'")
-		}
-	}
-	drop if (footnotesection == 1)
-	drop footnotesection valuefootnotes*
-	
-	if (`first' != 1) {
-		append using "`unsna'"
-	}
-	save "`unsna'", replace
-	local first 0
-}
+use "$un_data/sna-detailed/401.dta", clear
+append using "$un_data/sna-detailed/402.dta"
 
 // Normalize variables ------------------------------------------------------ //
 replace currency = strtrim(stritrim(lower(currency)))
@@ -54,7 +21,7 @@ replace shortitem = "gdp" if (sna93itemcode == "b.1*g") ///
 	& (subgroup == "i. production account - uses")
 replace shortitem = "cfc" if (sna93itemcode == "k.1")
 
-drop sna93tablecode subgroup item sna93itemcode footnote*
+drop sna93tablecode subgroup item sna93itemcode
 
 keep if (shortitem != "")
 drop if value == 0
@@ -140,6 +107,9 @@ replace value = value*1e3 if (iso == "UA") & (currency == "hryvnia") ///
 	& inlist(shortitem, "kyr", "kyu") & (year <= 1992) // Additional issue with the data
 replace currency = "hryvnia" if (iso == "UA") & (currency == "karbovantsy")
 
+// Problem with Venezuela: replace bolivar fuerte by bolivar
+replace currency="bolivar" if iso=="VE"
+
 // Sanity check: only one currency per countries left
 egen ncurr = nvals(currency), by(iso)
 assert ncurr == 1
@@ -169,6 +139,7 @@ replace currency = "new sheqel" if (iso == "PS")
 drop exch
 
 // Identify currencies ------------------------------------------------------ //
+replace currency="somoni" if currency=="samoni"
 currencycode currency, generate(currency_iso) iso2c(iso) from("un sna detailed")
 drop currency
 rename currency_iso currency

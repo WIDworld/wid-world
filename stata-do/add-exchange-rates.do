@@ -1,6 +1,6 @@
 use "$work_data/exchange-rates.dta", clear
 
-drop if inlist(iso, "CN", "CN-UR", "CN-RU") & inlist(widcode, "xlcusx999i", "xlcyux999i")
+drop if inlist(iso, "CN-UR", "CN-RU") & inlist(widcode, "xlcusx999i", "xlcyux999i") & (year <= 2015)
 
 append using "$work_data/add-ppp-output.dta"
 

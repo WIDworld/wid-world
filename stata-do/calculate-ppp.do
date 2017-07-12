@@ -25,8 +25,8 @@ replace year = 2011 in l
 replace ppp = 15.112 in l
 replace ppp_method = "Using the evolution of the price index relative to " + ///
 	"the reference country, we extrapolate the PPP of 2011" in l
-replace ppp_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2016/01/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/2016)[/URL_TEXT][/URL]; "' in l
+replace ppp_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
+	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' in l
 
 replace currency = "TWD" in l
 
@@ -87,7 +87,7 @@ expand 2 if (iso == "CN"), generate(newobs)
 replace iso = "CN-RU" if newobs
 drop newobs
 
-// Extrapolate the PPP to 2015
+// Extrapolate the PPP to $year
 tempfile ppp
 save "`ppp'"
 
@@ -101,13 +101,14 @@ save "`index'"
 // Fetch Eurozone GDP deflator from Eurostat
 import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data.csv", ///
 	encoding("utf8") clear varnames(1)
+drop if na_item!="Gross domestic product at market prices"
 destring value, ignore(":") replace
 split time, parse("Q")
 destring time1, generate(year)
 collapse (mean) value, by(year)
-quietly levelsof value if (year == 2015), local(index2015)
-replace value = value/`index2015'
 keep if !missing(value)
+quietly levelsof value if _n==_N, local(indexyear)
+replace value = value/`indexyear'
 rename value index
 generate iso = "EA"
 append using "`index'"

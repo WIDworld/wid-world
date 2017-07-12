@@ -26,7 +26,7 @@ drop if (iso == "WO")
 drop if inrange(iso, "QB", "QZ")
 
 drop if (xlceup999i >= .)
-keep if year == 2015
+keep if year == $pastyear
 
 if ($world_summary_market) {
 	keep iso mgdpro999i mnninc999i npopul999i xlceux999i mconfc999i mnnfin999i
@@ -118,24 +118,24 @@ else {
 	putexcel set "$report_output/world-summary/TableX_GDPNNI.xlsx", modify sheet("Table X")
 }
 
-putexcel D4 = `gdp_world'/1e9
-putexcel D5 = `gdp_europe'/1e9
-putexcel D6 = `gdp_eu28'/1e9
-putexcel D7 = `gdp_otheasteu'/1e9
-putexcel D8 = `gdp_americas'/1e9
-putexcel D9 = `gdp_usca'/1e9
-putexcel D10 = `gdp_latinamer'/1e9
-putexcel D11 = `gdp_africa'/1e9
-putexcel D12 = `gdp_northafrica'/1e9
-putexcel D13 = `gdp_othafrica'/1e9
-putexcel D14 = `gdp_asia'/1e9
-putexcel D15 = `gdp_cn'/1e9
-putexcel D16 = `gdp_in'/1e9
-putexcel D17 = `gdp_jp'/1e9
-putexcel D18 = `gdp_othasia'/1e9
-putexcel D19 = `gdp_oceania'/1e9
-putexcel D20 = `gdp_aunz'/1e9
-putexcel D21 = `gdp_othoce'/1e9
+putexcel D4 = (`gdp_world'/1e9)
+putexcel D5 = (`gdp_europe'/1e9)
+putexcel D6 = (`gdp_eu28'/1e9)
+putexcel D7 = (`gdp_otheasteu'/1e9)
+putexcel D8 = (`gdp_americas'/1e9)
+putexcel D9 = (`gdp_usca'/1e9)
+putexcel D10 = (`gdp_latinamer'/1e9)
+putexcel D11 = (`gdp_africa'/1e9)
+putexcel D12 = (`gdp_northafrica'/1e9)
+putexcel D13 = (`gdp_othafrica'/1e9)
+putexcel D14 = (`gdp_asia'/1e9)
+putexcel D15 = (`gdp_cn'/1e9)
+putexcel D16 = (`gdp_in'/1e9)
+putexcel D17 = (`gdp_jp'/1e9)
+putexcel D18 = (`gdp_othasia'/1e9)
+putexcel D19 = (`gdp_oceania'/1e9)
+putexcel D20 = (`gdp_aunz'/1e9)
+putexcel D21 = (`gdp_othoce'/1e9)
 
 // Region CFCs
 summarize mconfc999i
@@ -192,24 +192,24 @@ local cfc_aunz = r(sum)
 summarize mconfc999i if (region2 == "Oceania (excl. Australia and New Zealand)")
 local cfc_othoce = r(sum)
 
-putexcel E4 = `cfc_world'/`gdp_world'
-putexcel E5 = `cfc_europe'/`gdp_europe'
-putexcel E6 = `cfc_eu28'/`gdp_eu28'
-putexcel E7 = `cfc_otheasteu'/`gdp_otheasteu'
-putexcel E8 = `cfc_americas'/`gdp_americas'
-putexcel E9 = `cfc_usca'/`gdp_usca'
-putexcel E10 = `cfc_latinamer'/`gdp_latinamer'
-putexcel E11 = `cfc_africa'/`gdp_africa'
-putexcel E12 = `cfc_northafrica'/`gdp_northafrica'
-putexcel E13 = `cfc_othafrica'/`gdp_othafrica'
-putexcel E14 = `cfc_asia'/`gdp_asia'
-putexcel E15 = `cfc_cn'/`gdp_cn'
-putexcel E16 = `cfc_in'/`gdp_in'
-putexcel E17 = `cfc_jp'/`gdp_jp'
-putexcel E18 = `cfc_othasia'/`gdp_othasia'
-putexcel E19 = `cfc_oceania'/`gdp_oceania'
-putexcel E20 = `cfc_aunz'/`gdp_aunz'
-putexcel E21 = `cfc_othoce'/`gdp_othoce'
+putexcel E4 = (`cfc_world'/`gdp_world')
+putexcel E5 = (`cfc_europe'/`gdp_europe')
+putexcel E6 = (`cfc_eu28'/`gdp_eu28')
+putexcel E7 = (`cfc_otheasteu'/`gdp_otheasteu')
+putexcel E8 = (`cfc_americas'/`gdp_americas')
+putexcel E9 = (`cfc_usca'/`gdp_usca')
+putexcel E10 = (`cfc_latinamer'/`gdp_latinamer')
+putexcel E11 = (`cfc_africa'/`gdp_africa')
+putexcel E12 = (`cfc_northafrica'/`gdp_northafrica')
+putexcel E13 = (`cfc_othafrica'/`gdp_othafrica')
+putexcel E14 = (`cfc_asia'/`gdp_asia')
+putexcel E15 = (`cfc_cn'/`gdp_cn')
+putexcel E16 = (`cfc_in'/`gdp_in')
+putexcel E17 = (`cfc_jp'/`gdp_jp')
+putexcel E18 = (`cfc_othasia'/`gdp_othasia')
+putexcel E19 = (`cfc_oceania'/`gdp_oceania')
+putexcel E20 = (`cfc_aunz'/`gdp_aunz')
+putexcel E21 = (`cfc_othoce'/`gdp_othoce')
 
 // Region NFIs
 summarize mnnfin999i
@@ -266,24 +266,24 @@ local nfi_aunz = r(sum)
 summarize mnnfin999i if (region2 == "Oceania (excl. Australia and New Zealand)")
 local nfi_othoce = r(sum)
 
-putexcel F4 = `nfi_world'/`gdp_world'
-putexcel F5 = `nfi_europe'/`gdp_europe'
-putexcel F6 = `nfi_eu28'/`gdp_eu28'
-putexcel F7 = `nfi_otheasteu'/`gdp_otheasteu'
-putexcel F8 = `nfi_americas'/`gdp_americas'
-putexcel F9 = `nfi_usca'/`gdp_usca'
-putexcel F10 = `nfi_latinamer'/`gdp_latinamer'
-putexcel F11 = `nfi_africa'/`gdp_africa'
-putexcel F12 = `nfi_northafrica'/`gdp_northafrica'
-putexcel F13 = `nfi_othafrica'/`gdp_othafrica'
-putexcel F14 = `nfi_asia'/`gdp_asia'
-putexcel F15 = `nfi_cn'/`gdp_cn'
-putexcel F16 = `nfi_in'/`gdp_in'
-putexcel F17 = `nfi_jp'/`gdp_jp'
-putexcel F18 = `nfi_othasia'/`gdp_othasia'
-putexcel F19 = `nfi_oceania'/`gdp_oceania'
-putexcel F20 = `nfi_aunz'/`gdp_aunz'
-putexcel F21 = `nfi_othoce'/`gdp_othoce'
+putexcel F4 = (`nfi_world'/`gdp_world')
+putexcel F5 = (`nfi_europe'/`gdp_europe')
+putexcel F6 = (`nfi_eu28'/`gdp_eu28')
+putexcel F7 = (`nfi_otheasteu'/`gdp_otheasteu')
+putexcel F8 = (`nfi_americas'/`gdp_americas')
+putexcel F9 = (`nfi_usca'/`gdp_usca')
+putexcel F10 = (`nfi_latinamer'/`gdp_latinamer')
+putexcel F11 = (`nfi_africa'/`gdp_africa')
+putexcel F12 = (`nfi_northafrica'/`gdp_northafrica')
+putexcel F13 = (`nfi_othafrica'/`gdp_othafrica')
+putexcel F14 = (`nfi_asia'/`gdp_asia')
+putexcel F15 = (`nfi_cn'/`gdp_cn')
+putexcel F16 = (`nfi_in'/`gdp_in')
+putexcel F17 = (`nfi_jp'/`gdp_jp')
+putexcel F18 = (`nfi_othasia'/`gdp_othasia')
+putexcel F19 = (`nfi_oceania'/`gdp_oceania')
+putexcel F20 = (`nfi_aunz'/`gdp_aunz')
+putexcel F21 = (`nfi_othoce'/`gdp_othoce')
 
 // Region NNIs
 summarize mnninc999i
@@ -340,24 +340,24 @@ local nni_aunz = r(sum)
 summarize mnninc999i if (region2 == "Oceania (excl. Australia and New Zealand)")
 local nni_othoce = r(sum)
 
-putexcel G4 = `nni_world'/1e9
-putexcel G5 = `nni_europe'/1e9
-putexcel G6 = `nni_eu28'/1e9
-putexcel G7 = `nni_otheasteu'/1e9
-putexcel G8 = `nni_americas'/1e9
-putexcel G9 = `nni_usca'/1e9
-putexcel G10 = `nni_latinamer'/1e9
-putexcel G11 = `nni_africa'/1e9
-putexcel G12 = `nni_northafrica'/1e9
-putexcel G13 = `nni_othafrica'/1e9
-putexcel G14 = `nni_asia'/1e9
-putexcel G15 = `nni_cn'/1e9
-putexcel G16 = `nni_in'/1e9
-putexcel G17 = `nni_jp'/1e9
-putexcel G18 = `nni_othasia'/1e9
-putexcel G19 = `nni_oceania'/1e9
-putexcel G20 = `nni_aunz'/1e9
-putexcel G21 = `nni_othoce'/1e9
+putexcel G4 = (`nni_world'/1e9)
+putexcel G5 = (`nni_europe'/1e9)
+putexcel G6 = (`nni_eu28'/1e9)
+putexcel G7 = (`nni_otheasteu'/1e9)
+putexcel G8 = (`nni_americas'/1e9)
+putexcel G9 = (`nni_usca'/1e9)
+putexcel G10 = (`nni_latinamer'/1e9)
+putexcel G11 = (`nni_africa'/1e9)
+putexcel G12 = (`nni_northafrica'/1e9)
+putexcel G13 = (`nni_othafrica'/1e9)
+putexcel G14 = (`nni_asia'/1e9)
+putexcel G15 = (`nni_cn'/1e9)
+putexcel G16 = (`nni_in'/1e9)
+putexcel G17 = (`nni_jp'/1e9)
+putexcel G18 = (`nni_othasia'/1e9)
+putexcel G19 = (`nni_oceania'/1e9)
+putexcel G20 = (`nni_aunz'/1e9)
+putexcel G21 = (`nni_othoce'/1e9)
 
 // Region populations
 summarize npopul999i
@@ -414,22 +414,22 @@ local pop_aunz = r(sum)
 summarize npopul999i if (region2 == "Oceania (excl. Australia and New Zealand)")
 local pop_othoce = r(sum)
 
-putexcel B4 = `pop_world'/1e6
-putexcel B5 = `pop_europe'/1e6
-putexcel B6 = `pop_eu28'/1e6
-putexcel B7 = `pop_otheasteu'/1e6
-putexcel B8 = `pop_americas'/1e6
-putexcel B9 = `pop_usca'/1e6
-putexcel B10 = `pop_latinamer'/1e6
-putexcel B11 = `pop_africa'/1e6
-putexcel B12 = `pop_northafrica'/1e6
-putexcel B13 = `pop_othafrica'/1e6
-putexcel B14 = `pop_asia'/1e6
-putexcel B15 = `pop_cn'/1e6
-putexcel B16 = `pop_in'/1e6
-putexcel B17 = `pop_jp'/1e6
-putexcel B18 = `pop_othasia'/1e6
-putexcel B19 = `pop_oceania'/1e6
-putexcel B20 = `pop_aunz'/1e6
-putexcel B21 = `pop_othoce'/1e6
+putexcel B4 = (`pop_world'/1e6)
+putexcel B5 = (`pop_europe'/1e6)
+putexcel B6 = (`pop_eu28'/1e6)
+putexcel B7 = (`pop_otheasteu'/1e6)
+putexcel B8 = (`pop_americas'/1e6)
+putexcel B9 = (`pop_usca'/1e6)
+putexcel B10 = (`pop_latinamer'/1e6)
+putexcel B11 = (`pop_africa'/1e6)
+putexcel B12 = (`pop_northafrica'/1e6)
+putexcel B13 = (`pop_othafrica'/1e6)
+putexcel B14 = (`pop_asia'/1e6)
+putexcel B15 = (`pop_cn'/1e6)
+putexcel B16 = (`pop_in'/1e6)
+putexcel B17 = (`pop_jp'/1e6)
+putexcel B18 = (`pop_othasia'/1e6)
+putexcel B19 = (`pop_oceania'/1e6)
+putexcel B20 = (`pop_aunz'/1e6)
+putexcel B21 = (`pop_othoce'/1e6)
 
