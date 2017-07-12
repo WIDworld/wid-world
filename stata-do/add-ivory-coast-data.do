@@ -170,12 +170,14 @@ foreach year in `year' 1993 1998 2002 2008 2014{
 rename country iso
 rename perc p
 
+/*
 // Drop percentiles above p99
 split p, parse("p")
 destring p2 p3, replace
 drop if p2>99
 drop if p=="p99p99.1"
 drop p1 p2 p3
+*/
 
 duplicates drop iso year p widcode, force
 

@@ -68,6 +68,9 @@ global report_output "$wid_dir/WIDGraphsTables"
 // Directory with the output
 global output_dir "$wid_dir/WIDData"
 
+// Directory with the summary table
+global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
+
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
 local c_time = c(current_time)
@@ -390,10 +393,11 @@ do "$do_dir/export-main-db.do"
 // Export the list of countries
 do "$do_dir/export-countries.do"
 
+/*
 // -------------------------------------------------------------------------- //
 // Report some of the results
 // -------------------------------------------------------------------------- //
-/*
+
 // Compare the world distribution of NNI vs. GDP
 do "$do_dir/gdp-vs-nni.do"
 
@@ -404,8 +408,15 @@ do "$do_dir/plot-gdp-population.do"
 do "$do_dir/plot-cfc-nfi.do"
 
 // -------------------------------------------------------------------------- //
-// Sanity checks when updating database
+// Sanity checks when updating database to a new year
 // -------------------------------------------------------------------------- //
 
 do "$do_dir/update-check.do"
+
+// -------------------------------------------------------------------------- //
+// Summary table
+// -------------------------------------------------------------------------- //
+
+do "$do_dir/create-summary-table.do"
+
 */
