@@ -1,37 +1,26 @@
 use "$work_data/add-new-wid-codes-output-data.dta", clear
 
 // Correct some units in Greece
-replace value = 100*value if (widcode == "mpwnfa999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpwfin999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpwfix999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpwequ999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpwpen999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpwdeb999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mhwfin999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mhwfix999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mhwequ999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mhwpen999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mhwdeb999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwfin999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwfix999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwequ999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwpen999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwdeb999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mcwdeq999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgwfin999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgwfix999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgwequ999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgwpen999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgwdeb999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnweal999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnwnxa999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnwgxa999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnwgxd999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mpsavi999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mgsavi999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnsavi999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnsgro999i") & (iso == "GR")
-replace value = 100*value if (widcode == "mnsdep999i") & (iso == "GR")
+replace value = value/100 if iso == "GR" & widcode == "mgwnfa999i"
+replace value = value/100 if iso == "GR" & widcode == "mgweal999i"
+
+// Check for Greece
+/*
+keep if iso == "GR"
+keep if unit == "billion current euro"
+
+preserve
+keep if variable == "national income"
+keep year value
+rename value nninc
+tempfile nninc
+save "`nninc'"
+restore
+
+merge n:1 year using "`nninc'"
+
+replace value = value/nninc
+*/
 
 // Normalize unit variable
 replace unit = strtrim(stritrim(strlower(unit)))
