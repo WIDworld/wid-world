@@ -101,7 +101,7 @@ save "$work_data/sumtable.dta", replace
 di "--> Formatting in line...", _continue
 qui{
 ********************************************************* FORMATTAGE EN LIGNE ************************************************************************
-	*use "$work_data/sumtable.dta", clear
+	use "$work_data/sumtable.dta", clear
 	*** Reshape
 	ds alpha2, not
 	foreach var of varlist `r(varlist)'{
@@ -144,7 +144,7 @@ qui{
 di "--> Adding WID Notes", _continue
 qui{
 ********************************************************* AJOUT DES NOTES WID ************************************************************************
-	insheet using "$output_dir/metadata/var-notes.csv", delim(;) names clear
+	insheet using "$output_dir/$time/metadata/var-notes.csv", delim(;) names clear
 
 	*** Merge avec les notes WID
 	egen varcode=concat(twolet threelet), punct("")
@@ -169,7 +169,7 @@ qui{
 di "Adding WID variables names...", _continue
 qui{
 ********************************************************* AJOUT DES NOMS DE VARIABLES ****************************************************************
-	insheet using "$output_dir/metadata/var-names.csv", delim(;) names clear
+	insheet using "$output_dir/$time/metadata/var-names.csv", delim(;) names clear
 
 	*** Noms de variable
 	rename fivelet varcode
@@ -187,7 +187,7 @@ qui{
 di "Adding country names...", _continue
 qui{
 ********************************************************* AJOUT DES NOMS DE PAYS *********************************************************************
-	insheet using "$output_dir/metadata/country-codes.csv", delim(;) names clear
+	insheet using "$output_dir/$time/metadata/country-codes.csv", delim(;) names clear
 	keep alpha2 shortname
 	rename shortname country
 
