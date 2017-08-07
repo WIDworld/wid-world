@@ -163,6 +163,9 @@ do "$do_dir/calculate-average-over.do"
 // Add Ivory Coast data
 do "$do_dir/add-ivory-coast-data.do"
 
+// Add Russian data
+do "$do_dir/add-russian-data.do"
+
 // Add US data
 do "$do_dir/add-us-data.do"
 

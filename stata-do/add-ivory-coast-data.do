@@ -189,7 +189,7 @@ generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
 generate source = `"[URL][URL_LINK]http://wid.world/document/income-inequality-cote-divoire-1985-2014-wid-world-working-paper-201708/[/URL_LINK]"' ///
-	+ `"[URL_TEXT]Czajka, Léo. "' ///
+	+ `"[URL_TEXT]Czajka, Léo (2017). "' ///
 	+ `"Income Inequality in Côte d`=char(39)'Ivoire : 1985-2014[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
