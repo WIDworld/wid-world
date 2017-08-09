@@ -2,11 +2,12 @@ use "$work_data/add-uk-data-output.dta", clear
 
 keep if inlist(iso, "US", "FR")
 keep if inlist(substr(widcode, 1, 6), "anninc", "aptinc")
-keep if p == "pall"
+keep if p=="pall"
 
 generate sixlet = substr(widcode, 1, 6)
 generate pop = substr(widcode, 7, .)
 replace pop = "992i" if (pop == "992j")
+keep if pop == "992i"
 
 duplicates drop iso year sixlet pop, force
 

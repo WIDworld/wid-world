@@ -166,6 +166,15 @@ do "$do_dir/add-ivory-coast-data.do"
 // Add Russian data
 do "$do_dir/add-russian-data.do"
 
+// Add Spanish data
+do "$do_dir/add-spanish-data.do"
+
+// Add Swedish data
+do "$do_dir/add-swedish-data.do"
+
+// Add France (macro) data
+do "$do_dir/add-france-macro-data.do"
+
 // Add US data
 do "$do_dir/add-us-data.do"
 
@@ -360,6 +369,9 @@ do "$do_dir/distribute-national-income.do"
 // Add US states data
 do "$do_dir/add-us-states.do"
 
+// Add US inequality data (PSZ Appendix II)
+do "$do_dir/add-us-ineq-data.do"
+
 // Add France data
 do "$do_dir/add-france-data.do"
 
@@ -416,10 +428,12 @@ do "$do_dir/plot-cfc-nfi.do"
 
 do "$do_dir/update-check.do"
 
+*/
+
 // -------------------------------------------------------------------------- //
 // Summary table
 // -------------------------------------------------------------------------- //
 
-do "$do_dir/create-summary-table.do"
+*do "$do_dir/create-summary-table.do"
 
-*/
+

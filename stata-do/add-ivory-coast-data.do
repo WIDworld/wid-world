@@ -181,6 +181,8 @@ drop p1 p2 p3
 
 duplicates drop iso year p widcode, force
 
+generate currency = "XOF" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+
 tempfile ivorycoast
 save "`ivorycoast'"
 

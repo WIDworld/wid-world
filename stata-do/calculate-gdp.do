@@ -228,7 +228,7 @@ assert hasother if hasmaddison
 replace gdp = gdp2 if (hasmaddison)
 drop gdp2
 keep if gdp < .
-	
+
 // Expand the currency
 egen currency2 = mode(currency), by(iso)
 drop currency

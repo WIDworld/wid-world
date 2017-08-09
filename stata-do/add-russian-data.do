@@ -553,6 +553,7 @@ duplicates drop iso year p widcode, force
 append using "`fiincRussia'"
 append using "`ptincRussia'"
 
+generate currency = "RUB" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace iso="RU"
 
 tempfile russia
