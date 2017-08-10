@@ -17,7 +17,12 @@ append using "$work_data/price-index-metadata.dta"
 append using "$work_data/ppp-metadata.dta"
 
 // Add national accounts notes
+generate newobs = 0
 append using "$work_data/na-metadata-no-duplicates.dta"
+replace newobs = 1 if (newobs >= .)
+duplicates tag iso sixlet, generate(duplicate)
+drop if duplicate & newobs
+drop duplicate newobs
 
 // Remove last semicolon from sources
 replace source = regexs(1) if regexm(source, "^(.*); *$")
