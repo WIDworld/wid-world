@@ -59,14 +59,12 @@ drop if (iso == "SS") & (year < 2008)
 // Remove within-country regions
 drop if strlen(iso) > 2
 
-
 // Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
 sort region2 iso year, stable
 by region2: egen num1=nvals(year) if inlist(region2, "Caribbean")
 by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
 drop if num1!=num2
 drop num1 num2
-
 
 // Check that the composition of groups does not change over time
 preserve

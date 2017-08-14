@@ -93,7 +93,7 @@ global plot_imputation_cfc 0
 global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
-global world_summary_market 1
+global world_summary_market 0
 
 // -------------------------------------------------------------------------- //
 // Update Stata and install specific commands

@@ -3,7 +3,7 @@ use "$work_data/add-exchange-rates-output.dta", clear
 merge n:1 iso year using "$work_data/price-index.dta", ///
 	nogenerate keepusing(index) keep(master match)
 
-// Convert monetary series to real 2015 LCU
+// Convert monetary series to real $pastyear LCU
 replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
 
 // For France, Germany & the Netherlands: old currency before 1950

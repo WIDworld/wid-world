@@ -1,12 +1,13 @@
 // -------------------------------------- Fiscal income distributional series
 
-import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeries.xlsx", sheet("series") first case(l) clear
+import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
+keep if component=="added up"
 destring year, replace
 levelsof year, local(years)
 
 foreach year in `years'{
 	qui{
-		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeries.xlsx", ///
+		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
 		sheet("yf, Russia, `year'") first clear
 
 		// Clean and extend
@@ -170,9 +171,15 @@ foreach year in `years'{
 }
 
 // Append all years
-use "`data1905'", clear
+local iter=1
 foreach year in `years'{
-	append using "`data`year''"
+	if `iter'==1{
+		use "`data`year''", clear
+	}
+	else{
+		append using "`data`year''"
+	}
+local iter=`iter'+1
 }
 
 rename country iso
@@ -181,7 +188,6 @@ duplicates drop iso year p widcode, force
 
 tempfile fiincRussia
 save "`fiincRussia'"
-
 
 
 // -------------------------------------- Pre-tax national income distributional series
@@ -194,7 +200,7 @@ levelsof year, local(years)
 foreach year in `years'{
 	qui{
 		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
-		sheet("yf, Russia, `year'") first clear
+		sheet("Russia, `year'") first clear
 
 		// Clean and extend
 		destring year, replace
@@ -336,7 +342,6 @@ foreach year in `years'{
 			save "`dec`year''"
 		restore
 
-
 		// Append all files
 		use "`brack`year''", clear
 		append using "`top`year''"
@@ -357,9 +362,15 @@ foreach year in `years'{
 }
 
 // Append all years
-use "`data1905'", clear
+local iter=1
 foreach year in `years'{
-	append using "`data`year''"
+	if `iter'==1{
+		use "`data`year''", clear
+	}
+	else{
+		append using "`data`year''"
+	}
+local iter=`iter'+1
 }
 
 rename country iso
@@ -541,20 +552,47 @@ foreach year in `years'{
 }
 
 // Append all years
-use "`data1995'", clear
+local iter=1
 foreach year in `years'{
-	append using "`data`year''"
+	if `iter'==1{
+		use "`data`year''", clear
+	}
+	else{
+		append using "`data`year''"
+	}
+local iter=`iter'+1
 }
 
 rename country iso
 rename perc p
 duplicates drop iso year p widcode, force
 
+tempfile wealthRussia
+save "`wealthRussia'"
+
+// -------------------------------------- DEFLATOR
+
+import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/RU_defl.xlsx", clear
+keep if _n>2
+renvars A B / year value
+destring value, replace force
+gen widcode="inyixx999i"
+gen iso="Russia"
+gen p="p0p100"
+
+// Append all files
 append using "`fiincRussia'"
 append using "`ptincRussia'"
+append using "`wealthRussia'"
 
+// Drop some data
+drop if substr(widcode,1,1)=="a" 		& year<1960
+drop if substr(widcode,1,1)!="s" 		& substr(widcode,2,5)=="hweal"
+
+// Currency and renaming
 generate currency = "RUB" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace iso="RU"
+replace p="pall" if p=="p0p100"
 
 tempfile russia
 save "`russia'"

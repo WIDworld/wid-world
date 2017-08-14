@@ -1,13 +1,13 @@
 // Fetch data from Gabriel Zucman's website
-copy "http://gabriel-zucman.eu/files/PSZ2017AppendixTablesII(Distrib).xlsx" ///
-	"$us_data/PSZ/PSZ2017AppendixTablesII(Distrib).xlsx", replace
+*copy "http://gabriel-zucman.eu/files/PSZ2017AppendixTablesII(Distrib).xlsx" ///
+*	"$us_data/PSZ/PSZ2017AppendixTablesII(Distrib).xlsx", replace
 
 
 // ------------------------------------------------------ IMPORT DATA -------------------------------------------------------------------- //
 
 // T1: Import shares type series (Tables 1 for letters A, B, C, D, E)
 local iter=1
-foreach j in A1 B1 C1 D1 E1{
+foreach j in A1 B1 C1 C1b D1 E1{
 di "--> T`j'...", _continue
 qui{
 	import excel "$us_data/PSZ/PSZ2017AppendixTablesII(Distrib).xlsx", sheet("T`j'") clear
@@ -53,7 +53,6 @@ di "DONE"
 
 tempfile T1
 save "`T1'"
-
 
 // T2: Import income shares decompositions (Tables 2, 2b, 2c of A, B, D, E)
 local iter=1
@@ -544,8 +543,8 @@ clear
 	"Population: equal-split equaliduals (20+)"	"992j"
 	"Population: equal-split individuals (20+)"	"992j"
 	"Individuals"								"999i"
-	"Men"										"999m"
-	"Women"										"999f"
+	"Men"										"992m"
+	"Women"										"992f"
 	"Working-age individuals"					"996i"
 	"equal-split individuals"					"992j"
 	"individuals"								"999i"
@@ -613,6 +612,8 @@ replace fivelet="ptinp" 		if tabnum=="B" & decomp=="Interest payments"
 replace fivelet="ptlin" 		if tabnum=="B" & decomp=="Labor income"
 replace fivelet="ptkin" 		if tabnum=="B" & decomp=="Capital income"
 replace fivelet="prspn" 		if tabnum=="B" & decomp=="Pension benefits"
+* Post-tax national income
+replace fivelet="cainc"			if table=="C1b"
 * Fiscal income
 drop if tabnum=="D" & decomp=="All (no KG)"
 replace fivelet="fimix" 		if tabnum=="D" & decomp=="Business income"
@@ -623,7 +624,7 @@ replace fivelet="fiwag" 		if tabnum=="D" & decomp=="Wages & pensions"
 * Wealth
 replace fivelet="hwbus" 		if tabnum=="E" & decomp=="Business assets"
 replace fivelet="hweqi" 		if tabnum=="E" & decomp=="Equities"
-drop 		if tabnum=="E" & decomp=="Fixed income claims" // TO BE CORRECTED HERE
+replace fivelet="hwfix" 		if tabnum=="E" & decomp=="Fixed income claims"
 replace fivelet="hwhou" 		if tabnum=="E" & decomp=="Housing"
 replace fivelet="hwpen" 		if tabnum=="E" & decomp=="Pensions"
 
