@@ -175,6 +175,9 @@ do "$do_dir/add-swedish-data.do"
 // Add France (macro) data
 do "$do_dir/add-france-macro-data.do"
 
+// Add Brazil data
+do "$do_dir/add-brazil-data.do"
+
 // Add US data
 do "$do_dir/add-us-data.do"
 
