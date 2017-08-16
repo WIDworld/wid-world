@@ -1,35 +1,26 @@
-import excel "$wid_dir/Country-Updates/Brazil/Brazil inequality series.xlsx", sheet("series") first case(l) clear
-destring year, replace
+// Import inequality data
+import delimited "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014.csv", delim(";") clear
 levelsof year, local(years)
-levelsof component, local(types)
 
-foreach type in `types'{
-di "Brazil `type' Inequality Series...", _continue
-qui{
 foreach year in `years'{
+		qui{
+		import delimited "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014.csv", delim(";") clear
+		keep if year==2013
 		
-		// Define widcodes and open corresponding sheets
-		if "`type'"=="Fiscal income"{
-			local inc fiinc
-			import excel "$wid_dir/Country-Updates/Brazil/Brazil inequality series.xlsx", ///
-				sheet("Fiscal income, Brazil, `year'") first clear
-		}
-		if "`type'"=="National income"{
-			local inc ptinc
-			import excel "$wid_dir/Country-Updates/Brazil/Brazil inequality series.xlsx", ///
-				sheet("National income, Brazil, `year'") first clear
-		}
-	
 		// Clean and extend
-		destring year, replace
-		replace year=year[_n-1] if _n>1
-		replace country=country[_n-1] if _n>1
-		replace average=average[_n-1] if _n>1
-		replace p=p*100
-		drop component
+		gen country="IN"
+		keep country year p sptinc992j aptinc992j  tptinc992j anninc992i
+		renvars sptinc992j aptinc992j tptinc992j anninc992i / topsh bracketavg thr average
+		
+		replace topsh=topsh/100
+		gen bracketsh=topsh-topsh[_n+1] if _n<_N
+		replace bracketsh=topsh if _n==_N
+		
+		gen topavg=(average*topsh)/(1-p/100000)
 
 		// Bracket averages, shares, thresholds (pXpX+1)
 		preserve
+			replace p=p/1000
 			keep country year p bracketavg bracketsh thr
 			gen p2=p[_n+1] if _n<_N
 			replace p2=100 if _n==_N
@@ -37,9 +28,9 @@ foreach year in `years'{
 			egen perc=concat(x p x p2)
 			keep year country perc bracketavg bracketsh thr
 
-			rename bracketavg valuea`inc'992j
-			rename bracketsh values`inc'992j
-			rename thr valuet`inc'992j
+			rename bracketavg valueaptinc992j
+			rename bracketsh valuesptinc992j
+			rename thr valuetptinc992j
 			reshape long value, i(country year perc) j(widcode) string
 			order country year perc widcode value
 			tempfile brack`year'
@@ -48,13 +39,13 @@ foreach year in `years'{
 
 		// Top averages, shares, thresholds, beta (pXp100)
 		preserve
-			keep country year p topavg topsh thr b
+			replace p=p/1000
+			keep country year p topavg topsh thr
 			gen perc = "p" + string(p) + "p" + "100"
 			drop p
-			rename topavg valuea`inc'992j
-			rename topsh values`inc'992j
-			rename thr valuet`inc'992j
-			rename b valueb`inc'992j
+			rename topavg valueaptinc992j
+			rename topsh valuesptinc992j
+			rename thr valuetptinc992j
 			reshape long value, i(country year perc) j(widcode) string
 			order country year perc widcode value
 			drop if mi(value)
@@ -66,7 +57,6 @@ foreach year in `years'{
 		// Key percentile groups
 		preserve
 			keep year country p average topsh
-			replace p=p*1000
 
 			gen aa=1-topsh if p==50000 //  bottom 50
 			egen p0p50share=mean(aa)
@@ -112,8 +102,8 @@ foreach year in `years'{
 				rename `var' x`var'
 			}
 			reshape long  x, i(Y year) j(new) string
-			replace Y="a`inc'992j" if Y=="Y"
-			replace Y="s`inc'992j" if Y=="share"
+			replace Y="aptinc992j" if Y=="Y"
+			replace Y="sptinc992j" if Y=="share"
 			rename Y widcode
 			rename new perc
 			rename x value
@@ -127,7 +117,6 @@ foreach year in `years'{
 
 		// Deciles
 		preserve
-			replace p=p*1000
 			foreach p in 0 10000 20000 30000 40000 50000 60000 70000 80000{
 				local p2=`p'+9000
 				egen sh`p'=sum(bracketsh) if inrange(p,`p',`p2')
@@ -142,8 +131,8 @@ foreach year in `years'{
 			keep country year sh* avg*
 			keep if _n==1
 			reshape long sh avg, i(country year) j(perc)
-			rename avg valuea`inc'992j
-			rename sh values`inc'992j
+			rename avg valueaptinc992j
+			rename sh valuesptinc992j
 			reshape long value, i(country year perc) j(widcode) string
 			replace perc=perc/1000
 			gen perc2=perc+10
@@ -167,14 +156,13 @@ foreach year in `years'{
 
 		// Sanity checks
 		qui tab widcode
-		assert r(r)==4
+		assert r(r)==3
 		qui tab perc
 		assert r(r)==265
 
 		// Save
-		tempfile `inc'`year'
-		save "``inc'`year''"
-}
+		tempfile india`year'
+		save "`india`year''"
 }
 }
 
@@ -183,28 +171,42 @@ local iter=1
 foreach inc in fiinc ptinc{
 foreach year in `years'{
 	if `iter'==1{
-		use "``inc'`year''", clear
+		use "`india`year''", clear
 	}
 	else{
-		append using "``inc'`year''"
+		append using "`india`year''"
 	}
 local iter=`iter'+1
 }
 }
 
-rename country iso
-rename perc p
-duplicates drop iso year p widcode, force
+// Add macro data
+preserve
+	import delimited "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014.csv", delim(";") clear
+	keep year npopul992i anninc992i mnninc999i
+	duplicates drop
+	
+	gen perc="p0p100"
+	gen country="IN"
+	
+	renvars npopul992i anninc992i mnninc999i, pref(value)
+	reshape long value, i(country perc year) j(widcode) string
+
+	tempfile indiamacro
+	save "`indiamacro'"
+restore
+append using "`indiamacro'"
+
+renvars country perc / iso p
 
 // Currency, renaming, preparing variables to drop from old data
-generate currency = "BRL" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
-replace iso="BR"
+generate currency = "INR" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace p="pall" if p=="p0p100"
 
 levelsof widcode, local(levels) clean
 
-tempfile brazil
-save "`brazil'"
+tempfile india
+save "`india'"
 
 // Create metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -218,24 +220,24 @@ tempfile meta
 save "`meta'"
 
 // Add data to WID
-use "$work_data/add-france-macro-data-output.dta", clear
+use "$work_data/add-brazil-data-output.dta", clear
 
 generate todrop = 0
 foreach x in `levels'{
-replace todrop = 1 if (widcode=="`x'") & (iso=="BR")
+replace todrop = 1 if (widcode=="`x'") & (iso=="IN")
 }
 drop if todrop
 drop todrop
 
-append using "`brazil'"
+append using "`india'"
 
-label data "Generated by add-brazil-data.do"
-save "$work_data/add-brazil-data-output.dta", replace
+label data "Generated by add-india-data.do"
+save "$work_data/add-india-data-output.dta", replace
 
 // Add metadata
-use "$work_data/add-france-macro-data-metadata.dta", clear
+use "$work_data/add-brazil-data-metadata.dta", clear
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 
-label data "Generated by add-brazil-data.do"
-save "$work_data/add-brazil-data-metadata.dta", replace
+label data "Generated by add-india-data.do"
+save "$work_data/add-india-data-metadata.dta", replace
 

@@ -80,7 +80,7 @@ generate method = ""
 tempfile meta
 save "`meta'"
 
-use "$work_data/add-brazil-data-output.dta", clear
+use "$work_data/add-india-data-output.dta", clear
 
 generate todrop = 0
 replace todrop = 1 if (widcode == "ahweal992j") & (iso == "US")

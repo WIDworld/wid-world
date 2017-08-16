@@ -111,7 +111,7 @@ global world_summary_market 0
 
 // You need to update Stata to the 14 version
 version 14
-
+/*
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -177,6 +177,9 @@ do "$do_dir/add-france-macro-data.do"
 
 // Add Brazil data
 do "$do_dir/add-brazil-data.do"
+
+// Add India data
+do "$do_dir/add-india-data.do"
 
 // Add US data
 do "$do_dir/add-us-data.do"
@@ -383,6 +386,8 @@ do "$do_dir/add-uk-data.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
+
+*/
 
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"

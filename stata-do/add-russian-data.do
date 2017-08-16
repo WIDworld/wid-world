@@ -589,10 +589,14 @@ append using "`wealthRussia'"
 drop if substr(widcode,1,1)=="a" 		& year<1960
 drop if substr(widcode,1,1)!="s" 		& substr(widcode,2,5)=="hweal"
 
+
+// -------------------------------------- ADD TO WID
 // Currency and renaming
 generate currency = "RUB" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace iso="RU"
 replace p="pall" if p=="p0p100"
+
+levelsof widcode, local(levels)
 
 tempfile russia
 save "`russia'"
