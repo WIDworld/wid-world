@@ -7,9 +7,6 @@ replace p = p + "p100" if newobs
 duplicates tag iso year widcode p, generate(dup)
 drop if dup & newobs
 drop dup newobs
-duplicates tag iso year widcode p, generate(dup)
-assert dup == 0
-drop dup
 
 replace p = "p0p100" if (p == "pall")
 drop currency
@@ -38,13 +35,18 @@ save "`data'"
 // Compute grouped percentiles
 keep if substr(widcode, 1, 1) == "s"
 egen nb_gperc = count(value), by(iso year widcode)
-keep if nb_gperc == 127
+keep if nb_gperc >= 127
 drop nb_gperc
 
 // Compute percentiles shares
+drop if p_max!=100000
+qui tab p
+assert r(r)==127
 sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
+by iso year widcode: egen sum=sum(value2)
+assert inrange(sum,0.99,1.01)
 
 preserve
 expand 2 if !missing(value2), generate(new)
