@@ -8,7 +8,6 @@ duplicates tag iso year widcode p, generate(dup)
 drop if dup & newobs
 drop dup newobs
 duplicates tag iso year widcode p, generate(dup)
-drop if dup==1 & iso=="US" & p=="pall"
 assert dup == 0
 drop dup
 

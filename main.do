@@ -14,7 +14,7 @@ clear all
 
 // WID folder directory
 *global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-global wid_dir "C:\Users\Amory\Dropbox\W2ID" // Amory Gethin
+global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
@@ -68,6 +68,9 @@ global report_output "$wid_dir/WIDGraphsTables"
 // Directory with the output
 global output_dir "$wid_dir/WIDData"
 
+// Old version directory to compare with udpated database
+global oldoutput_dir "$output_dir/16_Aug_2017_12_54_47"
+
 // Directory with the summary table
 global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
 
@@ -111,7 +114,7 @@ global world_summary_market 0
 
 // You need to update Stata to the 14 version
 version 14
-/*
+
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -387,8 +390,6 @@ do "$do_dir/add-uk-data.do"
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
 
-*/
-
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
@@ -416,27 +417,35 @@ do "$do_dir/export-main-db.do"
 // Export the list of countries
 do "$do_dir/export-countries.do"
 
-/*
+
+
+// -------------------------------------------------------------------------- //
+// Report updated and deleted data
+// -------------------------------------------------------------------------- //
+
+// Export the list of countries
+*do "$do_dir/update-report.do"
+
 // -------------------------------------------------------------------------- //
 // Report some of the results
 // -------------------------------------------------------------------------- //
 
 // Compare the world distribution of NNI vs. GDP
-do "$do_dir/gdp-vs-nni.do"
+*do "$do_dir/gdp-vs-nni.do"
 
 // Evolution of GDP and population in all countries
-do "$do_dir/plot-gdp-population.do"
+*do "$do_dir/plot-gdp-population.do"
 
 // Evolution of CFC and NFI in selected countries
-do "$do_dir/plot-cfc-nfi.do"
+*do "$do_dir/plot-cfc-nfi.do"
 
 // -------------------------------------------------------------------------- //
 // Sanity checks when updating database to a new year
 // -------------------------------------------------------------------------- //
 
-do "$do_dir/update-check.do"
+*do "$do_dir/update-check.do"
 
-*/
+
 
 // -------------------------------------------------------------------------- //
 // Summary table
