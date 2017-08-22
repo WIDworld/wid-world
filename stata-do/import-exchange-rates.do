@@ -80,10 +80,10 @@ drop value$pastyear
 * Values are missing when country joins Euro, so one replaces all missing values
 local lastyear=$pastyear - 1
 forval i=1999/`lastyear'{
-gen x=value`i' if countryname=="Euro area"
-egen e`i'=mean(x)
-drop x
-replace value`i'=e`i' if  (inlist(countryname, "Germany", "Austria", "Belgium", "Spain", "Finland", "France") ///
+	gen x=value`i' if countryname=="Euro area"
+	egen e`i'=mean(x)
+	drop x
+	replace value`i'=e`i' if  (inlist(countryname, "Germany", "Austria", "Belgium", "Spain", "Finland", "France") ///
 						| inlist(countryname,"Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
 						| inlist(countryname,"Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
 						| inlist(countryname, "Latvia", "Lithuania")) ///
@@ -125,8 +125,8 @@ drop if currency=="EUR"    & iso=="LT" 			   & year<2015
 // Drop Venezuela and Syria before $pastyear (strange values)
 drop if inlist(iso,"VE","SY") & (year<$pastyear)
 
-// Replace exchange rate by 1 for El Salvadore and Liberia (series in dollars)
-replace value=1 if inlist(iso,"SV","LR")
+// Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
+replace value=1 if inlist(iso,"SV","LR","ZW")
 
 
 append using "`xrate'"
