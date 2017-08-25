@@ -683,6 +683,10 @@ assert r(N)==0
 // Generate widcode
 gen widcode = type + fivelet + pop
 
+// Drop table C3e (issue)
+drop if table=="C3e"
+sort year p widcode table
+
 // Drop duplicates
 duplicates drop year widcode p, force
 

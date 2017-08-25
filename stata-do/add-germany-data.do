@@ -1,28 +1,27 @@
-// Import inequality data
-use "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014_current.dta", clear
+// Import and convert to WID format
+
+import excel "$wid_dir/Country-Updates/Germany/2017/August/Gpinter_output_DE.xlsx", sheet("series") first clear
+renvars _all, lower
+destring year, replace
 levelsof year, local(years)
 
 foreach year in `years'{
-		qui{
-		use "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014_current.dta", clear
-		keep if year==`year'
-		count if !mi(p)
-		if r(N)>0{
-		
+	qui{
+		import excel "$wid_dir/Country-Updates/Germany/2017/August/Gpinter_output_DE.xlsx", ///
+		sheet("total, DE, `year'") first clear
+
 		// Clean and extend
-		gen country="IN"
-		keep country year p sptinc992j aptinc992j  tptinc992j anninc992i
-		renvars sptinc992j aptinc992j tptinc992j anninc992i / topsh bracketavg thr average
-		
-		replace topsh=topsh/100
+		destring year, replace
+		replace year=year[_n-1] if _n>1
+		replace country=country[_n-1] if _n>1
+		replace average=average[_n-1] if _n>1
 		gen bracketsh=topsh-topsh[_n+1] if _n<_N
 		replace bracketsh=topsh if _n==_N
-		
-		gen topavg=(average*topsh)/(1-p/100000)
+		replace p=p*100
+		drop component
 
 		// Bracket averages, shares, thresholds (pXpX+1)
 		preserve
-			replace p=p/1000
 			keep country year p bracketavg bracketsh thr
 			gen p2=p[_n+1] if _n<_N
 			replace p2=100 if _n==_N
@@ -41,13 +40,13 @@ foreach year in `years'{
 
 		// Top averages, shares, thresholds, beta (pXp100)
 		preserve
-			replace p=p/1000
-			keep country year p topavg topsh thr
+			keep country year p topavg topsh thr b
 			gen perc = "p" + string(p) + "p" + "100"
 			drop p
 			rename topavg valueaptinc992j
 			rename topsh valuesptinc992j
 			rename thr valuetptinc992j
+			rename b valuebptinc992j
 			reshape long value, i(country year perc) j(widcode) string
 			order country year perc widcode value
 			drop if mi(value)
@@ -59,6 +58,7 @@ foreach year in `years'{
 		// Key percentile groups
 		preserve
 			keep year country p average topsh
+			replace p=p*1000
 
 			gen aa=1-topsh if p==50000 //  bottom 50
 			egen p0p50share=mean(aa)
@@ -119,6 +119,7 @@ foreach year in `years'{
 
 		// Deciles
 		preserve
+			replace p=p*1000
 			foreach p in 0 10000 20000 30000 40000 50000 60000 70000 80000{
 				local p2=`p'+9000
 				egen sh`p'=sum(bracketsh) if inrange(p,`p',`p2')
@@ -138,16 +139,17 @@ foreach year in `years'{
 			reshape long value, i(country year perc) j(widcode) string
 			replace perc=perc/1000
 			gen perc2=perc+10
-			tostring perc perc2, replace force
+			tostring perc perc2, replace
 			replace perc = "p" + perc + "p" + perc2
 			drop perc2
 
 			sort widcode perc
-			bys widcode: assert (value<value[_n+1]) | (value==.) if _n<_N
+			bys widcode: assert value<value[_n+1] if _n<_N
 
 			tempfile dec`year'
 			save "`dec`year''"
 		restore
+
 
 		// Append all files
 		use "`brack`year''", clear
@@ -157,67 +159,41 @@ foreach year in `years'{
 
 		// Sanity checks
 		qui tab widcode
-		assert r(r)==3
-		
-		// Dropping missing values
-		drop if mi(value)
-		
-		// Drop duplicates
-		duplicates drop country year perc widcode, force
+		assert r(r)==4
+		qui tab perc
+		assert r(r)==265
 
 		// Save
-		tempfile india`year'
-		save "`india`year''"
-}
-}
+		tempfile data`year'
+		save "`data`year''"
+		}
 }
 
 // Append all years
 local iter=1
 foreach year in `years'{
 	if `iter'==1{
-		use "`india`year''", clear
+		use "`data`year''", clear
 	}
 	else{
-		capture append using "`india`year''"
+		append using "`data`year''"
 	}
 local iter=`iter'+1
 }
 
-// Duplicate observations to generate fiscal income shares
-preserve
-	replace widcode = subinstr(widcode, "ptinc", "fiinc",.)
-	keep if substr(widcode,1,1)=="s"
-	tempfile indiafiinc
-	save "`indiafiinc'"
-restore
-append using "`indiafiinc'"
+rename country iso
+rename perc p
 
-// Add macro data
-preserve
-	use "$wid_dir/Country-Updates/India/2017/August/India_benchmark_19222014_current.dta", clear
-	keep year npopul992i anninc992i mnninc999i
-	duplicates drop
-	
-	gen perc="p0p100"
-	gen country="IN"
-	
-	renvars npopul992i anninc992i mnninc999i, pref(value)
-	reshape long value, i(country perc year) j(widcode) string
+duplicates drop iso year p widcode, force
 
-	tempfile indiamacro
-	save "`indiamacro'"
-restore
-append using "`indiamacro'"
-
-renvars country perc / iso p
-
-// Currency, renaming, preparing variables to drop from old data
-generate currency = "INR" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+generate currency = "EUR" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace p="pall" if p=="p0p100"
 
-tempfile india
-save "`india'"
+// Convert DM in Euros before 1998
+replace value=value/1.95583 if (year<1998) & (inlist(substr(widcode, 1, 1), "a", "t", "m", "i"))
+
+tempfile germany
+save "`germany'"
 
 // Create metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -231,24 +207,21 @@ tempfile meta
 save "`meta'"
 
 // Add data to WID
-use "$work_data/add-brazil-data-output.dta", clear
+use "$work_data/add-india-data-output.dta", clear
 gen oldobs=1
-append using "`india'"
+append using "`germany'"
 duplicates tag iso year p widcode, gen(dup)
-qui count if dup==1 & iso!="IN"
+qui count if dup==1 & iso!="DE"
 assert r(N)==0
 drop if oldobs==1 & dup==1
-
-drop if substr(widcode, 2, 5)=="fiinc" & oldobs==1 & iso=="IN" // drop previous fiscal income
 drop oldobs dup
 
-label data "Generated by add-india-data.do"
-save "$work_data/add-india-data-output.dta", replace
+label data "Generated by add-germany-data.do"
+save "$work_data/add-germany-data-output.dta", replace
 
 // Add metadata
-use "$work_data/add-brazil-data-metadata.dta", clear
+use "$work_data/add-india-data-metadata.dta", clear
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 
-label data "Generated by add-india-data.do"
-save "$work_data/add-india-data-metadata.dta", replace
-
+label data "Generated by add-germany-data.do"
+save "$work_data/add-germany-data-metadata.dta", replace

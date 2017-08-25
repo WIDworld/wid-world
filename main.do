@@ -69,7 +69,8 @@ global report_output "$wid_dir/WIDGraphsTables"
 global output_dir "$wid_dir/WIDData"
 
 // Old version directory to compare with udpated database
-global oldoutput_dir "$output_dir/16_Aug_2017_12_54_47"
+global olddate 14_Aug_2017_14_58_18
+global oldoutput_dir "$output_dir/$olddate"
 
 // Directory with the summary table
 global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
@@ -118,7 +119,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
+/*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -183,6 +184,12 @@ do "$do_dir/add-brazil-data.do"
 
 // Add India data
 do "$do_dir/add-india-data.do"
+*/
+// Add Germany data
+do "$do_dir/add-germany-data.do"
+
+// Add UK data
+do "$do_dir/add-uk-income-data.do"
 
 // Add US data
 do "$do_dir/add-us-data.do"
@@ -193,7 +200,7 @@ do "$do_dir/add-china-data.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -277,7 +284,7 @@ do "$do_dir/import-un-sna-populations.do"
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
-
+*/
 // Price index
 do "$do_dir/calculate-price-index.do"
 
@@ -346,7 +353,7 @@ do "$do_dir/calculate-national-accounts.do"
 // -------------------------------------------------------------------------- //
 // Incorporate the external info to the WID
 // -------------------------------------------------------------------------- //
-
+*/
 // Convert WID series to real values
 do "$do_dir/convert-to-real.do"
 
@@ -385,7 +392,7 @@ do "$do_dir/add-us-ineq-data.do"
 do "$do_dir/add-france-data.do"
 
 // Add UK data
-do "$do_dir/add-uk-data.do"
+do "$do_dir/add-uk-wealth-data.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
