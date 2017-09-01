@@ -39,7 +39,7 @@ keep iso sixlet
 duplicates drop
 generate source = `"[URL][URL_LINK][/URL_LINK]"' ///
 	+ `"[URL_TEXT]Waldenström, D. (2017). "' ///
-	+ `"Wealth-income ratios in a small, developing economy: Sweden, 1810–2014[/URL_TEXT][/URL]; "'
+	+ `"Wealth-income ratios in a small, developing economy: Sweden, 1810–2014. Series updated by Luis Bauluz.[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
 save "`meta'"

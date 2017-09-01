@@ -32,8 +32,9 @@ save "`francemacro'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
-generate source = `"[URL][URL_LINK][/URL_LINK]"' ///
-	+ `"[URL_TEXT]Garbinti, Goupille and Piketty (2016); [/URL_TEXT][/URL]; "'
+generate source = `"[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-wealth-concentration-in-france-1800-2014-methods-estimates-and-simulations-2016/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Garbinti, Goupille and Piketty (2016)."' ///
+	+ `"Accounting for Wealth Inequality Dynamics: Methods, Estimates and Simulations for France (1800-2014). Series updated by Luis Bauluz.[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
 save "`meta'"

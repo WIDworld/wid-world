@@ -169,7 +169,7 @@ do "$do_dir/add-ivory-coast-data.do"
 
 // Add Russian data
 do "$do_dir/add-russian-data.do"
-
+*/
 // Add Spanish data
 do "$do_dir/add-spanish-data.do"
 
@@ -179,12 +179,15 @@ do "$do_dir/add-swedish-data.do"
 // Add France (macro) data
 do "$do_dir/add-france-macro-data.do"
 
+// Add other macro updates
+do "$do_dir/add-macro-updates.do"
+
 // Add Brazil data
 do "$do_dir/add-brazil-data.do"
 
 // Add India data
 do "$do_dir/add-india-data.do"
-*/
+
 // Add Germany data
 do "$do_dir/add-germany-data.do"
 
@@ -353,7 +356,7 @@ do "$do_dir/calculate-national-accounts.do"
 // -------------------------------------------------------------------------- //
 // Incorporate the external info to the WID
 // -------------------------------------------------------------------------- //
-*/
+
 // Convert WID series to real values
 do "$do_dir/convert-to-real.do"
 

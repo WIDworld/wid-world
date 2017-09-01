@@ -40,7 +40,7 @@ keep iso sixlet
 duplicates drop
 generate source = `"[URL][URL_LINK][/URL_LINK]"' ///
 	+ `"[URL_TEXT]Artola Blanco M.; Bauluz L.E. and Martinez-Toledano C. (2017). "' ///
-	+ `"Wealth in Spain, 1900 - 2014: A country of two lands[/URL_TEXT][/URL]; "'
+	+ `"Wealth in Spain, 1900 - 2014: A country of two lands. Series updated by Luis Bauluz.[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
 save "`meta'"

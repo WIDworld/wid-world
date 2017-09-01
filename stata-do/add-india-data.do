@@ -223,9 +223,9 @@ save "`india'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
-generate source = `"[URL][URL_LINK][/URL_LINK]"' ///
-	+ `"[URL_TEXT]"' ///
-	+ `"[/URL_TEXT][/URL]; "'
+generate source = `"[URL][URL_LINK]http://wid.world/document/chancelpiketty2017widworld/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Chancel, Lucas; Piketty, Thomas (2017)."' ///
+	+ `"Indian Income inequality, 1922-2014: From British Raj to Billionaire Raj?[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
 save "`meta'"
