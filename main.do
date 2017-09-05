@@ -169,16 +169,13 @@ do "$do_dir/add-ivory-coast-data.do"
 
 // Add Russian data
 do "$do_dir/add-russian-data.do"
-*/
+
 // Add Spanish data
 do "$do_dir/add-spanish-data.do"
 
 // Add Swedish data
 do "$do_dir/add-swedish-data.do"
-
-// Add France (macro) data
-do "$do_dir/add-france-macro-data.do"
-
+*/
 // Add other macro updates
 do "$do_dir/add-macro-updates.do"
 

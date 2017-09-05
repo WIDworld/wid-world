@@ -1,5 +1,5 @@
 
-local countries US Germany UK Canada
+local countries US Germany UK Canada Australia Japan Italy France
 
 local iter=1
 foreach c in `countries'{
@@ -40,11 +40,19 @@ local iter=`iter'+1
 replace iso="GB" if iso=="UK"
 replace iso="DE" if iso=="Germany"
 replace iso="CA" if iso=="Canada"
+replace iso="JP" if iso=="Japan"
+replace iso="AU" if iso=="Australia"
+replace iso="IT" if iso=="Italy"
+replace iso="FR" if iso=="France"
 
 gen currency = "GBP" if iso=="GB" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace currency="EUR" if iso=="DE" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace currency="CAD" if iso=="CA" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace currency="USD" if iso=="US" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace currency="JPY" if iso=="JP" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace currency="AUD" if iso=="AU" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace currency="EUR" if iso=="IT" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace currency="EUR" if iso=="FR" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 gen p="pall"
 
 drop if widcode=="inyixx999i"
@@ -68,7 +76,7 @@ use "$work_data/add-france-macro-data-output.dta", clear
 gen oldobs=1
 append using "`macroupdates'"
 duplicates tag iso year p widcode, gen(dup)
-qui count if dup==1 & !inlist(iso,"DE","GB","US","CA")
+qui count if dup==1 & !inlist(iso,"DE","GB","US","CA","JP","AU") & !inlist(iso,"FR","IT")
 assert r(N)==0
 drop if oldobs==1 & dup==1
 drop oldobs dup

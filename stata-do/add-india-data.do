@@ -184,10 +184,10 @@ foreach year in `years'{
 local iter=`iter'+1
 }
 
-// Duplicate observations to generate fiscal income shares
+// Duplicate observations to generate fiscal income
 preserve
 	replace widcode = subinstr(widcode, "ptinc", "fiinc",.)
-	keep if substr(widcode,1,1)=="s"
+	replace value=value*0.7 if inlist(substr(widcode,1,1),"a","t")
 	tempfile indiafiinc
 	save "`indiafiinc'"
 restore
