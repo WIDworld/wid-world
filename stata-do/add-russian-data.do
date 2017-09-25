@@ -1,13 +1,13 @@
 // -------------------------------------- Fiscal income distributional series
 
-import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
 keep if component=="added up"
 destring year, replace
 levelsof year, local(years)
 
 foreach year in `years'{
 	qui{
-		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
+		import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
 		sheet("yf, Russia, `year'") first clear
 
 		// Clean and extend
@@ -191,14 +191,14 @@ save "`fiincRussia'"
 
 // -------------------------------------- Pre-tax national income distributional series
 
-import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
 keep if component=="added up"
 destring year, replace
 levelsof year, local(years)
 
 foreach year in `years'{
 	qui{
-		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
+		import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", ///
 		sheet("Russia, `year'") first clear
 
 		// Clean and extend
@@ -380,13 +380,13 @@ save "`ptincRussia'"
 
 
 // -------------------------------------- Wealth distributional series
-import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/WealthSeriesRussiaBenchmark.xlsx", sheet("series") first case(l) clear
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/WealthSeriesRussiaBenchmark.xlsx", sheet("series") first case(l) clear
 destring year, replace
 levelsof year, local(years)
 
 foreach year in `years'{
 	qui{
-		import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/WealthSeriesRussiaBenchmark.xlsx", ///
+		import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/WealthSeriesRussiaBenchmark.xlsx", ///
 		sheet("wealth, Russia, `year'") first clear
 
 		// Clean and extend
@@ -569,7 +569,8 @@ save "`wealthRussia'"
 
 // -------------------------------------- DEFLATOR
 
-import excel "$wid_dir/Country-Updates/Russia/NPZ2017FinalDistributionSeries/RU_defl.xlsx", clear
+
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/RU_defl.xlsx", clear
 keep if _n>2
 renvars A B / year value
 destring value, replace force
@@ -577,10 +578,67 @@ gen widcode="inyixx999i"
 gen iso="Russia"
 gen p="p0p100"
 
+tempfile deflru
+save "`deflru'"
+
+
+// -------------------------------------- MACRO DATA
+
+// Net personal wealth to national income (%)
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+sheet("A21") clear
+keep if _n>7
+renvars A B / year wwealh999i
+keep year wwealh999i
+keep if !mi(wwealh999i)
+destring year wwealh999i, replace force
+gen widcode="wwealh999i"
+gen p="pall"
+rename wwealh999i value
+tempfile wwealh999i
+save "`wwealh999i'"
+
+// Private wealth to national income (%)
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+sheet("A28b") clear
+keep if _n>7
+renvars A B / year wwealp999i
+keep year wwealp999i
+keep if !mi(wwealp999i)
+destring year wwealp999i, replace force
+gen widcode="wwealp999i"
+gen p="pall"
+rename wwealp999i value
+tempfile wwealp999i
+save "`wwealp999i'"
+
+// Public wealth to national income (%)
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+sheet("A29b") clear
+keep if _n>7
+renvars A B / year wwealg999i
+keep year wwealg999i
+keep if !mi(wwealg999i)
+destring year wwealg999i, replace force
+gen widcode="wwealg999i"
+gen p="pall"
+rename wwealg999i value
+tempfile wwealg999i
+save "`wwealg999i'"
+
+
+
+
+// -------------------------------------- COMBINE AND CLEAN
+
 // Append all files
-append using "`fiincRussia'"
+use "`fiincRussia'", clear
 append using "`ptincRussia'"
 append using "`wealthRussia'"
+append using "`deflru'"
+append using "`wwealh999i'"
+append using "`wwealp999i'"
+append using "`wwealg999i'"
 
 // Drop some data
 drop if substr(widcode,1,1)=="a" 		& year<1960

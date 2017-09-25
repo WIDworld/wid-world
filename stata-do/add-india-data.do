@@ -212,6 +212,23 @@ append using "`indiamacro'"
 
 renvars country perc / iso p
 
+// Expand all values to 2014
+preserve
+keep if inrange(year,2013,2014)
+sum value if widcode=="anninc992i" & year==2014 & p=="p0p100"
+local anninc2014=r(max)
+sum value if widcode=="anninc992i" & year==2013 & p=="p0p100"
+gen gr_factor=`anninc2014'/`r(max)'
+replace value=value*gr_factor if inlist(substr(widcode,1,6),"aptinc","afiinc","tptinc","tfiinc") & year==2013
+drop gr_factor
+keep if year==2013 & inlist(substr(widcode,2,5),"ptinc","fiinc","ptinc","fiinc")
+replace year=2014
+tempfile data2014
+save "`data2014'"
+restore
+append using "`data2014'"
+
+
 // Currency, renaming, preparing variables to drop from old data
 generate currency = "INR" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace p="pall" if p=="p0p100"
