@@ -110,7 +110,7 @@ tsfill, full
 xtset, clear
 decode2 iso
 sort iso year
-by iso: carryforward valuem*, replace
+by iso: carryforward valuem* gdp_usd, replace
 foreach s in mcomnx mfdinx mprtnx {
 	replace value`s' = value`s'*gdp_usd
 }

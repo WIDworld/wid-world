@@ -13,14 +13,14 @@
 clear all
 
 // WID folder directory
-*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
+global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-*global project_dir "~/GitHub/wid-world" // macOS, Unix
-global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
+global project_dir "~/GitHub/wid-world" // macOS, Unix
+*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
 global do_dir "$project_dir/stata-do"
@@ -91,13 +91,13 @@ global pastyear 2016 // this year matches commands in gdp-vs-nni,
 					 // and other do-files
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    0
+global plot_missing_nfi    1
 global plot_nfi_countries  0
 global plot_imputation_cfc 0
 global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
-global world_summary_market 0
+global world_summary_market 1
 
 // -------------------------------------------------------------------------- //
 // Update Stata and install specific commands
@@ -163,7 +163,7 @@ do "$do_dir/calculate-average-over.do"
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-
+*//*
 // Add Ivory Coast data
 do "$do_dir/add-ivory-coast-data.do"
 
@@ -175,7 +175,7 @@ do "$do_dir/add-spanish-data.do"
 
 // Add Swedish data
 do "$do_dir/add-swedish-data.do"
-*/
+
 // Add other macro updates
 do "$do_dir/add-macro-updates.do"
 
@@ -196,18 +196,18 @@ do "$do_dir/add-us-data.do"
 
 // Add China data
 do "$do_dir/add-china-data.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
 // -------------------------------------------------------------------------- //
 // Import external national accounts data
 // -------------------------------------------------------------------------- //
-
+/*
 // Fetch the UN SNA detailed tables
 *do "$do_dir/fetch-un-sna-detailed-tables.do"
 
@@ -280,11 +280,11 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
-*/
+
 // Price index
 do "$do_dir/calculate-price-index.do"
 
@@ -424,8 +424,6 @@ do "$do_dir/export-main-db.do"
 // Export the list of countries
 do "$do_dir/export-countries.do"
 
-
-
 // -------------------------------------------------------------------------- //
 // Report updated and deleted data
 // -------------------------------------------------------------------------- //
@@ -438,7 +436,7 @@ do "$do_dir/export-countries.do"
 // -------------------------------------------------------------------------- //
 
 // Compare the world distribution of NNI vs. GDP
-*do "$do_dir/gdp-vs-nni.do"
+do "$do_dir/gdp-vs-nni.do"
 
 // Evolution of GDP and population in all countries
 *do "$do_dir/plot-gdp-population.do"
