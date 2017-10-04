@@ -2,7 +2,8 @@ use "$work_data/add-uk-data-output.dta", clear
 
 // Calibrate pre-tax national income series on national income
 keep if inlist(substr(widcode, 1, 6), "anninc", "aptinc")
-keep if p=="pall"
+keep if p=="pall" | p=="p0p100"
+replace p = "pall"
 
 generate sixlet = substr(widcode, 1, 6)
 generate pop = substr(widcode, 7, .)
