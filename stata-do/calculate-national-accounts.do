@@ -86,6 +86,7 @@ restore
 // Source
 preserve
 drop if nfi_src == "imputed"
+drop if strpos(nfi_src, "the value from the previous year")
 replace nfi_src = ustrregexrf(nfi_src, "the ", "")
 replace nfi_src = ustrregexrf(nfi_src, " \(series \d+\)", "")
 keep iso nfi_src
