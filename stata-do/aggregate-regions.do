@@ -66,6 +66,9 @@ by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
 drop if num1!=num2
 drop num1 num2
 
+// Drop 2017
+drop if year==$year
+
 // Check that the composition of groups does not change over time
 preserve
 egen niso = nvals(iso), by(region2 year)

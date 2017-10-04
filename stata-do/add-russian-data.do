@@ -1,3 +1,4 @@
+
 // -------------------------------------- Fiscal income distributional series
 
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
@@ -63,39 +64,39 @@ foreach year in `years'{
 			gen aa=1-topsh if p==50000 //  bottom 50
 			egen p0p50share=mean(aa)
 			drop aa
-			gen long p0p50Y=p0p50share*average/(0.5)
+			gen p0p50Y=p0p50share*average/(0.5)
 
 			gen aa=1-topsh if p==90000 // middle 40
 			egen p50p90share=mean(aa)
 			replace p50p90share=p50p90share-p0p50share
 			drop aa
-			gen long p50p90Y=p50p90share*average/(0.4)
+			gen p50p90Y=p50p90share*average/(0.4)
 
 			gen aa=topsh if p==90000 // top 10
 			egen top10share=mean(aa)
 			drop aa
-			gen long top10Y=top10share*average/(0.1)
+			gen top10Y=top10share*average/(0.1)
 
 			gen aa=1-topsh if p==99000 // next 9
 			egen p90p99share=mean(aa)
 			replace p90p99share=p90p99share-(1-top10share)
 			drop aa
-			gen long p90p99Y=p90p99share*average/(0.09)
+			gen p90p99Y=p90p99share*average/(0.09)
 
 			gen aa=topsh if p==99000 // top 1
 			egen top1share=mean(aa)
 			drop aa
-			gen long top1Y=top1share*average/(0.01)
+			gen top1Y=top1share*average/(0.01)
 
 			gen aa=topsh if p==99900 // top 0.1
 			egen top01share=mean(aa)
 			drop aa
-			gen long top01Y=top01share*average/(0.001)
+			gen top01Y=top01share*average/(0.001)
 
 			gen aa=topsh if p==99990 // top 0.01
 			egen top001share=mean(aa)
 			drop aa
-			gen long top001Y=top001share*average/(0.0001)
+			gen top001Y=top001share*average/(0.0001)
 
 			keep p0p50* p50p90* p90p99* top1Y top1share top01* top001* year country
 			keep if _n==1
@@ -254,39 +255,39 @@ foreach year in `years'{
 			gen aa=1-topsh if p==50000 //  bottom 50
 			egen p0p50share=mean(aa)
 			drop aa
-			gen long p0p50Y=p0p50share*average/(0.5)
+			gen p0p50Y=p0p50share*average/(0.5)
 
 			gen aa=1-topsh if p==90000 // middle 40
 			egen p50p90share=mean(aa)
 			replace p50p90share=p50p90share-p0p50share
 			drop aa
-			gen long p50p90Y=p50p90share*average/(0.4)
+			gen p50p90Y=p50p90share*average/(0.4)
 
 			gen aa=topsh if p==90000 // top 10
 			egen top10share=mean(aa)
 			drop aa
-			gen long top10Y=top10share*average/(0.1)
+			gen top10Y=top10share*average/(0.1)
 
 			gen aa=1-topsh if p==99000 // next 9
 			egen p90p99share=mean(aa)
 			replace p90p99share=p90p99share-(1-top10share)
 			drop aa
-			gen long p90p99Y=p90p99share*average/(0.09)
+			gen p90p99Y=p90p99share*average/(0.09)
 
 			gen aa=topsh if p==99000 // top 1
 			egen top1share=mean(aa)
 			drop aa
-			gen long top1Y=top1share*average/(0.01)
+			gen top1Y=top1share*average/(0.01)
 
 			gen aa=topsh if p==99900 // top 0.1
 			egen top01share=mean(aa)
 			drop aa
-			gen long top01Y=top01share*average/(0.001)
+			gen top01Y=top01share*average/(0.001)
 
 			gen aa=topsh if p==99990 // top 0.01
 			egen top001share=mean(aa)
 			drop aa
-			gen long top001Y=top001share*average/(0.0001)
+			gen top001Y=top001share*average/(0.0001)
 
 			keep p0p50* p50p90* p90p99* top1Y top1share top01* top001* year country
 			keep if _n==1
@@ -442,39 +443,39 @@ foreach year in `years'{
 			gen aa=1-topsh if p==50000 //  bottom 50
 			egen p0p50share=mean(aa)
 			drop aa
-			gen long p0p50Y=p0p50share*average/(0.5)
+			gen p0p50Y=p0p50share*average/(0.5)
 
 			gen aa=1-topsh if p==90000 // middle 40
 			egen p50p90share=mean(aa)
 			replace p50p90share=p50p90share-p0p50share
 			drop aa
-			gen long p50p90Y=p50p90share*average/(0.4)
+			gen p50p90Y=p50p90share*average/(0.4)
 
 			gen aa=topsh if p==90000 // top 10
 			egen top10share=mean(aa)
 			drop aa
-			gen long top10Y=top10share*average/(0.1)
+			gen top10Y=top10share*average/(0.1)
 
 			gen aa=1-topsh if p==99000 // next 9
 			egen p90p99share=mean(aa)
 			replace p90p99share=p90p99share-(1-top10share)
 			drop aa
-			gen long p90p99Y=p90p99share*average/(0.09)
+			gen p90p99Y=p90p99share*average/(0.09)
 
 			gen aa=topsh if p==99000 // top 1
 			egen top1share=mean(aa)
 			drop aa
-			gen long top1Y=top1share*average/(0.01)
+			gen top1Y=top1share*average/(0.01)
 
 			gen aa=topsh if p==99900 // top 0.1
 			egen top01share=mean(aa)
 			drop aa
-			gen long top01Y=top01share*average/(0.001)
+			gen top01Y=top01share*average/(0.001)
 
 			gen aa=topsh if p==99990 // top 0.01
 			egen top001share=mean(aa)
 			drop aa
-			gen long top001Y=top001share*average/(0.0001)
+			gen top001Y=top001share*average/(0.0001)
 
 			keep p0p50* p50p90* p90p99* top1Y top1share top01* top001* year country
 			keep if _n==1
@@ -582,7 +583,7 @@ tempfile deflru
 save "`deflru'"
 
 
-// -------------------------------------- MACRO DATA
+// -------------------------------------- NATIONAL ACCOUNTS DATA
 
 // Net personal wealth to national income (%)
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
@@ -627,7 +628,187 @@ tempfile wwealg999i
 save "`wwealg999i'"
 
 
+// Import all files
+clear
+local iter 1
+foreach table in A1 A20 A21 A22 A28a A28b A29a A29b A30a A30b{
+di "`table'..."
+qui{
+preserve
+	import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+	sheet("`table'") clear
 
+	local number=B[2]
+	
+	if "`table'"!="A1"{
+	keep if _n>5
+	}
+	if "`table'"=="A1"{
+	keep if _n>4
+	}
+	dropmiss, force
+	dropmiss, obs force
+	foreach var of varlist _all{
+		local lab`var'=`var'[1]
+	}
+	drop if _n==1
+	destring _all, replace force
+	rename A year
+	drop if mi(year)
+	ds year, not
+	renvars `r(varlist)', pref(value)
+	reshape long value, i(year) j(variable) string
+	drop if mi(value)
+
+	gen table="`number'"
+	gen label=""
+	levelsof variable, local(varlist) clean
+	foreach var in `varlist'{
+		replace label="`lab`var''" if variable=="`var'"
+	}
+	drop if mi(label) | label=="."
+	drop variable
+	order year label value table
+	tempfile `table'
+	save "``table''"
+restore
+
+if `iter'==1{
+	use "``table''", clear
+}
+else{
+	append using "``table''"
+}
+local iter=`iter'+1
+}
+}
+
+// Replace table
+gen tabname=table
+split table, parse(" ")
+drop table table1 table3-table11
+replace table2=subinstr(table2,":","",.)
+rename table2 table
+
+
+// Match with widcodes
+gen widcode=""
+
+replace widcode="mconfc999i" if label=="Capital depreciat. (CFC)" & table=="A1"
+replace widcode="mgdpro999i" if label=="Gross domestic product" & table=="A1"
+replace widcode="mnninc999i" if label=="National income" & table=="A1"
+replace widcode="mndpro999i" if label=="Net domestic product" & table=="A1"
+replace widcode="mhweal999i" if label=="Net personal wealth" & table=="A20"
+replace widcode="mpweal999i" if label=="Private wealh" & table=="A28a"
+replace widcode="mgweal999i" if label=="Public wealth" & table=="A29a"
+drop if mi(widcode)
+drop tabname label
+
+
+/*
+replace widcode="" if label=="%    Yt/GDPt" & table=="A1"
+replace widcode="" if label=="% FYt/Yt" & table=="A1"
+replace widcode="" if label=="% KDt/GDPt" & table=="A1"
+replace widcode="mconfc999i" if label=="Capital depreciat. (CFC)" & table=="A1"
+replace widcode="mgdpro999i" if label=="Gross domestic product" & table=="A1"
+replace widcode="mnninc999i" if label=="National income" & table=="A1"
+replace widcode="mndpro999i" if label=="Net domestic product" & table=="A1"
+replace widcode="" if label=="Net foreign capital income (% Yt)" & table=="A1"
+replace widcode="" if label=="Net foreign factor income" & table=="A1"
+replace widcode="" if label=="Net foreign labor income (% Yt)" & table=="A1"
+replace widcode="" if label=="Net foreign taxes & transfers" & table=="A1"
+
+replace widcode="" if label=="Agricultural land" & table=="A20"
+replace widcode="" if label=="Bonds, loans" & table=="A20"
+replace widcode="" if label=="Business assets" & table=="A20"
+replace widcode="" if label=="Debt" & table=="A20"
+replace widcode="" if label=="Deposits and savings accounts" & table=="A20"
+replace widcode="" if label=="Equities and investment fund shares" & table=="A20"
+replace widcode="" if label=="Financial assets" & table=="A20"
+replace widcode="" if label=="Financial assets, except Deposits and  saving accounts" & table=="A20"
+replace widcode="" if label=="Housing (net of debt)" & table=="A20"
+replace widcode="" if label=="Housing (gross of debt)" & table=="A20"
+replace widcode="" if label=="Life insurance and pension funds" & table=="A20"
+replace widcode="mhweal999i" if label=="Net personal wealth" & table=="A20"
+replace widcode="" if label=="Offshore wealth (benchmark)" & table=="A20"
+replace widcode="" if label=="Other domestic capital" & table=="A20"
+
+replace widcode="" if label=="Agricultural Land" & table==""
+replace widcode="" if label=="Corporate Net worth (book value)" & table==""
+replace widcode="" if label=="Corporate wealth (book value)" & table==""
+replace widcode="" if label=="Diff: net foreign assets" & table==""
+replace widcode="" if label=="Equity value" & table==""
+replace widcode="" if label=="Equity value (liabilities)" & table==""
+replace widcode="" if label=="Financial  (non-equity) liabilities" & table==""
+replace widcode="" if label=="Foreign assets owned by Russian residents" & table==""
+replace widcode="" if label=="Gap: should be equal to zero" & table==""
+replace widcode="" if label=="Housing" & table==""
+replace widcode="" if label=="National wealth" & table==""
+replace widcode="" if label=="Net foreign wealth" & table==""
+replace widcode="" if label=="Net foreign wealth (% National wealth)" & table==""
+replace widcode="" if label=="Net worth minus Equity value" & table==""
+replace widcode="" if label=="Net worth minus Equity value (% National wealth)" & table==""
+replace widcode="" if label=="Non-Financial assets" & table==""
+replace widcode="" if label=="Offshore wealth" & table==""
+replace widcode="" if label=="Personal wealth" & table==""
+replace widcode="" if label=="Private wealh" & table==""
+replace widcode="" if label=="Public wealth" & table==""
+replace widcode="" if label=="Public wealth (% National wealth)" & table==""
+replace widcode="" if label=="Russian assets owned by foreign residents" & table==""
+replace widcode="" if label=="Tobin's Q   (Equity value/Net worth)" & table==""
+replace widcode="" if label=="Total financial assets of domestic sectors" & table==""
+replace widcode="" if label=="Total financial liabilities of domestic sectors" & table==""
+replace widcode="" if label=="inc. Russian equity owned by foreign residents" & table==""
+replace widcode="" if label=="inc. foreign equity owned by Russian residents" & table==""
+replace widcode="" if label=="incl. Agricultural Land" & table==""
+replace widcode="" if label=="incl. Other domestic capital" & table==""
+replace widcode="" if label=="incl. Public Housing" & table==""
+replace widcode="" if label=="including Equity" & table==""
+*/
+
+
+// Replace as raw values
+replace value=value*1000000000
+
+// Add populations
+preserve
+	import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+	sheet("DataPOP") clear
+	renvars B C D / year npopul999i npopul992i
+	keep year npopul999i npopul992i
+	drop if mi(year)
+	destring _all, replace force
+	renvars npopul999i npopul992i, pref(value)
+	reshape long value, i(year) j(widcode) string
+	drop if mi(value)
+	replace value=value*1000
+	gen table="DataPOP"
+	tempfile pop
+	save "`pop'"
+restore
+append using "`pop'"
+
+// Generage averages
+drop table
+reshape wide value, i(year) j(widcode) string
+renpfix value
+
+ds year npopul*, not
+foreach var of varlist `r(varlist)'{
+	local newname=substr("`var'",2,5)
+	gen a`newname'999i=`var'/npopul999i
+	gen a`newname'992i=`var'/npopul992i
+}
+ds year, not
+renvars `r(varlist)', pref(value)
+reshape long value, i(year) j(widcode) string
+drop if mi(value)
+
+gen p="p0p100"
+gen iso="Russia"
+
+tempfile nataccounts
+save "`nataccounts'"
 
 // -------------------------------------- COMBINE AND CLEAN
 
@@ -639,10 +820,29 @@ append using "`deflru'"
 append using "`wwealh999i'"
 append using "`wwealp999i'"
 append using "`wwealg999i'"
+append using "`nataccounts'"
 
 // Drop some data
-drop if substr(widcode,1,1)=="a" 		& year<1960
-drop if substr(widcode,1,1)!="s" 		& substr(widcode,2,5)=="hweal"
+drop if inlist(substr(widcode,1,1),"t","a","b","m") 		& year<1961
+
+
+
+// -------------------------------------- CALIBRATE WEALTH DINA
+
+// Fetch private wealth
+preserve
+	keep if inlist(widcode,"ahweal992j","ahweal992i") & p=="p0p100"
+	reshape wide value, i(iso year p) j(widcode) string
+	renpfix value
+	gen factor=ahweal992i/ahweal992j
+	keep year factor
+	duplicates drop
+	tempfile fac
+	save "`fac'"
+restore
+merge m:1 year using "`fac'", nogen
+replace value=value*factor if inlist(widcode,"ahweal992j","thweal992j")
+drop factor
 
 
 // -------------------------------------- ADD TO WID

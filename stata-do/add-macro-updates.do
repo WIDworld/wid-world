@@ -44,7 +44,6 @@ replace iso="JP" if iso=="Japan"
 replace iso="AU" if iso=="Australia"
 replace iso="IT" if iso=="Italy"
 replace iso="FR" if iso=="France"
-drop if inlist(iso, "FR", "IT")
 
 gen currency = "GBP" if iso=="GB" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace currency="EUR" if iso=="DE" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
@@ -56,10 +55,14 @@ replace currency="EUR" if iso=="IT" & inlist(substr(widcode, 1, 1), "a", "t", "m
 replace currency="EUR" if iso=="FR" & inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 gen p="pall"
 
-drop if widcode=="inyixx999i"
+levelsof iso, local(countries)
+foreach c in `countries'{
+	levelsof widcode if iso=="`c'", local(`c'variables) clean
+}
 
 tempfile macroupdates
 save "`macroupdates'"
+
 
 // Create metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -75,6 +78,12 @@ save "`meta'"
 // Add data to WID
 use "$work_data/add-swedish-data-output.dta", clear
 gen oldobs=1
+foreach c in `countries'{
+	foreach var in ``c'variables'{
+		drop if widcode=="`var'" & iso=="`c'" & p=="pall" ///
+			& substr(widcode,1,1)!="n" & substr(widcode,1,1)!="i"
+	}
+}
 append using "`macroupdates'"
 duplicates tag iso year p widcode, gen(dup)
 qui count if dup==1 & !inlist(iso,"DE","GB","US","CA","JP","AU") & !inlist(iso,"FR","IT")
