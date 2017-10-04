@@ -1,3 +1,11 @@
+// List countries where we already have pre-tax national income
+use "$work_data/calculate-per-capita-series-output.dta", clear
+keep if substr(widcode, 1, 6) == "sptinc"
+keep iso
+duplicates drop
+tempfile iso_ptinc
+save "`iso_ptinc'"
+
 // Averages
 use "$work_data/calculate-per-capita-series-output.dta", clear
 
@@ -46,7 +54,7 @@ replace widcode = onelet + fivelet + pop + vartype
 
 drop factor onelet fivelet pop vartype
 
-drop if inlist(iso, "CN", "FR", "US")
+merge n:1 iso using "`iso_ptinc'", keep(master) nogenerate
 
 tempfile averages
 save "`averages'"
@@ -57,7 +65,7 @@ use "$work_data/calculate-per-capita-series-output.dta", clear
 keep if substr(widcode, 1, 9) == "sfiinc992"
 replace widcode = "sptinc992" + substr(widcode, 10, 1)
 
-drop if inlist(iso, "CN", "FR", "US")
+merge n:1 iso using "`iso_ptinc'", keep(master) nogenerate
 
 tempfile shares
 save "`shares'"
@@ -81,7 +89,7 @@ replace widcode = "mptinc" + pop + vartype
 
 drop factor sixlet pop vartype
 
-drop if inlist(iso, "CN", "FR", "US")
+merge n:1 iso using "`iso_ptinc'", keep(master) nogenerate
 
 tempfile aggregates
 save "`aggregates'"
@@ -113,7 +121,7 @@ generate source = "WID.world computations using fiscal and net national income."
 tempfile meta
 save "`meta'"
 
-use "$work_data/add-china-data-metadata.dta", clear
+use "$work_data/complete-variables-metadata.dta", clear
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update
 

@@ -245,6 +245,11 @@ preserve
 restore
 */
 
+// Fill in ptinc using fiscal income
+expand 2 if widcode == "sfiinc992t", generate(new)
+replace widcode = "sptinc992t" if new
+drop new
+
 tempfile us_states
 save "`us_states'"
 
@@ -255,6 +260,8 @@ keep iso sixlet
 duplicates drop
 generate source = "Frank, Sommeiller, Price & Saez (2015); "
 generate method = ""
+replace method = "Assuming the same distribution as fiscal income." if sixlet == "sptinc"
+replace source = "WID.world computations using: Frank, Sommeiller, Price & Saez (2015); " if sixlet == "sptinc"
 tempfile meta
 save "`meta'"
 
