@@ -26,9 +26,7 @@ gen iso="SE"
 gen currency = "SEK" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 gen p="pall"
 
-drop if widcode=="inyixx999i"
-
-levelsof widcode, local(levels)
+levelsof widcode, local(levels) clean
 
 tempfile sweden
 save "`sweden'"
@@ -47,6 +45,10 @@ save "`meta'"
 // Add data to WID
 use "$work_data/add-spanish-data-output.dta", clear
 gen oldobs=1
+foreach var in `levels'{
+	drop if widcode=="`var'" & iso=="SE" & p=="pall" ///
+		& substr(widcode,1,1)!="n" & substr(widcode,1,1)!="i"
+}
 append using "`sweden'"
 duplicates tag iso year p widcode, gen(dup)
 qui count if dup==1 & iso!="SE"
