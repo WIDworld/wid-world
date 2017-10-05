@@ -1,6 +1,6 @@
 // Wealth: macroeconomic variables
 import excel using "$codes_dictionary", ///
-	sheet("Wealth_Macro_Variables") cellrange(D4:F152) clear allstring
+	sheet("Wealth_Macro_Variables") cellrange(D4:F149) clear allstring
 keep D F
 rename D widcode
 rename F oldcode
@@ -24,7 +24,7 @@ save "`codes'", replace
 
 // Income: distributed variables
 import excel using "$codes_dictionary", ///
-	sheet("Income_Distributed_Variables") cellrange(D4:F87) clear allstring
+	sheet("Income_Distributed_Variables") cellrange(D4:F98) clear allstring
 keep D F
 rename D widcode
 rename F oldcode

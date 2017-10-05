@@ -21,7 +21,7 @@ use "$work_data/add-populations-output.dta", clear
 
 // Only keep data to aggregate
 keep if p == "pall"
-keep if (substr(widcode, 1, 6) == "npopul" & substr(widcode, 10, 1) != "t") ///
+keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///
 	| widcode == "mnninc999i" ///
 	| widcode == "mndpro999i" ///
 	| widcode == "mgdpro999i"

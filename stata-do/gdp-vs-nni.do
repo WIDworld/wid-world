@@ -37,14 +37,14 @@ drop if (xlceup999i >= .)
 keep if year == $pastyear
 
 if ($world_summary_market) {
-	keep iso mgdpro999i mnninc999i npopul999i xlceux999i mconfc999i mnnfin999i
+	keep iso mgdpro999i mnninc999i npopul$pop_summary xlceux999i mconfc999i mnnfin999i
 	replace mgdpro999i = mgdpro999i/xlceux999i
 	replace mnninc999i = mnninc999i/xlceux999i
 	replace mconfc999i = mconfc999i/xlceux999i
 	replace mnnfin999i = mnnfin999i/xlceux999i
 }
 else {
-	keep iso mgdpro999i mnninc999i npopul999i xlceup999i mconfc999i mnnfin999i
+	keep iso mgdpro999i mnninc999i npopul$pop_summary xlceup999i mconfc999i mnnfin999i
 	replace mgdpro999i = mgdpro999i/xlceup999i
 	replace mnninc999i = mnninc999i/xlceup999i
 	replace mconfc999i = mconfc999i/xlceup999i
@@ -120,10 +120,10 @@ summarize mgdpro999i if (region2 == "Oceania (excl. Australia and New Zealand)")
 local gdp_othoce = r(sum)
 
 if ($world_summary_market) {
-	putexcel set "$report_output/world-summary/TableX_GDPNNI_MER_$pastyear.xlsx", modify sheet("Table X")
+	putexcel set "$report_output/world-summary/TableX_GDPNNI_MER_${pastyear}_$pop_summary.xlsx", modify sheet("Table X")
 }
 else {
-	putexcel set "$report_output/world-summary/TableX_GDPNNI_PPP_$pastyear.xlsx", modify sheet("Table X")
+	putexcel set "$report_output/world-summary/TableX_GDPNNI_PPP_${pastyear}_$pop_summary.xlsx", modify sheet("Table X")
 }
 
 putexcel D4 = (`gdp_world'/1e12)
@@ -368,58 +368,58 @@ putexcel G20 = (`nni_aunz'/1e12)
 putexcel G21 = (`nni_othoce'/1e12)
 
 // Region populations
-summarize npopul999i
+summarize npopul$pop_summary
 local pop_world = r(sum)
 
-summarize npopul999i if (region1 == "Europe")
+summarize npopul$pop_summary if (region1 == "Europe")
 local pop_europe = r(sum)
 
-summarize npopul999i if (region1 == "Americas")
+summarize npopul$pop_summary if (region1 == "Americas")
 local pop_americas = r(sum)
 
-summarize npopul999i if (region1 == "Africa")
+summarize npopul$pop_summary if (region1 == "Africa")
 local pop_africa = r(sum)
 
-summarize npopul999i if (region1 == "Asia")
+summarize npopul$pop_summary if (region1 == "Asia")
 local pop_asia = r(sum)
 
-summarize npopul999i if inlist(region3, "European Union") | othwesteu
+summarize npopul$pop_summary if inlist(region3, "European Union") | othwesteu
 local pop_eu28 = r(sum)
 
-summarize npopul999i if inlist(iso, "US", "CA")
+summarize npopul$pop_summary if inlist(iso, "US", "CA")
 local pop_usca = r(sum)
 
-summarize npopul999i if latinamer
+summarize npopul$pop_summary if latinamer
 local pop_latinamer = r(sum)
 
-summarize npopul999i if otheasteu
+summarize npopul$pop_summary if otheasteu
 local pop_otheasteu = r(sum)
 
-summarize npopul999i if (region2 == "Northern Africa")
+summarize npopul$pop_summary if (region2 == "Northern Africa")
 local pop_northafrica = r(sum)
 
-summarize npopul999i if othafrica
+summarize npopul$pop_summary if othafrica
 local pop_othafrica = r(sum)
 
-summarize npopul999i if (iso == "CN")
+summarize npopul$pop_summary if (iso == "CN")
 local pop_cn = r(sum)
 
-summarize npopul999i if (iso == "JP")
+summarize npopul$pop_summary if (iso == "JP")
 local pop_jp = r(sum)
 
-summarize npopul999i if (iso == "IN")
+summarize npopul$pop_summary if (iso == "IN")
 local pop_in = r(sum)
 
-summarize npopul999i if othasia
+summarize npopul$pop_summary if othasia
 local pop_othasia = r(sum)
 
-summarize npopul999i if (region1 == "Oceania")
+summarize npopul$pop_summary if (region1 == "Oceania")
 local pop_oceania = r(sum)
 
-summarize npopul999i if (region2 == "Australia and New Zealand")
+summarize npopul$pop_summary if (region2 == "Australia and New Zealand")
 local pop_aunz = r(sum)
 
-summarize npopul999i if (region2 == "Oceania (excl. Australia and New Zealand)")
+summarize npopul$pop_summary if (region2 == "Oceania (excl. Australia and New Zealand)")
 local pop_othoce = r(sum)
 
 putexcel B4 = (`pop_world'/1e6)

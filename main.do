@@ -206,7 +206,11 @@ do "$do_dir/add-us-data.do"
 
 // Add China data
 do "$do_dir/add-china-data.do"
-*/
+
+// Make some corrections because some widcodes for national wealth had to be
+// changed: to be eventually integrated to the above files
+do "$do_dir/correct-widcodes.do"
+
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
@@ -217,7 +221,7 @@ do "$do_dir/import-wb-metadata.do"
 // -------------------------------------------------------------------------- //
 // Import external national accounts data
 // -------------------------------------------------------------------------- //
-/*
+
 // Fetch the UN SNA detailed tables
 *do "$do_dir/fetch-un-sna-detailed-tables.do"
 
@@ -290,7 +294,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -309,7 +313,7 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-do "$do_dir/import-exchange-rates.do"
+*do "$do_dir/import-exchange-rates.do"
 
 // Import IMF BOP data
 do "$do_dir/import-imf-bop.do"
@@ -383,6 +387,9 @@ do "$do_dir/add-populations.do"
 // Aggregate by regions
 do "$do_dir/aggregate-regions.do"
 
+// Complete some missing variables for which we only have subcomponents
+do "$do_dir/complete-variables.do"
+
 // Wealth/income ratios
 do "$do_dir/calculate-wealth-income-ratios.do"
 
@@ -436,6 +443,9 @@ do "$do_dir/export-main-db.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"
+
+// Make the variable tree
+do "$do_dir/make-variable-tree.do"
 
 // -------------------------------------------------------------------------- //
 // Report updated and deleted data

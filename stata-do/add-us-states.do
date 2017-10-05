@@ -76,13 +76,13 @@ rename Top1_adj sfiinc992t_p99
 rename Top05_adj sfiinc992t_p995
 rename Top01_adj sfiinc992t_p999
 rename Top001_adj sfiinc992t_p9999
-rename AvgInc afiinc999t_pall
-gen afiinc999i_pall=afiinc999t_pall
-gen afiinc992t_pall=afiinc999t_pall
+rename AvgInc afiinc992t_pall
+*gen afiinc999i_pall=afiinc999t_pall
+*gen afiinc992t_pall=afiinc999t_pall
 rename TotalInc mfiinc992t_pall
-gen mfiinc999t_pall= mfiinc992t_pall
-gen mfiinc992i_pall= mfiinc992t_pall
-gen mfiinc999i_pall=mfiinc992t_pall
+*gen mfiinc999t_pall= mfiinc992t_pall
+*gen mfiinc992i_pall= mfiinc992t_pall
+*gen mfiinc999i_pall=mfiinc992t_pall
 rename N_TaxUnit npopul992t_pall
 rename N_TaxReturn ntaxre992t_pall
 drop CPI2014 st country AGI
@@ -95,7 +95,7 @@ gen afiinc992t_p995p100=sfiinc992t_p995*mfiinc992t_pall/(npopul992t_pall*0.005)
 gen afiinc992t_p999p100=sfiinc992t_p999*mfiinc992t_pall/(npopul992t_pall*0.001)
 gen afiinc992t_p9999p100=sfiinc992t_p9999*mfiinc992t_pall/(npopul992t_pall*0.0001)
 
-reshape long afiinc992t  afiinc999t sfiinc992t mfiinc992t mfiinc999t mfiinc992i mfiinc999i ntaxre992t npopul992t afiinc999i, i(year iso) j(p) string
+reshape long afiinc992t sfiinc992t mfiinc992t ntaxre992t npopul992t, i(year iso) j(p) string
 replace p = subinstr(p, "_","",.)
 replace p = "p99.5" if p == "p995"
 replace p = "p99.9" if p == "p999"
@@ -104,7 +104,7 @@ replace p = "p99.5p100" if p == "p995p100"
 replace p = "p99.9p100" if p == "p999p100"
 replace p = "p99.99p100" if p == "p9999p100"
 
-foreach v of varlist afiinc999t-sfiinc992t {
+foreach v of varlist afiinc992t-sfiinc992t {
 	rename `v' value`v'
 }
 
@@ -123,7 +123,7 @@ rename C npopul992t_pall
 rename D ntaxre992t_pall
 rename E mfiinc992t_pall
 rename F AGI
-rename G afiinc999t_pall
+rename G afiinc992t_pall
 rename H afiinc992t_p90
 rename I afiinc992t_p95
 rename J afiinc992t_p99
@@ -174,13 +174,13 @@ assert r(N)==51
 merge n:1 country using "`states_codes'", nogenerate assert(match) keepusing(iso)
 drop country
 
-gen afiinc999i_pall=afiinc999t_pall
-gen afiinc992t_pall=afiinc999t_pall
-gen mfiinc999t_pall= mfiinc992t_pall
-gen mfiinc992i_pall= mfiinc992t_pall
-gen mfiinc999i_pall=mfiinc992t_pall
+*gen afiinc999i_pall=afiinc999t_pall
+*gen afiinc992t_pall=afiinc999t_pall
+*gen mfiinc999t_pall= mfiinc992t_pall
+*gen mfiinc992i_pall= mfiinc992t_pall
+*gen mfiinc999i_pall=mfiinc992t_pall
 
-reshape long afiinc992t afiinc999t sfiinc992t mfiinc992t mfiinc999t mfiinc992i mfiinc999i ntaxre992t npopul992t afiinc999i tfiinc992t, i(year iso) j(p) string
+reshape long afiinc992t sfiinc992t mfiinc992t ntaxre992t npopul992t tfiinc992t, i(year iso) j(p) string
 
 replace p = subinstr(p, "_","",.)
 replace p = "p99.5" if p == "p995"
@@ -245,6 +245,11 @@ preserve
 restore
 */
 
+// Fill in ptinc using fiscal income
+expand 2 if widcode == "sfiinc992t", generate(new)
+replace widcode = "sptinc992t" if new
+drop new
+
 tempfile us_states
 save "`us_states'"
 
@@ -255,6 +260,8 @@ keep iso sixlet
 duplicates drop
 generate source = "Frank, Sommeiller, Price & Saez (2015); "
 generate method = ""
+replace method = "Assuming the same distribution as fiscal income." if sixlet == "sptinc"
+replace source = "WID.world computations using: Frank, Sommeiller, Price & Saez (2015); " if sixlet == "sptinc"
 tempfile meta
 save "`meta'"
 

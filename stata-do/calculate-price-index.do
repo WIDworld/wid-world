@@ -449,6 +449,8 @@ replace index_source = "we use the GDP deflator from the IMF World Economic Outl
 	if index_source == "delta_def_weo"
 replace index_source = "we use the GDP deflator forecast from the IMF World Economic Outlook" ///
 	if index_source == "delta_def_weo_pred"
+replace index_source = "we use the GDP deflator forecast from the IMF World Economic Outlook for Tanzania" ///
+	if index_source == "delta_def_weo_pred_tza"
 replace index_source = "see country report for details" ///
 	if index_source == "delta_def_wid"
 replace index_source = "we interpolate assuming a constant inflation rate" ///

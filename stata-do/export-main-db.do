@@ -4,6 +4,26 @@ rename iso Alpha2
 rename p perc
 
 sort Alpha2 perc year
+/*
+keep if strpos(Alpha2, "US-")
+foreach v of varlist * {
+	quietly count if !missing(`v')
+	if (r(N) == 0) {
+		drop `v'
+	}
+}
+egen tokeep = rownonmiss(afiinc992t-xlcyux999i)
+keep if tokeep
+drop tokeep
+export delimited "~/Desktop/us-states.csv", delimiter(";") replace
+*/
+/*
+keep Alpha2 perc year ?nw*
+egen tokeep = rownonmiss(anwagr992i-mnwodk999i)
+keep if tokeep
+drop tokeep
+export delimited "~/Desktop/national-wealth.csv", delimiter(";") replace
+*/
 
 export delimited "$output_dir/$time/wid-db.csv", delimiter(";") replace
 

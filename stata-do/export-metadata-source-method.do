@@ -85,7 +85,7 @@ order Alpha2 TwoLet ThreeLet Method Source
 sort Alpha2 TwoLet ThreeLet
 
 // Correction for Australia
-replace Method = "Adults are individuals aged 15+. The series includes transfers. Averages excludes capital gains, shares includes capital gains." ///
+replace Method = "Adults are individuals aged 15+. The series includes transfers. Averages exclude capital gains, shares include capital gains." ///
 	if (Alpha2 == "AU") & (TwoLet == "fi") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"

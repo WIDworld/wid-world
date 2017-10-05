@@ -207,8 +207,8 @@ save "`brazil'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet
 duplicates drop
-generate source = `"[URL][URL_LINK][/URL_LINK]"' ///
-	+ `"[URL_TEXT]"' ///
+generate source = `"[URL][URL_LINK]http://wid.world/document/extreme-persistent-inequality-new-evidence-brazil-combining-national-accounts-surveys-fiscal-data-2001-2015-wid-world-working-paper-201712/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Marc Morgan (2017), Extreme and Persistent Inequality: New Evidence for Brazil Combining National Accounts, Surveys and Fiscal Data, 2001-2015"' ///
 	+ `"[/URL_TEXT][/URL]; "'
 generate method = ""
 tempfile meta
