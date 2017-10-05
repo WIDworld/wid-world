@@ -12,14 +12,24 @@
 
 clear all
 
+// Directory (Gethin / Blanchet)
+if substr("`c(pwd)'",1,10)=="C:\Users\A"{
+	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
+	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
+}
+if substr("`c(pwd)'",1,10)=="/Users/th"{
+	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
+	global project_dir "~/GitHub/wid-world"
+}
+
 // WID folder directory
-global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
 *global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-global project_dir "~/GitHub/wid-world" // macOS, Unix
+*global project_dir "~/GitHub/wid-world" // macOS, Unix
 *global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
@@ -119,7 +129,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
+
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -159,16 +169,16 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-*//*
+
 // Add Ivory Coast data
 do "$do_dir/add-ivory-coast-data.do"
-*/
-// Add Russian data
-do "$do_dir/add-russian-data.do"
+
+// Add researchers data
+do "$do_dir/add-researchers-data.do"
 
 // Add Spanish data
 do "$do_dir/add-spanish-data.do"
@@ -394,6 +404,9 @@ do "$do_dir/add-france-data.do"
 // Add UK data
 do "$do_dir/add-uk-wealth-data.do"
 
+// Add researchers data which is in real value
+do "$do_dir/add-researchers-data-real.do"
+
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
 
@@ -436,7 +449,7 @@ do "$do_dir/export-countries.do"
 // -------------------------------------------------------------------------- //
 
 // Compare the world distribution of NNI vs. GDP
-do "$do_dir/gdp-vs-nni.do"
+*do "$do_dir/gdp-vs-nni.do"
 
 // Evolution of GDP and population in all countries
 *do "$do_dir/plot-gdp-population.do"

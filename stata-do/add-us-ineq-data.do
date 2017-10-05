@@ -704,7 +704,7 @@ sort year p widcode table
 
 
 // KEEP ONLY SOME TABLES E FOR THE MOMENT
-keep if inlist(table,"E1","E2","E2b","E2c")
+*keep if inlist(table,"E1","E2","E2b","E2c")
 
 
 
@@ -734,13 +734,17 @@ assert inrange(p3, 1, 100) if p!="pall"
 asser p2<p3 if p!="pall"
 drop p1-p3
 
-// Convert from 2014 constant dollars to 2016 constant dollars
+// Convert from 2014 constant dollars to 2016 constant dollars (multiply by 2016/2014)
 preserve
 	use "$work_data/add-us-states-output.dta", clear
 	sum value if (iso=="US") & (widcode=="inyixx999i") & year==2014
-	local index=r(max)
+	local index2014=r(max)
+	sum value if (iso=="US") & (widcode=="inyixx999i") & year==2016
+	local index2016=r(max)
+	local index=`index2016'/`index2014'
+	di `index'
 restore
-replace value=value/`index' if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace value=value*`index' if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 
 // For previous US data, all data is in "pX" format, corresponding to bracket average or top share
 generate long p_min= round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
