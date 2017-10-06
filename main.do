@@ -169,7 +169,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -214,7 +214,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -294,7 +294,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -411,7 +411,7 @@ do "$do_dir/add-france-data.do"
 // Add UK data
 do "$do_dir/add-uk-wealth-data.do"
 
-// Add researchers data which is in real value
+// Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN

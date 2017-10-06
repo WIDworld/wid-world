@@ -181,6 +181,7 @@ append using "`ptinc'"
 duplicates drop iso year p widcode, force
 
 generate currency = "XOF" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
+replace p="pall" if p=="p0p100"
 
 tempfile ivorycoast
 save "`ivorycoast'"

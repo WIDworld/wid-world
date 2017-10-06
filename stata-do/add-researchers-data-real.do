@@ -1,17 +1,15 @@
 
 
 // -----------------------------------------------------------------------------------------------------------------
-// Middle-East (Assouad2017)
-use "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta", clear
-
-
-
-
-
-
+use "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta", clear // middle-east
 
 tempfile researchers
 save "`researchers'"
+
+
+// -----------------------------------------------------------------------------------------------------------------
+// Clean up
+replace p="pall" if p=="p0p100"
 
 // ----------------------------------------------------------------------------------------------------------------
 // Create metadata
@@ -26,6 +24,7 @@ save "`meta'"
 use "$work_data/add-uk-data-output.dta", clear
 gen oldobs=1
 append using "`researchers'"
+drop source method
 duplicates tag iso year p widcode, gen(dup)
 drop if oldobs==1 & dup==1
 drop oldobs dup

@@ -4,7 +4,7 @@ keep iso
 duplicates drop
 merge 1:1 iso using "$work_data/import-country-codes-output", nogenerate keep(master match)
 
-drop if inrange(iso, "QB", "QZ") | iso == "WO"
+drop if inrange(iso, "QB", "QZ") | iso == "WO" | iso=="XM"
 append using "$work_data/import-region-codes-output"
 
 rename iso Alpha2
@@ -15,8 +15,8 @@ rename region1 region
 assert Alpha2 != ""
 assert TitleName != ""
 assert ShortName != ""
-assert region != "" if !inrange(Alpha2, "QB", "QZ") & Alpha2 != "WO" & !inlist(substr(Alpha2, 1, 3), "US-", "CN-")
-assert region2 != "" if !inrange(Alpha2, "QB", "QZ") & Alpha2 != "WO" & !inlist(substr(Alpha2, 1, 3), "US-", "CN-")
+assert region != "" if !inrange(Alpha2, "QB", "QZ") & Alpha2!="XM" & Alpha2 != "WO" & !inlist(substr(Alpha2, 1, 3), "US-", "CN-")
+assert region2 != "" if !inrange(Alpha2, "QB", "QZ") & Alpha2!="XM" & Alpha2 != "WO" & !inlist(substr(Alpha2, 1, 3), "US-", "CN-")
 
 sort Alpha2
 

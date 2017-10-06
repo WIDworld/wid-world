@@ -26,6 +26,7 @@ save "`meta'"
 use "$work_data/add-ivory-coast-data-output.dta", clear
 gen oldobs=1
 append using "`researchers'"
+drop source method
 duplicates tag iso year p widcode, gen(dup)
 drop if oldobs==1 & dup==1
 drop oldobs dup
