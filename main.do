@@ -174,38 +174,8 @@ do "$do_dir/calculate-average-over.do"
 // Add data from researchers
 // -------------------------------------------------------------------------- //
 
-// Add Ivory Coast data
-do "$do_dir/add-ivory-coast-data.do"
-
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
-
-// Add Spanish data
-do "$do_dir/add-spanish-data.do"
-
-// Add Swedish data
-do "$do_dir/add-swedish-data.do"
-
-// Add other macro updates
-do "$do_dir/add-macro-updates.do"
-
-// Add Brazil data
-do "$do_dir/add-brazil-data.do"
-
-// Add India data
-do "$do_dir/add-india-data.do"
-
-// Add Germany data
-do "$do_dir/add-germany-data.do"
-
-// Add UK data
-do "$do_dir/add-uk-income-data.do"
-
-// Add US data
-do "$do_dir/add-us-data.do"
-
-// Add China data
-do "$do_dir/add-china-data.do"
 
 // Make some corrections because some widcodes for national wealth had to be
 // changed: to be eventually integrated to the above files
@@ -398,18 +368,6 @@ do "$do_dir/calculate-per-capita-series.do"
 
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
-
-// Add US states data
-do "$do_dir/add-us-states.do"
-
-// Add US inequality data (PSZ Appendix II)
-do "$do_dir/add-us-ineq-data.do"
-
-// Add France data
-do "$do_dir/add-france-data.do"
-
-// Add UK data
-do "$do_dir/add-uk-wealth-data.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
