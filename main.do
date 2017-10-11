@@ -12,14 +12,24 @@
 
 clear all
 
+// Directory (Gethin / Blanchet)
+if substr("`c(pwd)'",1,10)=="C:\Users\A"{
+	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
+	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
+}
+if substr("`c(pwd)'",1,10)=="/Users/th"{
+	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
+	global project_dir "~/GitHub/wid-world"
+}
+
 // WID folder directory
-global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
+*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
 *global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
 *global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
 *global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
 
 // Project directory
-global project_dir "~/GitHub/wid-world" // macOS, Unix
+*global project_dir "~/GitHub/wid-world" // macOS, Unix
 *global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
 
 // Directory of the DO files
@@ -164,38 +174,8 @@ do "$do_dir/calculate-average-over.do"
 // Add data from researchers
 // -------------------------------------------------------------------------- //
 
-// Add Ivory Coast data
-do "$do_dir/add-ivory-coast-data.do"
-
-// Add Russian data
-do "$do_dir/add-russian-data.do"
-
-// Add Spanish data
-do "$do_dir/add-spanish-data.do"
-
-// Add Swedish data
-do "$do_dir/add-swedish-data.do"
-
-// Add other macro updates
-do "$do_dir/add-macro-updates.do"
-
-// Add Brazil data
-do "$do_dir/add-brazil-data.do"
-
-// Add India data
-do "$do_dir/add-india-data.do"
-
-// Add Germany data
-do "$do_dir/add-germany-data.do"
-
-// Add UK data
-do "$do_dir/add-uk-income-data.do"
-
-// Add US data
-do "$do_dir/add-us-data.do"
-
-// Add China data
-do "$do_dir/add-china-data.do"
+// Add researchers data
+do "$do_dir/add-researchers-data.do"
 
 // Make some corrections because some widcodes for national wealth had to be
 // changed: to be eventually integrated to the above files
@@ -204,7 +184,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -284,7 +264,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -389,17 +369,8 @@ do "$do_dir/calculate-per-capita-series.do"
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
 
-// Add US states data
-do "$do_dir/add-us-states.do"
-
-// Add US inequality data (PSZ Appendix II)
-do "$do_dir/add-us-ineq-data.do"
-
-// Add France data
-do "$do_dir/add-france-data.do"
-
-// Add UK data
-do "$do_dir/add-uk-wealth-data.do"
+// Add researchers data which are in real value
+do "$do_dir/add-researchers-data-real.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"
@@ -446,7 +417,7 @@ do "$do_dir/make-variable-tree.do"
 // -------------------------------------------------------------------------- //
 
 // Compare the world distribution of NNI vs. GDP
-do "$do_dir/gdp-vs-nni.do"
+*do "$do_dir/gdp-vs-nni.do"
 
 // Evolution of GDP and population in all countries
 *do "$do_dir/plot-gdp-population.do"

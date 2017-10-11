@@ -6,7 +6,6 @@ merge 1:1 iso using "$work_data/import-country-codes-output", nogenerate keep(ma
 
 drop if inrange(iso, "QB", "QZ") | iso == "WO" | iso == "XM"
 append using "$work_data/import-region-codes-output.dta"
-
 rename iso Alpha2
 rename titlename TitleName
 rename shortname ShortName

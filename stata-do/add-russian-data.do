@@ -1,6 +1,7 @@
 
 // -------------------------------------- Fiscal income distributional series
 
+//----------------------------------------------------------------------------------------------------------------
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
 keep if component=="added up"
 destring year, replace
@@ -192,6 +193,7 @@ save "`fiincRussia'"
 
 // -------------------------------------- Pre-tax national income distributional series
 
+//----------------------------------------------------------------------------------------------------------------
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/FinalSeriesCopula.xlsx", sheet("series") first case(l) clear
 keep if component=="added up"
 destring year, replace
@@ -381,6 +383,7 @@ save "`ptincRussia'"
 
 
 // -------------------------------------- Wealth distributional series
+//----------------------------------------------------------------------------------------------------------------
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/WealthSeriesRussiaBenchmark.xlsx", sheet("series") first case(l) clear
 destring year, replace
 levelsof year, local(years)
@@ -568,23 +571,24 @@ duplicates drop iso year p widcode, force
 tempfile wealthRussia
 save "`wealthRussia'"
 
-// -------------------------------------- DEFLATOR
 
+//----------------------------------------------------------------------------------------------------------------
+// -------------------------------------- NATIONAL ACCOUNTS DATA --------------------------------------------- //
+//----------------------------------------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------------------------------------
+// Deflator
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017FinalDistributionSeries/RU_defl.xlsx", clear
 keep if _n>2
 renvars A B / year value
 destring value, replace force
 gen widcode="inyixx999i"
-gen iso="Russia"
-gen p="p0p100"
 
 tempfile deflru
 save "`deflru'"
 
 
-// -------------------------------------- NATIONAL ACCOUNTS DATA
-
+//----------------------------------------------------------------------------------------------------------------
 // Net personal wealth to national income (%)
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
 sheet("A21") clear
@@ -594,11 +598,11 @@ keep year wwealh999i
 keep if !mi(wwealh999i)
 destring year wwealh999i, replace force
 gen widcode="wwealh999i"
-gen p="pall"
 rename wwealh999i value
 tempfile wwealh999i
 save "`wwealh999i'"
 
+//----------------------------------------------------------------------------------------------------------------
 // Private wealth to national income (%)
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
 sheet("A28b") clear
@@ -608,11 +612,11 @@ keep year wwealp999i
 keep if !mi(wwealp999i)
 destring year wwealp999i, replace force
 gen widcode="wwealp999i"
-gen p="pall"
 rename wwealp999i value
 tempfile wwealp999i
 save "`wwealp999i'"
 
+//----------------------------------------------------------------------------------------------------------------
 // Public wealth to national income (%)
 import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
 sheet("A29b") clear
@@ -622,16 +626,17 @@ keep year wwealg999i
 keep if !mi(wwealg999i)
 destring year wwealg999i, replace force
 gen widcode="wwealg999i"
-gen p="pall"
 rename wwealg999i value
 tempfile wwealg999i
 save "`wwealg999i'"
 
 
-// Import all files
+
+//----------------------------------------------------------------------------------------------------------------
+// Import A1, A20, A28a
 clear
 local iter 1
-foreach table in A1 A20 A21 A22 A28a A28b A29a A29b A30a A30b{
+foreach table in A1 A20 A28a{
 di "`table'..."
 qui{
 preserve
@@ -683,155 +688,183 @@ local iter=`iter'+1
 }
 }
 
-// Replace table
+// Split table name
 gen tabname=table
 split table, parse(" ")
 drop table table1 table3-table11
 replace table2=subinstr(table2,":","",.)
 rename table2 table
 
-
 // Match with widcodes
 gen widcode=""
-
+* Table A1
 replace widcode="mconfc999i" if label=="Capital depreciat. (CFC)" & table=="A1"
 replace widcode="mgdpro999i" if label=="Gross domestic product" & table=="A1"
 replace widcode="mnninc999i" if label=="National income" & table=="A1"
 replace widcode="mndpro999i" if label=="Net domestic product" & table=="A1"
+replace widcode="mnnfin999i" if label=="Net foreign factor income" & table=="A1"
+* Table A20
+replace widcode="mhwagr999i" if label=="Agricultural land" & table=="A20"
+replace widcode="mhwbol999i" if label=="Bonds, loans" & table=="A20"
+replace widcode="mhwbus999i" if label=="Business assets" & table=="A20"
+replace widcode="mhwfix999i" if label=="Deposits and savings accounts" & table=="A20"
+replace widcode="mhwequ999i" if label=="Equities and investment fund shares" & table=="A20"
+replace widcode="mhwfin999i" if label=="Financial assets" & table=="A20"
+replace widcode="mhwhou999i" if label=="Housing (gross of debt)" & table=="A20"
+replace widcode="mhwpen999i" if label=="Life insurance and pension funds" & table=="A20"
 replace widcode="mhweal999i" if label=="Net personal wealth" & table=="A20"
-replace widcode="mpweal999i" if label=="Private wealh" & table=="A28a"
-replace widcode="mgweal999i" if label=="Public wealth" & table=="A29a"
+replace widcode="mhwoff999i" if label=="Offshore wealth (benchmark)" & table=="A20"
+replace widcode="mhwodk999i" if label=="Other domestic capital" & table=="A20"
+replace widcode="mpwdeb999i" if label=="Debt" & table=="A20"
 drop if mi(widcode)
-drop tabname label
+keep year value widcode
+order year widcode value
+
+tempfile A1_A20_A28a
+save "`A1_A20_A28a'"
 
 
-/*
-replace widcode="" if label=="%    Yt/GDPt" & table=="A1"
-replace widcode="" if label=="% FYt/Yt" & table=="A1"
-replace widcode="" if label=="% KDt/GDPt" & table=="A1"
-replace widcode="mconfc999i" if label=="Capital depreciat. (CFC)" & table=="A1"
-replace widcode="mgdpro999i" if label=="Gross domestic product" & table=="A1"
-replace widcode="mnninc999i" if label=="National income" & table=="A1"
-replace widcode="mndpro999i" if label=="Net domestic product" & table=="A1"
-replace widcode="" if label=="Net foreign capital income (% Yt)" & table=="A1"
-replace widcode="" if label=="Net foreign factor income" & table=="A1"
-replace widcode="" if label=="Net foreign labor income (% Yt)" & table=="A1"
-replace widcode="" if label=="Net foreign taxes & transfers" & table=="A1"
+//----------------------------------------------------------------------------------------------------------------
+// Table A29a
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+	sheet("A29a") clear
 
-replace widcode="" if label=="Agricultural land" & table=="A20"
-replace widcode="" if label=="Bonds, loans" & table=="A20"
-replace widcode="" if label=="Business assets" & table=="A20"
-replace widcode="" if label=="Debt" & table=="A20"
-replace widcode="" if label=="Deposits and savings accounts" & table=="A20"
-replace widcode="" if label=="Equities and investment fund shares" & table=="A20"
-replace widcode="" if label=="Financial assets" & table=="A20"
-replace widcode="" if label=="Financial assets, except Deposits and  saving accounts" & table=="A20"
-replace widcode="" if label=="Housing (net of debt)" & table=="A20"
-replace widcode="" if label=="Housing (gross of debt)" & table=="A20"
-replace widcode="" if label=="Life insurance and pension funds" & table=="A20"
-replace widcode="mhweal999i" if label=="Net personal wealth" & table=="A20"
-replace widcode="" if label=="Offshore wealth (benchmark)" & table=="A20"
-replace widcode="" if label=="Other domestic capital" & table=="A20"
+drop if _n<6
+rename A year
+rename B mgweal999i
+rename C mgwnfa999i
+rename D mgwhou999i
+rename E mgwagr999i
+rename F mgwodk999i
+rename G mgwdeb999i
+rename H mgwfin999i
+rename I mgweqi999i
+drop J 
+rename K mcwboo999i
+rename L mcwnfa999i
+rename M mcwfin999i
+rename N mcwdeb999i
+rename O mcwdeq999i
+drop P Q
+rename R mcwres999i
+rename S mcwtoq999i
+drop T
+rename U mnwnxa999i
+rename V mnwgxa999i
+drop W 
+rename X mnwgxd999i
+keep year m*
+drop if _n<3
+drop if mi(year)
+destring _all, replace force
+ds year, not
+renvars `r(varlist)', pref(value)
+reshape long value, i(year) j(widcode) string
+drop if mi(value)
+order year widcode value
 
-replace widcode="" if label=="Agricultural Land" & table==""
-replace widcode="" if label=="Corporate Net worth (book value)" & table==""
-replace widcode="" if label=="Corporate wealth (book value)" & table==""
-replace widcode="" if label=="Diff: net foreign assets" & table==""
-replace widcode="" if label=="Equity value" & table==""
-replace widcode="" if label=="Equity value (liabilities)" & table==""
-replace widcode="" if label=="Financial  (non-equity) liabilities" & table==""
-replace widcode="" if label=="Foreign assets owned by Russian residents" & table==""
-replace widcode="" if label=="Gap: should be equal to zero" & table==""
-replace widcode="" if label=="Housing" & table==""
-replace widcode="" if label=="National wealth" & table==""
-replace widcode="" if label=="Net foreign wealth" & table==""
-replace widcode="" if label=="Net foreign wealth (% National wealth)" & table==""
-replace widcode="" if label=="Net worth minus Equity value" & table==""
-replace widcode="" if label=="Net worth minus Equity value (% National wealth)" & table==""
-replace widcode="" if label=="Non-Financial assets" & table==""
-replace widcode="" if label=="Offshore wealth" & table==""
-replace widcode="" if label=="Personal wealth" & table==""
-replace widcode="" if label=="Private wealh" & table==""
-replace widcode="" if label=="Public wealth" & table==""
-replace widcode="" if label=="Public wealth (% National wealth)" & table==""
-replace widcode="" if label=="Russian assets owned by foreign residents" & table==""
-replace widcode="" if label=="Tobin's Q   (Equity value/Net worth)" & table==""
-replace widcode="" if label=="Total financial assets of domestic sectors" & table==""
-replace widcode="" if label=="Total financial liabilities of domestic sectors" & table==""
-replace widcode="" if label=="inc. Russian equity owned by foreign residents" & table==""
-replace widcode="" if label=="inc. foreign equity owned by Russian residents" & table==""
-replace widcode="" if label=="incl. Agricultural Land" & table==""
-replace widcode="" if label=="incl. Other domestic capital" & table==""
-replace widcode="" if label=="incl. Public Housing" & table==""
-replace widcode="" if label=="including Equity" & table==""
-*/
+tempfile A29a
+save "`A29a'"
 
 
-// Replace as raw values
-replace value=value*1000000000
 
+//----------------------------------------------------------------------------------------------------------------
+// Table A30a
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+	sheet("A30a") clear
+
+drop if _n<6
+rename A year
+rename B mnweal999i
+rename C mnwnfm999i
+rename D mnwdem999i
+rename E mnwfim999i
+*rename F mnwnxa999i
+rename G mnwboo999i
+keep year m*
+drop if _n<2
+drop if mi(year)
+destring _all, replace force
+ds year, not
+renvars `r(varlist)', pref(value)
+reshape long value, i(year) j(widcode) string
+drop if mi(value)
+order year widcode value
+
+tempfile A30a
+save "`A30a'"
+
+
+//----------------------------------------------------------------------------------------------------------------
 // Add populations
-preserve
-	import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
-	sheet("DataPOP") clear
-	renvars B C D / year npopul999i npopul992i
-	keep year npopul999i npopul992i
-	drop if mi(year)
-	destring _all, replace force
-	renvars npopul999i npopul992i, pref(value)
-	reshape long value, i(year) j(widcode) string
-	drop if mi(value)
-	replace value=value*1000
-	gen table="DataPOP"
-	tempfile pop
-	save "`pop'"
-restore
+import excel "$wid_dir/Country-Updates/Russia/2017/August/NPZ2017NationalAccountsSeries/NPZ2017AppendixA.xlsx", ///
+sheet("DataPOP") clear
+renvars B C D / year npopul999i npopul992i
+keep year npopul999i npopul992i
+drop if mi(year)
+destring _all, replace force
+renvars npopul999i npopul992i, pref(value)
+reshape long value, i(year) j(widcode) string
+drop if mi(value)
+replace value=value*1000
+tempfile pop
+save "`pop'"
+
+
+
+//----------------------------------------------------------------------------------------------------------------
+// -------------------------------------- COMBINE AND CLEAN ------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------
+
+// Append all macro data
+use "`deflru'", clear
+append using "`wwealh999i'"
+append using "`wwealp999i'"
+append using "`wwealg999i'"
+append using "`A1_A20_A28a'"
+append using "`A29a'"
+append using "`A30a'"
 append using "`pop'"
 
+// Replace m variables as raw values
+replace value=value*1000000000 if substr(widcode,1,1)=="m" & substr(widcode,2,5)!="cwtoq"
+
 // Generage averages
-drop table
 reshape wide value, i(year) j(widcode) string
 renpfix value
 
-ds year npopul*, not
-foreach var of varlist `r(varlist)'{
+foreach var of varlist m*{
 	local newname=substr("`var'",2,5)
 	gen a`newname'999i=`var'/npopul999i
 	gen a`newname'992i=`var'/npopul992i
 }
+drop acwtoq*
+
 ds year, not
 renvars `r(varlist)', pref(value)
 reshape long value, i(year) j(widcode) string
 drop if mi(value)
 
-gen p="p0p100"
-gen iso="Russia"
+// Generate percentile
+gen p="pall"
 
-tempfile nataccounts
-save "`nataccounts'"
-
-// -------------------------------------- COMBINE AND CLEAN
-
-// Append all files
-use "`fiincRussia'", clear
+// Add inequality data
+append using "`fiincRussia'"
 append using "`ptincRussia'"
 append using "`wealthRussia'"
-append using "`deflru'"
-append using "`wwealh999i'"
-append using "`wwealp999i'"
-append using "`wwealg999i'"
-append using "`nataccounts'"
 
 // Drop some data
-drop if inlist(substr(widcode,1,1),"t","a","b","m") 		& year<1961
+drop if inlist(substr(widcode,1,1),"t","a","b","m") & year<1961
 
+replace iso="RU"
+replace p="pall" if p=="p0p100"
 
 
 // -------------------------------------- CALIBRATE WEALTH DINA
 
 // Fetch private wealth
 preserve
-	keep if inlist(widcode,"ahweal992j","ahweal992i") & p=="p0p100"
+	keep if inlist(widcode,"ahweal992j","ahweal992i") & p=="pall"
 	reshape wide value, i(iso year p) j(widcode) string
 	renpfix value
 	gen factor=ahweal992i/ahweal992j
@@ -845,7 +878,11 @@ replace value=value*factor if inlist(widcode,"ahweal992j","thweal992j")
 drop factor
 
 
-// -------------------------------------- ADD TO WID
+
+//----------------------------------------------------------------------------------------------------------------
+// -------------------------------------- ADD TO WID -------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------
+
 // Currency and renaming
 generate currency = "RUB" if inlist(substr(widcode, 1, 1), "a", "t", "m", "i")
 replace iso="RU"

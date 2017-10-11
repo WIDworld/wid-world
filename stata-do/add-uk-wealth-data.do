@@ -1,7 +1,7 @@
 //Table G2
 import excel "$uk_data/UK_WealthShares.xlsx", ///
 	clear sheet("Table G2") cellrange(A8:M126)
-	
+
 rename A year
 rename B pall
 rename C p0p90
