@@ -17,7 +17,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
 	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
 }
-if substr("`c(pwd)'",1,10)=="/Users/th"{
+if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
 }

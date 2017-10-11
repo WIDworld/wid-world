@@ -17,7 +17,16 @@ append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-AppendixII.dta"
 
 // Middle-East 2017 (Assouad2017)
 append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
-
+replace source = "[URL][URL_LINK]http://wid.world/document/" + ///
+	"rethinking-lebanese-economic-miracle-extreme-concentration-income-wealth-" + ///
+	"lebanon-2005-2014-wid-world-working-paper-201713/[/URL_LINK]" + ///
+	"[URL_TEXT]Lydia Assouad (2017). Rethinking the Lebanese economic miracle: " + ///
+	"The extreme concentration of income and wealth in Lebanon 2005-2014. " + ///
+	"WID.world Working Paper 2017/13[/URL_TEXT][/URL]" if (author == "assouad2017" & iso == "LB")
+replace source = "[URL][URL_LINK]http://wid.world/document/alvaredoassouadpiketty-middleeast-widworldwp201715/[/URL_LINK]" + ///
+	"[URL_TEXT]Facundo Alvaredo; Lydia Assouad and Thomas Piketty (2017). " + ///
+	"Measuring Inequality in the Middle East, 1990-2016: The World’s Most Unequal Region? " + ///
+	"WID.world Working Paper 2017/15[/URL_TEXT][/URL]" if (author == "assouad2017" & iso != "LB")
 
 tempfile researchers
 save "`researchers'"

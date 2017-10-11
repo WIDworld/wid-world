@@ -34,7 +34,7 @@ keep iso sixlet
 duplicates drop
 drop if (iso == "FR")
 
-merge 1:1 iso sixlet using "$work_data/add-france-data-metadata.dta", nogenerate keep(match)
+merge 1:1 iso sixlet using "$work_data/add-researchers-data-real-metadata.dta", nogenerate keep(match)
 
 replace method = "Calculated by WID.world as the ratio of top average over corresponding threshold."
 replace sixlet = "b" + substr(sixlet, 2, 5)
