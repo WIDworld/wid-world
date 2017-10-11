@@ -33,6 +33,24 @@ merge n:1 iso using "`pppexc'", nogenerate
 // Add regions
 merge n:1 iso using "$work_data/import-country-codes-output", ///
 	nogenerate assert(match using) keep(match) keepusing(region*)
+	
+// Add Middle East
+generate region4 = ""
+replace region4 = "Middle East" if (iso == "TR")
+replace region4 = "Middle East" if (iso == "IR")
+replace region4 = "Middle East" if (iso == "EG")
+replace region4 = "Middle East" if (iso == "IQ")
+replace region4 = "Middle East" if (iso == "SY")
+replace region4 = "Middle East" if (iso == "JO")
+replace region4 = "Middle East" if (iso == "LB")
+replace region4 = "Middle East" if (iso == "PS")
+replace region4 = "Middle East" if (iso == "YE")
+replace region4 = "Middle East" if (iso == "SA")
+replace region4 = "Middle East" if (iso == "OM")
+replace region4 = "Middle East" if (iso == "BH")
+replace region4 = "Middle East" if (iso == "AE")
+replace region4 = "Middle East" if (iso == "KW")
+replace region4 = "Middle East" if (iso == "QA")
 
 // Remove some duplicated areas when border have changed
 drop if inlist(iso, "HR", "SI", "RS", "MK", "BA", "ME", "KS") & (year <= 1990)
@@ -94,6 +112,7 @@ assert valiso2 == 3 if (region2 == "Eastern Europe")
 assert valiso2 == 2 if (region2 == "Western Europe")
 assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
+assert valiso2 == 1 if (region2 == "Middle East")
 restore
 
 
@@ -125,6 +144,13 @@ save "`region3'"
 restore
 
 preserve
+collapse (sum) value* if (region4 == "Middle East"), by(region4 year widcode)
+rename region4 region
+tempfile region4
+save "`region4'"
+restore
+
+preserve
 collapse (sum) value*, by(year widcode)
 generate region = "World"
 tempfile world
@@ -134,6 +160,7 @@ restore
 use "`region1'", clear
 append using "`region2'"
 append using "`region3'"
+append using "`region4'"
 append using "`world'"
 
 // Use PPP EUR as reference value for aggregates

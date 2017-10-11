@@ -5,6 +5,19 @@ rename p perc
 
 sort Alpha2 perc year
 /*
+keep if Alpha2 == "XM"
+foreach v of varlist * {
+	quietly count if !missing(`v')
+	if (r(N) == 0) {
+		drop `v'
+	}
+}
+egen tokeep = rownonmiss(agdpro992i-xlcyux999i)
+keep if tokeep
+drop tokeep
+export delimited "~/Desktop/middle-east.csv", delimiter(";") replace
+*/
+/*
 keep if strpos(Alpha2, "US-")
 foreach v of varlist * {
 	quietly count if !missing(`v')
