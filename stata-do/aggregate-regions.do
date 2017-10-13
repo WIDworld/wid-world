@@ -191,10 +191,10 @@ append using "`ppp'"
 // Add region codes
 rename region shortname
 merge n:1 shortname using "$work_data/import-region-codes-output.dta", ///
-	assert(match using) keep(matched) nogenerate // Middle-East removed
+	assert(match using) keep(matched) nogenerate
 keep iso year widcode value
 generate p = "pall"
-generate currency = "USD"
+generate currency = "EUR" if substr(widcode, 1, 6) != "npopul"
 
 append using "$work_data/add-populations-output.dta"
 
