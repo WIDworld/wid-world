@@ -1,4 +1,4 @@
-use "$work_data/calculate-pareto-coef-output-metadata.dta", clear
+use "$work_data/add-researchers-data-real-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 
@@ -76,9 +76,6 @@ rename source Source
 
 // Remove duplicates
 collapse (firstnm) Method Source, by(TwoLet ThreeLet Alpha2)
-
-// Fix issue with some method metadata
-replace Method="" if Method=="Calculated by WID.world as the ratio of top average over corresponding threshold."
 
 order Alpha2 TwoLet ThreeLet Method Source
 
