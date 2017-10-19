@@ -33,6 +33,9 @@ append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.d
 // Russia 2017 (NPZ2017)
 append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
 
+// Hungary 2017 (Mosberger2017)
+append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
+
 tempfile researchers
 save "`researchers'"
 
@@ -40,7 +43,7 @@ save "`researchers'"
 // CREATE METADATA
 
 // Remove some duplicates
-drop if iso=="US" & substr(widcode,1,6)=="npopul" & author=="bauluz2017"
+drop if iso=="US" & substr(widcode,1,6)=="npopul" & author!="bauluz2017"
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -62,7 +65,7 @@ gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
 
-// Drop old duplicated wid datas
+// Drop old rows available in new data
 duplicates tag iso year p widcode, gen(dup)
 drop if dup & oldobs
 
@@ -72,12 +75,6 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 	| inlist(widcode,"mfainc992j","mfainc992j","mptinc992j","mdiinc992j","mnninc999i") ///
 	| inlist(widcode,"mgdpro999i","mnnfin999i","inyixx999i","mconfc999i")) ///
 	& (iso=="US") & (oldobs==1)
-
-// Ivory Coast 2017: drop whole country
-drop if iso=="CI" & oldobs
-
-// UK 2017: drop duplicates
-drop if iso=="UK" & oldobs & dup
 
 // Macro updates 2017: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
 gen id=iso+"_"+widcode
