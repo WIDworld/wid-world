@@ -1,5 +1,5 @@
 // Start with the WID data
-use "$work_data/add-china-data-output.dta", clear
+use "$work_data/correct-widcodes-output.dta", clear
 
 keep if inlist(widcode, "mconfc999i", "mgdpro999i")
 drop p

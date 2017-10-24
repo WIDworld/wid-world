@@ -7,8 +7,8 @@
 // China 2017 (PYZ2017)
 use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
 
-// US 2017 (PSZ2017, from Github folder)
-append using "$us_data/PSZ/psz-distrib-nominal-2017.dta"
+// US 2017 (PSZ2017, new version in country-updates (2017-september)
+append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
 
 // Ivory Coast 2017 (Czajka2017)
 append using "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta"
@@ -43,7 +43,8 @@ save "`researchers'"
 // CREATE METADATA
 
 // Remove some duplicates
-drop if iso=="US" & substr(widcode,1,6)=="npopul" & author!="bauluz2017"
+drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpro","mnnfin","mnninc") ///
+	& author!="bauluz2017" // keep bauluz note for US
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
