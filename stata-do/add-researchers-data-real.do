@@ -1,5 +1,3 @@
-
-
 // -----------------------------------------------------------------------------------------------------------------
 // IMPORT ALL FILES
 
@@ -38,10 +36,6 @@ gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
 
-// Drop old duplicated wid data
-duplicates tag iso year p widcode, gen(dup)
-drop if dup & oldobs==1
-
 // France 2017: drop specific widcodes
 drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahweal992j") ///
 	| inlist(widcode,"ahwequ992j","ahwfie992j","ahwfin992j","ahwfix992j","ahwhou992j") ///
@@ -49,21 +43,15 @@ drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahw
 	| substr(widcode, 2, 2) == "fi") ///
 	& (iso == "FR") & (oldobs==1)
 
-// US inequality 2017: add only new widcode-years
-preserve
-keep if iso=="US"
-duplicates drop year widcode oldobs, force // collapse to one line per year-widcode-oldobs
-duplicates tag year widcode, gen(duplicate) // drop year-widcode duplicates in new data, to preserve old data
-drop if duplicate & oldobs==0
-drop if oldobs==1 // now drop all old observations
-assert duplicate==0 // we have a list of new year-widcode data now
-drop p oldobs duplicate value
-gen toadd=1
-tempfile newlist
-save "`newlist'"
-restore
-merge m:1 year widcode using "`newlist'", nogen assert(master matched)
-drop if toadd!=1 & oldobs==0 & iso=="US"
+// US inequality (PSZ 2017 Appendix II): drop g-percentiles (DINA), they are imported before,
+// and drop new duplicated wid data, rather than old
+drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") // drops dina (percentile groups with only one "p")
+duplicates tag iso year p widcode, gen(dupus)
+drop if dupus & oldobs==0 & iso=="US"
+
+// Drop old duplicated wid data
+duplicates tag iso year p widcode, gen(dup)
+drop if dup & oldobs==1
 
 duplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0

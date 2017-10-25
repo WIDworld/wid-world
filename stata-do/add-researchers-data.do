@@ -17,8 +17,8 @@ append using "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2
 append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
 
 // Macro updates 2017 (Bauluz2017)
-append using "$wid_dir/Country-Updates/Spain/2017/spain-bauluz2017.dta" // Spain
-append using "$wid_dir/Country-Updates/Sweden/2017/sweden-bauluz2017.dta" // Sweden
+append using "$wid_dir/Country-Updates/Spain/2017/August/spain-bauluz2017.dta" // Spain
+append using "$wid_dir/Country-Updates/Sweden/2017/August/sweden-bauluz2017.dta" // Sweden
 append using "$wid_dir/Country-Updates/Japan/2017/August/macro-updates-bauluz2017.dta" // All others (Japan folder)
 
 // Brazil 2017 (Morgan2017)
@@ -77,13 +77,20 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 	| inlist(widcode,"mgdpro999i","mnnfin999i","inyixx999i","mconfc999i")) ///
 	& (iso=="US") & (oldobs==1)
 
-// Macro updates 2017: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
-gen id=iso+"_"+widcode
-duplicates tag id, gen(dupvar)
-qui levelsof id if dupvar>0 & author=="bauluz2017", local(todrop) clean
-foreach i in `todrop'{
-	qui drop if id=="`i'" & oldobs & !inlist(substr(widcode,1,1),"n","i")
-}
+// Bauluz 2017 updates: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
+preserve
+keep if author=="bauluz2017"
+keep iso widcode
+duplicates drop
+gen todrop=1
+tempfile todrop
+save "`todrop'"
+restore
+merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
+drop if todrop==1 & author!="bauluz2017" & !inlist(substr(widcode,1,1),"n","i")
+
+duplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
+drop if usdup & iso=="US" & author!="bauluz2017"
 
 // India 2017: drop duplicates and old fiscal income data
 drop if substr(widcode, 2, 5)=="fiinc" & oldobs==1 & iso=="IN"

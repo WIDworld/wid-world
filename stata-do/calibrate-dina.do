@@ -7,7 +7,7 @@ use "$work_data/add-researchers-data-real-output.dta", clear
 * Keep only g-percentiles
 split p, parse("p")
 destring p2 p3, replace force
-gen diff = (p3 - p2)*1000
+gen diff = round((p3 - p2)*1000,1)
 keep if inlist(diff, 1, 10, 100, 1000)
 drop if diff==1000 & p2>=99
 drop if diff==100 & p2>=99.9
