@@ -7,7 +7,7 @@
 // China 2017 (PYZ2017)
 use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
 
-// US 2017 (PSZ2017, new version in country-updates (2017-september)
+// US Nominal 2017 (PSZ2017, new version in country-updates (2017-september)
 append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
 
 // Ivory Coast 2017 (Czajka2017)
@@ -35,6 +35,9 @@ append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
 
 // Hungary 2017 (Mosberger2017)
 append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
+
+// Poland 2017 (Novokmet2017)
+append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
 
 tempfile researchers
 save "`researchers'"

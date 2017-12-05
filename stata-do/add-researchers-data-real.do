@@ -43,9 +43,8 @@ drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahw
 	| substr(widcode, 2, 2) == "fi") ///
 	& (iso == "FR") & (oldobs==1)
 
-// US inequality (PSZ 2017 Appendix II): drop g-percentiles (DINA), they are imported before,
-// and drop new duplicated wid data, rather than old
-drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") // drops dina (percentile groups with only one "p")
+// US inequality (PSZ 2017 Appendix II): drop g-percentiles (DINA imported before), drop new duplicated wid data
+drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall")
 duplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
 
