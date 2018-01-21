@@ -39,6 +39,9 @@ append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2
 // Poland 2017 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
 
+// France 2018 (Goupille2018, Gender series)
+append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
+
 tempfile researchers
 save "`researchers'"
 

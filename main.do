@@ -79,7 +79,7 @@ global report_output "$wid_dir/WIDGraphsTables"
 global output_dir "$wid_dir/WIDData"
 
 // Old version directory to compare with udpated database
-global olddate 14_Aug_2017_14_58_18
+global olddate _5_Dec_2017_14_23_32
 global oldoutput_dir "$output_dir/$olddate"
 
 // Directory with the summary table
