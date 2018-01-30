@@ -5,9 +5,6 @@
 ******************************************************************************************************************************************************
 
 
-clear all
-
-
 **************************************************** MODIFICATIONS PRELIMINAIRES *********************************************************************
 
 use "$work_data/wid-final.dta", clear
@@ -98,8 +95,6 @@ foreach var in $variables{
 save "$work_data/sumtable.dta", replace
 
 
-di "--> Formatting in line...", _continue
-qui{
 ********************************************************* FORMATTAGE EN LIGNE ************************************************************************
 	use "$work_data/sumtable.dta", clear
 	*** Reshape
@@ -140,11 +135,9 @@ qui{
 	
 	tempfile sumtable
 	save "`sumtable'"
-}
-di "--> Adding WID Notes", _continue
-qui{
+
 ********************************************************* AJOUT DES NOTES WID ************************************************************************
-	insheet using "$output_dir/$time/metadata/var-notes.csv", delim(;) names clear
+	insheet using "$oldoutput_dir/metadata/var-notes.csv", delim(;) names clear
 
 	*** Merge avec les notes WID
 	egen varcode=concat(twolet threelet), punct("")
@@ -165,16 +158,14 @@ qui{
 	
 	tempfile sumtable
 	save "`sumtable'"
-}
-di "Adding WID variables names...", _continue
-qui{
+
 ********************************************************* AJOUT DES NOMS DE VARIABLES ****************************************************************
-	insheet using "$output_dir/$time/metadata/var-names.csv", delim(;) names clear
+	insheet using "$oldoutput_dir/metadata/var-names.csv", delim(;) names clear
 
 	*** Noms de variable
 	rename fivelet varcode
 	duplicates list varcode // le code fivelet identifie les descriptions de variables de maniere unique
-	drop onelet twolet threelet rank _merge
+	drop onelet twolet threelet rank
 
 	merge 1:m varcode using "`sumtable'", nogenerate
 
@@ -183,11 +174,9 @@ qui{
 
 	tempfile sumtable
 	save "`sumtable'"
-}
-di "Adding country names...", _continue
-qui{
+
 ********************************************************* AJOUT DES NOMS DE PAYS *********************************************************************
-	insheet using "$output_dir/$time/metadata/country-codes.csv", delim(;) names clear
+	insheet using "$oldoutput_dir/metadata/country-codes.csv", delim(;) names clear
 	keep alpha2 shortname
 	rename shortname country
 
@@ -198,9 +187,7 @@ qui{
 	
 	tempfile sumtable
 	save "`sumtable'"
-}
-di "Adding variables levels"
-qui{
+
 ********************************************************* AJOUT DES NIVEAUX DE VARIABLES *************************************************************
 	import delimited using "$wid_dir\Population\WorldNationalAccounts\stata-programs\Results\variable-tree.csv", delim(";") clear
 
@@ -233,9 +220,7 @@ qui{
 	merge 1:m varcode using "`sumtable'", nogenerate // beaucoup de variable ne sont pas presentes dans la base
 	drop if alpha2==""
 	drop varcode
-}
-di "Concatenating"
-qui{
+
 ********************************************************* CONCATENATIONS *****************************************************************************
 	*** Types de variables
 	cap gen type=substr(var,1,1)
@@ -368,9 +353,7 @@ qui{
 	drop type var1 var2 var
 	rename pop type
 	rename pop2 var
-}
-di "Saving..."
-qui{
+
 ************************************************************ MODIFICATION FINALES ********************************************************************
 	*** Labels
 	lab var country "Country"
@@ -413,9 +396,7 @@ qui{
 
 	*** Sauvegarde
 	export excel "$sumtable_dir/WID_SummaryTable_`date_string'.xlsx", replace firstrow(varl) sheet("SummaryTable")
-}
-di "Creating ReadMe"
-qui{
+
 *********************************************************  README ************************************************************************************
 	clear all
 	set obs 14
@@ -437,10 +418,8 @@ qui{
 	local c_date= c(current_date)
 	local date_string = subinstr("`c_date'", " " , "", .)
 	export excel "$sumtable_dir/WID_SummaryTable_`date_string'.xlsx", sheetmodify sheet("ReadMe")
-}
 
 erase "$work_data/sumtable.dta"
 
-di "DONE"
 
 

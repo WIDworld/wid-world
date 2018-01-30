@@ -16,7 +16,7 @@ drop cfU
 carryforward T, replace
 
 // Loop over prefixes and create variables of the tree
-foreach prefix in a m t b o s {
+foreach prefix in a m t b o s p{
 	// Path
 	egen path`prefix' = concat(T U V W), punct(".")
 	replace path`prefix' = subinstr(path`prefix', "*", "`prefix'", .)
