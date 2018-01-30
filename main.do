@@ -357,6 +357,9 @@ do "$do_dir/add-populations.do"
 // Aggregate by regions
 do "$do_dir/aggregate-regions.do"
 
+// Aggregate WIR 2018 regions
+do "$do_dir/aggregate-regions-wir2018.do"
+
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
 
