@@ -43,13 +43,13 @@ rename symbol currency_symbol
 rename name currency_name
 
 // Expand for all types (variable first letter)
-expand 12
+expand 14
 sort iso
 generate nobs = _n
 generate type = ""
 local i 0
-foreach c in a b c f h i n s t m o w x {
-	replace type = "`c'" if mod(nobs, 13) == `i'
+foreach c in a b c f h i n s t m o p w x {
+	replace type = "`c'" if mod(nobs, 14) == `i'
 	local i = `i' + 1
 }
 drop nobs
@@ -77,6 +77,7 @@ replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency
 
 replace metadata = `"{"unit":""}"' if inlist(type, "b", "i")
 replace metadata = `"{"unit":"% of national income"}"' if (type == "w")
+replace metadata = `"{"unit":"% of population"}"' if (type == "p")
 replace metadata = `"{"unit":"population"}"' if inlist(type, "n", "h", "f")
 replace metadata = `"{"unit":"share"}"' if inlist(type, "c", "s")
 replace metadata = `"{"unit":"local currency per foreign currency"}"' if (type == "x")
