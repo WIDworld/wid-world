@@ -91,9 +91,33 @@ expand 2 if (iso == "CN"), generate(newobs)
 replace iso = "CN-RU" if newobs
 drop newobs
 
-// Extrapolate the PPP to $year
+// For Yugoslavia, set the PPP such that the GDP of the country equals the
+// sum of its components
 tempfile ppp
-save "`ppp'"
+save "`ppp'", replace
+
+use "$work_data/gdp.dta", clear
+keep iso year gdp
+keep if year == 1990
+keep if inlist(iso, "YU", "BA", "HR", "KS", "MK", "ME", "RS", "SI")
+merge 1:1 iso using "`ppp'", nogenerate keep(master match) keepusing(iso ppp)
+assert ppp < . if (iso != "YU")
+generate gdp_ppp = gdp/ppp
+quietly summarize gdp_ppp if (iso != "YU")
+local gdp_ppp_qy = r(sum)
+quietly levelsof gdp if (iso == "YU"), local(gdp_qy)
+replace ppp = gdp/`gdp_ppp_qy' if (iso == "YU")
+keep if iso == "YU"
+generate currency = "YUN"
+generate ppp_method = "We define a PPP so that the GDP in 1990 matches the sum of its successor states"
+generate ppp_src = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' + ///
+	`"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "'
+keep iso year ppp ppp_src ppp_method currency
+
+append using "`ppp'"
+
+// Extrapolate the PPP to $year
+save "`ppp'", replace
 
 // Temporary file with the other price indices
 use "$work_data/price-index.dta", clear
@@ -143,28 +167,6 @@ replace ppp = ppp*index/index_us*factor_2011
 drop index index_us factor_2011
 drop if missing(ppp)
 
-// For Yugoslavia, set the PPP such that the GDP of the country equals the
-// sum of its components
-save "`ppp'", replace
-
-use "$work_data/gdp.dta", clear
-keep iso year gdp
-keep if year == 1990
-keep if inlist(iso, "YU", "BA", "HR", "XK", "MK", "ME", "RS", "SI")
-merge 1:1 iso year using "`ppp'", nogenerate keep(master match) keepusing(iso year ppp)
-assert ppp < . if (iso != "YU")
-generate gdp_ppp = gdp/ppp
-quietly summarize gdp_ppp if (iso != "YU")
-local gdp_ppp_qy = r(sum)
-quietly levelsof gdp if (iso == "YU"), local(gdp_qy)
-replace ppp = gdp/`gdp_ppp_qy' if (iso == "YU")
-keep if iso == "YU"
-generate currency = "YUN"
-generate ppp_method = "We construct a PPP so that the GDP in 1990 matches the sum of its successor states"
-generate ppp_src = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' + ///
-	`"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "'
-keep iso year ppp ppp_src ppp_method currency
-append using "`ppp'"
 
 preserve
 drop if ppp_method == "" & ppp_src == ""
