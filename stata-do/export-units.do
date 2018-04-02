@@ -48,7 +48,7 @@ sort iso
 generate nobs = _n
 generate type = ""
 local i 0
-foreach c in a b c f h i n s t m o p w x {
+foreach c in a b c f g h i n s t m o p w x {
 	replace type = "`c'" if mod(nobs, 14) == `i'
 	local i = `i' + 1
 }
@@ -75,7 +75,7 @@ replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency
 	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"-1990":"Yugoslav dinars"}}"' ///
 	if inlist(type, "a", "t", "m", "o") & (iso == "QY")
 
-replace metadata = `"{"unit":""}"' if inlist(type, "b", "i")
+replace metadata = `"{"unit":""}"' if inlist(type, "b", "i","g")
 replace metadata = `"{"unit":"% of national income"}"' if (type == "w")
 replace metadata = `"{"unit":"% of population"}"' if (type == "p")
 replace metadata = `"{"unit":"population"}"' if inlist(type, "n", "h", "f")

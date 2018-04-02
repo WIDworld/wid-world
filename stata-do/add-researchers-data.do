@@ -48,6 +48,12 @@ append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin201
 // Gini coefficients (Gini_Gethin2018)
 append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
 
+// Czech Republic 2018 (Novokmet2018)
+append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
+
+// Poland top shares 2018 (Novokmet2017)
+append using "$wid_dir/Country-Updates/Poland/2018/March/poland-topshares-novokmet2017.dta"
+
 tempfile researchers
 save "`researchers'"
 
