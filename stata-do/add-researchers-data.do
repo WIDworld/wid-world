@@ -54,6 +54,15 @@ append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2
 // Poland top shares 2018 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2018/March/poland-topshares-novokmet2017.dta"
 
+// Bulgaria 2018 (Novokmet2018)
+append using "$wid_dir/Country-Updates/Bulgaria/2018/03/bulgaria-novokmet2018.dta"
+
+// Slovenia and Croatia 2018 (Novokmet 2018)
+append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet2018.dta"
+
+// Macro corrections (Bauluz 2018)
+append using "$wid_dir/Country-Updates/WID_updates/2018-04 Macro corrections Bauluz/macro-corrections-bauluz2018.dta"
+
 tempfile researchers
 save "`researchers'"
 
