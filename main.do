@@ -150,7 +150,7 @@ do "$do_dir/correct-wtid-metadata.do"
 
 // Identify and harmonize units from the old database
 do "$do_dir/harmonize-units.do"
-
+*/
 // Convert currency amounts to nominal
 do "$do_dir/convert-to-nominal.do"
 
