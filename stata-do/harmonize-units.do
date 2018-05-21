@@ -63,6 +63,9 @@ replace index_refyear = real(ustrregexs(2)) ///
 	if ustrregexm(unit, "(1|1.00|100)[ ]*=[ ]*(\d{4})$")
 replace index_refvalue = real(ustrregexs(1)) ///
 	if ustrregexm(unit, "(1|1.00|100)[ ]*=[ ]*(\d{4})$")
+	
+// Correction in Australia
+replace index_refyear = 2015 if (iso == "AU") & (unit == "dec. 312014=1.00")
 
 // Sanity check
 assert (index_refyear < .) & (index_refvalue < .) ///
@@ -103,6 +106,8 @@ replace real_refyear = 2000 if strpos(unit, "real 1999-2000 rupees")
 replace real_refyear = 2001 if (unit == "real 2000 yuans") & (iso == "CN")
 // Coding error in Malaysia
 replace real_refyear = 2014 if (unit == "real 2010 myr") & (iso == "MY")
+// Coding error in Australia
+replace real_refyear = 2015 if (unit == "real 2014 australian dollars") & (iso == "AU")
 
 // Sanity check
 assert inlist((real_refyear < .) + (real == 1), 0, 2)
