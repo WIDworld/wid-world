@@ -98,9 +98,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2018 // this year matches WEO source in calculate-price-index
+global year 2017 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2017 // this year matches commands in gdp-vs-nni,
+global pastyear 2016 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 
@@ -133,7 +133,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
+
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -177,7 +177,7 @@ do "$do_dir/calculate-average-over.do"
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-*/
+
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 
@@ -188,7 +188,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -268,7 +268,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
