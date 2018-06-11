@@ -98,9 +98,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2017 // this year matches WEO source in calculate-price-index
+global year 2018 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2016 // this year matches commands in gdp-vs-nni,
+global pastyear 2017 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 
@@ -133,7 +133,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
+/*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
