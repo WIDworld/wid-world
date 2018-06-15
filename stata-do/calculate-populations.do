@@ -278,8 +278,6 @@ drop newobs
 preserve
 keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
 bysort iso: gen obs=_N
-qui tab obs
-assert `r(r)'==2 // check only last year is missing for each country
 expand 2 if obs==2 & year==$pastyear - 1, gen(newobs)
 replace year=$pastyear if newobs==1
 replace growth_src_npopul999i="npopul999i_un" if newobs==1

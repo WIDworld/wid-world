@@ -561,6 +561,7 @@ program currencycode, nclass
 			replace `generate' = "USD" if (`iso2c' == "TL") & (`curr' == "u.s. dollar")
 			replace `generate' = "USD" if (`iso2c' == "TC") & (`curr' == "u.s. dollar")
 			replace `generate' = "USD" if (`iso2c' == "EC") & (`curr' == "u.s. dollar")
+			replace `generate' = "USD" if (`iso2c' == "VG") & (`curr' == "u.s. dollar")
 			replace `generate' = "UYU" if (`iso2c' == "UY") & (`curr' == "uruguayan peso")
 			replace `generate' = "UZS" if (`iso2c' == "UZ") & (`curr' == "uzbek sum")
 			replace `generate' = "VEF" if (`iso2c' == "VE") & (`curr' == "venezuelan bolivar fuerte")

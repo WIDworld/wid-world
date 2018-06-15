@@ -66,6 +66,9 @@ merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05
 	nogenerate update replace
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
 	
+// Czech 2018 (Novokmet2018_Gpinter)
+append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
+
 tempfile researchers
 save "`researchers'"
 
