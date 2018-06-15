@@ -150,7 +150,7 @@ do "$do_dir/correct-wtid-metadata.do"
 
 // Identify and harmonize units from the old database
 do "$do_dir/harmonize-units.do"
-*/
+
 // Convert currency amounts to nominal
 do "$do_dir/convert-to-nominal.do"
 
@@ -169,11 +169,11 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-*/
+
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 
@@ -184,7 +184,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -264,7 +264,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -369,11 +369,11 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 // Per capita/per adults series
 do "$do_dir/calculate-per-capita-series.do"
 
-// Distribute national income by rescaling fiscal income
-do "$do_dir/distribute-national-income.do"
-
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
+
+// Distribute national income by rescaling fiscal income
+do "$do_dir/distribute-national-income.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"

@@ -50,7 +50,27 @@ foreach c of local widcode_list {
 
 use "$work_data/calculate-pareto-coef-output.dta", clear
 
-reshape wide value, i(iso year p) j(widcode) string
+drop if strpos(iso, "XQ")
+
+// Drop German Ginis (not correct)
+drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
+
+tempfile data
+save "`data'"
+rsource, noloutput rpath("/usr/local/bin/R") terminator(END_OF_R) roptions(`" --vanilla --args "`data'" "')
+
+library(haven)
+library(reshape2)
+library(magrittr)
+
+file <- commandArgs(trailingOnly = TRUE)
+data <- read_dta(file)
+data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
+write_dta(data, file)
+
+END_OF_R
+
+use "`data'", clear
 
 label variable year "year"
 label variable iso "ISO-2 country code"
@@ -80,13 +100,6 @@ Top average variables (starting with « o ») return average income or wealth 
 
 // Without labels
 preserve
-
-foreach v of varlist value* {
-	local newvarname = substr("`v'", 6, .)
-	rename `v' `newvarname'
-	label variable `newvarname' `"``newvarname''"'
-	notes `newvarname': ``newvarname''
-}
 
 sort iso p year
 

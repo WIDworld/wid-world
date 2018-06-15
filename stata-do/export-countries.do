@@ -16,10 +16,10 @@ assert TitleName != ""
 assert ShortName != ""
 assert region != "" if !inrange(Alpha2, "QB", "QZ") & !inlist(Alpha2, "WO", "XM") ///
 					& !inlist(Alpha2,"XA","XF","XL","XN","XR") ///
-					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-") & (substr(Alpha2,3,.)!="-MER")
+					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.)!="-MER")
 assert region2 != "" if !inrange(Alpha2, "QB", "QZ") & !inlist(Alpha2, "WO", "XM") ///
 					& !inlist(Alpha2,"XA","XF","XL","XN","XR") ///
-					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-") & (substr(Alpha2,3,.)!="-MER")
+					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.)!="-MER")
 
 sort Alpha2
 
