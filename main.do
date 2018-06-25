@@ -173,7 +173,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -373,11 +373,11 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 // Per capita/per adults series
 do "$do_dir/calculate-per-capita-series.do"
 
-// Distribute national income by rescaling fiscal income
-do "$do_dir/distribute-national-income.do"
-
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
+
+// Distribute national income by rescaling fiscal income
+do "$do_dir/distribute-national-income.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"

@@ -20,6 +20,9 @@ append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta
 append using "$wid_dir/Country-Updates/Spain/2017/August/spain-bauluz2017.dta" // Spain
 append using "$wid_dir/Country-Updates/Sweden/2017/August/sweden-bauluz2017.dta" // Sweden
 append using "$wid_dir/Country-Updates/Japan/2017/August/macro-updates-bauluz2017.dta" // All others (Japan folder)
+// Remove some duplicates
+drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpro","mnnfin","mnninc") ///
+	& author!="bauluz2017" // keep bauluz note for US
 
 // Brazil 2017 (Morgan2017)
 append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta"
@@ -28,7 +31,7 @@ append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta
 append using "$wid_dir/Country-Updates/India/2017/August/india-chancel2017.dta"
 
 // Germany 2017 (Bartels2017)
-append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.dta"
+*append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.dta"
 
 // Russia 2017 (NPZ2017)
 append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
@@ -41,9 +44,6 @@ append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.
 
 // France 2018 (Goupille2018, Gender series)
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
-
-// World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
-append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
 
 // Gini coefficients (Gini_Gethin2018)
 append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
@@ -62,7 +62,10 @@ append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet
 
 // Macro corrections (Bauluz 2018)
 append using "$wid_dir/Country-Updates/WID_updates/2018-04 Macro corrections Bauluz/macro-corrections-bauluz2018.dta"
-
+merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", ///
+	nogenerate update replace
+drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
+	
 // Czech 2018 (Novokmet2018_Gpinter)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
@@ -72,9 +75,6 @@ save "`researchers'"
 // ----------------------------------------------------------------------------------------------------------------
 // CREATE METADATA
 
-// Remove some duplicates
-drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpro","mnnfin","mnninc") ///
-	& author!="bauluz2017" // keep bauluz note for US
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -96,6 +96,9 @@ gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
 
+// Drop Ginis for Germany
+drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
+
 // Drop old rows available in new data
 duplicates tag iso year p widcode, gen(dup)
 drop if dup & oldobs
@@ -104,7 +107,7 @@ drop if dup & oldobs
 drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","aptinc992j") ///
 	| inlist(widcode,"sptinc992j","adiinc992j","sdiinc992j","npopul992i","mhweal992j") ///
 	| inlist(widcode,"mfainc992j","mfainc992j","mptinc992j","mdiinc992j","mnninc999i") ///
-	| inlist(widcode,"mgdpro999i","mnnfin999i","inyixx999i","mconfc999i")) ///
+	| inlist(widcode,"mgdpro999i","mnnfin999i"/*,"inyixx999i"*/,"mconfc999i")) ///
 	& (iso=="US") & (oldobs==1)
 
 // Bauluz 2017 updates: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
