@@ -13,7 +13,7 @@ drop if (currency == "ERN")
 drop if (currency == "SSP")
 drop if (currency == "USD")
 drop if (currency == "YUN")
-drop if (currency == "BYR")
+drop if (currency == "BYN")
 
 // Loop over currencies and get exchange rates from Quandl
 quietly levelsof currency, local(currencies)
@@ -36,8 +36,8 @@ replace rate = 1                 if (currency == "USD")
 replace rate = 130.26            if (currency == "SSP")
 replace rate = 15.00             if (currency == "ERN")
 replace rate = 75.35			 if (currency == "YUN")
-replace rate = 2.01309			 if (currency == "BYR")
-*sources: mataf.net except for BYR (which is now BYN): xe.com
+replace rate = 2.01309			 if (currency == "BYN")
+*sources: mataf.net except for BYN: xe.com
 * ! these are 2018 values 
 
 // Correct 2017 exchange rate for Venezuela

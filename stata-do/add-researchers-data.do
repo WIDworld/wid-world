@@ -27,8 +27,8 @@ drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpr
 // Brazil 2017 (Morgan2017)
 append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta"
 
-// India 2017 (Chancel2017)
-append using "$wid_dir/Country-Updates/India/2017/August/india-chancel2017.dta"
+// India 2018 (Chancel2018)
+append using "$wid_dir/Country-Updates/India/2018/June/india-chancel2018.dta"
 
 // Germany 2017 (Bartels2017)
 *append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.dta"

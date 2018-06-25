@@ -22,9 +22,8 @@ replace value2015 = . if (iso == "AR")
 replace value2015 = . if (iso == "IR")
 */
 
-// Uzbekistan has problematic value for 2016
-*drop if iso=="UZ"
-*june 2018: it didn't look problematic anymore (between 2015 and 2017 value and same scale), so i kept it
+// Uzbekistan has problematic value for 2017
+drop if iso=="UZ"
 
 /*assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
 assert abs(value2016 - value2015)/value2016 < 0.5 if (value2016 < .)
