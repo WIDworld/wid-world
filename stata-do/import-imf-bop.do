@@ -67,10 +67,10 @@ tempfile gdp_usd
 save "`gdp_usd'"
 	
 // Import BOP data
-import delimited "$imf_data/balance-of-payments/primary-income-details.csv", ///
-	clear encoding("utf8")
+import excel "$imf_data/balance-of-payments/primary-income-details.xls", ///
+	clear firstrow
 
-cap rename ïcountryname countryname
+*cap rename ïcountryname countryname
 kountry countrycode, from(imfn) to(iso2c)
 rename _ISO2C_ iso
 replace iso = "CW" if (countryname == "Curacao")
@@ -79,12 +79,16 @@ replace iso = "RS" if (countryname == "Serbia, Republic of")
 replace iso = "SX" if (countryname == "Sint Maarten")
 replace iso = "SS" if (countryname == "South Sudan")
 replace iso = "PS" if (countryname == "West Bank and Gaza")
+replace iso = "TC" if (countryname == "Turks and Caicos Islands")
+replace iso = "TV" if (countryname == "Tuvalu")
+
+
 drop if iso == ""
 drop countrycode countryname
 
 // Only keep yearly data
-drop if strpos(timeperiod, "Q")
-destring timeperiod, replace
+*drop if strpos(timeperiod, "Q") (2018: now time period is numeric and there is no quarterly data)
+*destring timeperiod, replace
 rename timeperiod year
 
 keep iso year value indicatorcode

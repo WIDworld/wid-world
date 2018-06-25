@@ -2,6 +2,10 @@ import delimited "$un_data/sna-main/deflator/deflator.csv", ///
 	clear delimiter(";") encoding("utf8")
 
 // Identify countries ------------------------------------------------------- //
+
+replace countryorarea = "Curaçao" if countryorarea == "Cura�ao"
+replace countryorarea = "Côte d'Ivoire" if countryorarea == "C�te d'Ivoire"
+
 countrycode countryorarea, generate(iso) from("un sna main")
 drop countryorarea
 
@@ -36,9 +40,9 @@ replace def_un = def_un*exch if (iso == "PS")
 replace currency = "new israeli sheqel" if (iso == "PS")
 drop exch
 
-// Re-normalize in 2005
-quietly levelsof def_un if (iso == "PS") & (year == 2005), local(level2005)
-replace def_un = 100*def_un/`level2005' if (iso == "PS")
+// Re-normalize in 2010 (instead of 2005 since june 2018)
+quietly levelsof def_un if (iso == "PS") & (year == 2010), local(level2010)
+replace def_un = 100*def_un/`level2010' if (iso == "PS")
 
 // Correction in North Korea
 replace def_un = 100*def_un if (year <= 2001) & (iso == "KP")
@@ -58,13 +62,13 @@ generate newvalue = .
 replace newvalue = (1 - 0.75)*L.def_un + 0.75*def_un ///
 	if inlist(iso, "IN", "MM", "NZ")
 replace newvalue = (1 - 0.50)*L.def_un + 0.50*def_un ///
-	if inlist(iso, "AU", "NI", "SD", "YD")
+	if inlist(iso, "AU", "SD", "YA")
 replace newvalue = (1 - 0.78)*L.def_un + 0.78*def_un ///
 	if inlist(iso, "AF", "IR")
 replace newvalue = (1 - 0.50)*def_un + 0.50*F.def_un ///
 	if inlist(iso, "BD", "EG", "NR", "PK", "PR", "TO")
 replace newvalue = (1 - 0.25)*def_un + 0.25*F.def_un ///
-	if inlist(iso, "HT", "MH", "FM")
+	if inlist(iso, "HT", "MH", "FM", "PW")
 replace newvalue = 0.53*def_un + (1 - 0.53)*F.def_un ///
 	if inlist(iso, "NP")
 replace newvalue = 0.51*def_un + (1 - 0.51)*F.def_un ///

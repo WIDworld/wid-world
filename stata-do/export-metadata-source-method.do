@@ -39,7 +39,7 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 
 // Add note on Venezualian exchange rate correction for 2016
 preserve
-assert $pastyear == 2016
+assert $pastyear == 2017
 drop if _n>1
 replace iso="VE"
 replace sixlet="xlcusx"

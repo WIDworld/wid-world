@@ -134,6 +134,7 @@ program currencycode, nclass
 			replace `generate' = "VUV" if (`iso2c' == "VU") & (`curr' == "vatu")
 			replace `generate' = "XAF" if (`iso2c' == "GA") & (`curr' == "cfa franc")
 			replace `generate' = "XAF" if (`iso2c' == "CM") & (`curr' == "cfa franc")
+			replace `generate' = "XCD" if (`iso2c' == "AG") & (`curr' == "ec dollar")
 			replace `generate' = "XCD" if (`iso2c' == "GD") & (`curr' == "ec dollar")
 			replace `generate' = "XCD" if (`iso2c' == "DM") & (`curr' == "ec dollar")
 			replace `generate' = "XCD" if (`iso2c' == "MS") & (`curr' == "ec dollar")

@@ -8,10 +8,12 @@ tempfile countries
 save "`countries'"
 
 // Remove some problematic currencies (to be dealt with later)
-drop if (currency == "USD")
+
 drop if (currency == "ERN")
 drop if (currency == "SSP")
+drop if (currency == "USD")
 drop if (currency == "YUN")
+drop if (currency == "BYR")
 
 // Loop over currencies and get exchange rates from Quandl
 quietly levelsof currency, local(currencies)
@@ -31,13 +33,17 @@ foreach CUR of local currencies {
 }
 
 replace rate = 1                 if (currency == "USD")
-replace rate = 3                 if (currency == "SSP")
-replace rate = 15.45             if (currency == "ERN")
-replace rate = 4.0091*0.61712015 if (currency == "YUN")
+replace rate = 130.26            if (currency == "SSP")
+replace rate = 15.00             if (currency == "ERN")
+replace rate = 75.35			 if (currency == "YUN")
+replace rate = 2.01309			 if (currency == "BYR")
+*sources: mataf.net except for BYR (which is now BYN): xe.com
+* ! these are 2018 values 
 
-// Correct 2016 exchange rate for Venezuela
-assert $pastyear == 2016
-replace rate=128.47871 if currency=="VEF"
+// Correct 2017 exchange rate for Venezuela
+assert $pastyear == 2017
+replace rate=79921.54332 if currency=="VEF"
+*source: mataf.net, 2018 value 
 
 // Generate exchange rates with euro and yuan
 rename rate valuexlcusx999i
@@ -56,7 +62,7 @@ assert valuexlcyux999i == 1 if (currency == "CNY")
 
 reshape long value, i(iso) j(widcode) string
 
-generate year = 2016
+generate year = $pastyear
 generate p = "pall"
 
 tempfile xrate
