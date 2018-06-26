@@ -32,18 +32,18 @@ foreach CUR of local currencies {
 	save "`countries'", replace
 }
 
-replace rate = 1                 if (currency == "USD")
-replace rate = 130.26            if (currency == "SSP")
-replace rate = 15.00             if (currency == "ERN")
-replace rate = 75.35			 if (currency == "YUN")
-replace rate = 2.01309			 if (currency == "BYN")
-*sources: mataf.net except for BYN: xe.com
-* ! these are 2018 values 
+replace rate = 1             if (currency == "USD")
+replace rate = 115.39        if (currency == "SSP")
+replace rate = 15.375        if (currency == "ERN")
+replace rate = 75.35		 if (currency == "YUN")
+replace rate = 1.93			 if (currency == "BYN")
+*sources: world bank exchange rates except for YUN (mataf.net, 2018 value) 
+
 
 // Correct 2017 exchange rate for Venezuela
 assert $pastyear == 2017
-replace rate=79921.54332 if currency=="VEF"
-*source: mataf.net, 2018 value 
+replace rate= 95412.016 if currency=="VEF"
+* computation= 128.47871 (previous value) * 742.629 (inflationVE/inflationUS)
 
 // Generate exchange rates with euro and yuan
 rename rate valuexlcusx999i
