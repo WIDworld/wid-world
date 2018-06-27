@@ -64,6 +64,7 @@ append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet
 append using "$wid_dir/Country-Updates/WID_updates/2018-04 Macro corrections Bauluz/macro-corrections-bauluz2018.dta"
 merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", ///
 	nogenerate update replace
+replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "bauluz2018_corrections"
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
 	
 // Czech 2018 (Novokmet2018_Gpinter)

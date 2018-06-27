@@ -173,7 +173,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
