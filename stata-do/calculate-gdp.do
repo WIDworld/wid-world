@@ -136,7 +136,7 @@ replace growth_src = "the value for the previous year" if (growth >= .) & (year 
 replace growth = growth[_n - 1] if (growth >= .) & (year ==  $pastyear - 2)
 drop newobs lastyear
 
-// As a last resort use (pastyear-1) growth rate in pastyear. 2018 update (for last year being 2016 instead of 2017): 27 changes
+// As a last resort use (pastyear-1) growth rate in pastyear. 2018 update: 27 changes
 egen lastyear = max(year), by(iso)
 expand 2 if (lastyear == $pastyear - 1) & (year == $pastyear - 1), generate(newobs)
 replace year = $pastyear if newobs

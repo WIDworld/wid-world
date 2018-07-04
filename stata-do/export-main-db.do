@@ -1,6 +1,6 @@
 use "$work_data/wid-final.dta", clear
 
-keep if substr(iso, 1, 2) == "US"
+*keep if substr(iso, 1, 2) == "US"
 
 rename iso Alpha2
 rename p perc
@@ -46,7 +46,7 @@ egen tokeep = rownonmiss(`vars')
 keep if tokeep
 drop tokeep
 
-export delimited "$output_dir/$time/wid-db-us.csv", delimiter(";") replace
+export delimited "$output_dir/$time/wid-db.csv", delimiter(";") replace
 
 // -------------------------------------------------------------------------- //
 if ($export_with_labels) {
