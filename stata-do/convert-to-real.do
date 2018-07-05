@@ -3,9 +3,11 @@ use "$work_data/add-exchange-rates-output.dta", clear
 merge n:1 iso year using "$work_data/price-index.dta", ///
 	nogenerate keepusing(index) keep(master match)
 
+// Check that there is always a price index for the nominal data
+assert !missing(index) if (iso != "CZ") & inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
+	
 // Convert monetary series to real $pastyear LCU
-replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq") ///
-	& !mi(index)
+replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
 
 // For France, Germany & the Netherlands: old currency before 1950
 replace value = value*(100*6.55957) ///

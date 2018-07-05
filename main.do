@@ -22,7 +22,7 @@ if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global project_dir "~/GitHub/wid-world"
 }
 if substr("`c(pwd)'",1,8)=="/Volumes"{
-	global wid_dir ""
+	global wid_dir "/Volumes/Hard Drive/Users/Georges/Dropbox/W2ID"
 	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
 }
 
@@ -98,9 +98,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2017 // this year matches WEO source in calculate-price-index
+global year 2018 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2016 // this year matches commands in gdp-vs-nni,
+global pastyear 2017 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 
@@ -373,11 +373,11 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 // Per capita/per adults series
 do "$do_dir/calculate-per-capita-series.do"
 
-// Distribute national income by rescaling fiscal income
-do "$do_dir/distribute-national-income.do"
-
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
+
+// Distribute national income by rescaling fiscal income
+do "$do_dir/distribute-national-income.do"
 
 // Calibrate distributed data on national accounts totals for US, FR and CN
 do "$do_dir/calibrate-dina.do"

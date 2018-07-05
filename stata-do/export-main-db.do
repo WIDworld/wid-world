@@ -1,5 +1,7 @@
 use "$work_data/wid-final.dta", clear
 
+*keep if substr(iso, 1, 2) == "US"
+
 rename iso Alpha2
 rename p perc
 
@@ -37,6 +39,12 @@ keep if tokeep
 drop tokeep
 export delimited "~/Desktop/national-wealth.csv", delimiter(";") replace
 */
+
+ds Alpha2 year perc, not
+local vars = r(varlist)
+egen tokeep = rownonmiss(`vars')
+keep if tokeep
+drop tokeep
 
 export delimited "$output_dir/$time/wid-db.csv", delimiter(";") replace
 

@@ -58,6 +58,7 @@ replace newvalue = 0.51*value + (1 - 0.51)*F.value if (fiscalyearend == "July 7"
 replace newvalue = 0.50*value + (1 - 0.50)*F.value if (fiscalyearend == "June 30")
 replace newvalue = (1 - 0.22)*value + 0.22*L.value if (fiscalyearend == "March 20")
 replace newvalue = 0.75*value + (1 - 0.75)*F.value if (fiscalyearend == "September 30")
+replace newvalue = (1 - 0.25)*value + 0.25*L.value if (fiscalyearend == "March 31")
 
 replace value = newvalue if (fiscalyearend != "")
 drop fiscalyearend newvalue id

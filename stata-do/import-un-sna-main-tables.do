@@ -28,9 +28,12 @@ destring gdp_usd, replace
 merge 1:1 countryorarea year using "`gdp'", assert(match master) keep(match) nogenerate
 
 replace gni = subinstr(gni, ",", ".", 1)
-replace gdp = subinstr(gni, ",", ".", 1)
+replace gdp = subinstr(gdp, ",", ".", 1)
 destring gni gdp, replace
 confirm numeric variable gni gdp
+
+replace countryorarea = "Côte d'Ivoire" if (countryorarea == "C�te d'Ivoire")
+replace countryorarea = "Curaçao" if (countryorarea == "Cura�ao")
 
 // Identify countries ------------------------------------------------------- //
 countrycode countryorarea, generate(iso) from("un sna main")
@@ -96,13 +99,13 @@ generate newvalue = .
 replace newvalue = (1 - 0.75)*L.g + 0.75*g ///
 	if inlist(iso, "IN", "MM", "NZ")
 replace newvalue = (1 - 0.50)*L.g + 0.50*g ///
-	if inlist(iso, "AU", "NI", "SD", "YD")
+	if inlist(iso, "AU", "SD", "YA")
 replace newvalue = (1 - 0.78)*L.g + 0.78*g ///
 	if inlist(iso, "AF", "IR")
 replace newvalue = (1 - 0.50)*g + 0.50*F.g ///
 	if inlist(iso, "BD", "EG", "NR", "PK", "PR", "TO")
 replace newvalue = (1 - 0.25)*g + 0.25*F.g ///
-	if inlist(iso, "HT", "MH", "FM")
+	if inlist(iso, "HT", "MH", "FM", "PW")
 replace newvalue = 0.53*g + (1 - 0.53)*F.g ///
 	if inlist(iso, "NP")
 replace newvalue = 0.51*g + (1 - 0.51)*F.g ///

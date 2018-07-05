@@ -24,10 +24,12 @@ replace nfi_pct = nfi_pct_imf if (nfi_pct >= .) & (nfi_pct_imf < .)
 
 keep iso year nfi_pct nfi_src
 
-// Extrapolate 2015 value in 2016
+// Extrapolate (pastyear - 1) value in pastyear
 reshape wide nfi_pct nfi_src, i(iso) j(year)
-replace nfi_src2016 = "the value from the previous year as a % of GDP" if missing(nfi_pct2016) & !missing(nfi_pct2015)
-replace nfi_pct2016 = nfi_pct2015 if missing(nfi_pct2016) & !missing(nfi_pct2015)
+local prepastyear = $pastyear - 1
+di `prepastyear'
+replace nfi_src$pastyear = "the value from the previous year as a % of GDP" if missing(nfi_pct$pastyear) & !missing(nfi_pct`prepastyear')
+replace nfi_pct$pastyear = nfi_pct`prepastyear' if missing(nfi_pct$pastyear) & !missing(nfi_pct`prepastyear')
 reshape long nfi_pct nfi_src, i(iso) j(year) string
 
 drop if missing(nfi_pct)

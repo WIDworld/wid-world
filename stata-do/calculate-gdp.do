@@ -118,7 +118,7 @@ foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 		if (growth_src == "growth_un1_serie`i'")
 }
 
-// As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made
+// As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made, 2018 update: 0 changes
 egen lastyear = max(year), by(iso)
 expand 2 if (lastyear == 2014) & (year == 2014), generate(newobs)
 replace year = 2015 if newobs
@@ -127,13 +127,22 @@ replace growth_src = "the value for the previous year" if (growth >= .) & (year 
 replace growth = growth[_n - 1] if (growth >= .) & (year == 2014)
 drop newobs lastyear
 
-// As a last resort: use 2015 growth rate in 2016. 2017 update: 25 changes made
+// As a last resort: use (pastyear - 2) growth rate in (pastyear - 1). 2017 update: 25 changes made, 2018 update: 3 changes 
 egen lastyear = max(year), by(iso)
-expand 2 if (lastyear == 2015) & (year == 2015), generate(newobs)
-replace year = 2016 if newobs
+expand 2 if (lastyear == $pastyear - 2) & (year == $pastyear - 2), generate(newobs)
+replace year = $pastyear - 1 if newobs
 sort iso year
-replace growth_src = "the value for the previous year" if (growth >= .) & (year == 2015)
-replace growth = growth[_n - 1] if (growth >= .) & (year == 2015)
+replace growth_src = "the value for the previous year" if (growth >= .) & (year ==  $pastyear - 2)
+replace growth = growth[_n - 1] if (growth >= .) & (year ==  $pastyear - 2)
+drop newobs lastyear
+
+// As a last resort use (pastyear-1) growth rate in pastyear. 2018 update: 27 changes
+egen lastyear = max(year), by(iso)
+expand 2 if (lastyear == $pastyear - 1) & (year == $pastyear - 1), generate(newobs)
+replace year = $pastyear if newobs
+sort iso year
+replace growth_src = "the value for the previous year" if (growth >= .) & (year == $pastyear - 1)
+replace growth = growth[_n - 1] if (growth >= .) & (year == $pastyear - 1)
 drop newobs lastyear
 
 generate growth_after = growth[_n - 1] if (year > refyear)

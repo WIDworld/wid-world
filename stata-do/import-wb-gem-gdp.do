@@ -22,11 +22,19 @@ replace value2015 = . if (iso == "AR")
 replace value2015 = . if (iso == "IR")
 */
 
-// Uzbekistan has problematic value for 2016
+// Uzbekistan has problematic value for 2017
 drop if iso=="UZ"
 
-assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
+/*assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
 assert abs(value2016 - value2015)/value2016 < 0.5 if (value2016 < .)
+june 2018: i used the global instead: */
+
+local pastyear `"$pastyear"'
+local prepastyear = ($pastyear - 1)
+local preprepastyear = ($pastyear - 2)
+
+assert abs(value`prepastyear' - value`preprepastyear')/value`prepastyear' < 0.5 if (value`prepastyear' < .)
+assert abs(value`pastyear' - value`prepastyear')/value`pastyear' < 0.5 if (value`pastyear' < .)
 
 reshape long value, i(iso) j(year)
 drop if value >= .

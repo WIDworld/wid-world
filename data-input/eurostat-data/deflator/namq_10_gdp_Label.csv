@@ -1,8 +1,8 @@
 "DATASET: GDP and main components  (output, expenditure and income) [namq_10_gdp]"
 
-"LAST UPDATE: 30.05.17 20:16:00"
+"LAST UPDATE: 19.06.18 20:15:49"
 
-"EXTRACTION DATE: 31.05.17 11:12:05"
+"EXTRACTION DATE: 20.06.18 10:31:25"
 
 "SOURCE OF DATA: Eurostat"
 
@@ -176,6 +176,10 @@
 "2016Q3"
 "2016Q4"
 "2017Q1"
+"2017Q2"
+"2017Q3"
+"2017Q4"
+"2018Q1"
 
 "GEO"
 "Euro area (19 countries)"
@@ -188,7 +192,6 @@
 
 "NA_ITEM"
 "Gross domestic product at market prices"
-"External balance of goods and services"
 
 "No footnotes available"
 

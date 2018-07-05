@@ -1,5 +1,5 @@
 
-use "$work_data/add-researchers-data-real-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 
 // -----------------------------------------------------------------------------------------------------------------
 // Recompute pre-tax and post-tax averages when there is full DINA data
@@ -67,7 +67,7 @@ restore
 }
 
 // Replace these values in data
-use "$work_data/add-researchers-data-real-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 append using "`ptinc'"
 cap append using "`diinc'"
 duplicates tag iso year p widcode, gen(dup)
@@ -103,7 +103,7 @@ tempfile coef
 save "`coef'"
 
 * Calibrate series
-use "$work_data/add-researchers-data-real-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 merge n:1 iso year using "`coef'", nogenerate
 
 *tab widcode if substr(widcode,2,5)=="ptinc"

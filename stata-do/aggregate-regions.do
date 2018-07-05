@@ -84,8 +84,12 @@ by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
 drop if num1!=num2
 drop num1 num2
 
-// Drop 2017
+// Drop current year
 drop if year==$year
+
+// Drop Saint-Helena because problematic and doesn't appear in the website/in WID data
+
+drop if inlist(iso,"SH","PM","FK","GI","VA","NU","TK","WF")
 
 // Check that the composition of groups does not change over time
 preserve
@@ -112,7 +116,6 @@ assert valiso2 == 3 if (region2 == "Eastern Europe")
 assert valiso2 == 2 if (region2 == "Western Europe")
 assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
-assert valiso2 == 1 if (region2 == "Middle East")
 restore
 
 

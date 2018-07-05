@@ -2,7 +2,7 @@
 
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/unpopulationseries19502100wpp2015_pop_f01_1_total_population_both_sexes.xls", ///
+import excel "$un_data/populations/wpp/WPP2017_totalpopulation_bothsexes.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -17,8 +17,8 @@ foreach v of varlist f-bs {
 }
 
 // Identify countries
-countrycode majorarearegioncountryora, generate(iso) from("wpp")
-drop variant majorarearegioncountryora notes countrycode
+countrycode regionsubregioncountryorar, generate(iso) from("wpp")
+drop variant regionsubregioncountryorar notes countrycode
 
 reshape long value, i(iso) j(year)
 drop if value >= .
@@ -32,7 +32,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP2015_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xls", ///
+import excel "$un_data/populations/wpp/WPP2017_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -51,8 +51,8 @@ foreach v of varlist g-ab {
 }
 
 // Identify countries
-countrycode majorarearegioncountryora, generate(iso) from("wpp")
-drop variant majorarearegioncountryora notes countrycode
+countrycode regionsubregioncountryorar, generate(iso) from("wpp")
+drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
 replace value80 = value80_84 + value85_89 + value90_94 ///
@@ -82,7 +82,7 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP2015_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xls", ///
+import excel "$un_data/populations/wpp/WPP2017_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -101,8 +101,8 @@ foreach v of varlist g-ab {
 }
 
 // Identify countries
-countrycode majorarearegioncountryora, generate(iso) from("wpp")
-drop variant majorarearegioncountryora notes countrycode
+countrycode regionsubregioncountryorar, generate(iso) from("wpp")
+drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
 replace value80 = value80_84 + value85_89 + value90_94 ///
@@ -144,7 +144,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP2015_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xls", ///
+import excel "$un_data/populations/wpp/WPP2017_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -163,8 +163,8 @@ foreach v of varlist g-ab {
 }
 
 // Identify countries
-countrycode majorarearegioncountryora, generate(iso) from("wpp")
-drop variant majorarearegioncountryora notes countrycode
+countrycode regionsubregioncountryorar, generate(iso) from("wpp")
+drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
 replace value80 = value80_84 + value85_89 + value90_94 ///
@@ -207,10 +207,11 @@ save "`unpop'", replace
 
 // Add previsions for current year that are missing ----------------------------------------------------- //
 
-import delimited "$un_data/populations/wpp/WPP2015_DB04_Population_By_Age_Annual.csv", ///
-	delimit(",") case(lower) clear
+import excel "$un_data/populations/wpp/WPP2017_DB04_Population_By_Age_Annual.xlsx", ///
+	sheet("Sheet1") case(lower) firstrow clear
 
-keep if time==$pastyear
+*june 2018: estimates of the other files only go until 2015 still, so I keep pastyear (2017) and pastyear - 1 (2016) 
+keep if time==$pastyear | time == ($pastyear - 1)
 
 // Identify countries
 countrycode location, generate(iso) from("wpp")

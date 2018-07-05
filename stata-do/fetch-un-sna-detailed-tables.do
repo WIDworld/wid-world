@@ -26,7 +26,7 @@ forvalues i = 1/2 {
 	
 	// Loop over available years
 	local firstyear 1
-	forvalues y = 1946/2015 {
+	forvalues y = 1946/$pastyear {
 		quietly {
 			// Create the URL for retrieving the data
 			local url "http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=group_code:`code';fiscal_year:`y'&dataMartId=SNA&Format=csv"
