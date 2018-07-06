@@ -52,8 +52,8 @@ drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahw
 	| substr(widcode, 2, 2) == "fi") ///
 	& (iso == "FR") & (oldobs==1)
 
-// US inequality (PSZ 2017 Appendix II): drop g-percentiles (DINA imported before), drop new duplicated wid data
-drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall")
+// US inequality (PSZ 2017 Appendix II): drop g-percentiles except for wealth data (DINA imported before), drop new duplicated wid data
+drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") & !inlist(widcode,"shweal992j","ahweal992j")
 duplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
 
