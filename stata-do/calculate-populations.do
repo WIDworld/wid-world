@@ -74,9 +74,9 @@ preserve
 	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
 	generate a = value_snaKS/value_snaRS
 	egen b = mode(a), by(year)
-	// In 2016, use 2015 value
-	quietly levelsof b if (year == 2015), local(value2015)
-	replace b = `value2015' if (year == 2016)
+	// In pastyear, use prepastyear value
+	quietly levelsof b if (year == $pastyear - 1), local(valuepastpastyear)
+	replace b = `valuepastpastyear' if (year == $pastyear)
 	replace value = value_wppRS*b
 	generate iso = "KS"
 	keep iso year age sex value
@@ -94,9 +94,9 @@ preserve
 	keep if iso == "RS"
 	generate a = value_sna/value_wpp if (iso == "RS")
 	egen b = mode(a) if (iso == "RS"), by(year)
-	// In 2016, use 2015 value
-	quietly levelsof b if (year == 2015), local(value2015)
-	replace b = `value2015' if (year == 2016)
+	// In pastyear, use prepastyear value
+	quietly levelsof b if (year == $pastyear - 1), local(valuepastpastyear)
+	replace b = `valuepastpastyear' if (year == $pastyear)
 	// Use WPP population before 1990
 	replace b = 1 if missing(b)
 	replace value = b*value_wpp
@@ -115,9 +115,9 @@ drop if (iso == "ZZ") // Zanzibar data will be recalculated from Tanzania
 
 generate a = value_sna/value_wpp if (iso == "TZ") & (year >= 1990)
 egen b = mode(a) if (iso == "TZ") & (year >= 1990), by(year)
-// In 2016, use 2015 value for fraction of Tanzania population
-quietly levelsof b if (iso == "TZ") & (year == 2015), local(value2015)
-replace b = `value2015' if (iso == "TZ") & (year == 2016)
+// In $pastyear, use $pastyear-1 value for fraction of Tanzania population
+quietly levelsof b if (iso == "TZ") & (year == $pastyear - 1), local(valuepastpastyear)
+replace b = `valuepastpastyear' if (iso == "TZ") & (year == $pastyear)
 expand 2 if (iso == "TZ") & (year >= 1990), generate(new)
 replace value = value_wpp*b if (new == 0) & (iso == "TZ")
 replace value = value_wpp*(1 - b) if (new == 1) & (iso == "TZ")
@@ -128,9 +128,9 @@ drop a b new
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population
 // as before. (The difference is, Northern Cyprus is never included in the data.)
 generate a = value_sna/value_wpp if (iso == "CY") & (year >= 1974)
-// In 2016, use 2015 value for fraction of Cyprus population
-quietly levelsof a if (iso == "CY") & (year == 2015), local(value2015)
-replace a = `value2015' if (iso == "CY") & (year == 2016)
+// In pastyear, use prepast value for fraction of Cyprus population
+quietly levelsof a if (iso == "CY") & (year == $pastyear - 1), local(valuepastpastyear)
+replace a = `valuepastpastyear' if (iso == "CY") & (year == $pastyear)
 replace value = value_wpp*a if (iso == "CY") & (year >= 1974)
 drop a
 
