@@ -126,7 +126,6 @@ merge 1:1 iso year widcode p using "`gperc_shares'", nogenerate update replace
 merge 1:1 iso year widcode p using "`groups'", nogenerate update replace
 merge 1:1 iso year widcode p using "`average_shares'", nogenerate update replace
 
-
 // Change database structure: remove pX percentiles and expand thresholds
 * Make thresholds-percentiles combinations match those of shares
 preserve
@@ -149,6 +148,9 @@ append using "`thres'"
 
 // Drop top averages
 drop if substr(widcode, 1, 1)=="o"
+
+// Add p90p99 when it is missing
+*bys iso year widcode: gen p90p100=value if substr(widcode,1,1)=="s"
 
 // Drop duplicates
 duplicates drop

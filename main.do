@@ -12,18 +12,21 @@
 
 clear all
 
-// Directory (Gethin / Blanchet)
+// Directory (Gethin / Blanchet / Myczkowski)
 if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
 	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
+	global r_dir "C:\Program Files\R\R-3.4.1\bin\i386/R.exe"
 }
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
+	global r_dir "/usr/local/bin/R"
 }
 if substr("`c(pwd)'",1,8)=="/Volumes"{
 	global wid_dir "/Volumes/Hard Drive/Users/Georges/Dropbox/W2ID"
 	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
+	global r_dir "/usr/local/bin/R"
 }
 
 // WID folder directory
@@ -133,7 +136,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
+/*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -177,7 +180,7 @@ do "$do_dir/calculate-average-over.do"
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-
+*/
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 
@@ -188,7 +191,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -268,7 +271,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //

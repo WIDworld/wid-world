@@ -61,10 +61,11 @@ generate sixlet = "mconfc"
 save "$work_data/na-metadata.dta", replace
 restore
 
-// NFI
+// NFI (values before last year available are used in computations but dropped in database)
 
 // Method
 preserve
+drop if strpos(nfi_src,"the value from the next year")>0
 replace nfi_src = "we use NFI as a % of GDP from " + nfi_src if (nfi_src != "imputed") & (nfi_src != "")
 replace nfi_src = "" if (nfi_src == "imputed") | (nfi_src == "")
 
@@ -85,6 +86,7 @@ restore
 
 // Source
 preserve
+drop if strpos(nfi_src,"the value from the next year")>0
 drop if nfi_src == "imputed"
 drop if strpos(nfi_src, "the value from the previous year")
 replace nfi_src = ustrregexrf(nfi_src, "the ", "")
@@ -245,6 +247,7 @@ restore
 
 
 // NNI
+// Cases where NFI is assumed 0
 preserve
 by iso: generate categ = sum(nfi_src[_n - 1] != nfi_src)
 collapse (min) minyear=year (max) maxyear=year (first) nfi_src, by(iso categ)
@@ -256,6 +259,19 @@ reshape wide nfi_src, i(iso) j(categ)
 egen method = concat(nfi_src*), punct(", ")
 replace method = "We assumed zero net foreign income: " + method
 replace method = regexr(method, "[ ,]+$", "") + "."
+keep iso method
+tempfile nni
+save "`nni'", replace
+restore
+
+// Cases where NFI is held constant
+preserve
+keep if strpos(nfi_src,"the value from the next year")>0
+collapse (min) minyear=year (max) maxyear=year, by(iso)
+gen lastyear=maxyear+1
+gen method2="From "+string(minyear)+" to "+string(maxyear)+", we computed net foreign income based on its share in GDP in "+string(lastyear)+"."
+merge 1:1 iso using "`nni'", nogen
+replace method=method+" "+method2
 keep iso method
 tempfile nni
 save "`nni'", replace
@@ -314,8 +330,12 @@ append using "$work_data/na-metadata.dta"
 save "$work_data/na-metadata.dta", replace
 restore
 
+// Replace NFI as missing for years previous to last year available
+replace valuemnnfin999i=. if strpos(nfi_src,"the value from the next year")>0
+
 // Put data in the right format
 keep year valuemgdpro999i currency iso valuemconfc999i valuemnnfin999i valuemndpro999i valuemnninc999i
+*tw con valuemgd valuemnninc valuemnnfin valuemconfc year if iso=="LU"
 reshape long value, i(iso year) j(widcode) string
 drop if value >= .
 
