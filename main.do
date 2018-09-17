@@ -28,6 +28,12 @@ if substr("`c(pwd)'",1,8)=="/Volumes"{
 	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
 	global r_dir "/usr/local/bin/R"
 }
+if substr("`c(pwd)'",1,10)=="/Users/ali"{
+	global wid_dir "/Users/alixmyczkowski/Dropbox/W2ID"
+	global project_dir "/Users/alixmyczkowski/Documents/GitHub/wid-world"
+	global r_dir "/usr/local/bin/R"
+}
+
 
 // WID folder directory
 *global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
@@ -191,7 +197,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+/
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -290,7 +296,7 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-*do "$do_dir/import-exchange-rates.do"
+do "$do_dir/import-exchange-rates.do"
 
 // Import IMF BOP data
 do "$do_dir/import-imf-bop.do"
