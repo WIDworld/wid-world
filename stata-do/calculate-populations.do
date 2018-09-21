@@ -127,12 +127,13 @@ drop a b new
 // From 1970 to 1973, GDP data include the entire island. After that, it excludes
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population
 // as before. (The difference is, Northern Cyprus is never included in the data.)
-generate a = value_sna/value_wpp if (iso == "CY") & (year >= 1974)
+generate b = value_sna/value_wpp if (iso == "CY") & (year >= 1974)
+bys year : egen a = mode(b) if (iso == "CY") & (year >=1974)
 // In pastyear, use prepast value for fraction of Cyprus population
 quietly levelsof a if (iso == "CY") & (year == $pastyear - 1), local(valuepastpastyear)
 replace a = `valuepastpastyear' if (iso == "CY") & (year == $pastyear)
 replace value = value_wpp*a if (iso == "CY") & (year >= 1974)
-drop a
+drop a b
 
 // Drop former Yemen states
 drop if inlist(iso, "YA", "YD")
