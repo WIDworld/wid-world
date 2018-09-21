@@ -149,6 +149,24 @@ append using "`thres'"
 // Drop top averages
 drop if substr(widcode, 1, 1)=="o"
 
+// Re-calculate Tobin's Q
+save "`data'", replace
+
+keep if inlist(widcode, "mcwdeq999i", "mcwboo999i")
+reshape wide value, i(iso year) j(widcode) string
+generate value = valuemcwdeq999i/valuemcwboo999i
+drop valuemcwdeq999i valuemcwboo999i
+generate widcode = "icwtoq999i"
+drop if missing(value)
+
+tempfile toq
+save "`toq'"
+
+use "`data'", clear
+
+drop if strpos(widcode, "cwtoq")
+append using "`toq'"
+
 // Add p90p99 when it is missing
 *bys iso year widcode: gen p90p100=value if substr(widcode,1,1)=="s"
 

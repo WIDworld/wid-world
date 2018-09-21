@@ -37,7 +37,7 @@ save "`meta'"
 
 // ----------------------------------------------------------------------------------------------------------------
 // ADD DATA TO WID
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/aggregate-regions-wir2018-output.dta", clear
 gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1

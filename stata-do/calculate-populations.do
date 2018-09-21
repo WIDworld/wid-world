@@ -67,12 +67,12 @@ assert abs(value_wpp - value_sna)/value_wpp < 1e-3 ///
 // are certainly more up to date.
 generate value = value_wpp if (iso == "KP")
 
-// WPP data do not include Kosovo, which is part of Serbia. We use the
+// WPP data does not include Kosovo, which is part of Serbia. We use the
 // ratio Kosovo/Serbia in SNA to attribute Kosovo population subcategories.
 preserve
 	keep if inlist(iso, "KS", "RS")
 	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
-	generate a = value_snaKS/value_snaRS
+	generate a = value_snaKS/value_wppRS
 	egen b = mode(a), by(year)
 	// In pastyear, use prepastyear value
 	quietly levelsof b if (year == $pastyear - 1), local(valuepastpastyear)
@@ -196,7 +196,8 @@ drop age sex
 // Add WID data
 generate src = "_un"
 
-append using "$work_data/calculate-average-over-output.dta", keep(iso year value widcode)
+append using "$work_data/correct-widcodes-output.dta", keep(iso year value widcode)
+drop if widcode == "npopul996i"
 keep if substr(widcode, 1, 6) == "npopul" & substr(widcode, 10, 1) != "t"
 replace src = "_wid" if (src == "")
 
