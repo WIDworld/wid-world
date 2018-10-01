@@ -28,6 +28,12 @@ if substr("`c(pwd)'",1,8)=="/Volumes"{
 	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
 	global r_dir "/usr/local/bin/R"
 }
+if substr("`c(pwd)'",1,10)=="/Users/ali"{
+	global wid_dir "/Users/alixmyczkowski/Dropbox/W2ID"
+	global project_dir "/Users/alixmyczkowski/Documents/GitHub/wid-world"
+	global r_dir "/usr/local/bin/R"
+}
+
 
 // WID folder directory
 *global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
@@ -136,7 +142,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
+
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -180,7 +186,7 @@ do "$do_dir/calculate-average-over.do"
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-*/
+
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 
@@ -191,7 +197,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -271,7 +277,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -290,7 +296,7 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-*do "$do_dir/import-exchange-rates.do"
+do "$do_dir/import-exchange-rates.do"
 
 // Import IMF BOP data
 do "$do_dir/import-imf-bop.do"
@@ -367,6 +373,9 @@ do "$do_dir/aggregate-regions.do"
 // Aggregate WIR 2018 regions
 do "$do_dir/aggregate-regions-wir2018.do"
 
+// Add researchers data which are in real value
+do "$do_dir/add-researchers-data-real.do"
+
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
 
@@ -375,9 +384,6 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 
 // Per capita/per adults series
 do "$do_dir/calculate-per-capita-series.do"
-
-// Add researchers data which are in real value
-do "$do_dir/add-researchers-data-real.do"
 
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
