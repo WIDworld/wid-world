@@ -70,6 +70,10 @@ drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_correction
 // Czech 2018 (Novokmet2018_Gpinter)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
+// US States 2017 (2018 update)
+append using "$wid_dir/Country-Updates/US_States/2018_July/us-states-frank2017-update2018.dta"
+
+
 tempfile researchers
 save "`researchers'"
 
