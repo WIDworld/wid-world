@@ -50,11 +50,12 @@ foreach c of local widcode_list {
 
 use "$work_data/calculate-pareto-coef-output.dta", clear
 
+keep if inlist(widcode, "icwtoq999i")
+
 drop if strpos(iso, "XQ")
 
 // Drop German Ginis (not correct)
 drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
-
 
 save "$work_data/wid-long.dta", replace
 

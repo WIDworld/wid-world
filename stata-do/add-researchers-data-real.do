@@ -1,11 +1,8 @@
 // -----------------------------------------------------------------------------------------------------------------
 // IMPORT ALL FILES
 
-// US States 2017
-use "$us_states_data/us-states-frank2017.dta", clear
-
 // France inequality 2017 (GGP2017)
-append using "$france_data/france-ggp2017.dta"
+use "$france_data/france-ggp2017.dta", clear
 
 // UK wealth 2017 (Alvaredo2017)
 append using "$uk_data/uk-wealth-alvaredo2017.dta"
@@ -37,7 +34,7 @@ save "`meta'"
 
 // ----------------------------------------------------------------------------------------------------------------
 // ADD DATA TO WID
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/aggregate-regions-wir2018-output.dta", clear
 gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
