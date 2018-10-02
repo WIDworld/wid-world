@@ -72,7 +72,7 @@ generate value = value_wpp if (iso == "KP")
 preserve
 	keep if inlist(iso, "KS", "RS")
 	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
-	generate a = value_snaKS/value_snaRS
+	generate a = value_snaKS/value_wppRS
 	egen b = mode(a), by(year)
 	// In pastyear, use prepastyear value
 	quietly levelsof b if (year == $pastyear - 1), local(valuepastpastyear)
