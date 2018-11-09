@@ -2,6 +2,7 @@ use "$work_data/calculate-wealth-income-ratio-output.dta", clear
 
 // Data with adult population
 keep if inlist(widcode, "npopul999i", "npopul992i")
+replace p="pall" if p=="p0p100"
 reshape wide value, i(iso year p) j(widcode) string
 keep iso year p valuenpopul992i valuenpopul999i
 tempfile pop

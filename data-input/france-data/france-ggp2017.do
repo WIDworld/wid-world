@@ -1,3 +1,6 @@
+
+global france_data "C:\Users\Amory\Documents\GitHub\wid-world\data-input\france-data"
+
 // Import income DINA data
 import delimited "$france_data/gpercincFR.csv", delimiter(";") clear
 
@@ -32,9 +35,16 @@ foreach v of varlist npopul996f-spkkin992j {
 }
 reshape long value, i(alpha2 year p2) j(widcode) string
 
+replace widcode = "ahwpen992j" if (widcode == "ahwpens992j")
+
+generate source = `"[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2017)"' ///
+	+ `"[/URL_TEXT][/URL]"'
+
 tempfile france
 save "`france'", replace
 
+// Wealth compo
 import delimited "$france_data/wealthcompoFR.csv", delimiter(";") clear
 
 foreach v of varlist ahweal992j-ahwfie992j {
@@ -43,9 +53,16 @@ foreach v of varlist ahweal992j-ahwfie992j {
 
 reshape long value, i(alpha2 year p2) j(widcode) string
 
+replace widcode = "ahwpen992j" if (widcode == "ahwpens992j")
+
+generate source = `"[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-wealth-concentration-in-france-1800-2014-methods-estimates-and-simulations-2016/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2016)"' ///
+	+ `"[/URL_TEXT][/URL]"'
+
 append using "`france'"
 save "`france'", replace
 
+// Wealth distributions
 import delimited "$france_data/gpercwealthFR.csv", delimiter(";") clear
 drop nhweal992j
 
@@ -55,12 +72,16 @@ foreach v of varlist thweal992j-shweal992j {
 
 reshape long value, i(alpha2 year p2) j(widcode) string
 
+replace widcode = "ahwpen992j" if (widcode == "ahwpens992j")
+
+generate source = `"[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-wealth-concentration-in-france-1800-2014-methods-estimates-and-simulations-2016/[/URL_LINK]"' ///
+	+ `"[URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2016)"' ///
+	+ `"[/URL_TEXT][/URL]"'
+
 append using "`france'"
 
 rename alpha2 iso
 rename p2 p
-
-replace widcode = "ahwpen992j" if (widcode == "ahwpens992j")
 
 generate currency = "EUR" if inlist(substr(widcode, 1, 1), "a", "t")
 
@@ -69,7 +90,6 @@ drop if missing(value)
 
 drop if (p!="p0p100" & substr(widcode, 1, 1)=="n")
 
-generate source = "Garbinti, Goupille and Piketty (2016); "
 generate method = ""
 
 gen author="ggp2017"

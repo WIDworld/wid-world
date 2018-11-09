@@ -50,8 +50,6 @@ foreach c of local widcode_list {
 
 use "$work_data/calculate-pareto-coef-output.dta", clear
 
-keep if inlist(widcode, "icwtoq999i")
-
 drop if strpos(iso, "XQ")
 
 // Drop German Ginis (not correct)
@@ -59,23 +57,38 @@ drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
 
 save "$work_data/wid-long.dta", replace
 
-rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
+if substr("`c(pwd)'",1,10)=="C:\Users\A"{
+	rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
+	library(haven)
+	library(reshape2)
+	library(magrittr)
 
-library(haven)
-library(reshape2)
-library(magrittr)
+	path <- "C:/Users/Amory/Documents/GitHub/wid-world/work-data"
 
-path <- commandArgs(trailingOnly = TRUE)
+	setwd(path)
+	data <- read_dta(paste0(path, "/wid-long.dta"))
+	data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
+	write_dta(data, paste0(path, "/wid-wide.dta"))
+}
 
-setwd(path)
-data <- read_dta(paste0(path, "/wid-long.dta"))
-data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
-write_dta(data, paste0(path, "/wid-wide.dta"))
+else{
+	rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
 
-END_OF_R
+	library(haven)
+	library(reshape2)
+	library(magrittr)
+
+	path <- commandArgs(trailingOnly = TRUE)
+
+	setwd(path)
+	data <- read_dta(paste0(path, "/wid-long.dta"))
+	data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
+	write_dta(data, paste0(path, "/wid-wide.dta"))
+
+	END_OF_R
+}
 
 use "$work_data/wid-wide.dta", clear
-
 
 label variable year "year"
 label variable iso "ISO-2 country code"

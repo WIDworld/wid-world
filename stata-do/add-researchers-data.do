@@ -61,25 +61,43 @@ append using "$wid_dir/Country-Updates/Bulgaria/2018/03/bulgaria-novokmet2018.dt
 append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet2018.dta"
 
 // Macro corrections (Bauluz 2018)
+preserve
+use "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", clear
+keep iso widcode
+duplicates drop
+gen todrop=1
+tempfile temp
+save `temp'
+restore
+merge m:1 iso widcode using `temp', nogen
+drop if todrop==1
+drop todrop
+
 append using "$wid_dir/Country-Updates/WID_updates/2018-04 Macro corrections Bauluz/macro-corrections-bauluz2018.dta"
 merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", ///
 	nogenerate update replace
+
 replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "bauluz2018_corrections"
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
-	
+replace author="bauluz2017" if author=="bauluz2018_corrections"
+
 // Czech 2018 (Novokmet2018_Gpinter)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
 // US States 2017 (2018 update)
 append using "$wid_dir/Country-Updates/US_States/2018_July/us-states-frank2017-update2018.dta"
 
+// Chile 2018 (Flores2018)
+append using "$wid_dir/Country-Updates/Chile/2018_10/chile-flores2018.dta"
+
+// Korea 2018 (Kim2018), except for gdp and nni who had to be imported in constant LCU
+append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 
 tempfile researchers
 save "`researchers'"
 
 // ----------------------------------------------------------------------------------------------------------------
 // CREATE METADATA
-
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
@@ -132,6 +150,15 @@ drop if usdup & iso=="US" & author!="bauluz2017"
 
 // India 2017: drop duplicates and old fiscal income data
 drop if substr(widcode, 2, 5)=="fiinc" & oldobs==1 & iso=="IN"
+
+// Korea 2018: drop all old variables present in updates
+drop if iso=="KR" & oldobs==1 ///
+	& (inlist(widcode,"aficap992i", "afidiv992i", "afiinc992i", "afiinc999i", "afiint992i") ///
+	| inlist(widcode,"afilin992i","ahweal992i","bfiinc992i","inyixx999i","mcwboo999i","mcwdeb999i","mcwdeq999i","mcwfin999i") ///
+	| inlist(widcode,"mcwnfa999i","mcwres999i","mcwtoq999i","mfiinc999i","mhweal999i","mnwboo999i","mnweal999i","npopul992i") ///
+	| inlist(widcode,"npopul999i","sfiinc992i","shweal992i","tfiinc992i","thweal992i"))
+
+replace p="pall" if p=="p0p100"
 
 duplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
