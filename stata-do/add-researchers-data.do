@@ -93,6 +93,10 @@ append using "$wid_dir/Country-Updates/Chile/2018_10/chile-flores2018.dta"
 // Korea 2018 (Kim2018), except for gdp and nni who had to be imported in constant LCU
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 
+// India wealth 2018 (Bharti2018)
+append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
+
+
 tempfile researchers
 save "`researchers'"
 

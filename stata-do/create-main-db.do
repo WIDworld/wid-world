@@ -71,22 +71,22 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	write_dta(data, paste0(path, "/wid-wide.dta"))
 }
 
-else{
-	rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
 
-	library(haven)
-	library(reshape2)
-	library(magrittr)
+rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
 
-	path <- commandArgs(trailingOnly = TRUE)
+library(haven)
+library(reshape2)
+library(magrittr)
 
-	setwd(path)
-	data <- read_dta(paste0(path, "/wid-long.dta"))
-	data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
-	write_dta(data, paste0(path, "/wid-wide.dta"))
+path <- commandArgs(trailingOnly = TRUE)
 
-	END_OF_R
-}
+setwd(path)
+data <- read_dta(paste0(path, "/wid-long.dta"))
+data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
+write_dta(data, paste0(path, "/wid-wide.dta"))
+
+END_OF_R
+
 
 use "$work_data/wid-wide.dta", clear
 
