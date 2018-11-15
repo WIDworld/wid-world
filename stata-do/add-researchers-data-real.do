@@ -72,7 +72,7 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 
 // ----------------------------------------------------------------------------------------------------------------
 // ADD METADATA
-use "$work_data/complete-variables-metadata.dta", clear
+use "$work_data/na-metadata-no-duplicates.dta", clear
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 replace method = "" if method == " "
 replace method = "" if iso == "FR" & substr(sixlet, 2, 5) == "ptinc"
