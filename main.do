@@ -114,7 +114,7 @@ global pastyear 2017 // this year matches commands in gdp-vs-nni,
 					 // and other do-files
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    1
+global plot_missing_nfi    0
 global plot_nfi_countries  0
 global plot_imputation_cfc 0
 global export_with_labels  0
@@ -142,7 +142,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
+/*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -182,7 +182,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -197,7 +197,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -277,7 +277,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //

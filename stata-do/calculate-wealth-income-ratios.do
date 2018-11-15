@@ -2,6 +2,7 @@ use "$work_data/complete-variables-output.dta", clear
 
 keep if inlist(substr(widcode, 1, 6), "mpweal", "mhweal", "miweal", ///
 	"mgweal", "mnweal", "mnninc")
+replace p="pall" if p=="p0p100"
 
 reshape wide value, i(iso year) j(widcode) string
 

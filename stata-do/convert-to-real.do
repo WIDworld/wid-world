@@ -3,9 +3,22 @@ use "$work_data/add-exchange-rates-output.dta", clear
 merge n:1 iso year using "$work_data/price-index.dta", ///
 	nogenerate keepusing(index) keep(master match)
 
+// Attribute US deflator to US States
+preserve
+	keep if iso=="US"
+	keep year index
+	duplicates drop
+	ren index us_index
+	tempfile temp
+	save `temp'
+restore
+merge m:1 year using `temp', nogen
+replace index=us_index if substr(iso,1,3)=="US-"
+drop us_index
+
 // Check that there is always a price index for the nominal data
 assert !missing(index) if (iso != "CZ") & inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
-	
+
 // Convert monetary series to real $pastyear LCU
 replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
 

@@ -1,11 +1,8 @@
 // -----------------------------------------------------------------------------------------------------------------
 // IMPORT ALL FILES
 
-// US States 2017
-use "$us_states_data/us-states-frank2017.dta", clear
-
 // France inequality 2017 (GGP2017)
-append using "$france_data/france-ggp2017.dta"
+use "$france_data/france-ggp2017.dta", clear
 
 // UK wealth 2017 (Alvaredo2017)
 append using "$uk_data/uk-wealth-alvaredo2017.dta"
@@ -22,6 +19,9 @@ append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin201
 // Germany and subregions
 append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
 
+// Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
+append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
+
 tempfile researchers
 save "`researchers'"
 
@@ -31,6 +31,11 @@ generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
 duplicates drop
+
+duplicates tag iso sixlet, gen(dup)
+assert dup==0
+drop dup
+
 replace method = " " if method == ""
 tempfile meta
 save "`meta'"
@@ -56,6 +61,11 @@ drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahw
 drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") & !inlist(widcode,"shweal992j","ahweal992j")
 duplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
+
+// Korea: drop old widcodes
+drop if iso=="KR" & oldobs==1 & inlist(substr(widcode,2,5),"gdpro","nninc")
+
+replace p="pall" if p=="p0p100"
 
 // Drop old duplicated wid data
 duplicates tag iso year p widcode, gen(dup)
