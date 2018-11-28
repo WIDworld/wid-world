@@ -18,6 +18,11 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
 	global r_dir "C:\Program Files\R\R-3.4.1\bin\i386/R.exe"
 }
+if substr("`c(pwd)'",1,10)=="C:\Windows" | strpos("`c(pwd)'","Gethin")>0{
+	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
+	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
+	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"	
+}
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
@@ -127,14 +132,15 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 
 // Required ADO files
+/*
 *update all
-*ssc install kountry
-*ssc install coefplot
-*ssc install sxpose
-*ssc install egenmore
-*ssc install carryforward
-*ssc install quandl
-*dropmiss (help dropmiss and select link)
+ssc install kountry
+ssc install coefplot
+ssc install sxpose
+ssc install egenmore
+ssc install carryforward
+ssc install quandl
+*/
 
 // You need to update Stata to the 14 version
 version 14
@@ -296,7 +302,7 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-do "$do_dir/import-exchange-rates.do"
+*do "$do_dir/import-exchange-rates.do"
 
 // Import IMF BOP data
 do "$do_dir/import-imf-bop.do"
@@ -412,6 +418,7 @@ do "$do_dir/export-metadata-other.do"
 do "$do_dir/export-units.do"
 
 // Export the main database
+/*
 do "$do_dir/create-main-db.do"
 do "$do_dir/export-main-db.do"
 

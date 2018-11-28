@@ -81,8 +81,11 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 
 
 // ----------------------------------------------------------------------------------------------------------------
-// ADD METADATA
+// COMBINE NA AND DISTRIBUTIONAL METADATAS
 use "$work_data/na-metadata-no-duplicates.dta", clear
+append using "$work_data/correct-widcodes-metadata.dta"
+drop if iso=="CN" & mi(source) & sixlet=="xlcusx"
+
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 replace method = "" if method == " "
 replace method = "" if iso == "FR" & substr(sixlet, 2, 5) == "ptinc"
