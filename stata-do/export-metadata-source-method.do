@@ -60,7 +60,7 @@ replace method = strtrim(method)
 replace source = strtrim(source)
 
 // Fix China exchange rate source
-drop if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
+replace source = "" if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
 qui count if (iso=="CN" & sixlet=="xlcusx")
 assert r(N)==1
 

@@ -31,6 +31,9 @@ save "`currencies'"
 
 use "$work_data/calibrate-dina-output.dta", clear
 
+// Add Euro for German subregions
+replace currency = "EUR" if strpos(iso, "DE-")
+
 keep iso currency
 drop if currency == ""
 duplicates drop
@@ -65,7 +68,7 @@ replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency
 	if inlist(type, "a", "t", "m", "o") & (iso == "FR")
 replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
 	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"1850-1923":"Papiermark","1924-1950":"Reichsmark/Deutsche Mark","1951-":"euros"}}"' ///
-	if inlist(type, "a", "t", "m", "o") & (iso == "DE")
+	if inlist(type, "a", "t", "m", "o") & (iso == "DE" | strpos(iso, "DE-"))
 replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
 	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"1914-1950":"Guilders","1951-":"euros"}}"' ///
 	if inlist(type, "a", "t", "m", "o") & (iso == "NL")
