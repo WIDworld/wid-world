@@ -96,6 +96,9 @@ append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 // India wealth 2018 (Bharti2018)
 append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 
+// Thailand 2018 (Jenmana2018)
+append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana2018.dta"
+
 
 tempfile researchers
 save "`researchers'"
