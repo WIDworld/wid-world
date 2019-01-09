@@ -206,7 +206,7 @@ merge 1:1 iso year using "$work_data/maddison-gdp.dta", ///
 replace gdp_maddison = . if inlist(iso, "US", "FR", "DE", "GB")
 
 // Housekeeping
-keep iso year currency gdp gdp_maddison *_src 
+keep iso year currency gdp gdp_maddison *_src
 
 // Drop former countries after separation
 drop if (iso == "CS") & (year > 1990)
@@ -228,6 +228,23 @@ replace growth = log(gdp) if (year == firstyear)
 by iso: generate gdp2 = exp(sum(growth))
 
 assert (gdp - gdp2)/gdp < 1e-3 if (gdp < .)
+
+// Apply growth rates from Blanchet, Chancel & Gethin (2018) to expand East to 1980
+preserve
+	use "$wid_dir/Country-Updates/Europe/2018_01/europe-bcg2019-macro.dta", clear
+	keep if inlist(iso,"SI","HR", "RS", "KS", "BA", "MK", "ME") ///
+		| inlist(iso,"MD","EE","LT","LV","CZ","SK")
+	gen gdp=agdp*npop
+	bys iso (year): gen gr_bcg=gdp[_n+1]/gdp
+	keep if year<1990
+	keep iso year gr_bcg
+	tempfile bcg
+	save `bcg'
+	restore
+merge m:m iso year using `bcg', nogen
+gsort iso -year
+by iso: replace gdp2=gdp2[_n-1]/gr_bcg if !mi(gr_bcg) & mi(gdp2)
+replace growth2_src="Maddison (2007)" if !mi(gr_bcg)
 
 // Check that there is no country with only Maddison data
 egen hasmaddison = total(gdp_maddison < .), by(iso)

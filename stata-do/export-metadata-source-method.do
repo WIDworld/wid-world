@@ -2,6 +2,17 @@ use "$work_data/add-researchers-data-real-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 
+// Add data quality
+preserve
+import excel "$input_data_dir/data-quality/data-quality.xlsx", first clear
+keep iso quality
+tempfile temp
+save `temp'
+restore
+merge m:1 iso using `temp', nogen
+replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0)
+ren quality data_quality
+
 // Add population notes
 merge 1:1 iso sixlet using "$work_data/population-metadata.dta", nogenerate update replace
 replace source = source + `"[URL][URL_LINK]https://esa.un.org/unpd/wpp/[/URL_LINK][URL_TEXT]UN World Population Prospects (2015).[/URL_TEXT][/URL]; "' ///
@@ -75,9 +86,9 @@ rename method Method
 rename source Source
 
 // Remove duplicates
-collapse (firstnm) Method Source, by(TwoLet ThreeLet Alpha2)
+collapse (firstnm) Method Source data_quality, by(TwoLet ThreeLet Alpha2)
 
-order Alpha2 TwoLet ThreeLet Method Source
+order Alpha2 TwoLet ThreeLet Method Source data_quality
 
 sort Alpha2 TwoLet ThreeLet
 

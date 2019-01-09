@@ -17,7 +17,11 @@ replace index=us_index if substr(iso,1,3)=="US-"
 drop us_index
 
 // Check that there is always a price index for the nominal data
-assert !missing(index) if (iso != "CZ") & inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
+assert !missing(index) if (iso != "CZ") ///
+	& inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
+	& (substr(widcode, 4, 3) != "toq") ///
+	& strpos(widcode,"ptinc")==0 ///
+	& strpos(widcode,"diinc")==0
 
 // Convert monetary series to real $pastyear LCU
 replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
