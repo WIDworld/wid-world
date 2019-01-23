@@ -12,6 +12,8 @@ restore
 merge m:1 iso using `temp', nogen
 replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0)
 ren quality data_quality
+tostring data_quality, replace
+replace data_quality="" if data_quality=="."
 
 // Add population notes
 merge 1:1 iso sixlet using "$work_data/population-metadata.dta", nogenerate update replace
