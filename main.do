@@ -188,11 +188,11 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-
+*/
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 
@@ -418,7 +418,7 @@ do "$do_dir/export-metadata-other.do"
 do "$do_dir/export-units.do"
 
 // Export the main database
-/*
+
 do "$do_dir/create-main-db.do"
 do "$do_dir/export-main-db.do"
 

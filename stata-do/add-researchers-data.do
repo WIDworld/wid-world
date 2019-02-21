@@ -102,9 +102,11 @@ append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana20
 
 // Europe 2019 (BCG2019)
 drop if strpos(widcode,"ptinc")>0
-append using "$wid_dir/Country-Updates/Europe/2018_01/europe-bcg2019.dta"
+append using "$wid_dir/Country-Updates/Europe/2019_01/europe-bcg2019.dta"
 drop if iso=="FR" & year<=2014
 
+// Belgium 2019 (Decoster2019)
+append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
 tempfile researchers
 save "`researchers'"

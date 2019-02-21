@@ -55,6 +55,9 @@ drop if strpos(iso, "XQ")
 // Drop German Ginis (not correct)
 drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
 
+// Change Kosovo code
+replace iso="KV" if iso=="KS"
+
 save "$work_data/wid-long.dta", replace
 
 /*

@@ -99,6 +99,9 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 	if (Alpha2 == "AU") & (TwoLet == "fi") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"
+
+replace Alpha2="KV" if Alpha2=="KS"
+
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
 
 

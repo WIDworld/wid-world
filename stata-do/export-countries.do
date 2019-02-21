@@ -22,5 +22,6 @@ assert region2 != "" if !inrange(Alpha2, "QB", "QZ") & !inlist(Alpha2, "WO", "XM
 					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.)!="-MER")
 
 sort Alpha2
+replace Alpha2="KV" if Alpha2=="KS"
 
 export delimited "$output_dir/$time/metadata/country-codes.csv", delimit(";") replace
