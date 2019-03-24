@@ -231,7 +231,7 @@ assert (gdp - gdp2)/gdp < 1e-3 if (gdp < .)
 
 // Apply growth rates from Blanchet, Chancel & Gethin (2018) to expand East to 1980
 preserve
-	use "$wid_dir/Country-Updates/Europe/2019_01/europe-bcg2019-macro.dta", clear
+	use "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019-macro.dta", clear
 	keep if inlist(iso,"SI","HR", "RS", "KS", "BA", "MK", "ME") ///
 		| inlist(iso,"MD","EE","LT","LV","CZ","SK")
 	gen gdp=agdp*npop

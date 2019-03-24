@@ -100,13 +100,19 @@ append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 // Thailand 2018 (Jenmana2018)
 append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana2018.dta"
 
-// Europe 2019 (BCG2019)
-drop if strpos(widcode,"ptinc")>0
-append using "$wid_dir/Country-Updates/Europe/2019_01/europe-bcg2019.dta"
-drop if iso=="FR" & year<=2014
-
 // Belgium 2019 (Decoster2019)
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
+
+// Europe 2019 (BCG2019)
+append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
+drop if iso=="FR" & author=="bcg2019"
+drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
+drop if iso=="PL" & author=="novokmet2017" & strpos(widcode,"ptinc")>0
+drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
+drop if iso=="CZ" & mi(author) & strpos(widcode,"ptinc")>0
+drop if inlist(iso,"DE","PL","QE","QE-MER") & widcode=="gptinc992j" & author!="bcg2019"
+drop if iso=="BG" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
+drop if iso=="GB" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
 
 tempfile researchers
 save "`researchers'"
