@@ -3,6 +3,7 @@ use "$work_data/distribute-national-income-output.dta", clear
 
 // -----------------------------------------------------------------------------------------------------------------
 // Recompute pre-tax and post-tax averages when there is full DINA data
+// -----------------------------------------------------------------------------------------------------------------
 
 * Keep only g-percentiles
 split p, parse("p")
@@ -77,6 +78,7 @@ drop new dup
 
 // -----------------------------------------------------------------------------------------------------------------
 // Calibrate now pre-tax national income series and post-tax income series on national income
+// -----------------------------------------------------------------------------------------------------------------
 
 * Create coefficients for pre-tax and post-tax income
 keep if inlist(substr(widcode, 1, 6), "anninc", "aptinc", "adiinc")
@@ -85,6 +87,10 @@ replace p = "pall"
 
 generate sixlet = substr(widcode, 1, 6)
 generate pop = substr(widcode, 7, .)
+
+*duplicates tag iso year sixlet value, gen(dup)
+*ta iso if dup==1 & sixlet=="aptinc"
+
 replace pop = "992i" if (pop == "992j")
 keep if pop == "992i"
 
