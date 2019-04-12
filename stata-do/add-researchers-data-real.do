@@ -1,5 +1,6 @@
 // -----------------------------------------------------------------------------------------------------------------
 // IMPORT ALL FILES
+// -----------------------------------------------------------------------------------------------------------------
 
 // France inequality 2017 (GGP2017)
 use "$france_data/france-ggp2017.dta", clear
@@ -28,6 +29,8 @@ save "`researchers'"
 
 // ----------------------------------------------------------------------------------------------------------------
 // CREATE METADATA
+// -----------------------------------------------------------------------------------------------------------------
+
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
@@ -43,6 +46,8 @@ save "`meta'"
 
 // ----------------------------------------------------------------------------------------------------------------
 // ADD DATA TO WID
+// -----------------------------------------------------------------------------------------------------------------
+
 use "$work_data/aggregate-regions-wir2018-output.dta", clear
 gen oldobs=1
 append using "`researchers'"
@@ -59,7 +64,10 @@ drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahw
 	& (iso == "FR") & (oldobs==1)
 
 // US inequality (PSZ 2017 Appendix II): drop g-percentiles except for wealth data (DINA imported before), drop new duplicated wid data
-drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") & !inlist(widcode,"shweal992j","ahweal992j")
+replace p=p+"p100" if iso=="US" & strpos(widcode,"ptinc")>0 & year<1962 ///
+	& inlist(p,"p90","p95","p99","p99.9","p99.99","p99.999")
+drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") ///
+	& !inlist(widcode,"shweal992j","ahweal992j")
 duplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
 
@@ -69,8 +77,8 @@ drop if iso=="KR" & oldobs==1 & inlist(substr(widcode,2,5),"gdpro","nninc")
 replace p="pall" if p=="p0p100"
 
 // Drop old duplicated wid data
-duplicates tag iso year p widcode, gen(dup)
-drop if dup & oldobs==1
+*duplicates tag iso year p widcode, gen(dup)
+*drop if dup & oldobs==1
 
 duplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
@@ -83,6 +91,8 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 
 // ----------------------------------------------------------------------------------------------------------------
 // COMBINE NA AND DISTRIBUTIONAL METADATAS
+// -----------------------------------------------------------------------------------------------------------------
+
 use "$work_data/na-metadata-no-duplicates.dta", clear
 append using "$work_data/correct-widcodes-metadata.dta"
 drop if iso=="CN" & mi(source) & sixlet=="xlcusx"

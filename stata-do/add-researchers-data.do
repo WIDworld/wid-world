@@ -114,6 +114,14 @@ drop if inlist(iso,"DE","PL","QE","QE-MER") & widcode=="gptinc992j" & author!="b
 drop if iso=="BG" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
 drop if iso=="GB" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
 
+// India 2019, wealth-income ratios (Kumar2019)
+append using "$wid_dir/Country-Updates/India/2019_04/india-kumar2019.dta"
+drop if iso=="IN" & author=="chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
+drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>1947
+
+*replace p="pall" if p=="p0p100"
+*duplicates list iso year widcode p
+
 tempfile researchers
 save "`researchers'"
 
@@ -126,6 +134,8 @@ generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
 duplicates drop
+
+drop if sixlet=="npopul" & strpos(source,"chancel")>0
 
 duplicates tag iso sixlet, gen(dup)
 assert dup==0

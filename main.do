@@ -394,7 +394,7 @@ do "$do_dir/calculate-per-capita-series.do"
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
 
-// Calibrate distributed data on national accounts totals for US, FR and CN
+// Calibrate distributed data on national accounts totals
 do "$do_dir/calibrate-dina.do"
 
 // Clean up percentiles, etc.
@@ -418,7 +418,6 @@ do "$do_dir/export-metadata-other.do"
 do "$do_dir/export-units.do"
 
 // Export the main database
-
 do "$do_dir/create-main-db.do"
 do "$do_dir/export-main-db.do"
 

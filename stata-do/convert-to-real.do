@@ -17,6 +17,8 @@ replace index=us_index if substr(iso,1,3)=="US-"
 drop us_index
 
 // Check that there is always a price index for the nominal data
+drop if mi(index) & iso=="IN" & year<1900 & substr(widcode,1,1)=="m"
+
 assert !missing(index) if (iso != "CZ") ///
 	& inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
 	& (substr(widcode, 4, 3) != "toq") ///

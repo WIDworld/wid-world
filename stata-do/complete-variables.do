@@ -18,6 +18,7 @@ save "`completed'"
 keep iso widcode
 generate sixlet = substr(widcode, 1, 6)
 keep if inlist(sixlet, "mnwhou", "mnwbus", "mnwnfa")
+
 // Associate codes of parent variables
 replace sixlet = "mnwdwe" if sixlet == "mnwhou"
 replace sixlet = "mnwodk" if sixlet == "mnwbus"
