@@ -148,7 +148,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
+///*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -188,11 +188,11 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+//*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
-*/
+
 // Add researchers data
 do "$do_dir/add-researchers-data.do"
 

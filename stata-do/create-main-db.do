@@ -59,15 +59,10 @@ drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
 replace iso="KV" if iso=="KS"
 
 // Round up some variables
-foreach var of varlist a* t*{
-	cap replace `var'=round(`var',0.1)
-}
-foreach var of varlist m* n*{
-	replace `var'=round(`var',1)
-}
-foreach var of varlist s*{
-	replace `var'=round(`var',0.0001)
-}
+replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
+replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
+replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
+
 compress
 
 save "$work_data/wid-long.dta", replace

@@ -176,6 +176,7 @@ drop value*
 // Test if all components sum up to 100%
 generate sumcomp = cfilin + cficap
 // Allow for a small rounding discrepancy
+drop if mi(year)
 assert abs(sumcomp - 100) < 2
 drop sumcomp
 

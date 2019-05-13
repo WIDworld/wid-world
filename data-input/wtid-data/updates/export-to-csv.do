@@ -1,5 +1,8 @@
 
-cd "C:\Users\Amory\Documents\GitHub\wid-world\data-input\wtid-data\updates"
+cd "C:\Users\Amory Gethin\Documents\GitHub\wid-world\data-input\wtid-data\updates"
 
-import excel "Ireland_2018_10.xlsx", first clear
-export delimited "Ireland_2018_10.csv", delim(",") replace
+import excel "New_Zealand_2019_05.xlsx", first clear
+drop B EI FJ-FQ
+*drop in 1
+export delimited "New_Zealand_2019_05.csv", delim(",") replace
+*export excel "Australia_template.xlsx", first(var) replace

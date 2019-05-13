@@ -119,8 +119,11 @@ append using "$wid_dir/Country-Updates/India/2019_04/india-kumar2019.dta"
 drop if iso=="IN" & author=="chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
 drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>1947
 
-*replace p="pall" if p=="p0p100"
-*duplicates list iso year widcode p
+// Greece 2019 (Chrissis2019)
+append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
+
+// Netherlands 2019 update (Salverda2019)
+append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
 tempfile researchers
 save "`researchers'"

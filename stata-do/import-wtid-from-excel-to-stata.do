@@ -3,6 +3,8 @@ import excel using "$wtid_data/Database.xls", sheet("Sources") firstrow ///
 	case(lower) allstring clear
 quietly levelsof country, local(countrylist)
 
+*local countrylist "`"New Zealand"'"
+
 // Import data from each country
 tempfile tmp
 local firstiter 1

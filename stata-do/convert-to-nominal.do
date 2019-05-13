@@ -22,7 +22,7 @@ keep iso year value index_refyear
 rename value cpi
 rename index_refyear cpi_refyear
 // Sanity check
-assert (cpi == 1) if (year == cpi_refyear)
+assert inrange(cpi, .999, 1.001) if (year == cpi_refyear)
 tempfile indice
 save "`indice'"
 
@@ -34,6 +34,9 @@ merge n:1 iso year using "`indice'", nogenerate
 // for macro variables.
 generate priceindex = cpi if inlist(substr(widcode, 1, 1), "a", "t") ///
 	& (real == 1) & (real_refyear == cpi_refyear) & (cpi < .)
+
+replace priceindex = cpi if iso=="AU" & inlist(substr(widcode, 1, 1), "a", "t") ///
+	& (real == 1) & (cpi < .)
 
 // Sanity check
 assert (priceindex < .) if (real == 1)

@@ -63,9 +63,9 @@ replace index_refyear = real(ustrregexs(2)) ///
 	if ustrregexm(unit, "(1|1.00|100)[ ]*=[ ]*(\d{4})$")
 replace index_refvalue = real(ustrregexs(1)) ///
 	if ustrregexm(unit, "(1|1.00|100)[ ]*=[ ]*(\d{4})$")
-	
+
 // Correction in Australia
-replace index_refyear = 2015 if (iso == "AU") & (unit == "dec. 312014=1.00")
+replace index_refyear = 2016 if (iso == "AU") & (unit == "dec. 312014=1.00")
 
 // Sanity check
 assert (index_refyear < .) & (index_refvalue < .) ///
@@ -76,7 +76,7 @@ assert (index_refyear >= .) & (index_refvalue >= .) ///
 // All indices in base 1
 replace value = value/index_refvalue if (index_refvalue < .)
 drop index_refvalue
-	
+
 // Correct currencies ------------------------------------------------------- //
 
 // Coding error in Denmark
