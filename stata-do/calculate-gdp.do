@@ -178,11 +178,6 @@ drop if hasbreak & catbreak == 0
 generate level_src = "GDP level in " + string(year) + " from " + notelev + "." ///
 	if (year == refyear)
 
-// For France, Germany & the Netherlands: convert to old currency before 1950
-replace gdp = gdp*(100*6.55957) if (year <= 1950) & (iso == "FR")
-replace gdp = gdp*1.95583       if (year <= 1950) & (iso == "DE")
-replace gdp = gdp*2.20371       if (year <= 1950) & (iso == "NL")
-
 // Add Maddison real series for East Germany
 merge 1:1 iso year using "$work_data/east-germany-gdp.dta", ///
 	nogenerate

@@ -332,11 +332,6 @@ replace index_source = "interpolation" if (index >= .) & (index_full < .)
 replace index = exp(index_full)
 drop id index_full
 
-// For France, Germany & the Netherlands: convert to old currency before 1950
-replace index = index*(100*6.55957) if (year <= 1950) & (iso == "FR")
-replace index = index*1.95583       if (year <= 1950) & (iso == "DE")
-replace index = index*2.20371       if (year <= 1950) & (iso == "NL")
-
 // Combine and export notes
 preserve
 

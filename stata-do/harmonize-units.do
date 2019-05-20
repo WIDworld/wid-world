@@ -185,8 +185,7 @@ replace currency = "ZWD" if ustrpos(unit, "£") & (iso == "ZW")
 replace value = 20*value/100 if (iso == "UG") & ustrpos(unit, "£")
 replace currency = "UGX" if (iso == "UG") & ustrpos(unit, "£")
 
-// France, Germany, Netherlands: easier to convert them to euros for now,
-// we'll convert them back later
+// France, Germany, Netherlands
 replace value = value/(100*6.55957) if (year <= 1948) & strpos(unit, "old francs 1896-1948")
 replace value = value/1.95583 if (year <= 1949) & strpos(unit, "marks 1850-1949")
 replace value = value/2.20371 if strpos(unit, "guilder") & (iso == "NL")
