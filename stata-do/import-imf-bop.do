@@ -10,13 +10,17 @@ tempfile missingwealth
 save "`missingwealth'"
 
 // Import the USD nominal exchange rates from the UN SNA
-import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate.csv", ///
-	clear delimiter(";") encoding("utf8")
+import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate-$pastyear.csv", ///
+	clear delimiter(",") encoding("utf8")
+cap rename countryarea countryorarea
+ren unit currency
 
 // Identify countries
 replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
 replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
-countrycode country, generate(iso) from("un sna main")	
+replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
+countrycode country, generate(iso) from("un sna main")
 
 // Our series for Palestine are in Israeli New Shequel, while the UN series are
 // in USD. So we use the data for Israel instead.
@@ -26,12 +30,14 @@ replace iso = "PS" if newobs
 drop newobs
 
 // Identify currencies
+drop if currency == "..."
 currencycode currency, generate(currency_iso) from("un sna main") iso2c(iso)
 drop currency
 rename currency_iso currency
 
-keep iso year xrateama
-rename xrateama lcu2usd
+keep iso year amaexchangerate
+rename amaexchangerate lcu2usd
+destring lcu2usd, replace
 
 tempfile lcu2usd
 save "`lcu2usd'", replace

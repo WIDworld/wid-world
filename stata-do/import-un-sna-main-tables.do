@@ -1,17 +1,22 @@
 // GDP
-import delimited "$un_data/sna-main/gdp/gdp-current.csv", ///
-	clear delimiter(";") encoding("utf8")
+import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
+	clear delimiter(",") encoding("utf8")
+cap rename countryarea countryorarea
 rename grossdomesticproduct gdp
+cap ren unit currency
 
 tempfile gdp
 save "`gdp'"
 
 // GNI
-import delimited "$un_data/sna-main/gni/gni-current.csv", ///
-	clear delimiter(";") encoding("utf8")
+import delimited "$un_data/sna-main/gni/gni-current-$pastyear.csv", ///
+	clear delimiter(",") encoding("utf8")
+
+cap rename countryarea countryorarea
+cap ren unit currency
 
 // Dropping Ethiopian GNI 1987-1989 (no GDP data)
-drop if countryorarea=="Ethiopia" & inlist(year,1987,1988,1989)
+*drop if countryorarea=="Ethiopia" & inlist(year,1987,1988,1989)
 
 rename grossnationalincome gni
 merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
@@ -19,21 +24,27 @@ merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
 save "`gdp'", replace
 
 // GDP Current USD
-import delimited "$un_data/sna-main/gdp/gdp-usd-current.csv", ///
-	clear delimiter(";") encoding("utf8")
-drop currency
+import delimited "$un_data/sna-main/gdp/gdp-usd-current-$pastyear.csv", ///
+	clear delimiter(",") encoding("utf8")
+cap rename countryarea countryorarea
+drop if unit == "..."
+cap drop unit
 rename grossdomesticproduct gdp_usd
 replace gdp_usd = subinstr(gdp_usd, ",", ".", 1)
 destring gdp_usd, replace
 merge 1:1 countryorarea year using "`gdp'", assert(match master) keep(match) nogenerate
 
+drop if currency == "..."
 replace gni = subinstr(gni, ",", ".", 1)
 replace gdp = subinstr(gdp, ",", ".", 1)
 destring gni gdp, replace
-confirm numeric variable gni gdp
+*confirm numeric variable gni gdp
 
 replace countryorarea = "Côte d'Ivoire" if (countryorarea == "C�te d'Ivoire")
 replace countryorarea = "Curaçao" if (countryorarea == "Cura�ao")
+replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
+
 
 // Identify countries ------------------------------------------------------- //
 countrycode countryorarea, generate(iso) from("un sna main")
@@ -57,7 +68,7 @@ drop ncu
 tempfile unsna
 save "`unsna'"
 
-import delimited "$oecd_data/exchange-rates/ils-usd.csv", clear
+import delimited "$oecd_data/exchange-rates/ils-usd-$pastyear.csv", clear
 generate iso = "PS"
 rename time year
 rename value exch
@@ -73,6 +84,8 @@ replace currency = "new israeli sheqel" if (iso == "PS")
 drop exch
 
 // Identify currencies ------------------------------------------------------ //
+replace currency = "us dollar" if currency == "us$"
+
 currencycode currency, generate(currency_iso) iso2c(iso) from("un sna main")
 drop currency
 rename currency_iso currency

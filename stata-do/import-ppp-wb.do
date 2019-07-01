@@ -1,4 +1,4 @@
-import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2.csv", ///
+import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2-$pastyear.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 // Rename year variables
@@ -9,6 +9,8 @@ foreach v of varlist v*{
 }
 
 // Identify countries
+replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
+replace countryname = "Swaziland" if countryname == "Eswatini"
 countrycode countryname, generate(iso) from("wb")
 
 // Add currency from the metadata

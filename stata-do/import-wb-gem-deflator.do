@@ -13,6 +13,8 @@ dropmiss, force
 destring value*, replace force ignore(",")
 rename _var1 country
 
+replace country = "Macedonia, FYR" if country == "North Macedonia"
+replace country = "Swaziland" if country == "Eswatini"
 countrycode country, generate(iso) from("wb gem")
 drop country
 

@@ -40,8 +40,13 @@ append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
 // Hungary 2017 (Mosberger2017)
 append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
 
+// Middle-East 2017 (Assouad2017)
+append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
+
 // Poland 2017 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
+drop if iso == "PL" & year>=1992
+append using "$wid_dir/Country-Updates/Poland/2019_05/poland-novokmet2017-update2019.dta"
 
 // France 2018 (Goupille2018, Gender series)
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
@@ -106,8 +111,8 @@ append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 // Europe 2019 (BCG2019)
 append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
 drop if iso=="FR" & author=="bcg2019"
+drop if iso=="PL" & author=="bcg2019" & strpos(widcode,"ptinc")>0
 drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
-drop if iso=="PL" & author=="novokmet2017" & strpos(widcode,"ptinc")>0
 drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
 drop if iso=="CZ" & mi(author) & strpos(widcode,"ptinc")>0
 drop if inlist(iso,"DE","PL","QE","QE-MER") & widcode=="gptinc992j" & author!="bcg2019"
@@ -124,6 +129,11 @@ append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
 
 // Netherlands 2019 update (Salverda2019)
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
+
+// Africa 2019 (CGM2019)
+append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
+drop if iso == "EG" & author != "cgm2019"
+drop if iso == "CI" & author == "cgm2019"
 
 tempfile researchers
 save "`researchers'"

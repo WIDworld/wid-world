@@ -1,10 +1,16 @@
-import delimited "$un_data/sna-main/deflator/deflator.csv", ///
-	clear delimiter(";") encoding("utf8")
+import delimited "$un_data/sna-main/deflator/deflator-$pastyear.csv", ///
+	clear delimiter(",") encoding("utf8")
 
 // Identify countries ------------------------------------------------------- //
 
+cap rename countryarea countryorarea
+cap rename unit currency
+drop if currency == "..."
+
 replace countryorarea = "Curaçao" if countryorarea == "Cura�ao"
 replace countryorarea = "Côte d'Ivoire" if countryorarea == "C�te d'Ivoire"
+replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
 
 countrycode countryorarea, generate(iso) from("un sna main")
 drop countryorarea
@@ -21,6 +27,8 @@ drop ncu
 
 rename implicitpricedeflator def_un
 keep iso year currency def_un
+
+destring def_un, replace
 
 // Convert to Israeli New Shekel for the State of Palestine
 tempfile unsna
