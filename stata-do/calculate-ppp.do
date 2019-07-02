@@ -127,7 +127,7 @@ save "`index'"
 
 // Add Eurozone deflator from Eurostat
 // Fetch Eurozone GDP deflator from Eurostat
-import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data.csv", ///
+import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1)
 drop if na_item!="Gross domestic product at market prices"
 destring value, ignore(":") replace

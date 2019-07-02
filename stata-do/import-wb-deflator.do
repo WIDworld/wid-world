@@ -1,4 +1,4 @@
-import delimited "$wb_data/deflator/API_NY.GDP.DEFL.ZS_DS2_en_csv_v2.csv", ///
+import delimited "$wb_data/deflator/API_NY.GDP.DEFL.KD.ZG_DS2_en_csv_v2-$pastyear.csv", ///
 	rowrange(3) varnames(4) clear encoding("utf8")
 foreach v of varlist v5-v61 {
 	local year: var label `v'
@@ -18,6 +18,8 @@ rename j year
 cap drop v62 v63
 
 // Identify countries
+replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
+replace countryname = "Swaziland" if countryname == "Eswatini"
 countrycode countryname, generate(iso) from("wb")
 drop countrycode
 

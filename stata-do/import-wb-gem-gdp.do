@@ -13,6 +13,9 @@ dropmiss, force
 
 rename _var1 country
 
+replace country = "Macedonia, FYR" if country == "North Macedonia"
+replace country = "Moldova" if country == "Moldova, Rep."
+
 countrycode country, generate(iso) from("wb gem")
 drop country
 
@@ -22,13 +25,10 @@ replace value2015 = . if (iso == "AR")
 replace value2015 = . if (iso == "IR")
 */
 
-// Uzbekistan has problematic value for 2017
-drop if iso=="UZ"
+// Iran has problematic value for 2018
+replace value2018 = . if (iso == "IR")
 
-/*assert abs(value2015 - value2014)/value2015 < 0.5 if (value2015 < .)
-assert abs(value2016 - value2015)/value2016 < 0.5 if (value2016 < .)
-june 2018: i used the global instead: */
-
+// Consistency checks
 local pastyear `"$pastyear"'
 local prepastyear = ($pastyear - 1)
 local preprepastyear = ($pastyear - 2)

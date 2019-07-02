@@ -15,8 +15,7 @@ ren quality data_quality
 tostring data_quality, replace
 replace data_quality="" if data_quality=="."
 assert data_quality!="" if strpos(sixlet,"ptinc")>0
-
-*replace data_quality="2" if strpos(sixlet,"fiinc")>0
+assert data_quality!="" if strpos(sixlet,"diinc")>0
 
 drop if mi(sixlet)
 

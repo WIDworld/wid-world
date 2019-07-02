@@ -11,9 +11,6 @@ append using "$uk_data/uk-wealth-alvaredo2017.dta"
 // US inequality 2017 (PSZ2017)
 append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-AppendixII.dta"
 
-// Middle-East 2017 (Assouad2017)
-append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
-
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
 append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
 drop if inlist(iso,"QE","QE-MER")

@@ -97,11 +97,14 @@ global report_output "$wid_dir/WIDGraphsTables"
 global output_dir "$wid_dir/WIDData"
 
 // Old version directory to compare with udpated database
-global olddate 19_Jan_2018_14_16_38
+global olddate 21_May_2019_09_27_03
 global oldoutput_dir "$output_dir/$olddate"
 
 // Directory with the summary table
 global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
+
+// Directory of the data availability quality index
+global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-2019-06-13-17h08.xlsx"
 
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
@@ -112,9 +115,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2018 // this year matches WEO source in calculate-price-index
+global year 2019 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2017 // this year matches commands in gdp-vs-nni,
+global pastyear 2018 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 
@@ -148,7 +151,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-///*
+
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -188,7 +191,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-//*/
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -203,7 +206,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -283,7 +286,7 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
 // -------------------------------------------------------------------------- //
@@ -459,6 +462,6 @@ do "$do_dir/make-variable-tree.do"
 // Summary table
 // -------------------------------------------------------------------------- //
 
-*do "$do_dir/create-summary-table.do"
+do "$do_dir/create-summary-table.do"
 
 
