@@ -47,15 +47,6 @@ replace valuenpopul991i = valuenpopul999i - valuenpopul992i
 * compute ratio of the right 999i and 992i to the ones obtained from the subcategories
 gen adults = valuenpopul993i + valuenpopul994i + valuenpopul995i 
 gen ratio = valuenpopul992i/adults
-/*sum ratio
-
-    Variable |        Obs        Mean    Std. Dev.       Min        Max
--------------+---------------------------------------------------------
-       ratio |     13,528    1.000262    .0074816   .9501498   1.123639
-
-. count if ratio !=1
-  4,605
-*/
 
 * For France, there is information on the adult working population (20 - 64 = npopul996i) for several groups of the distribution
 * => apply the corresponding French annual ratio 
@@ -63,6 +54,12 @@ gen ratio = valuenpopul992i/adults
 bys iso year: egen newratio = min(ratio)
 replace ratio = newratio
 
+* generate missing i variables based on m and f
+forvalues n = 2/9 {
+	cap gen valuenpopul`n'01i = valuenpopul`n'01f + valuenpopul`n'01m
+	cap gen valuenpopul`n'02i = valuenpopul`n'02f + valuenpopul`n'02m
+	cap gen valuenpopul`n'51i = valuenpopul`n'51f + valuenpopul`n'51m
+}
 
 * apply ratios to subcategories to make them consistent with new 999i and 992i aggregates
 

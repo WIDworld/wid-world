@@ -158,7 +158,8 @@ forvalues i = 1/10 {
 	replace iso = "NG" in -`i'
 }
 
-// Curacao: use the Netherland Antilles before 2005
+// Curacao: use the Netherland Antilles before 2005 (not useful anymore)
+/*
 expand 2 if (iso == "AN") & inrange(year, 2000, 2004), generate(newobs)
 replace iso = "CW" if newobs
 replace index_source = index_source + "_xa" if newobs
@@ -166,6 +167,7 @@ foreach v of varlist def_* cpi_* {
 	replace `v' = . if newobs
 }
 drop newobs
+*/
 
 // Idem for the Faroe Islands
 expand 2 if (iso == "AN") & inrange(year, 1998, 2004), generate(newobs)

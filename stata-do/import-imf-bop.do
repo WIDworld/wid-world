@@ -75,6 +75,7 @@ save "`gdp_usd'"
 // Import BOP data
 import excel "$imf_data/balance-of-payments/primary-income-details.xls", ///
 	clear firstrow
+renvars, lower
 
 *cap rename ïcountryname countryname
 kountry countrycode, from(imfn) to(iso2c)

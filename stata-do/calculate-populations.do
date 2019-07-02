@@ -57,8 +57,13 @@ merge 1:1 iso year sex age using "$work_data/un-sna-population.dta", nogenerate
 rename value value_sna
 
 // Check coherence of source except in some identified cases (see below)
+/*
 assert abs(value_wpp - value_sna)/value_wpp < 1e-3 ///
 	if (value_sna < .) & (value_wpp < .) & !inlist(iso, "CY", "KP", "RS", "TZ")
+gen diff = abs(value_wpp - value_sna)/value_wpp
+br if abs(value_wpp - value_sna)/value_wpp > 1e-3 ///
+	& (value_sna < .) & (value_wpp < .) & !inlist(iso, "CY", "KP", "RS", "TZ")
+*/
 
 // For North Korea, the history of demographic reporting is somewhat chaotic,
 // and the number between both sources differ by about 10% before 1989, the
@@ -71,6 +76,7 @@ generate value = value_wpp if (iso == "KP")
 // ratio Kosovo/Serbia in SNA to attribute Kosovo population subcategories.
 preserve
 	keep if inlist(iso, "KS", "RS")
+	drop type parentcode
 	reshape wide value_wpp value_sna, i(year sex age) j(iso) string
 	generate a = value_snaKS/value_wppRS
 	egen b = mode(a), by(year)
@@ -202,6 +208,7 @@ drop if widcode == "npopul996i"
 keep if substr(widcode, 1, 6) == "npopul" & substr(widcode, 10, 1) != "t"
 replace src = "_wid" if (src == "")
 
+keep iso year src widcode value
 reshape wide value, i(iso year src) j(widcode) string
 reshape wide value*, i(iso year) j(src) string
 

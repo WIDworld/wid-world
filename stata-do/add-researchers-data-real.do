@@ -92,7 +92,7 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 
 use "$work_data/na-metadata-no-duplicates.dta", clear
 append using "$work_data/correct-widcodes-metadata.dta"
-drop if iso=="CN" & mi(source) & sixlet=="xlcusx"
+drop if iso=="CN" & mi(source) & inlist(sixlet,"xlcusx","xlcyux")
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 replace method = "" if method == " "

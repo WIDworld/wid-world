@@ -27,6 +27,7 @@ keep if (shortitem != "")
 drop if value == 0
 
 // Identify countries ------------------------------------------------------- //
+replace countryorarea = "Czech Republic" if countryorarea == "Czechia"
 countrycode countryorarea, generate(iso) from("un sna detailed")
 drop countryorarea
 
@@ -109,6 +110,9 @@ replace currency = "hryvnia" if (iso == "UA") & (currency == "karbovantsy")
 
 // Problem with Venezuela: replace bolivar fuerte by bolivar
 replace currency="bolivar" if iso=="VE"
+
+// Belarus redenomination
+replace currency = "belarussian rouble" if currency == "belarussian rouble (re-denom. 1:10000)"
 
 // Sanity check: only one currency per countries left
 egen ncurr = nvals(currency), by(iso)

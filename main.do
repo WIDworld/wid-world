@@ -333,7 +333,7 @@ do "$do_dir/add-ppp.do"
 // Add the exchange rates to the database
 // -------------------------------------------------------------------------- //
 
-// Add market exchange rates in 2015
+// Add market exchange rates in 2018
 do "$do_dir/add-exchange-rates.do"
 
 // -------------------------------------------------------------------------- //

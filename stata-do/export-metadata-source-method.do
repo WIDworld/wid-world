@@ -55,6 +55,7 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
 
 // Add note on Venezualian exchange rate correction for 2016
+/*
 preserve
 assert $pastyear == 2017
 drop if _n>1
@@ -66,6 +67,7 @@ tempfile VE_xrate
 save "`VE_xrate'"
 restore
 append using "`VE_xrate'"
+*/
 
 // Split the six-letter code
 generate OneLet = substr(sixlet, 1, 1)
