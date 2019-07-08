@@ -1,33 +1,33 @@
-currencyname;symbol1;symbol2;iso3c
+﻿currencyname;symbol1;symbol2;iso3c
 Abkhazian apsar;;;
-Alderney pound;�;;
-Ascension pound;�;;
+Alderney pound;£;;
+Ascension pound;£;;
 British Virgin Islands dollar;$;;
 Cook Islands dollar;$;;
 ;;;
 ;;;
-Faroese kr�na;kr;;
-Guernsey pound;�;;
+Faroese króna;kr;;
+Guernsey pound;£;;
 Kiribati dollar;$;;
 Micronesian dollar;$;;
-Nagorno-Karabakh dram;__.;;
+Nagorno-Karabakh dram;դր.;;
 Nauruan dollar;$;;
 Niue dollar;$;;
 Palauan dollar;$;;
 Pitcairn Islands dollar;$;;
 Sahrawi peseta;Ptas;;
 Somaliland shilling;Sh;;
-South Georgia and the South Sandwich Islands pound;�;;
-Tristan da Cunha pound;�;;
+South Georgia and the South Sandwich Islands pound;£;;
+Tristan da Cunha pound;£;;
 Tuvaluan dollar;$;;
 (Zimbabwean Bond);;;
-United Arab Emirates dirham;_._;;AED
-Afghan afghani;_;;AFN
+United Arab Emirates dirham;د.إ;;AED
+Afghan afghani;؋;;AFN
 Albanian lek;L;;ALL
 Armenian dram;;;AMD
 Armenian dram;;;AMD
-Netherlands Antillean guilder;�;;ANG
-Netherlands Antillean guilder;�;;ANG
+Netherlands Antillean guilder;ƒ;;ANG
+Netherlands Antillean guilder;ƒ;;ANG
 Angolan kwanza;Kz;;AOA
 Argentine peso;$;;ARS
 Australian dollar;$;;AUD
@@ -35,13 +35,13 @@ Australian dollar;$;;AUD
 Australian dollar;$;;AUD
 Australian dollar;$;;AUD
 Australian dollar;$;;AUD
-Aruban florin;�;;AWG
+Aruban florin;ƒ;;AWG
 Azerbaijani manat;;;AZN
-Bosnia and Herzegovina convertible mark;KM;__;BAM
+Bosnia and Herzegovina convertible mark;KM;КМ;BAM
 Barbadian dollar;$;;BBD
-Bangladeshi taka;_;;BDT
-Bulgarian lev;__;;BGN
-Bahraini dinar;._._;;BHD
+Bangladeshi taka;৳;;BDT
+Bulgarian lev;лв;;BGN
+Bahraini dinar;.د.ب;;BHD
 Burundian franc;Fr;;BIF
 Bermudian dollar;$;;BMD
 Brunei dollar;$;;BND
@@ -59,62 +59,62 @@ Congolese franc;Fr;;CDF
 Swiss franc;Fr;;CHF
 Swiss franc;Fr;;CHF
 Chilean peso;$;;CLP
-Chinese yuan;�;_;CNY
+Chinese yuan;¥;元;CNY
 Colombian peso;$;;COP
-Costa Rican col�n;_;;CRC
+Costa Rican colón;₡;;CRC
 Cuban convertible peso;$;;CUC
 Cuban peso;$;;CUP
 Cape Verdean escudo;Esc;$;CVE
-Czech koruna;K_;;CZK
+Czech koruna;Kč;;CZK
 Djiboutian franc;Fr;;DJF
 Danish krone;kr;;DKK
 Danish krone;kr;;DKK
 Dominican peso;$;;DOP
-Algerian dinar;_._;;DZD
-Algerian dinar;_._;;DZD
-Egyptian pound;�;_._;EGP
+Algerian dinar;د.ج;;DZD
+Algerian dinar;د.ج;;DZD
+Egyptian pound;£;ج.م;EGP
 Eritrean nakfa;Nfk;;ERN
 Ethiopian birr;Br;;ETB
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
-Euro;�;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
+Euro;€;;EUR
 Fijian dollar;$;;FJD
-Falkland Islands pound;�;;FKP
-British pound;�;;GBP
-British pound;�;;GBP
-British pound;�;;GBP
-British pound;�;;GBP
-British pound;�;;GBP
-British pound;�;;GBP
-British pound;�;;GBP
-Georgian lari;_;;GEL
-Guernsey pound;�;;GGP
-Ghana cedi;_;;GHS
-Gibraltar pound;�;;GIP
+Falkland Islands pound;£;;FKP
+British pound;£;;GBP
+British pound;£;;GBP
+British pound;£;;GBP
+British pound;£;;GBP
+British pound;£;;GBP
+British pound;£;;GBP
+British pound;£;;GBP
+Georgian lari;ლ;;GEL
+Guernsey pound;£;;GGP
+Ghana cedi;₵;;GHS
+Gibraltar pound;£;;GIP
 Gambian dalasi;D;;GMD
 Guinean franc;Fr;;GNF
 Guatemalan quetzal;Q;;GTQ
@@ -125,105 +125,105 @@ Croatian kuna;kn;;HRK
 Haitian gourde;G;;HTG
 Hungarian forint;Ft;;HUF
 Indonesian rupiah;Rp;;IDR
-Israeli new shekel;_;;ILS
-Israeli new shekel;_;;ILS
-Manx pound;�;;IMP
-Indian rupee;_;;INR
-Indian rupee;_;;INR
-Indian rupee;_;;INR
-Iraqi dinar;_._;;IQD
-Iranian rial;_;;IRR
-Icelandic kr�na;kr;;ISK
-Jersey pound;�;;JEP
+Israeli new shekel;₪;;ILS
+Israeli new shekel;₪;;ILS
+Manx pound;£;;IMP
+Indian rupee;₹;;INR
+Indian rupee;₹;;INR
+Indian rupee;₹;;INR
+Iraqi dinar;ع.د;;IQD
+Iranian rial;﷼;;IRR
+Icelandic króna;kr;;ISK
+Jersey pound;£;;JEP
 Jamaican dollar;$;;JMD
-Jordanian dinar;_._;;JOD
-Jordanian dinar;_._;;JOD
-Japanese yen;�;;JPY
+Jordanian dinar;د.ا;;JOD
+Jordanian dinar;د.ا;;JOD
+Japanese yen;¥;;JPY
 Kenyan shilling;Sh;;KES
-Kyrgyzstani som;__;;KGS
-Cambodian riel;_;;KHR
+Kyrgyzstani som;лв;;KGS
+Cambodian riel;៛;;KHR
 Comorian franc;Fr;;KMF
-North Korean won;_;;KPW
-South Korean won;_;;KRW
-Kuwaiti dinar;_._;;KWD
+North Korean won;₩;;KPW
+South Korean won;₩;;KRW
+Kuwaiti dinar;د.ك;;KWD
 Cayman Islands dollar;$;;KYD
 Kazakhstani tenge;;;KZT
-Lao kip;_;;LAK
-Lebanese pound;_._;;LBP
-Sri Lankan rupee;Rs;__;LKR
+Lao kip;₭;;LAK
+Lebanese pound;ل.ل;;LBP
+Sri Lankan rupee;Rs;රු;LKR
 Liberian dollar;$;;LRD
 Lesotho loti;L;;LSL
-Libyan dinar;_._;;LYD
-Moroccan dirham;_._.;;MAD
-Moroccan dirham;_. _.;;MAD
+Libyan dinar;ل.د;;LYD
+Moroccan dirham;د.م.;;MAD
+Moroccan dirham;د. م.;;MAD
 Moldovan leu;L;;MDL
 Malagasy ariary;Ar;;MGA
-Macedonian denar;___;;MKD
+Macedonian denar;ден;;MKD
 Burmese kyat;Ks;;MMK
-Mongolian t�gr�g;_;;MNT
+Mongolian tögrög;₮;;MNT
 Macanese pataca;P;;MOP
 Mauritanian ouguiya;UM;;MRO
 Mauritanian ouguiya;UM;;MRO
-Mauritian rupee;_;;MUR
+Mauritian rupee;₨;;MUR
 Maldivian rufiyaa;Rf;;MVR
 Malawian kwacha;MK;;MWK
 Mexican peso;$;;MXN
 Malaysian ringgit;RM;;MYR
 Mozambican metical;MT;;MZN
 Namibian dollar;$;;NAD
-Nigerian naira;_;;NGN
-Nicaraguan c�rdoba;C$;;NIO
+Nigerian naira;₦;;NGN
+Nicaraguan córdoba;C$;;NIO
 Norwegian krone;kr;;NOK
-Nepalese rupee;_;;NPR
+Nepalese rupee;₨;;NPR
 New Zealand dollar;$;;NZD
 New Zealand dollar;$;;NZD
 New Zealand dollar;$;;NZD
 New Zealand dollar;$;;NZD
-Omani rial;_._.;;OMR
+Omani rial;ر.ع.;;OMR
 Panamanian balboa;B/.;;PAB
 Peruvian nuevo sol;S/.;;PEN
 Papua New Guinean kina;K;;PGK
-Philippine peso;_;;PHP
-Pakistani rupee;_;;PKR
-Polish z_oty;z_;;PLN
-Transnistrian ruble;_.;;PRB
-Paraguayan guaran�;_;;PYG
-Qatari riyal;_._;;QAR
+Philippine peso;₱;;PHP
+Pakistani rupee;₨;;PKR
+Polish złoty;zł;;PLN
+Transnistrian ruble;р.;;PRB
+Paraguayan guaraní;₲;;PYG
+Qatari riyal;ر.ق;;QAR
 Romanian leu;lei;;RON
-Serbian dinar;___.;din.;RSD
+Serbian dinar;дин.;din.;RSD
 Russian ruble;RUB;;RUB
 Russian ruble;RUB;;RUB
 Russian ruble;RUB;;RUB
 Russian ruble;RUB;;RUB
 Rwandan franc;Fr;;RWF
-Saudi riyal;_._;;SAR
+Saudi riyal;ر.س;;SAR
 Solomon Islands dollar;$;;SBD
-Seychellois rupee;_;;SCR
-Sudanese pound;_._.;;SDG
+Seychellois rupee;₨;;SCR
+Sudanese pound;ج.س.;;SDG
 Swedish krona;kr;;SEK
 Singapore dollar;$;;SGD
 Singapore dollar;$;;SGD
-Saint Helena pound;�;;SHP
-Saint Helena pound;�;;SHP
-Saint Helena pound;�;;SHP
+Saint Helena pound;£;;SHP
+Saint Helena pound;£;;SHP
+Saint Helena pound;£;;SHP
 Sierra Leonean leone;Le;;SLL
 Somali shilling;Sh;;SOS
 Surinamese dollar;$;;SRD
-South Sudanese pound;�;;SSP
-S�o Tom� and Pr�ncipe dobra;Db;;STD
-Syrian pound;�; _._;SYP
+South Sudanese pound;£;;SSP
+São Tomé and Príncipe dobra;Db;;STN
+Syrian pound;£; ل.س;SYP
 Swazi lilangeni;L;;SZL
-Thai baht;_;;THB
-Tajikistani somoni;__;;TJS
+Thai baht;฿;;THB
+Tajikistani somoni;ЅМ;;TJS
 Turkmenistan manat;m;;TMT
-Tunisian dinar;_._;;TND
-Tongan pa_anga;T$;;TOP
+Tunisian dinar;د.ت;;TND
+Tongan paʻanga;T$;;TOP
 Turkish lira;;;TRY
 Turkish lira;;;TRY
 Trinidad and Tobago dollar;$;;TTD
 New Taiwan dollar;$;;TWD
 Tanzanian shilling;Sh;;TZS
-Ukrainian hryvnia;_;;UAH
+Ukrainian hryvnia;₴;;UAH
 Ugandan shilling;Sh;;UGX
 United States dollar;$;;USD
 United States dollar;$;;USD
@@ -243,10 +243,10 @@ United States dollar;$;;USD
 United States dollar;$;;USD
 Uruguayan peso;$;;UYU
 Uzbekistani som;;;UZS
-Venezuelan bol�var;Bs F;;VEF
-Vietnamese __ng;_;;VND
+Venezuelan bolívar;Bs F;;VEF
+Vietnamese đồng;₫;;VND
 Vanuatu vatu;Vt;;VUV
-Samoan t_l_;T;;WST
+Samoan tālā;T;;WST
 Central African CFA franc;Fr;;XAF
 Central African CFA franc;Fr;;XAF
 Central African CFA franc;Fr;;XAF
@@ -272,7 +272,7 @@ West African CFA franc;Fr;;XOF
 CFP franc;Fr;;XPF
 CFP franc;Fr;;XPF
 CFP franc;Fr;;XPF
-Yemeni rial;_;;YER
+Yemeni rial;﷼;;YER
 South African rand;R;;ZAR
 South African rand;R;;ZAR
 South African rand;R;;ZAR

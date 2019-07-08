@@ -19,6 +19,10 @@ merge 1:1 iso year using "$work_data/imf-weo-gdp.dta", ///
 	nogenerate update assert(using master match) keepusing(gdp* estimatesstartafter)
 merge 1:1 iso year using "$work_data/maddison-wu-gdp.dta", ///
 	nogenerate update assert(using master match) keepusing(gdp*)
+	
+// Drop problematic data in UN data for Yugoslavia
+replace gdp_lcu_un2 = . if iso == "YU" & year >= 1990
+replace gdp_usd_un2 = . if iso == "YU" & year >= 1990
 
 // Calculate the GDP
 
@@ -196,6 +200,8 @@ replace gdp = gdp/`index_ddr' if (iso == "DD")
 // Add GDP from Maddison
 merge 1:1 iso year using "$work_data/maddison-gdp.dta", ///
 	nogenerate update assert(using master match)
+	
+
 
 // Remove Maddison when we have long-term WID data
 replace gdp_maddison = . if inlist(iso, "US", "FR", "DE", "GB")
@@ -206,7 +212,7 @@ keep iso year currency gdp gdp_maddison *_src
 // Drop former countries after separation
 drop if (iso == "CS") & (year > 1990)
 drop if (iso == "SU") & (year > 1990)
-drop if (iso == "YU") & (year > 1990)
+drop if (iso == "YU") & (year > 1989)
 drop if (iso == "YA") | (iso == "YD")
 
 // GDP growth rates from Maddison

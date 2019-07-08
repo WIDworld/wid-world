@@ -430,6 +430,13 @@ do "$do_dir/export-countries.do"
 // Make the variable tree
 do "$do_dir/make-variable-tree.do"
 
+quietly levelsof iso, local(iso_list)
+
+foreach cc of local iso_list {
+	gr tw line value year if (widcode == "anninc992i" & iso == "`cc'")
+	graph export "~/Desktop/wid/anninc992i-`cc'.pdf", replace
+}
+
 // -------------------------------------------------------------------------- //
 // Report updated and deleted data
 // -------------------------------------------------------------------------- //

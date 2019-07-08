@@ -1,6 +1,7 @@
 // QUANDL exchange rates for current year
 // Import the WID to know the list of required currencies and associated countries
 use "$work_data/price-index.dta", clear
+replace currency = "STD" if currency == "STN" // Quandl does not recognize the new Sao Tome currency
 keep iso currency
 drop if currency == ""
 duplicates drop
@@ -14,6 +15,8 @@ drop if (currency == "SSP")
 drop if (currency == "USD")
 drop if (currency == "YUN")
 drop if (currency == "BYN")
+
+replace currency = "STD" if currency == "STN" // Quandl does not recognize the new Sao Tome currency
 
 // Loop over currencies and get exchange rates from Quandl
 quietly levelsof currency, local(currencies)
@@ -39,6 +42,9 @@ replace rate = 75.35		 if (currency == "YUN")
 replace rate = 1.93			 if (currency == "BYN")
 *sources: world bank exchange rates except for YUN (mataf.net, 2018 value) 
 
+// Quandl does not recognize the new Sao Tome currency
+replace currency = "STN" if currency == "STD"
+replace rate = rate/1000 if currency == "STN"
 
 // Correct 2017 exchange rate for Venezuela
 assert $pastyear == 2018
