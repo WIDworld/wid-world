@@ -135,6 +135,9 @@ append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
 drop if iso == "EG" & author != "cgm2019"
 drop if iso == "CI" & author == "cgm2019"
 
+// Malaysia 2019 (KY2019)
+append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
+
 tempfile researchers
 save "`researchers'"
 
@@ -204,6 +207,9 @@ drop if iso=="KR" & oldobs==1 ///
 	| inlist(widcode,"afilin992i","ahweal992i","bfiinc992i","inyixx999i","mcwboo999i","mcwdeb999i","mcwdeq999i","mcwfin999i") ///
 	| inlist(widcode,"mcwnfa999i","mcwres999i","mcwtoq999i","mfiinc999i","mhweal999i","mnwboo999i","mnweal999i","npopul992i") ///
 	| inlist(widcode,"npopul999i","sfiinc992i","shweal992i","tfiinc992i","thweal992i"))
+
+// Drop old Malaysian top shares (fiinc992i)
+drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 
 replace p="pall" if p=="p0p100"
 

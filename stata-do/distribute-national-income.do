@@ -23,6 +23,7 @@ keep if inlist(sixlet, "anninc", "afiinc")
 
 drop if pop != "992"
 drop if inlist(vartype, "t", "f", "m")
+drop if sixlet == "afiinc" & iso == "MY" & vartype == "i" & year>=1984
 drop vartype
 
 reshape wide value, i(iso year p pop) j(sixlet) string
