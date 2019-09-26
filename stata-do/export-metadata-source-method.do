@@ -13,9 +13,9 @@ merge m:1 iso using `temp', nogen
 replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0)
 ren quality data_quality
 tostring data_quality, replace
-replace data_quality="" if data_quality=="."
-assert data_quality!="" if strpos(sixlet,"ptinc")>0
-assert data_quality!="" if strpos(sixlet,"diinc")>0
+replace data_quality = "" if data_quality=="."
+assert data_quality! = "" if strpos(sixlet,"ptinc")>0
+assert data_quality! = "" if strpos(sixlet,"diinc")>0
 
 drop if mi(sixlet)
 

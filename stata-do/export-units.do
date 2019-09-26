@@ -26,6 +26,8 @@ duplicates drop isocode, force
 rename currency name
 rename isocode currency
 
+replace currency = "STN" if currency == "STD"
+
 tempfile currencies
 save "`currencies'"
 

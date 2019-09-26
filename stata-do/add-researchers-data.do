@@ -138,6 +138,10 @@ drop if iso == "CI" & author == "cgm2019"
 // Malaysia 2019 (KY2019)
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
 
+// Bauluz 2019 - Capital and labor shares (Bauluz2019)
+append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
+
+
 tempfile researchers
 save "`researchers'"
 

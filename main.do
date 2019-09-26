@@ -18,7 +18,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
 	global r_dir "C:\Program Files\R\R-3.4.1\bin\i386/R.exe"
 }
-if substr("`c(pwd)'",1,10)=="C:\Windows" | strpos("`c(pwd)'","Gethin")>0{
+if substr("`c(pwd)'",1,10)=="C:\WINDOWS" | strpos("`c(pwd)'","Gethin")>0{
 	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
 	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
 	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"	
@@ -151,7 +151,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
+/*
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
@@ -191,7 +191,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -206,7 +206,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -325,7 +325,7 @@ do "$do_dir/import-ppp-wb.do"
 
 // Combine and extrapolate PPPs
 do "$do_dir/calculate-ppp.do"
-
+*/
 // Add to the database
 do "$do_dir/add-ppp.do"
 
