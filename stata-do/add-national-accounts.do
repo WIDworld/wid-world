@@ -31,7 +31,7 @@ keep if inlist(widcode, "mnninc999i", "mgdpro999i", "mconfc999i", "mnnfin999i")
 reshape wide value, i(iso p year) j(widcode) string
 
 generate delta = abs((valuemgdpro999i - valuemconfc999i + valuemnnfin999i - valuemnninc999i)/valuemnninc999i)
-assert delta < 1e-6 if !missing(delta)
+assert delta < 1e-5 if !missing(delta)
 
 // Correct the metadata file
 use "$work_data/na-metadata.dta", clear

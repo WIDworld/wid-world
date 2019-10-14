@@ -42,6 +42,9 @@ replace rate = 75.35		 if (currency == "YUN")
 replace rate = 1.93			 if (currency == "BYN")
 *sources: world bank exchange rates except for YUN (mataf.net, 2018 value) 
 
+// Introduction of the new Ouguiya in 2018
+replace rate = rate/10 if currency == "MRO"
+
 // Quandl does not recognize the new Sao Tome currency
 replace currency = "STN" if currency == "STD"
 replace rate = rate/1000 if currency == "STN"
@@ -142,8 +145,10 @@ drop if inlist(iso,"VE","SY") & (year<$pastyear)
 // Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
 replace value=1 if inlist(iso,"SV","LR","ZW", "EC")
 
-
 append using "`xrate'"
+
+// Introduction of the new Ouguiya in 2018
+replace currency = "MRU" if currency == "MRO"
 
 reshape wide value, i(iso year p currency) j(widcode) string
 
