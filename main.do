@@ -104,7 +104,7 @@ global oldoutput_dir "$output_dir/$olddate"
 global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
 
 // Directory of the data availability quality index
-global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-2019-06-13-17h08.xlsx"
+global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-final.xlsx"
 
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
@@ -151,7 +151,7 @@ version 14
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
+
 do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //

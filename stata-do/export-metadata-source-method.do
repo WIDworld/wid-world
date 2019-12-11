@@ -54,6 +54,21 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
 
+// Add data quality index note
+preserve
+import excel "$quality_file", sheet("data") first clear
+keep Code
+ren Code iso
+gen sixlet = "iquali"
+gen method = "The inequality transparency index is estimated by the World Inequality Lab based on the availability " + ///
+	"of income and wealth surveys and tax data in the country considered. See " + ///
+	"http://wid.world/transparency/ for more information ."
+gen source = "[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"
+tempfile temp
+save `temp'
+restore
+append using `temp'
+
 // Add note on Venezualian exchange rate correction for 2016
 /*
 preserve

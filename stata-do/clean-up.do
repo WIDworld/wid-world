@@ -4,7 +4,7 @@ use "$work_data/calibrate-dina-output.dta", clear
 // Generate average fiscal incomes based on total income controls
 keep if inlist(substr(widcode,1,3),"afi","mfi","nta") & p=="pall"
 keep iso year widcode p value
-reshape wide value, i(iso year p) j(widcode) string
+greshape wide value, i(iso year p) j(widcode) string
 renpfix value
 replace mfiinc999i = mfiinc992i if mi(mfiinc999i)
 replace mfiinc999i = mfiinc992t if mi(mfiinc999i)
@@ -14,7 +14,7 @@ replace afiinc992t = mfiinc999i / ntaxma992t if mi(afiinc992t)
 replace afiinc992i = mfiinc999i / ntaxad992t if mi(afiinc992i)
 keep iso year p afiinc*
 renvars afiinc*, pref(value)
-reshape long value, i(iso year p) j(widcode) string
+greshape long value, i(iso year p) j(widcode) string
 drop if mi(value)
 tempfile fisc_avg
 save `fisc_avg'
@@ -27,7 +27,7 @@ append using `fisc_avg'
 expand 2 if substr(widcode, 1, 1) == "o", generate(newobs)
 replace widcode = "a" + substr(widcode, 2, .) if newobs
 replace p = p + "p100" if newobs
-duplicates tag iso year widcode p, generate(dup)
+gduplicates tag iso year widcode p, generate(dup)
 drop if dup & newobs
 drop dup newobs
 
@@ -50,7 +50,7 @@ replace p_max = p_min + 1    if (substr(widcode, 1, 1) == "a") & missing(p_max) 
 replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if !missing(p_max)
 
 sort iso widcode year p_min
-duplicates drop iso year widcode p, force
+gduplicates drop iso year widcode p, force
 
 tempfile data
 save "`data'"
@@ -62,7 +62,7 @@ save "`fiscal'"
 
 use "`fiscal'", clear
 keep if strpos(widcode,"afiinc")>0 & p == "p0p100"
-reshape wide value, i(iso widcode p p_min p_max) j(year)
+greshape wide value, i(iso widcode p p_min p_max) j(year)
 renvars value*, presub("value" "mean")
 drop p
 replace widcode = substr(widcode,2,.)
@@ -71,7 +71,7 @@ save "`averages'"
 
 use "`fiscal'", clear
 keep if strpos(widcode,"sfiinc")>0
-reshape wide value, i(iso widcode p p_min p_max) j(year)
+greshape wide value, i(iso widcode p p_min p_max) j(year)
 renvars value*, presub("value" "share")
 replace widcode = substr(widcode,2,.)
 tempfile shares
@@ -80,7 +80,7 @@ save "`shares'"
 use "`fiscal'", clear
 keep if strpos(widcode,"afiinc")>0
 levelsof year, local(years) clean
-reshape wide value, i(iso widcode p p_min p_max) j(year)
+greshape wide value, i(iso widcode p p_min p_max) j(year)
 replace widcode = substr(widcode,2,.)
 merge 1:1 iso widcode p using "`shares'", nogen
 merge m:1 iso widcode using "`averages'", nogen
@@ -88,7 +88,7 @@ foreach y in `years'{
 	cap replace value`y' = (share`y' * mean`y') / ((p_max - p_min)/1e5) if mi(value`y')
 }
 keep iso widcode p value*
-reshape long value, i(iso widcode p) j(year)
+greshape long value, i(iso widcode p) j(year)
 drop if mi(value)
 sort iso year widcode p value
 replace widcode = "a" + widcode
@@ -124,7 +124,7 @@ replace p_max = p_min + 1    if new & inrange(p_min, 99990, 99999)
 replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if new
 drop value2 new
 keep iso year p widcode value
-duplicates drop iso year widcode p, force
+gduplicates drop iso year widcode p, force
 tempfile gperc_shares
 save "`gperc_shares'"
 restore
@@ -145,7 +145,7 @@ tempfile groups
 forvalues i = 1/7 {
 	preserve
 	drop if missing(group_perc`i')
-	collapse (sum) value, by(iso year widcode group_perc`i')
+	gcollapse (sum) value, by(iso year widcode group_perc`i')
 	generate p_min = group_perc`i'
 	bysort iso year widcode (p_min): generate p_max = cond(missing(p_min[_n + 1]), 1e5, p_min[_n + 1])
 	drop group_perc`i'
@@ -158,7 +158,7 @@ forvalues i = 1/7 {
 }
 use "`groups'", clear
 keep iso year p widcode value
-duplicates drop iso year widcode p, force
+gduplicates drop iso year widcode p, force
 save "`groups'", replace
 
 // Averages
@@ -180,7 +180,7 @@ replace widcode = "a" + widcode
 replace value = value*average/((p_max - p_min)/1e5)
 replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001))
 keep iso year widcode p value
-duplicates drop iso year widcode p, force
+gduplicates drop iso year widcode p, force
 save "`average_shares'", replace
 
 use "`data'", clear
@@ -216,7 +216,7 @@ drop if substr(widcode, 1, 1)=="o"
 save "`data'", replace
 
 keep if inlist(widcode, "mcwdeq999i", "mcwboo999i")
-reshape wide value, i(iso year) j(widcode) string
+greshape wide value, i(iso year) j(widcode) string
 generate value = valuemcwdeq999i/valuemcwboo999i
 drop valuemcwdeq999i valuemcwboo999i
 generate widcode = "icwtoq999i"
@@ -231,7 +231,7 @@ drop if strpos(widcode, "cwtoq")
 append using "`toq'"
 
 // Drop duplicates
-duplicates drop
+gduplicates drop
 
 // Add fiscal averages to database
 drop if strpos(widcode,"afiinc")>0
@@ -241,21 +241,22 @@ append using "`fiscal_averages'"
 tempfile data
 save `data'
 
-import excel "$quality_file", ///
-	sheet("Redux") first clear
+import excel "$quality_file", sheet("Redux") first clear
 keep Country Score20
 renvars Country Score20 / isoname valueiquali999i
+drop if mi(isoname)
 preserve
-import excel "$quality_file", ///
-	sheet("data") first clear
-renvars Country Code / isoname iso
-keep isoname iso
-tempfile temp
-save `temp'
+	import excel "$quality_file", ///
+		sheet("data") first clear
+	renvars Country Code / isoname iso
+	keep isoname iso
+	drop if mi(isoname)
+	tempfile temp
+	save `temp'
 restore
 merge 1:1 isoname using `temp', assert(matched) nogen
 keep iso valueiquali999i
-reshape long value, i(iso) j(widcode) string
+greshape long value, i(iso) j(widcode) string
 gen year = $pastyear
 gen p = "p0p100"
 gen currency = ""

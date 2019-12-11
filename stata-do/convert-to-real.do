@@ -26,7 +26,14 @@ assert !missing(index) if (iso != "CZ") ///
 	& strpos(widcode,"diinc")==0
 
 // Convert monetary series to real $pastyear LCU
-replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") & (substr(widcode, 4, 3) != "toq")
+* we do not convert ptinc and diinc variables to real since price indices are
+* missing for world regions; it is easier to rescale these distributional data
+* directly to the national accounts, as done later in calibrate-dina.do.
+
+replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
+	& (substr(widcode, 4, 3) != "toq") ///
+	& strpos(widcode, "ptinc") == 0 ///
+	& strpos(widcode, "diinc") == 0
 
 drop index
 
