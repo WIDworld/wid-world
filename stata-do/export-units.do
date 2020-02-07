@@ -17,6 +17,9 @@ replace currency = "1990 Yugoslav dinar" in l
 replace symbol = "дин." in l
 replace isocode = "YUN" in l
 
+// Add the new cuurency code for Mauritania
+replace isocode = "MRU" if isocode == "MRO"
+
 split symbol, parse(" or ")
 drop symbol symbol2
 rename symbol1 symbol
@@ -35,6 +38,9 @@ use "$work_data/calibrate-dina-output.dta", clear
 
 // Add Euro for German subregions
 replace currency = "EUR" if strpos(iso, "DE-")
+
+// Add the new cuurency code for Mauritania
+replace currency = "MRU" if currency == "MRO"
 
 keep iso currency
 drop if currency == ""
