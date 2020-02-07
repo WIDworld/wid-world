@@ -101,6 +101,7 @@ program countrycode, nclass
 			replace `generate' = "EG" if (`varlist' == "Egypt")
 			replace `generate' = "EE" if (`varlist' == "Estonia")
 			replace `generate' = "FO" if (`varlist' == "Faeroe Islands")
+			replace `generate' = "FO" if (`varlist' == "Faroe Islands")
 			replace `generate' = "FJ" if (`varlist' == "Fiji")
 			replace `generate' = "FI" if (`varlist' == "Finland")
 			replace `generate' = "FR" if (`varlist' == "France")
@@ -187,6 +188,7 @@ program countrycode, nclass
 			replace `generate' = "TZ" if (`varlist' == "Tanzania - Mainland")
 			replace `generate' = "MK" if (`varlist' == "The former Yugoslav Republic of Macedonia")
 			replace `generate' = "TJ" if (`varlist' == "Tajikistan")
+			replace `generate' = "TH" if (`varlist' == "Thailand")
 			replace `generate' = "GU" if (`varlist' == "Guam")
 			replace `generate' = "TO" if (`varlist' == "Tonga")
 			replace `generate' = "TT" if (`varlist' == "Trinidad and Tobago")
@@ -200,6 +202,10 @@ program countrycode, nclass
 			replace `generate' = "VU" if (`varlist' == "Vanuatu")
 			replace `generate' = "VE" if (`varlist' == "Venezuela")
 			replace `generate' = "YE" if (`varlist' == "Yemen")
+			replace `generate' = "ZM" if (`varlist' == "Zambia")
+			replace `generate' = "GL" if (`varlist' == "Greenland")
+			replace `generate' = "MK" if (`varlist' == "North Macedonia")
+			replace `generate' = "PY" if (`varlist' == "Paraguay")
 			
 			// WID codes
 			replace `generate' = "SD-FORMER" if (`varlist' == "Sudan (up to 2011)")
