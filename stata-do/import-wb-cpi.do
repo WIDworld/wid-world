@@ -27,6 +27,7 @@ drop countrycode
 // Add currency from the metadata
 merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 	keep(master match) assert(match) nogenerate keepusing(currency)
+	keep(master match)  nogenerate keepusing(currency) // Regions are dropped
 drop countryname
 	
 // Identify currencies
