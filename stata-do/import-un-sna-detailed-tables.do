@@ -114,6 +114,9 @@ replace currency="bolivar" if iso=="VE"
 // Belarus redenomination
 replace currency = "belarussian rouble" if currency == "belarussian rouble (re-denom. 1:10000)"
 
+// Tanzanian currency
+replace currency = "tanzanian shilling" if currency == "tanzania shilling"
+
 // Sanity check: only one currency per countries left
 egen ncurr = nvals(currency), by(iso)
 assert ncurr == 1
