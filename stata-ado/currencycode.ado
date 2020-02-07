@@ -37,6 +37,7 @@ program currencycode, nclass
 			replace `generate' = "CZK" if (`iso2c' == "CZ") & (`curr' == "czech koruna")
 			replace `generate' = "DKK" if (`iso2c' == "FO") & (`curr' == "danish krone")
 			replace `generate' = "DKK" if (`iso2c' == "DK") & (`curr' == "danish krone")
+			replace `generate' = "DKK" if (`iso2c' == "GL") & (`curr' == "danish krone")		
 			replace `generate' = "DOP" if (`iso2c' == "DO") & (`curr' == "dominican peso")
 			replace `generate' = "EGP" if (`iso2c' == "EG") & (`curr' == "egyptian pound")
 			replace `generate' = "EUR" if (`iso2c' == "EE") & (`curr' == "euro")
@@ -107,6 +108,7 @@ program currencycode, nclass
 			replace `generate' = "PGK" if (`iso2c' == "PG") & (`curr' == "kina")
 			replace `generate' = "PHP" if (`iso2c' == "PH") & (`curr' == "philippine peso")
 			replace `generate' = "PLN" if (`iso2c' == "PL") & (`curr' == "zloty")
+			replace `generate' = "PYG" if (`iso2c' == "PY") & (`curr' == "guarani")
 			replace `generate' = "QAR" if (`iso2c' == "QA") & (`curr' == "qatar riyal")
 			replace `generate' = "RON" if (`iso2c' == "RO") & (`curr' == "romanian leu")
 			replace `generate' = "RSD" if (`iso2c' == "RS") & (`curr' == "dinar")
@@ -116,6 +118,7 @@ program currencycode, nclass
 			replace `generate' = "SEK" if (`iso2c' == "SE") & (`curr' == "swedish krona")
 			replace `generate' = "SLL" if (`iso2c' == "SL") & (`curr' == "leone")
 			replace `generate' = "SRD" if (`iso2c' == "SR") & (`curr' == "suriname dollar")
+			replace `generate' = "THB" if (`iso2c' == "TH") & (`curr' == "baht")
 			replace `generate' = "TND" if (`iso2c' == "TN") & (`curr' == "tunisian dinar")
 			replace `generate' = "TOP" if (`iso2c' == "TO") & (`curr' == "pa'anga")
 			replace `generate' = "TRY" if (`iso2c' == "TR") & (`curr' == "new turkish lira")
@@ -152,6 +155,7 @@ program currencycode, nclass
 			replace `generate' = "TJS" if (`iso2c' == "TJ") & (`curr' == "somoni")
 			replace `generate' = "UGX" if (`iso2c' == "UG") & (`curr' == "uganda shilling")
 			replace `generate' = "CVE" if (`iso2c' == "CV") & (`curr' == "escudo")
+			replace `generate' = "ZMW" if (`iso2c' == "ZM") & (`curr' == "zambian kwacha")
 		}
 		else if ("`from'" == "un sna main") {
 			replace `generate' = "AED" if (`iso2c' == "AE") & (`curr' == "uae dirham")
