@@ -113,6 +113,7 @@ countrycode countryname, generate(iso) from("wb")
 // Add currency from the metadata
 merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 	keep(master match) assert(match) nogenerate
+	keep(master match) nogenerate //Regions are droppped
 
 // Identify currencies
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
