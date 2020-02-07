@@ -64,6 +64,7 @@ merge 1:1 iso year using "$work_data/price-index.dta", update ///
 // Convert to current USD
 merge 1:1 iso year using "`lcu2usd'", update nogenerate ///
 	assert(master using match) keep(master match)
+	keep(master match)  // some countries do not have an exchange rate so they are not matched
 
 generate gdp_usd = gdp*index/lcu2usd
 
