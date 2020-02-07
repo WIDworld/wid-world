@@ -49,6 +49,7 @@ duplicates drop
 sort iso currency
 
 merge n:1 currency using "`currencies'", keep(master match) assert(match) nogenerate
+merge n:1 currency using "`currencies'",  keep(master match) nogenerate //there are 9 small countries with currencies not matched with DINA 
 rename currency currency_iso
 rename symbol currency_symbol
 rename name currency_name
