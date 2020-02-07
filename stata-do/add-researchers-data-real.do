@@ -71,6 +71,7 @@ replace p=p+"p100" if iso=="US" & strpos(widcode,"ptinc")>0 & year<1962 ///
 drop if (iso=="US") & (oldobs==0) & (length(p)-length(subinstr(p,"p","",.))==1) & (p!="pall") ///
 	& !inlist(widcode,"shweal992j","ahweal992j")
 duplicates tag iso year p widcode, gen(dupus)
+gduplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
 
 // Korea: drop old widcodes
