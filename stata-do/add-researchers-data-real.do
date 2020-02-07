@@ -21,6 +21,9 @@ append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
 // Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
 
+// US historical pre-1962 data for bottom 90 (MFP2020)
+append using "$wid_dir/Country-Updates/US/2020/January/fisher-post-2020.dta"
+
 tempfile researchers
 save "`researchers'"
 
@@ -32,8 +35,10 @@ generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
 duplicates drop
+gduplicates drop
 
 duplicates tag iso sixlet, gen(dup)
+gduplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup
 
@@ -78,6 +83,7 @@ replace p="pall" if p=="p0p100"
 *drop if dup & oldobs==1
 
 duplicates tag iso year p widcode, gen(duplicate)
+gduplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
 
 keep iso year p widcode currency value
@@ -99,6 +105,7 @@ replace method = "" if method == " "
 replace method = "" if iso == "FR" & substr(sixlet, 2, 5) == "ptinc"
 
 duplicates tag iso sixlet, gen(duplicate)
+gduplicates tag iso sixlet, gen(duplicate)
 assert duplicate==0
 drop duplicate
 
