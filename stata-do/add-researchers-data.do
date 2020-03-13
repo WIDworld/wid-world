@@ -153,13 +153,11 @@ save "`researchers'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
-duplicates drop
+gduplicates drop
 
 drop if sixlet=="npopul" & strpos(source,"chancel")>0
 
-duplicates tag iso sixlet, gen(dup)
-assert dup==0
-drop dup
+gduplicates drop iso sixlet, force
 
 tempfile meta
 save "`meta'"
@@ -177,7 +175,7 @@ replace oldobs=0 if oldobs!=1
 drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
 
 // Drop old rows available in new data
-duplicates tag iso year p widcode, gen(dup)
+gduplicates tag iso year p widcode, gen(dup)
 drop if dup & oldobs
 
 // US 2017: drop specific widcodes
@@ -191,7 +189,7 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 preserve
 keep if author=="bauluz2017"
 keep iso widcode
-duplicates drop
+gduplicates drop
 gen todrop=1
 tempfile todrop
 save "`todrop'"
@@ -199,7 +197,7 @@ restore
 merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
 drop if todrop==1 & author!="bauluz2017" & !inlist(substr(widcode,1,1),"n","i")
 
-duplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
+gduplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
 drop if usdup & iso=="US" & author!="bauluz2017"
 
 // India 2017: drop duplicates and old fiscal income data
@@ -217,7 +215,7 @@ drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 
 replace p="pall" if p=="p0p100"
 
-duplicates tag iso year p widcode, gen(duplicate)
+gduplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
 
 keep iso year p widcode currency value
