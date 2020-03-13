@@ -1,11 +1,15 @@
+* Remark: Some codes that fetched 2011 are kept with * to switch back to 2011 PPP if we wanted to!
+
 // Import all the PPP data
 use "$work_data/ppp-oecd.dta", clear
 merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
 	
 // For Lithuania and Latvia, OECD PPPs are expressed in their old currency
+
 replace ppp_oecd = ppp_oecd/3.4528 if iso == "LT"
 replace ppp_oecd = ppp_oecd/0.702804 if iso == "LV"
+
 
 // Keep OECD in priority
 generate ppp = .

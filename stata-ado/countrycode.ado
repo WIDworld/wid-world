@@ -1792,6 +1792,7 @@ program countrycode, nclass
 			replace `generate' = "HR" if (`varlist' == "Croatia")
 			replace `generate' = "ME" if (`varlist' == "Montenegro")
 			replace `generate' = "MK" if (`varlist' == "Former Yugoslav Republic of Macedonia")
+			replace `generate' = "MK" if (`varlist' == "North Macedonia")
 			replace `generate' = "MT" if (`varlist' == "Malta")
 			replace `generate' = "RO" if (`varlist' == "Romania")
 			replace `generate' = "RS" if (`varlist' == "Serbia")

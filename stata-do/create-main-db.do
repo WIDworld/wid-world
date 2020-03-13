@@ -46,7 +46,7 @@ foreach c of local widcode_list {
 	local `c' `varlabel'
 }
 
-// Reshape the dataset ------------------------------------------------------ //
+// Reshape the dataset (long)------------------------------------------------------ //
 
 use "$work_data/calculate-pareto-coef-output.dta", clear
 
@@ -82,7 +82,8 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 	write_dta(data, paste0(path, "/wid-wide.dta"))
 }
 */
-
+// A piece of R code
+/*
 rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
 
 library(haven)
@@ -97,8 +98,15 @@ data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
 write_dta(data, paste0(path, "/wid-wide.dta"))
 
 END_OF_R
+*/
 
+// Reshape wide the dataset------------------------------------------------------//
+greshape wide value, i(iso year p) j(widcode) string
+renvars valueacainc992j - valuexlcyux999i, predrop(5)
 
+save "$work_data/wid-wide.dta", replace
+
+// Wide format
 use "$work_data/wid-wide.dta", clear
 
 label variable year "year"

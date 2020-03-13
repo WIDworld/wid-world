@@ -14,3 +14,6 @@ report-output/*/*.pdf
 # Office crap
 ~$*
 wid-world.stpr
+*.dta
+*.dta
+data-input/france-data/france-ggp2017.dta

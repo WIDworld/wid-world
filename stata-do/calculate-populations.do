@@ -117,6 +117,39 @@ append using "`serbia'"
 // separated starting in 1990. Therefore, before 1990, we keep the WPP data,
 // and after, we correct them using the SNA population data as we did for
 // Serbia and Kosovo.
+
+preserve
+	keep if iso == "ZZ" & year >= 1990
+	keep year age value_sna sex
+	ren value_sna value_sna_zz
+	tempfile zanzibar
+	save `zanzibar'
+restore
+
+preserve
+    keep if iso == "TZ"	 & year >= 1990
+	merge n:1 year age sex using `zanzibar'
+	bysort year : gen sna_total = value_sna + value_sna_zz
+	bysort year : gen ratio_zz  = value_sna_zz/sna_total
+	bysort year : gen ratio_tz  = value_sna/sna_total
+	bysort year : egen a = mode(ratio_zz)
+	bysort year : egen b = mode(ratio_tz)
+	drop ratio_* _merge value_sna_zz sna_total
+	expand 2 if (iso == "TZ") & (year >= 1990), generate(new)
+	replace value = round(value_wpp*a) if (new == 1) & (iso == "TZ")
+	replace value = round(value_wpp*b) if (new == 0) & (iso == "TZ")
+	replace iso = "ZZ" if (new == 1) & (iso == "TZ")
+    drop a b new
+	bys iso age sex (year) : carryforward value, replace
+	tempfile TZandZZ
+	save `TZandZZ'
+restore
+drop if (iso == "TZ" | iso == "ZZ")
+append using `TZandZZ'
+
+
+
+/*
 drop if (iso == "ZZ") // Zanzibar data will be recalculated from Tanzania
 
 generate a = value_sna/value_wpp if (iso == "TZ") & (year >= 1990)
@@ -129,6 +162,9 @@ replace value = value_wpp*b if (new == 0) & (iso == "TZ")
 replace value = value_wpp*(1 - b) if (new == 1) & (iso == "TZ")
 replace iso = "ZZ" if (new == 1) & (iso == "TZ")
 drop a b new
+*/
+
+
 
 // From 1970 to 1973, GDP data include the entire island. After that, it excludes
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population

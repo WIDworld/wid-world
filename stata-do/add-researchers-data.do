@@ -9,13 +9,14 @@
 use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
 
 // US Nominal 2017 (PSZ2017, new version in country-updates (2017-september)
-append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
+*append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
 
 // Ivory Coast 2017 (Czajka2017)
 append using "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta"
 
 // UK 2017 (Alvaredo2017)
 append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
+drop if iso=="GB" & strpos(widcode,"ptinc")>0
 
 // Macro updates 2017 (Bauluz2017)
 append using "$wid_dir/Country-Updates/Spain/2017/August/spain-bauluz2017.dta" // Spain
@@ -48,6 +49,10 @@ append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.
 drop if iso == "PL" & year>=1992
 append using "$wid_dir/Country-Updates/Poland/2019_05/poland-novokmet2017-update2019.dta"
 
+foreach x in aptinc992j bptinc992j sptinc992j tptinc992j {
+	replace widcode = substr(widcode, 1, 1) + "fi" + substr(widcode, 4, .) if iso == "PL"
+}
+
 // France 2018 (Goupille2018, Gender series)
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
 
@@ -56,15 +61,19 @@ append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
 
 // Czech Republic 2018 (Novokmet2018)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
+drop if strpos(widcode, "fiinc") & (substr(widcode, -1, 1) == "i" | substr(widcode, -1, 1) == "t" ) & iso == "CZ" 
 
 // Poland top shares 2018 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2018/March/poland-topshares-novokmet2017.dta"
 
-// Bulgaria 2018 (Novokmet2018)
+// Bulgaria 2018 (Novokmet2018) - fiinc and ptinc have the same values 
 append using "$wid_dir/Country-Updates/Bulgaria/2018/03/bulgaria-novokmet2018.dta"
+drop if iso=="BG" & strpos(widcode,"ptinc")>0
 
-// Slovenia and Croatia 2018 (Novokmet 2018)
+// Slovenia and Croatia 2018 (Novokmet 2018) - fiinc and ptinc have the same values 
 append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet2018.dta"
+drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
+drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
 
 // Macro corrections (Bauluz 2018)
 preserve
@@ -87,7 +96,7 @@ replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
 replace author="bauluz2017" if author=="bauluz2018_corrections"
 
-// Czech 2018 (Novokmet2018_Gpinter)
+// Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file 
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
 // US States 2017 (2018 update)
@@ -109,6 +118,7 @@ append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana20
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
 // Europe 2019 (BCG2019)
+/*
 append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
 drop if iso=="FR" & author=="bcg2019"
 drop if iso=="PL" & author=="bcg2019" & strpos(widcode,"ptinc")>0
@@ -118,6 +128,7 @@ drop if iso=="CZ" & mi(author) & strpos(widcode,"ptinc")>0
 drop if inlist(iso,"DE","PL","QE","QE-MER") & widcode=="gptinc992j" & author!="bcg2019"
 drop if iso=="BG" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
 drop if iso=="GB" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
+*/
 
 // India 2019, wealth-income ratios (Kumar2019)
 append using "$wid_dir/Country-Updates/India/2019_04/india-kumar2019.dta"
@@ -134,13 +145,22 @@ append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2
 append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
 drop if iso == "EG" & author != "cgm2019"
 drop if iso == "CI" & author == "cgm2019"
-
+//correct the reference by adding "Cogneau" + source for ZA
+replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
+	`"[/URL_LINK][URL_TEXT]Chancel, Cogneau, Gethin & Myczkowski (2019), How large are African Inequalities? Towards Distributional National Accounts in Africa (1990-2017)[/URL_TEXT][/URL]; "' ///
+	if source == "[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/[/URL_LINK][URL_TEXT]Chancel, Gethin & Myczkowski (2019)[/URL_TEXT][/URL]; "
+replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + /// 
+	`"[/URL_LINK][URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
+	if iso == "ZA"
+	
 // Malaysia 2019 (KY2019)
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
 
 // Bauluz 2019 - Capital and labor shares (Bauluz2019)
 append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
 
+// US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
+append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
 
 tempfile researchers
 save "`researchers'"
@@ -157,6 +177,7 @@ duplicates drop
 
 drop if sixlet=="npopul" & strpos(source,"chancel")>0
 
+duplicates drop iso sixlet, force
 duplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup

@@ -6,7 +6,7 @@ keep if inlist(substr(widcode,1,3),"afi","mfi","nta") & p=="pall"
 keep iso year widcode p value
 greshape wide value, i(iso year p) j(widcode) string
 renpfix value
-replace mfiinc999i = mfiinc992i if mi(mfiinc999i)
+replace mfiinc999i = mfiinc999i if mi(mfiinc999i)
 replace mfiinc999i = mfiinc992t if mi(mfiinc999i)
 replace ntaxma992t = ntaxma999i if mi(ntaxma992t)
 replace ntaxad992t = ntaxad999i if mi(ntaxad992t)
@@ -26,7 +26,7 @@ append using `fisc_avg'
 // Generate a- variables based on o- variables
 expand 2 if substr(widcode, 1, 1) == "o", generate(newobs)
 replace widcode = "a" + substr(widcode, 2, .) if newobs
-replace p = p + "p100" if newobs
+replace p = p + "p100" if newobs & !inlist(p, "p90p100", "p95p100", "p99p100", "p99.9p100", "p99.99p100")
 gduplicates tag iso year widcode p, generate(dup)
 drop if dup & newobs
 drop dup newobs

@@ -1,7 +1,6 @@
 // List countries where we already have pre-tax national income
 use "$work_data/calculate-per-capita-series-output.dta", clear
 keep if substr(widcode, 1, 6) == "sptinc"
-drop if iso == "GB" // Re-calculate sptinc for UK: these are not true DINA series
 keep iso
 duplicates drop
 tempfile iso_ptinc

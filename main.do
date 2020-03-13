@@ -42,6 +42,10 @@ if substr("`c(pwd)'",1,10)=="C:\Users\r"{
 	global wid_dir "C:/Users/r.khaled/Dropbox/W2ID"
 	global project_dir "C:/Users/r.khaled/Documents/GitHub/wid-world"
 }
+if substr("`c(pwd)'",1,10)=="/Users/rowaidakhaled"{
+	global wid_dir "/Users/rowaidakhaled/Dropbox/W2ID"
+	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
+}
 
 
 // WID folder directory
@@ -150,7 +154,7 @@ ssc install quandl
 */
 
 // You need to update Stata to the 14 version
-version 14
+*version 14
 
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
@@ -219,7 +223,7 @@ do "$do_dir/import-wb-metadata.do"
 // -------------------------------------------------------------------------- //
 
 // Fetch the UN SNA detailed tables
-*do "$do_dir/fetch-un-sna-detailed-tables.do"
+do "$do_dir/fetch-un-sna-detailed-tables.do"
 
 // Import the UN SNA detailed tables
 do "$do_dir/import-un-sna-detailed-tables.do"
@@ -309,7 +313,6 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-*do "$do_dir/import-exchange-rates.do"
 do "$do_dir/import-exchange-rates.do"
 
 // Import IMF BOP data
@@ -420,16 +423,14 @@ capture mkdir "$output_dir/$time"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"
-do "$do_dir/export-metadata-other.do"
+do "$do_dir/export-metadata-other.do"  // the excel file codes dictionnary is not working
 
 // Export the units
 do "$do_dir/export-units.do"
 
 // Export the main database
-do "$do_dir/create-main-db.do"
-do "$do_dir/export-main-db.do"
-do "$do_dir/create-main-db.do" // wid-wide.dta is not found in work data!
-do "$do_dir/export-main-db.do" // it depends on the previous do file
+do "$do_dir/create-main-db.do" 
+do "$do_dir/export-main-db.do" 
 
 // Export the list of countries
 do "$do_dir/export-countries.do"

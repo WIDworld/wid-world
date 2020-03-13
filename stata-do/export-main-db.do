@@ -40,12 +40,19 @@ drop tokeep
 export delimited "~/Desktop/national-wealth.csv", delimiter(";") replace
 */
 
-ds Alpha2 year perc, not
+ds Alpha2 year perc currency, not
 local vars = r(varlist)
 egen tokeep = rownonmiss(`vars')
 keep if tokeep
 drop tokeep
 
+// Export ZZ
+preserve
+keep if (Alpha2 == "ZZ")
+export delimited "$output_dir/$time/wid-ZZ.csv", delimiter(";") replace
+restore
+
+// Export all 
 export delimited "$output_dir/$time/wid-db.csv", delimiter(";") replace
 
 // -------------------------------------------------------------------------- //
