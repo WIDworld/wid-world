@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------------------------------------------
 
 // France inequality 2017 (GGP2017)
-use "$france_data/france-ggp2017.dta", clear
+use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
 
 // UK wealth 2017 (Alvaredo2017)
 append using "$uk_data/uk-wealth-alvaredo2017.dta"
@@ -21,11 +21,15 @@ append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
 // Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
 
-//Europe 2020 - bcg2020
-append using "$wid_dir/Country-Updates/Europe/2020_03/full-bcg2020.dta"
-drop if iso == "FR" & author == "bcg2020"
+// Europe 2020 - bcg2020
+append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
+// Add bcg2020 source to GGP2017
+* Source
+replace source = `"Before 2014, [URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics[/URL_TEXT][/URL]"' +  ///
+`"After 2014, Blanchet, Chancel and Gethin (2020), “Why is Europe more Unequal than the US?”"' ///
+if (source == "[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics[/URL_TEXT][/URL]" | source == "Blanchet, Chancel and Gethin (2020), “Why is Europe more Unequal than the US?”") & strpos(widcode, "ptinc")
 
-
+	
 tempfile researchers
 save "`researchers'"
 
@@ -33,11 +37,11 @@ save "`researchers'"
 // CREATE METADATA
 // -----------------------------------------------------------------------------------------------------------------
 generate sixlet = substr(widcode, 1, 6)
-keep iso sixlet source method
+keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
 gduplicates drop
 
-gduplicates drop iso sixlet, force  // this step is added because when MFP2020 is appended to the data, some widcodes are repeated
+drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 gduplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup

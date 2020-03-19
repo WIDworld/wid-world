@@ -10,13 +10,14 @@ tempfile temp
 save `temp'
 restore
 merge m:1 iso using `temp', nogen
-replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0)
-ren quality data_quality
+replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0) & (strpos(sixlet,"cainc")==0)
+replace quality = data_quality if quality != data_quality & data_quality != .
+replace data_quality = quality if data_quality == .
 tostring data_quality, replace
-replace data_quality = "" if data_quality=="."
+replace data_quality = "" if quality==.
 assert data_quality! = "" if strpos(sixlet,"ptinc")>0
 assert data_quality! = "" if strpos(sixlet,"diinc")>0
-
+drop quality 
 drop if mi(sixlet)
 
 // Add population notes
@@ -114,7 +115,7 @@ replace Source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-an
 	if Source == "Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors."
 
 // Remove duplicates
-collapse (firstnm) Method Source data_quality, by(TwoLet ThreeLet Alpha2)
+collapse (firstnm) Method Source data_quality data_imputation data_points extrapolation, by(TwoLet ThreeLet Alpha2)
 
 order Alpha2 TwoLet ThreeLet Method Source data_quality
 

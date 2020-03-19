@@ -117,7 +117,7 @@ append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana20
 // Belgium 2019 (Decoster2019)
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
-// Europe 2019 (BCG2019)
+// Europe 2019 (BCG2019) - it was replaced by BCG2020 in researchers-data-real 
 /*
 append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
 drop if iso=="FR" & author=="bcg2019"
@@ -161,6 +161,10 @@ append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz
 
 // US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
 append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
+
+// South Africa 2020 - ccg2020
+append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
+drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
 
 tempfile researchers
 save "`researchers'"
@@ -237,7 +241,11 @@ drop if iso=="KR" & oldobs==1 ///
 drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 
 replace p="pall" if p=="p0p100"
-
+ 
+// Drop widcodes from previous ZA to be replaced with ccg2020
+drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i"  ) & iso == "ZA" & author != "ccg2020"
+ 
+ 
 duplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
 

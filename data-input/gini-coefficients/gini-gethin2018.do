@@ -3,8 +3,10 @@
 * Author: AG
 
 // User
-global user "C:\Users\Amory\Documents\GitHub\wid-world"
-global r_dir "C:\Program Files\R\R-3.4.1\bin\i386"
+*global user "C:\Users\Amory\Documents\GitHub\wid-world"
+global user "/Users/rowaidakhaled/Documents/GitHub/wid-world"
+
+*global r_dir "C:\Program Files\R\R-3.4.1\bin\i386"
 
 global data "$user/work-data"
 cd "$user/data-input/gini-coefficients"
@@ -52,11 +54,15 @@ replace pop=0.0001 if inrange(p,99900,99980)
 replace pop=0.00001 if inrange(p,99990,99999)
 gen x=bracketavg*pop
 bys country year component: egen average=sum(x)
-drop x pop
+drop x 
 
 order year country component average p thr bracketavg 
 gen id=country+"_"+string(year)+"_"+component
 
+// Calculate Gini Coefficients - added 18/03/2020
+
+
+/*
 // Export to Gpinter
 cap mkdir "Gpinter input"
 levelsof id, local(distributions)
@@ -147,7 +153,7 @@ gen currency=""
 gen source=""
 gen method="WID.world computations using wid.world/gpinter."
 gen author="gethin_gini_2018"
-
+*/
 save "gini-gethin2018.dta", replace
 
 
