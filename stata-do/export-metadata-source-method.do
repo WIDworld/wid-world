@@ -2,25 +2,87 @@ use "$work_data/add-researchers-data-real-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 
-// Add data quality to ptinc variables
+// -------------------------------------------------------------------------- //
+// Add data quality, labels
+// -------------------------------------------------------------------------- //
+
 preserve
-import excel "$input_data_dir/data-quality/data-quality.xlsx", first clear
-keep iso quality
-tempfile temp
-save `temp'
+	import excel "$input_data_dir/data-quality/data-quality.xlsx", first clear
+	keep iso quality
+	tempfile temp
+	save `temp'
 restore
-merge m:1 iso using `temp', nogen
-replace quality=. if (strpos(sixlet,"ptinc")==0) & (strpos(sixlet,"diinc")==0) & (strpos(sixlet,"cainc")==0)
+
+// Make sure data quality label applies to all variable type
+generate fivelet = substr(sixlet, 2, 5)
+foreach v of varlist data_quality data_imputation data_points extrapolation {
+	egen tmp = mode(`v'), by(iso fivelet)
+	replace `v' = tmp
+	drop tmp
+}
+
+// Add quality from data quality file
+merge m:1 iso using `temp', nogen update noreplace
+replace quality = . if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
 replace quality = data_quality if quality != data_quality & data_quality != .
 replace data_quality = quality if data_quality == .
 tostring data_quality, replace
-replace data_quality = "" if quality==.
-assert data_quality! = "" if strpos(sixlet,"ptinc")>0
-assert data_quality! = "" if strpos(sixlet,"diinc")>0
+replace data_quality = "" if quality == .
+assert data_quality != "" if strpos(sixlet, "ptinc") > 0
+assert data_quality != "" if strpos(sixlet, "diinc") > 0
+assert data_quality != "" if strpos(sixlet, "cainc") > 0
 drop quality 
 drop if mi(sixlet)
 
+replace data_imputation = "region" if inlist(data_quality, "0")
+replace data_imputation = "survey" if inlist(data_quality, "1", "2")
+replace data_imputation = "tax"    if inlist(data_quality, "3", "4")
+replace data_imputation = "full"   if inlist(data_quality, "5")
+
+// Set France to 5 because of the DINA data
+replace data_quality = "5" if data_quality != "" & iso == "FR"
+
+// -------------------------------------------------------------------------- //
+// Add interpolation/extrapolation in Africa
+// -------------------------------------------------------------------------- //
+
+preserve
+
+use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
+
+drop if construction == "Merge"
+drop if construction == "Extrapolated"
+drop if construction == "Interpolation"
+drop if construction == "Imputed"
+drop if construction == ""
+drop construction
+
+drop if inlist(iso, "ZA", "CI")
+
+sort iso year
+by iso: generate j = _n
+reshape wide year, i(iso) j(j)
+
+generate data_points = ""
+foreach v of varlist year* {
+	replace data_points = data_points + "," + string(`v') if !missing(`v') & data_points != ""
+	replace data_points = string(`v')                     if !missing(`v') & data_points == ""
+}
+drop year*
+replace data_points = "[" + data_points + "]"
+generate extrapolation = "[[1980,$pastyear]]"
+
+tempfile africa_extra
+save "`africa_extra'"
+
+restore
+
+merge m:1 iso using "`africa_extra'", nogen
+
+// -------------------------------------------------------------------------- //
 // Add population notes
+// -------------------------------------------------------------------------- //
+
 merge 1:1 iso sixlet using "$work_data/population-metadata.dta", nogenerate update replace
 replace source = source + `"[URL][URL_LINK]https://esa.un.org/unpd/wpp/[/URL_LINK][URL_TEXT]UN World Population Prospects (2015).[/URL_TEXT][/URL]; "' ///
 	if (sixlet == "npopul") & !inlist(substr(iso, 1, 3), "US-")
@@ -28,13 +90,22 @@ replace source = source + ///
 	`"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United Nations National Accounts Main Aggregated Database[/URL_TEXT][/URL]; "' ///
 	if (sixlet == "npopul") & inlist(iso, "RS", "KS", "ZZ", "TZ", "CY")
 
+// -------------------------------------------------------------------------- //
 // Add price index notes
+// -------------------------------------------------------------------------- //
+
 append using "$work_data/price-index-metadata.dta"
 
+// -------------------------------------------------------------------------- //
 // Add PPP notes
+// -------------------------------------------------------------------------- //
+
 append using "$work_data/ppp-metadata.dta"
 
+// -------------------------------------------------------------------------- //
 // Add national accounts notes
+// -------------------------------------------------------------------------- //
+
 generate newobs = 0
 append using "$work_data/na-metadata-no-duplicates.dta"
 replace newobs = 1 if (newobs >= .)
@@ -55,7 +126,10 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
 
+// -------------------------------------------------------------------------- //
 // Add data quality index note
+// -------------------------------------------------------------------------- //
+
 preserve
 import excel "$quality_file", sheet("data") first clear
 keep Code
