@@ -414,6 +414,8 @@ do "$do_dir/clean-up.do"
 // Compute Pareto coefficients
 do "$do_dir/calculate-pareto-coef.do"
 
+// calculate gini coefficients
+do "$do_dir/calculate-gini-coef.do"
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
