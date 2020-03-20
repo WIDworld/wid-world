@@ -14,6 +14,7 @@ report-output/*/*.pdf
 # Office crap
 ~$*
 wid-world.stpr
-*.dta
-*.dta
+
+# Stata files that are too large
+data-input/un-sna/*.dta
 data-input/france-data/france-ggp2017.dta
