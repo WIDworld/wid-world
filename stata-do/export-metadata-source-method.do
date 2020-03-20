@@ -1,4 +1,4 @@
-use "$work_data/add-researchers-data-real-metadata.dta", clear
+use "$work_data/distribute-national-income-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 
@@ -21,6 +21,9 @@ foreach v of varlist data_quality data_imputation data_points extrapolation {
 	drop tmp
 }
 
+// Countries with rescaled fiscal income
+replace data_quality = 3 if method == "Fiscal income rescaled to match the macroeconomic aggregates."
+
 // Add quality from data quality file
 merge m:1 iso using `temp', nogen update noreplace
 replace quality = . if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
@@ -28,19 +31,20 @@ replace quality = data_quality if quality != data_quality & data_quality != .
 replace data_quality = quality if data_quality == .
 tostring data_quality, replace
 replace data_quality = "" if quality == .
-assert data_quality != "" if strpos(sixlet, "ptinc") > 0
-assert data_quality != "" if strpos(sixlet, "diinc") > 0
-assert data_quality != "" if strpos(sixlet, "cainc") > 0
+assert data_quality != "" if strpos(sixlet, "ptinc")
+assert data_quality != "" if strpos(sixlet, "diinc")
+assert data_quality != "" if strpos(sixlet, "cainc")
 drop quality 
 drop if mi(sixlet)
 
 // Set France to 5 because of the DINA data
 replace data_quality = "5" if data_quality != "" & iso == "FR"
 
-replace data_imputation = "region" if inlist(data_quality, "0")
-replace data_imputation = "survey" if inlist(data_quality, "1", "2")
-replace data_imputation = "tax"    if inlist(data_quality, "3", "4")
-replace data_imputation = "full"   if inlist(data_quality, "5")
+replace data_imputation = "region"    if inlist(data_quality, "0")
+replace data_imputation = "survey"    if inlist(data_quality, "1", "2")
+replace data_imputation = "tax"       if inlist(data_quality, "3", "4")
+replace data_imputation = "full"      if inlist(data_quality, "5")
+replace data_imputation = "rescaling" if method == "Fiscal income rescaled to match the macroeconomic aggregates."
 
 // -------------------------------------------------------------------------- //
 // Add interpolation/extrapolation in Africa
@@ -206,6 +210,7 @@ capture mkdir "$output_dir/$time/metadata"
 replace Alpha2="KV" if Alpha2=="KS"
 
 rename data_imputation imputation
+drop if Alpha2 == ""
 
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
 

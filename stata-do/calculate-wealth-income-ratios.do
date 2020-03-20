@@ -4,6 +4,7 @@ keep if inlist(substr(widcode, 1, 6), "mpweal", "mhweal", "miweal", ///
 	"mgweal", "mnweal", "mnninc")
 replace p="pall" if p=="p0p100"
 
+drop currency
 reshape wide value, i(iso year) j(widcode) string
 
 foreach l in n p h i g {
