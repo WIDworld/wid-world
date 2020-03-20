@@ -5,6 +5,9 @@
 
 use "$work_data/distribute-national-income-output.dta", clear
 
+// Do not extrapolate Mauritius (discrepancies too big)
+drop if iso == "MU"
+
 keep if widcode == "sptinc992j" | strpos(widcode, "sfiinc")
 
 // Adjust top shares only
@@ -19,6 +22,13 @@ gduplicates drop iso year p widcode, force
 keep iso year p value widcode
 greshape wide value, i(iso year p) j(widcode) string
 renvars value*, predrop(5)
+
+// Drop fiscal income after we get some pretax (extrapolate into the past only)
+sort iso p year
+by iso p: generate has_pretax = sum(!missing(sptinc992j))
+replace sfiinc992i = . if missing(sptinc992j) & has_pretax
+replace sfiinc992t = . if missing(sptinc992j) & has_pretax
+drop has_pretax
 
 generate source = "sptinc992j" if !missing(sptinc992j)
 

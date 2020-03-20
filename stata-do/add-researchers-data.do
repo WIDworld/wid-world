@@ -57,7 +57,7 @@ foreach x in aptinc992j bptinc992j sptinc992j tptinc992j {
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
 
 // Gini coefficients (Gini_Gethin2018)
-append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
+*append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
 
 // Czech Republic 2018 (Novokmet2018)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
@@ -152,6 +152,7 @@ replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"
 replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + /// 
 	`"[/URL_LINK][URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
 	if iso == "ZA"
+replace method = "" if iso == "ZA"
 	
 // Malaysia 2019 (KY2019)
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
