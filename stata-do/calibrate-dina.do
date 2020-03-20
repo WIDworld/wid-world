@@ -1,5 +1,5 @@
 
-use "$work_data/distribute-national-income-output.dta", clear
+use "$work_data/extrapolate-pretax-income-output.dta", clear
 
 // -----------------------------------------------------------------------------------------------------------------
 // Recompute pre-tax and post-tax averages when there is full DINA data

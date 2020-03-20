@@ -1,4 +1,4 @@
-use "$work_data/distribute-national-income-metadata.dta", clear
+use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 
