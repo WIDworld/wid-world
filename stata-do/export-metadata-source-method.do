@@ -34,13 +34,13 @@ assert data_quality != "" if strpos(sixlet, "cainc") > 0
 drop quality 
 drop if mi(sixlet)
 
+// Set France to 5 because of the DINA data
+replace data_quality = "5" if data_quality != "" & iso == "FR"
+
 replace data_imputation = "region" if inlist(data_quality, "0")
 replace data_imputation = "survey" if inlist(data_quality, "1", "2")
 replace data_imputation = "tax"    if inlist(data_quality, "3", "4")
 replace data_imputation = "full"   if inlist(data_quality, "5")
-
-// Set France to 5 because of the DINA data
-replace data_quality = "5" if data_quality != "" & iso == "FR"
 
 // -------------------------------------------------------------------------- //
 // Add interpolation/extrapolation in Africa
@@ -204,6 +204,8 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 capture mkdir "$output_dir/$time/metadata"
 
 replace Alpha2="KV" if Alpha2=="KS"
+
+rename data_imputation imputation
 
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
 
