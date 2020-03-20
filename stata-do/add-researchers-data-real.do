@@ -25,8 +25,8 @@ append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
 append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
 // Add bcg2020 source to GGP2017
 * Source
-replace source = `"Before 2014, [URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics[/URL_TEXT][/URL]"' +  ///
-`"After 2014, Blanchet, Chancel and Gethin (2020), “Why is Europe more Equal than the United States?”"' ///
+replace source = `"Before 2014, [URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics.[/URL_TEXT][/URL]"' +  ///
+`" After 2014, Blanchet, Chancel and Gethin (2020), “Why is Europe more Equal than the United States?”."' ///
 if (source == "[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics[/URL_TEXT][/URL]" | source == "Blanchet, Chancel and Gethin (2020), “Why is Europe more Equal than the United States?”") & strpos(widcode, "ptinc") & (iso == "FR")
 
 tempfile researchers

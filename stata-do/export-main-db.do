@@ -46,60 +46,12 @@ egen tokeep = rownonmiss(`vars')
 keep if tokeep
 drop tokeep
 
-// Export Europe data - bcg2020
-/*
-preserve 
-keep if inlist(Alpha2,"AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DD")
-tempfile europe1
-save "`europe1'"
+// Export France  data - bcg2020(diinc & ptinc)
+preserve
+keep if Alpha2 == "FR"
+export delimited "$output_dir/$time/wid-FR.csv", delimiter(";") replace
 restore
 
-preserve 
-keep if inlist(Alpha2,"DE", "DK", "EE", "ES", "FI", "GB", "GR", "HR", "HU")
-tempfile europe2
-save "`europe2'"
-	export delimited "$output_dir/$time/wid-eur2.csv", delimiter(";") replace
-restore
-
-preserve 
-keep if inlist(Alpha2,"IE", "IS", "IT", "LT", "LU", "LV", "MD", "ME", "MK")
-tempfile europe3
-save "`europe3'"
-	export delimited "$output_dir/$time/wid-eur3.csv", delimiter(";") replace
-restore
-
-
-preserve 
-keep if inlist(Alpha2,"MT", "NL", "NO", "PL", "PT", "QE", "QE-MER", "QM", "QY")
-tempfile europe4
-save "`europe4'"
-	export delimited "$output_dir/$time/wid-eur4.csv", delimiter(";") replace
-restore
-
-preserve 
-keep if inlist(Alpha2,"RO", "RS", "SE", "SI", "SK")
-tempfile europe5
-save "`europe5'"
-	export delimited "$output_dir/$time/wid-eur5.csv", delimiter(";") replace
-restore
-
-forvalues num = 1/5 {
-	use "`europe`num''", clear
-	export delimited "$output_dir/$time/wid-eur`num'.csv", delimiter(";") replace
-}
-*/
-/*
-use "`europe1'", clear
-append using "`europe2'"
-append using "`europe3'"
-append using "`europe4'"
-append using "`europe5'"
-
-tempfile europe
-save "`europe'"
-
-export delimited "$output_dir/$time/wid-eur.csv", delimiter(";") replace
-*/
 
 // Export South Africa
 /*
