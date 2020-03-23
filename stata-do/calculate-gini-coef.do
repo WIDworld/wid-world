@@ -31,5 +31,10 @@ replace value = 2*value
 // Code as Gini
 replace widcode = "g" + substr(widcode, 2, .)
 
+tempfile gini
+save "`gini'"
 // Save
+use "$work_data/calculate-pareto-coef-output.dta", clear
+append using "`gini'"
+
 save "$work_data/calculate-gini-coef-output.dta", replace

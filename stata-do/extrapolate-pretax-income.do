@@ -16,7 +16,7 @@ generate pnum = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)(p100)?$")
 drop p
 rename pnum p
 
-// Get rid of duplicates that appear because of the reconding of p
+// Get rid of duplicates that appear because of the recoding of p
 gduplicates drop iso year p widcode, force
 
 keep iso year p value widcode
@@ -114,11 +114,13 @@ use "$work_data/distribute-national-income-metadata.dta", clear
 merge n:1 iso using "`meta'", nogenerate 
 
 replace method = rtrim(method)
-replace method = method + ". " + method2 if strpos(sixlet, "ptinc") & method2 != "" & substr(method, -1, .) != "."
-replace method = method + " "  + method2 if strpos(sixlet, "ptinc") & method2 != "" & substr(method, -1, .) == "."
-replace method = method2                 if strpos(sixlet, "ptinc") & method2 != "" & method == ""
+generate newmethod = method
+replace newmethod = method + ". " + method2 if strpos(sixlet, "ptinc") & method2 != "" & substr(method, -1, .) != "." & newmethod != ""
+replace newmethod = method2                 if strpos(sixlet, "ptinc") & method2 != "" & method == ""
+replace method = newmethod 
 
-drop method2
+drop method2 newmethod
+
 
 save "$work_data/extrapolate-pretax-income-metadata.dta", replace
 
