@@ -1,4 +1,4 @@
-import delimited "$wb_data/CPI/API_FP.CPI.TOTL_DS2_en_csv_v2-$pastyear.csv", ///
+import delimited "$wb_data/CPI/API_FP.CPI.TOTL_DS2_en_csv_v2_$pastyear.csv", ///
 	rowrange(3) varnames(4) clear encoding("utf8")
 	
 dropmiss, force
@@ -26,7 +26,6 @@ drop countrycode
 
 // Add currency from the metadata
 merge n:1 countryname using "$work_data/wb-metadata.dta", ///
-	keep(master match) assert(match) nogenerate keepusing(currency)
 	keep(master match)  nogenerate keepusing(currency) // Regions are dropped
 drop countryname
 	

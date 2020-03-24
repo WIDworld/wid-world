@@ -1,6 +1,7 @@
 import delimited "$wb_data/deflator/API_NY.GDP.DEFL.ZS_DS2_en_csv_v2-$pastyear.csv", ///
 	rowrange(3) varnames(4) clear encoding("utf8")
-foreach v of varlist v5-v63 {
+
+foreach v of varlist v5-v64 {
 	local year: var label `v'
 	if ("`year'" == "") {
 		drop `v'
@@ -25,7 +26,6 @@ drop countrycode
 
 // Add currency from the metadata
 merge n:1 countryname using "$work_data/wb-metadata.dta", ///
-	keep(master match) assert(match) nogenerate
 	keep(master match) nogenerate  // Regions are dropped
 drop countryname
 	

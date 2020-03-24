@@ -52,7 +52,7 @@ preserve
 keep if inlist(Alpha2,"AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DD")
 tempfile europe1
 save "`europe1'"
-	export delimited "$output_dir/$time/wid-eur5.csv", delimiter(";") replace
+	export delimited "$output_dir/$time/wid-eur1.csv", delimiter(";") replace
 restore
 
 preserve 

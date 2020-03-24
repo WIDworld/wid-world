@@ -32,7 +32,6 @@ cap drop unit
 rename grossdomesticproduct gdp_usd
 replace gdp_usd = subinstr(gdp_usd, ",", ".", 1)
 destring gdp_usd, replace
-merge 1:1 countryorarea year using "`gdp'", assert(match master) keep(match) nogenerate
 merge 1:1 countryorarea year using "`gdp'", keep(match) nogenerate //Regions are dropped 
 
 drop if currency == "..."

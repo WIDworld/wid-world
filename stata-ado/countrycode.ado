@@ -205,6 +205,7 @@ program countrycode, nclass
 			replace `generate' = "ZM" if (`varlist' == "Zambia")
 			replace `generate' = "GL" if (`varlist' == "Greenland")
 			replace `generate' = "MK" if (`varlist' == "North Macedonia")
+			replace `generate' = "MK" if (`varlist' == "Republic of North Macedonia")
 			replace `generate' = "PY" if (`varlist' == "Paraguay")
 			
 			// WID codes
@@ -367,6 +368,7 @@ program countrycode, nclass
 			replace `generate' = "MG" if (`varlist' == "Madagascar")
 			replace `generate' = "MH" if (`varlist' == "Marshall Islands")
 			replace `generate' = "MK" if (`varlist' == "The former Yugoslav Republic of Macedonia")
+			replace `generate' = "MK" if (`varlist' == "Republic of North Macedonia")
 			replace `generate' = "ML" if (`varlist' == "Mali")
 			replace `generate' = "MM" if (`varlist' == "Myanmar")
 			replace `generate' = "MN" if (`varlist' == "Mongolia")
@@ -1053,6 +1055,7 @@ program countrycode, nclass
 			replace `generate' = "AR" if (`varlist' == "Argentina")
 			replace `generate' = "AT" if (`varlist' == "Austria")
 			replace `generate' = "AU" if (`varlist' == "Australia")
+			replace `generate' = "AW" if (`varlist' == "Aruba")
 			replace `generate' = "AZ" if (`varlist' == "Azerbaijan")
 			replace `generate' = "BA" if (`varlist' == "Bosnia and Herzegovina")
 			replace `generate' = "BB" if (`varlist' == "Barbados")
@@ -1154,6 +1157,7 @@ program countrycode, nclass
 			replace `generate' = "MG" if (`varlist' == "Madagascar")
 			replace `generate' = "MH" if (`varlist' == "Marshall Islands")
 			replace `generate' = "MK" if (`varlist' == "FYR Macedonia")
+			replace `generate' = "MK" if (`varlist' == "North Macedonia")
 			replace `generate' = "ML" if (`varlist' == "Mali")
 			replace `generate' = "MM" if (`varlist' == "Myanmar")
 			replace `generate' = "MN" if (`varlist' == "Mongolia")

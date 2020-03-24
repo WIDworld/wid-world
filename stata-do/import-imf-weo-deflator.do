@@ -15,7 +15,7 @@ foreach v of varlist v* {
 }
 
 keep if weosubjectcode == "NGDP_D"
-drop iso weocountrycode weosubjectcode subjectdescriptor subjectnotes units ///
+drop iso weocountrycode weosubjectcode subjectdescriptor units ///
 	scale countryseriesspecificnotes
 
 /* 
@@ -25,6 +25,8 @@ replace country="São Tomé and Príncipe" if country=="S�o Tom� and Pr�nc
 
 replace country="Côte d'Ivoire" if country=="Cte d'Ivoire"
 replace country="São Tomé and Príncipe" if country=="So Tom and Prncipe"
+replace country = "Swaziland" if country == "Eswatini"
+
 
 countrycode country, generate(iso) from("imf weo")
 drop country
