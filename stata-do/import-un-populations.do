@@ -1,8 +1,11 @@
 *! TB 07/07/2016
 
+*! year(2020) was changed to pastyear(2019) in the import command, bcz there is still no WPP 2020
+* once it is published, we have to switvh back to year 
+
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${year}_totalpopulation_bothsexes.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastyear}_totalpopulation_bothsexes.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -33,7 +36,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${year}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -83,7 +86,7 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${year}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -145,7 +148,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${year}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names

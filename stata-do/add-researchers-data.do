@@ -164,8 +164,8 @@ append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz
 append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
 
 // South Africa 2020 - ccg2020
-append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
-drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
+*append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
+*drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
 
 tempfile researchers
 save "`researchers'"
