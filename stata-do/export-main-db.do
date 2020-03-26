@@ -47,7 +47,7 @@ keep if tokeep
 drop tokeep
 
 // Export Europe
-
+/*
 preserve 
 keep if inlist(Alpha2,"AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DD")
 tempfile europe1
@@ -83,14 +83,14 @@ tempfile europe5
 save "`europe5'"
 	export delimited "$output_dir/$time/wid-eur5.csv", delimiter(";") replace
 restore
-*/
+
 // Export France  data - bcg2020(diinc & ptinc)
 preserve
 keep if Alpha2 == "FR"
 export delimited "$output_dir/$time/wid-FR.csv", delimiter(";") replace
 restore
 
-
+*/
 // Export South Africa
 
 preserve
