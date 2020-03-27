@@ -20,7 +20,7 @@ rename j year
 
 // Identify countries
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
-replace countryname = "Swaziland" if countryname == "Eswatini"
+replace countryname = "Swaziland"      if countryname == "Eswatini"
 countrycode countryname, generate(iso) from("wb")
 drop countrycode
 

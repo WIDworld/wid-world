@@ -1,5 +1,5 @@
-import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2-$pastyear.csv", ///
-	clear encoding("utf8") rowrange(3) varnames(4)
+import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2-2018.csv", ///
+	clear encoding("utf8") rowrange(3) varnames(4) // change back to $pastyear once you start updatn the 2017 PPP
 
 // Rename year variables
 dropmiss, force

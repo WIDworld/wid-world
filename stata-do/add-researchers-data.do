@@ -244,7 +244,7 @@ drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 replace p="pall" if p=="p0p100"
  
 // Drop widcodes from previous ZA to be replaced with ccg2020
-drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
+*drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
  
  
 duplicates tag iso year p widcode, gen(duplicate)

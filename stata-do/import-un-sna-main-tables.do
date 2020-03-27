@@ -40,9 +40,9 @@ replace gdp = subinstr(gdp, ",", ".", 1)
 destring gni gdp, replace
 *confirm numeric variable gni gdp
 
-replace countryorarea = "Côte d'Ivoire" if (countryorarea == "C�te d'Ivoire")
-replace countryorarea = "Curaçao" if (countryorarea == "Cura�ao")
-replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Côte d'Ivoire"  if (countryorarea == "C�te d'Ivoire")
+replace countryorarea = "Curaçao"        if (countryorarea == "Cura�ao")
+replace countryorarea = "Swaziland"      if (countryorarea == "Kingdom of Eswatini")
 replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
 
 

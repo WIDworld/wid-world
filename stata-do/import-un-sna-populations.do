@@ -6,9 +6,9 @@ cap drop unit
 // Identify countries ------------------------------------------------------- //
 
 // Drop regions
-replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
-replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
-replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Côte d'Ivoire"    if (countryorarea=="C�te d'Ivoire")
+replace countryorarea = "Curaçao"          if (countryorarea=="Cura�ao")
+replace countryorarea = "Swaziland"      if (countryorarea == "Kingdom of Eswatini")
 replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
 countrycode countryorarea, generate(iso) from("un sna main")
 drop countryorarea

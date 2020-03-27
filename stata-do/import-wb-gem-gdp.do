@@ -17,15 +17,15 @@ drop countmiss
 
 rename _var1 country
 
-replace country = "Macedonia, FYR" if country == "North Macedonia"
-replace country = "Moldova" if country == "Moldova, Rep."
-replace country = "Egypt, Arab Rep." if country == "Egypt Arab Rep."
+replace country = "Macedonia, FYR"       if country == "North Macedonia"
+replace country = "Moldova".             if country == "Moldova, Rep."
+replace country = "Egypt, Arab Rep."     if country == "Egypt Arab Rep."
 replace country = "Hong Kong SAR, China" if  country == "Hong Kong China"
-replace country = "Iran, Islamic Rep." if  country == "Iran Islamic Rep."
-replace country = "Korea, Rep." if  country == "Korea Rep."
-replace country = "Macedonia, FYR" if  country == "Macedonia FYR"
-replace country = "Slovakia" if  country == "Slovak Republic"
-replace country = "Taiwan, China" if country == "Taiwan China"
+replace country = "Iran, Islamic Rep."   if  country == "Iran Islamic Rep."
+replace country = "Korea, Rep."          if  country == "Korea Rep."
+replace country = "Macedonia, FYR"       if  country == "Macedonia FYR"
+replace country = "Slovakia"             if  country == "Slovak Republic"
+replace country = "Taiwan, China"        if country == "Taiwan China"
 drop if country == "Maldives"
 
 countrycode country, generate(iso) from("wb gem")
