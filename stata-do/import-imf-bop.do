@@ -16,9 +16,9 @@ cap rename countryarea countryorarea
 ren unit currency
 
 // Identify countries
-replace countryorarea="Côte d'Ivoire" if countryorarea=="C�te d'Ivoire"
-replace countryorarea="Curaçao" if countryorarea=="Cura�ao"
-replace countryorarea = "Swaziland" if (countryorarea == "Kingdom of Eswatini")
+replace countryorarea = "Côte d'Ivoire"  if (countryorarea == "C�te d'Ivoire")
+replace countryorarea = "Curaçao"        if (countryorarea == "Cura�ao")
+replace countryorarea = "Swaziland"      if (countryorarea == "Kingdom of Eswatini")
 replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
 countrycode country, generate(iso) from("un sna main")
 
@@ -73,13 +73,15 @@ tempfile gdp_usd
 save "`gdp_usd'"
 	
 // Import BOP data
-import excel "$imf_data/balance-of-payments/primary-income-details.xls", ///
-	clear firstrow
+import delimited "$imf_data/balance-of-payments/primary-income-2019.csv", clear
 renvars, lower
 
 *cap rename ïcountryname countryname
 kountry countrycode, from(imfn) to(iso2c)
+
 rename _ISO2C_ iso
+rename ïcountryname countryname
+
 replace iso = "CW" if (countryname == "Curacao")
 replace iso = "KS" if (countryname == "Kosovo, Republic of")
 replace iso = "RS" if (countryname == "Serbia, Republic of")
@@ -93,6 +95,13 @@ replace iso = "TV" if (countryname == "Tuvalu")
 drop if iso == ""
 drop countrycode countryname
 
+// Calculate Net Indicators
+gen let = substr(indicatorcode, -11, -.)
+gen threelet = substr(let, 1, 3)
+keep if inlist(threelet, "BIP", "PID", "PIO", "PIP", "IPI", "IPO", "PCE") 
+drop if (strpos(indicatorcode, "BMIPIPI") | strpos(indicatorcode, "BXIPIPI"))
+drop let threelet
+
 // Only keep yearly data
 *drop if strpos(timeperiod, "Q") (2018: now time period is numeric and there is no quarterly data)
 *destring timeperiod, replace
@@ -100,6 +109,15 @@ rename timeperiod year
 
 keep iso year value indicatorcode
 reshape wide value, i(iso year) j(indicatorcode) string
+
+foreach var in IPI IPO {
+	gen valueBI`var'_BP6_USD = cond(missing(valueBX`var'_BP6_USD), 0, valueBX`var'_BP6_USD) - cond(missing(valueBM`var'_BP6_USD), 0, valueBM`var'_BP6_USD)
+}
+
+foreach var in PID PIO PIP PCE {
+	gen valueBI`var'_BP6_USD = cond(missing(valueBXI`var'_BP6_USD), 0, valueBXI`var'_BP6_USD) - cond(missing(valueBMI`var'_BP6_USD), 0, valueBMI`var'_BP6_USD)
+}
+
 
 egen valuemprtnx = rowtotal(valueBIPIO_BP6_USD valueBIPIP_BP6_USD)
 generate valuemcomnx = valueBIPCE_BP6_USD

@@ -214,7 +214,7 @@ do "$do_dir/correct-widcodes.do"
 // -------------------------------------------------------------------------- //
 // Preliminary work for external data
 // -------------------------------------------------------------------------- //
-/*
+/
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -313,7 +313,10 @@ do "$do_dir/calculate-cfc.do"
 // -------------------------------------------------------------------------- //
 
 // Import exchange rates from Quandl
-do "$do_dir/import-exchange-rates.do"
+*do "$do_dir/import-exchange-rates.do"
+
+// Import exchange rates from Open Exchange rates
+do "$do_dir/import-exchange-rate-OpenExchgeRate.do"
 
 // Import IMF BOP data
 do "$do_dir/import-imf-bop.do"
