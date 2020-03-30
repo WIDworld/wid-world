@@ -43,7 +43,7 @@ generate notelev = "Piketty and Zucman (2014)" if (year == refyear)
 // Other case: there are no WID values, we use the last value available from
 // Maddison & Wu (China only), the UN, the World Bank or the IMF
 generate gdp_lcu_weo_noest = gdp_lcu_weo if (year < estimatesstartafter)
-foreach v in mw un2 wb weo_noest {
+foreach v in mw wb un2 weo_noest {
 	egen refyear_`v' = lastnm(year) if (gdp_lcu_`v' < .) & !haswid, by(iso)
 	egen refyear_`v'2 = mode(refyear_`v'), by(iso)
 	drop refyear_`v'
@@ -86,7 +86,7 @@ drop gdp_lcu_weo_noest
 
 // Generate growth rates
 sort iso year
-foreach v in wid mw un2 wb {
+foreach v in wid mw wb un2 {
 	by iso: generate growth_`v' = log(gdp_lcu_`v'[_n + 1]) - log(gdp_lcu_`v')
 }
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
@@ -103,7 +103,7 @@ replace growth_weo = . if (year >= estimatesstartafter)
 // Keep preferred growth rate
 generate growth = .
 generate growth_src = ""
-foreach v of varlist growth_wid growth_mw growth_un2 growth_wb growth_un1* ///
+foreach v of varlist growth_wid growth_mw growth_wb growth_un2 growth_un1* ///
 		growth_weo growth_gem growth_weo_forecast {
 	replace growth_src = "`v'" if (growth >= .) & (`v' < .)
 	replace growth = `v' if (growth >= .) & (`v' < .)

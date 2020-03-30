@@ -85,7 +85,7 @@ drop estimatesstartafter
 // Select preferred inflation rates at each year
 generate delta_index = .
 generate index_source = ""
-foreach v of varlist delta_def_arklems delta_def_mw delta_def_east delta_def_wid delta_cpi_wid delta_def_un delta_def_wb ///
+foreach v of varlist delta_def_arklems delta_def_mw delta_def_east delta_def_wid delta_cpi_wid delta_def_wb delta_def_un  ///
 	delta_def_weo delta_def_gem delta_cpi_wb delta_cpi_gfd delta_cpi_fw delta_def_weo_pred {
 
 	replace index_source = "`v'" if (delta_index >= .) & (`v' < .)
@@ -99,7 +99,7 @@ egen firstyear = min(year), by(iso)
 drop if (delta_index >= .) & (year != firstyear)
 
 // Add source for the first year
-foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_un def_wb def_weo def_gem cpi_wb ///
+foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_wb def_un def_weo def_gem cpi_wb ///
 	cpi_gfd cpi_fw {
 
 	replace index_source = "delta_`v'" if (year == firstyear) & (`v' < .) & (index_source == "")
@@ -293,7 +293,7 @@ foreach c of local countrybreak {
 	local maxcat = r(max)
 	forvalues i = 1/`maxcat' {
 		// Find a serie available in both time periods
-		foreach v of varlist def_wid cpi_wid def_un def_wb def_weo cpi_wb cpi_gfd cpi_fw {
+		foreach v of varlist def_wid cpi_wid def_wb def_un def_weo cpi_wb cpi_gfd cpi_fw {
 			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i' - 1)
 			local nnmiss_before = r(N)
 			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i')
