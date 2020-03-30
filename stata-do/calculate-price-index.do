@@ -61,8 +61,8 @@ egen nval = nvals(iso year)
 
 // For China: we only keep the Maddison-Wu data before 1978, and the WID after
 foreach v of varlist cpi_* def_* {
-	replace `v' = . if ("`v'" != "def_mw") & (iso == "CN") & (year < 1978)
-	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year>1979)
+	replace `v' = . if ("`v'" != "def_mw")  & (iso == "CN") & (year < 1978)
+	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year > 1979)
 }
 
 // For Argentine: only keep ARKLEMS data from 1994 to 2013 (same problem)
