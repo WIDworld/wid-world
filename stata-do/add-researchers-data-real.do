@@ -23,11 +23,6 @@ append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
 
 // Europe 2020 - bcg2020
 append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
-// Add bcg2020 source next to GGP2017
-* Source
-replace source = `"Before 2014, [URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics.[/URL_TEXT][/URL]"' +  ///
-`" After 2014, Blanchet, Chancel and Gethin (2020), “Why is Europe more Equal than the United States?”."' ///
-if (source == "[URL][URL_LINK]http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-inequality-dynamics-in-france-1900-2014-evidence-from-distributional-national-accounts-2016/[/URL_LINK][URL_TEXT]Garbinti, Goupille-Lebret and Piketty (2018), Income inequality in France, 1900-2014: Evidence from Distributional National Accounts (DINA), Journal of Public Economics[/URL_TEXT][/URL]" | source == "Blanchet, Chancel and Gethin (2020), “Why is Europe more Equal than the United States?”") & strpos(widcode, "ptinc") & (iso == "FR")
 
 tempfile researchers
 save "`researchers'"
@@ -105,11 +100,6 @@ merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 replace method = "" if method == " "
 replace method = "" if iso == "FR" & substr(sixlet, 2, 5) == "ptinc"
  
-replace source = `"After 1962, [URL][URL_LINK]http://wid.world/document/t-piketty-e-saez-g-zucman-data-appendix-to-distributional-national-accounts-methods-and-estimates-for-the-united-states-2016/[/URL_LINK]"' + ///
-	`"[URL_TEXT]Piketty, Thomas; Saez, Emmanuel and Zucman, Gabriel (2016). Distributional National Accounts: Methods and Estimates for the United States.[/URL_TEXT][/URL]"' + ///
-    `" Before 1962, [URL][URL_LINK]https://wid.world/document/examining-the-great-leveling-new-evidence-on-midcentury-american-inequality/[/URL_LINK]"' + ///
-	`"[URL_TEXT] Fisher-Post, Matthew (2020). Examining the Great Leveling: New Evidence on Midcentury American Inequality.[/URL_TEXT][/URL]"' ///
-	if source == "[URL][URL_LINK]http://wid.world/document/t-piketty-e-saez-g-zucman-data-appendix-to-distributional-national-accounts-methods-and-estimates-for-the-united-states-2016/[/URL_LINK][URL_TEXT]Piketty, Thomas; Saez, Emmanuel and Zucman, Gabriel (2016). Distributional National Accounts: Methods and Estimates for the United States.[/URL_TEXT][/URL]"
  
 gduplicates tag iso sixlet, gen(duplicate)
 assert duplicate==0

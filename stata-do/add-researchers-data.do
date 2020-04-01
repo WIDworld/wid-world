@@ -48,7 +48,6 @@ append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-asso
 append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
 drop if iso == "PL" & year>=1992
 append using "$wid_dir/Country-Updates/Poland/2019_05/poland-novokmet2017-update2019.dta"
-
 foreach x in aptinc992j bptinc992j sptinc992j tptinc992j {
 	replace widcode = substr(widcode, 1, 1) + "fi" + substr(widcode, 4, .) if iso == "PL"
 }
@@ -145,14 +144,7 @@ append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2
 append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
 drop if iso == "EG" & author != "cgm2019"
 drop if iso == "CI" & author == "cgm2019"
-//correct the reference by adding "Cogneau" + source for ZA
-replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
-	`"[/URL_LINK][URL_TEXT]Chancel, Cogneau, Gethin & Myczkowski (2019), How large are African Inequalities? Towards Distributional National Accounts in Africa (1990-2017)[/URL_TEXT][/URL]; "' ///
-	if source == "[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/[/URL_LINK][URL_TEXT]Chancel, Gethin & Myczkowski (2019)[/URL_TEXT][/URL]; "
-replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + /// 
-	`"[/URL_LINK][URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
-	if iso == "ZA"
-replace method = "" if iso == "ZA"
+
 	
 // Malaysia 2019 (KY2019)
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
