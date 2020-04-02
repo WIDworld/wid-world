@@ -6,10 +6,10 @@ merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
 	
 // For Lithuania and Latvia, OECD PPPs are expressed in their old currency
-
+/*
 replace ppp_oecd = ppp_oecd/3.4528 if iso == "LT"
 replace ppp_oecd = ppp_oecd/0.702804 if iso == "LV"
-
+*/ // ! No longer the case, they are now expressed in EUR, with the 2017 PPP update
 
 // Keep OECD in priority
 generate ppp = .
@@ -23,16 +23,16 @@ drop if ppp >= .
 replace ppp_src = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' if (ppp_src == "ppp_wb")
 replace ppp_src = `"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "' if (ppp_src == "ppp_oecd")
 generate ppp_method = "Using the evolution of the price index relative to " + ///
-	"the reference country, we extrapolate the PPP from the 2011 ICP"
+	"the reference country, we extrapolate the PPP from the 2017 ICP". // It was 2011 before!
 
 // Add one data from the IMF for Taiwan (only source available)
 local nobs = _N + 1
 set obs `nobs'
 replace iso = "TW" in l
-replace year = 2011 in l
-replace ppp = 15.112 in l
+replace year = 2017 in l
+replace ppp = 14.7 in l
 replace ppp_method = "Using the evolution of the price index relative to " + ///
-	"the reference country, we extrapolate the PPP of 2011" in l
+	"the reference country, we extrapolate the PPP of 2017" in l
 replace ppp_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
 	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' in l
 
@@ -131,7 +131,7 @@ save "`index'"
 
 // Add Eurozone deflator from Eurostat
 // Fetch Eurozone GDP deflator from Eurostat
-import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-2018.csv", ///
+import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // change back to $pastyear
 drop if na_item!="Gross domestic product at market prices"
 destring value, ignore(":") replace
@@ -162,13 +162,13 @@ egen ppp2 = mode(ppp), by(iso)
 drop ppp
 rename ppp2 ppp
 
-generate factor_2011 = index_us/index if (year == 2011)
-egen factor_2011_2 = mode(factor_2011), by(iso)
-drop factor_2011
-rename factor_2011_2 factor_2011
+generate factor_2017 = index_us/index if (year == 2017)
+egen factor_2017_2 = mode(factor_2017), by(iso)
+drop factor_2017
+rename factor_2017_2 factor_2017
 
-replace ppp = ppp*index/index_us*factor_2011
-drop index index_us factor_2011
+replace ppp = ppp*index/index_us*factor_2017
+drop index index_us factor_2017
 drop if missing(ppp)
 
 
