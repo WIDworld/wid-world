@@ -93,7 +93,7 @@ restore
 */
 
 // Export South Africa
-
+/*
 preserve
 keep if Alpha2 == "ZA"
 export delimited "$output_dir/$time/wid-ZA.csv", delimiter(";") replace
