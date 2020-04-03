@@ -61,16 +61,16 @@ append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-g
 
 // Czech Republic 2018 (Novokmet2018)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
-drop if strpos(widcode, "fiinc") & (substr(widcode, -1, 1) == "i" | substr(widcode, -1, 1) == "t" ) & iso == "CZ" 
+drop if strpos(widcode, "fiinc") & (substr(widcode, -1, 1) == "i" | substr(widcode, -1, 1) == "t" ) & iso == "CZ"
 
 // Poland top shares 2018 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2018/March/poland-topshares-novokmet2017.dta"
 
-// Bulgaria 2018 (Novokmet2018) - fiinc and ptinc have the same values 
+// Bulgaria 2018 (Novokmet2018) - fiinc and ptinc have the same values
 append using "$wid_dir/Country-Updates/Bulgaria/2018/03/bulgaria-novokmet2018.dta"
 drop if iso=="BG" & strpos(widcode,"ptinc")>0
 
-// Slovenia and Croatia 2018 (Novokmet 2018) - fiinc and ptinc have the same values 
+// Slovenia and Croatia 2018 (Novokmet 2018) - fiinc and ptinc have the same values
 append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet2018.dta"
 drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
 drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
@@ -96,7 +96,7 @@ replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
 replace author="bauluz2017" if author=="bauluz2018_corrections"
 
-// Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file 
+// Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
 // US States 2017 (2018 update)
@@ -117,7 +117,7 @@ append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana20
 // Belgium 2019 (Decoster2019)
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
-// Europe 2019 (BCG2019) - it was replaced by BCG2020 in researchers-data-real 
+// Europe 2019 (BCG2019) - it was replaced by BCG2020 in researchers-data-real
 /*
 append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
 drop if iso=="FR" & author=="bcg2019"
@@ -149,11 +149,11 @@ drop if iso == "CI" & author == "cgm2019"
 replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
 	`"[/URL_LINK][URL_TEXT]Chancel, Cogneau, Gethin & Myczkowski (2019), How large are African Inequalities? Towards Distributional National Accounts in Africa (1990-2017)[/URL_TEXT][/URL]; "' ///
 	if source == "[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/[/URL_LINK][URL_TEXT]Chancel, Gethin & Myczkowski (2019)[/URL_TEXT][/URL]; "
-replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + /// 
+replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + ///
 	`"[/URL_LINK][URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
 	if iso == "ZA"
 replace method = "" if iso == "ZA"
-	
+
 // Malaysia 2019 (KY2019)
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
 
@@ -178,14 +178,11 @@ save "`researchers'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method
 order iso sixlet source method
-duplicates drop
+gduplicates drop
 
 drop if sixlet=="npopul" & strpos(source,"chancel")>0
 
-duplicates drop iso sixlet, force
-duplicates tag iso sixlet, gen(dup)
-assert dup==0
-drop dup
+gduplicates drop iso sixlet, force
 
 tempfile meta
 save "`meta'"
@@ -203,7 +200,7 @@ replace oldobs=0 if oldobs!=1
 drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
 
 // Drop old rows available in new data
-duplicates tag iso year p widcode, gen(dup)
+gduplicates tag iso year p widcode, gen(dup)
 drop if dup & oldobs
 
 // US 2017: drop specific widcodes
@@ -217,7 +214,7 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 preserve
 keep if author=="bauluz2017"
 keep iso widcode
-duplicates drop
+gduplicates drop
 gen todrop=1
 tempfile todrop
 save "`todrop'"
@@ -225,7 +222,7 @@ restore
 merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
 drop if todrop==1 & author!="bauluz2017" & !inlist(substr(widcode,1,1),"n","i")
 
-duplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
+gduplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
 drop if usdup & iso=="US" & author!="bauluz2017"
 
 // India 2017: drop duplicates and old fiscal income data
@@ -242,12 +239,8 @@ drop if iso=="KR" & oldobs==1 ///
 drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 
 replace p="pall" if p=="p0p100"
- 
-// Drop widcodes from previous ZA to be replaced with ccg2020
-*drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
- 
- 
-duplicates tag iso year p widcode, gen(duplicate)
+
+gduplicates tag iso year p widcode, gen(duplicate)
 assert duplicate==0
 
 keep iso year p widcode currency value
@@ -266,4 +259,3 @@ merge 1:1 iso sixlet using "`meta'", nogenerate update replace
 
 label data "Generated by add-researchers-data.do"
 save "$work_data/add-researchers-data-metadata.dta", replace
-

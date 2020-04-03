@@ -21,7 +21,11 @@ replace currency = "STD" if currency == "STN" // Quandl does not recognize the n
 // Loop over currencies and get exchange rates from Quandl
 quietly levelsof currency, local(currencies)
 
+quandl, quandlcode(CURRFX/USDEUR) start(2019-01-01) end(2019-12-31) clear
+
+
 local downloadyear $pastyear
+local downloadyear 2019
 foreach CUR of local currencies {
 	// Get data
 	quandl, quandlcode(CURRFX/USD`CUR') start(`downloadyear'-01-01) end(`downloadyear'-12-31) ///

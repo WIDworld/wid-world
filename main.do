@@ -21,7 +21,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 if substr("`c(pwd)'",1,10)=="C:\WINDOWS" | strpos("`c(pwd)'","Gethin")>0{
 	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
 	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"	
+	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"
 }
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
@@ -199,7 +199,7 @@ do "$do_dir/calculate-income-categories.do"
 
 // Calculate o- variables
 do "$do_dir/calculate-average-over.do"
-*/
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -212,21 +212,19 @@ do "$do_dir/add-researchers-data.do"
 do "$do_dir/correct-widcodes.do"
 
 // -------------------------------------------------------------------------- //
-// Preliminary work for external data
+// Import external GDP data
 // -------------------------------------------------------------------------- //
-/*
+
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
-// -------------------------------------------------------------------------- //
-// Import external national accounts data
-// -------------------------------------------------------------------------- //
-
+/*
 // Fetch the UN SNA detailed tables
 do "$do_dir/fetch-un-sna-detailed-tables.do"
 
 // Import the UN SNA detailed tables
 do "$do_dir/import-un-sna-detailed-tables.do"
+*/
 
 // Import the UN SNA summary tables
 do "$do_dir/import-un-sna-main-tables.do"
@@ -294,6 +292,45 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
+
+// -------------------------------------------------------------------------- //
+// Generate data on the decomposition of income
+// -------------------------------------------------------------------------- //
+
+// Import data from UN SNA 1968 archives
+do "$do_dir/import-un-sna68.do"
+do "$do_dir/import-un-sna68-foreign-income.do"
+do "$do_dir/import-un-sna68-government.do"
+do "$do_dir/import-un-sna68-households-npish.do"
+do "$do_dir/import-un-sna68-corporations.do"
+do "$do_dir/combine-un-sna68.do"
+
+// Import data from UN SNA online
+do "$do_dir/import-un-sna-gdp.do"
+do "$do_dir/import-un-sna-national-income.do"
+do "$do_dir/import-un-sna-corporations.do"
+do "$do_dir/import-un-sna-households-npish.do"
+do "$do_dir/import-un-sna-government.do"
+do "$do_dir/combine-un-sna-online.do"
+
+// Import data from OECD
+do "$do_dir/import-oecd-data.do"
+
+// Import data from other sources
+*do "$do_dir/import-un-sna-main-nfi.do"
+do "$do_dir/import-imf-bop.do"
+do "$do_dir/import-fisher-post.do"
+do "$do_dir/import-income-researchers.do"
+do "$do_dir/reformat-wid-data.do"
+
+// Retropolate, combine, impute and calibrate series
+do "$do_dir/retropolate-combine-series.do"
+do "$do_dir/impute-confc.do"
+do "$do_dir/finalize-series.do"
+
+// Perform corrections for tax havens and reinvested earnings on portfolio investment
+do "$do_dir/estimate-tax-haven-income.do"
+do "$do_dir/estimate-reinvested-earnings-portfolio.do"
 
 // -------------------------------------------------------------------------- //
 // Generate harmonized series
@@ -438,8 +475,8 @@ do "$do_dir/export-metadata-other.do"  // the excel file codes dictionnary is no
 do "$do_dir/export-units.do"
 
 // Export the main database
-do "$do_dir/create-main-db.do" 
-do "$do_dir/export-main-db.do" 
+do "$do_dir/create-main-db.do"
+do "$do_dir/export-main-db.do"
 
 // Export the list of countries
 do "$do_dir/export-countries.do"
@@ -488,5 +525,3 @@ foreach cc of local iso_list {
 // -------------------------------------------------------------------------- //
 
 do "$do_dir/create-summary-table.do"
-
-
