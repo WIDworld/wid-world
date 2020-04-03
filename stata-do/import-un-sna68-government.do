@@ -6,9 +6,9 @@ use "$work_data/un-sna68.dta", clear
 
 keep if strpos(table, "104")
 
-replace widcode = "pitax" if itemdescription == "Indirect taxes"
+replace widcode = "tpigo" if itemdescription == "Indirect taxes"
 
-replace widcode = "pisub"   if itemdescription == "Subsidies"
+replace widcode = "spigo"   if itemdescription == "Subsidies"
 
 replace widcode = "prpgo_r" if itemdescription == "Property and entrepreneurial income"
 replace widcode = "prpgo_p" if itemdescription == "Property income"
@@ -31,28 +31,27 @@ greshape wide value, i(iso year series) j(widcode)
 
 renvars value*, predrop(5)
 
-// To many absurd values for CFC
-replace cfcgo = .
-
 replace nsrgo = 0 if missing(nsrgo)
 
 generate prpgo = prpgo_r - prpgo_p
 generate gsrgo = nsrgo + cfcgo
 generate ssbgo = cond(missing(ssbgo_1), 0, ssbgo_1) + cond(missing(ssbgo_2), 0, ssbgo_2)
 
-generate ptaxn = pitax - pisub
+generate ptxgo = tpigo - spigo
+generate taxgo = tiwgo + sscgo
 
-replace savgo = ptaxn + nsrgo + tiwgo + sscgo - ssbgo - congo
+replace savgo = ptxgo + prpgo + nsrgo + tiwgo + sscgo - ssbgo - congo
+generate saggo = savgo + cfcgo
 
-generate prigo = ptaxn + prpgo + nsrgo
-generate prggo = ptaxn + prpgo + gsrgo
+generate prigo = ptxgo + prpgo + nsrgo
+generate prggo = ptxgo + prpgo + gsrgo
 
 generate secgo = prigo + tiwgo + sscgo - ssbgo
 generate seggo = prggo + tiwgo + sscgo - ssbgo
 
-keep iso year series prigo prggo secgo seggo cfcgo gsrgo pisub savgo sscgo tiwgo pitax prpgo nsrgo ssbgo congo ptaxn
+keep iso year series *go
 
-// Most CFC values aberrant
-replace cfcgo = .
+// Absurd values
+drop if iso == "KZ"
 
 save "$work_data/un-sna68-gov.dta", replace

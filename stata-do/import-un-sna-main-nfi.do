@@ -68,7 +68,7 @@ by iso: ipolate nnfin year, gen(nnfin2)
 replace nnfin = nnfin2
 drop nnfin2
 
-generate series = 5000
+generate series = 1
 
 order iso year series nnfin
 

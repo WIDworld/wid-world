@@ -50,6 +50,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\r"{
 global do_dir "$project_dir/stata-do"
 
 // Directory of the ADO files
+clear programs
 global ado_dir "$project_dir/stata-ado"
 sysdir set PERSONAL "$ado_dir" // Add to the ADO path
 

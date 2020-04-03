@@ -144,7 +144,7 @@ do "$do_dir/import-un-populations.do"
 do "$do_dir/import-un-sna-populations.do"
 
 // -------------------------------------------------------------------------- //
-// Import data on the decomposition of income
+// Generate data on the decomposition of income
 // -------------------------------------------------------------------------- //
 
 // Import data from UN SNA 1968 archives
@@ -167,15 +167,20 @@ do "$do_dir/combine-un-sna-online.do"
 do "$do_dir/import-oecd-data.do"
 
 // Import data from other sources
-do "$do_dir/import-un-sna-main-nfi.do"
+*do "$do_dir/import-un-sna-main-nfi.do"
 do "$do_dir/import-imf-bop.do"
 do "$do_dir/import-fisher-post.do"
+do "$do_dir/import-income-researchers.do"
 do "$do_dir/reformat-wid-data.do"
 
 // Retropolate, combine, impute and calibrate series
-
+do "$do_dir/retropolate-combine-series.do"
+do "$do_dir/impute-confc.do"
+do "$do_dir/finalize-series.do"
 
 // Perform corrections for tax havens and reinvested earnings on portfolio investment
+do "$do_dir/estimate-tax-haven-income.do"
+do "$do_dir/estimate-reinvested-earnings-portfolio.do"
 
 // -------------------------------------------------------------------------- //
 // Generate harmonized series

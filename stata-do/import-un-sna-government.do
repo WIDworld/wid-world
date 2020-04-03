@@ -4,14 +4,14 @@
 
 use "$input_data_dir/un-sna/301.dta", clear
 
-merge n:1 country_or_area year series currency using "$work/un-sna-current-gdp.dta", keep(match) nogenerate
+merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
 replace value = value/current_gdp
 drop current_gdp
 
 generate widcode = ""
 
 replace widcode = "gpsgo" if item == "General public services"
-replace widcode = "defog" if item == "Defence"
+replace widcode = "defgo" if item == "Defence"
 replace widcode = "polgo" if item == "Public order and safety"
 replace widcode = "ecogo" if item == "Economic affairs"
 replace widcode = "envgo" if item == "Environment protection"
@@ -20,14 +20,14 @@ replace widcode = "heago" if item == "Health"
 replace widcode = "recgo" if item == "Recreation, culture and religion"
 replace widcode = "edugo" if item == "Education"
 replace widcode = "sopgo" if item == "Social protection"
-replace widcode = "congo" if item == "Equals: General government final consumption expenditure"
+replace widcode = "othgo" if item == "Plus: (Other functions)"
 
 tempfile func
 save "`func'"
 
 use "$input_data_dir/un-sna/405.dta", clear
 
-merge n:1 country_or_area year series currency using "$work/un-sna-current-gdp.dta", keep(match) nogenerate
+merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
 replace value = value/current_gdp
 drop current_gdp
 
@@ -57,26 +57,61 @@ replace widcode = "ssbgo" if item == "Social benefits other than social transfer
 
 replace widcode = "congo" if item == "Final consumption expenditure"
 replace widcode = "indgo" if item == "Individual consumption expenditure"
-replace widcode = "congo" if item == "Collective consumption expenditure"
+replace widcode = "colgo" if item == "Collective consumption expenditure"
 
 append using "`func'"
 
 drop if missing(widcode)
-keep country_or_area year series widcode value
-collapse (mean) value, by(country_or_area year series widcode)
-greshape wide value, i(country_or_area year series) j(widcode)
+foreach v of varlist footnote* {
+	egen tmp = mode(`v'), by(country_or_area series sector widcode)
+	replace `v' = tmp
+	drop tmp
+}
+
+keep country_or_area year series widcode value footnote*
+collapse (mean) value (first) footnote*, by(country_or_area year series widcode)
+greshape wide value footnote*, i(country_or_area year series) j(widcode)
 
 renvars value*, predrop(5)
 
-generate prpgo = cond(missing(prpgo_recv), 0, prpgo_recv) - prpgo_paid
+generate prpgo = prpgo_recv - prpgo_paid
 drop *_recv *_paid
+
+// Operating surplus sometimes recorded net
+replace cfcgo = . if abs(cfcgo) <= 1e-4
+replace gsrgo = . if abs(gsrgo) <= 1e-4
+
+generate is_net = (footnote1gsrgo == "Refers to Net value, i.e. excludes Consumption of fixed capital.")
+replace is_net = 1 if abs(prggo - ptxgo - prpgo) < 1e-5
+
+generate nsrgo = gsrgo        if is_net
+replace gsrgo = gsrgo + cfcgo if is_net
+generate prigo = prggo        if is_net
+replace prggo = prggo + cfcgo if is_net
+
+drop is_net
+
+// In general, net operating surplus = 0
+replace gsrgo = cfcgo if missing(gsrgo)
+replace cfcgo = gsrgo if missing(cfcgo)
+replace nsrgo = gsrgo - cfcgo if missing(nsrgo)
+
+// Data fixes
+replace ptxgo = . if country_or_area == "Namibia" & series == "100" & inrange(year, 1993, 1995)
+replace prggo = . if country_or_area == "China" & series == "100" & inrange(year, 1992, 1994)
 
 generate taxgo = tiwgo + sscgo
 generate seggo = prggo + taxgo - ssbgo
 generate saggo = seggo - congo
 
-generate prigo = prggo - cfcgo
+replace prigo = prggo - cfcgo
 generate secgo = seggo - cfcgo
 generate savgo = saggo - cfcgo
 
+// Governement expenditure by function is a satellite account: calibrate it
+// separately
+// (Greenland is the only very large discrepancy)
+replace othgo = 0 if missing(othgo) & !missing(gpsgo)
+enforce (congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo), fixed(congo) replace
+	
 save "$work_data/un-sna-general-government.dta", replace

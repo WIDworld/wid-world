@@ -103,6 +103,7 @@ merge 1:1 iso year series using "`data'", nogenerate
 
 replace fsubx = 0 if missing(fsubx)
 replace ftaxx = 0 if missing(ftaxx)
+
 generate taxnx = fsubx - ftaxx
 
 generate flcin = finrx - finpx

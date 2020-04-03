@@ -9,7 +9,8 @@ keep if strpos(table, "106")
 tab itemdesc
 
 replace widcode = "comhn" if itemdescription == "Compensation of employees"
-replace widcode = "prphn" if itemdescription == "Property and entrepreneurial income"
+replace widcode = "prphn_recv" if itemdescription == "Property and entrepreneurial income"
+replace widcode = "prphn_paid" if itemdescription == "Property income"
 replace widcode = "nsmhn" if itemdescription == "Operating surplus of private unincorporated enterprises"
 
 replace widcode = "taxhn"       if itemdescription == "Direct taxes and other current transfers n.e.c. to  general government"
@@ -43,7 +44,10 @@ generate ssbhn = ssbhn_secu + ssbhn_assis
 replace ssbhn = ssbhn_all - cond(missing(ssbhn_other), 0, ssbhn_other) if missing(ssbhn)
 drop ssbhn_*
 
-// When they only report "Property and entrepreneurial income", or
+generate prphn = prphn_recv - cond(missing(prphn_paid), 0, prphn_paid)
+drop prphn_*
+
+// In general, when they only report "Property and entrepreneurial income", or
 // "Operating surplus of private unincorporated enterprises" it means
 // they already combine both
 generate caphn = prphn + nsmhn
@@ -54,5 +58,8 @@ replace nsmhn = . if !missing(nsmhn) & missing(prphn)
 
 generate prihn = comhn + caphn
 generate sechn = prihn - taxhn + ssbhn
+generate savhn = sechn - conhn
+
+drop if inlist(iso, "CI")
 
 save "$work_data/un-sna68-households-npish.dta", replace

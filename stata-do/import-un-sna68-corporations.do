@@ -21,6 +21,8 @@ renvars value*, predrop(5)
 generate prpco = prpco_recv - prpco_paid
 drop prpco_recv prpco_paid
 
+generate ssbco = 0 if !missing(taxco)
+generate sscco = 0 if !missing(taxco)
 generate prico = prpco + nsrco
 generate secco = prico - taxco
 

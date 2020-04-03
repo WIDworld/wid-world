@@ -9,7 +9,7 @@ library(glue)
 library(haven)
 library(janitor)
 
-setwd("/Users/thomasblanchet/GitHub/wid-world/data-input/un-data/sna-detailed")
+setwd("/Users/thomasblanchet/GitHub/wid-world/data-input/un-sna")
 
 # List of table names on the UN website
 table_names <- c(
@@ -93,11 +93,30 @@ for (i in 1:n_tables) {
         )))
 
         if (nrow(data) > 0) {
-            # Remove footnotes in columns
-            data %<>% select(-starts_with("Value Footnotes"))
-            # Remove footnotes in rows
+            # Find rows with footnotes
             data$is_footnote <- cumsum(data[, 1] == "footnote_SeqID")
+
+            footnotes <- data %>% filter(is_footnote == 1)
+            footnotes <- footnotes[2:nrow(footnotes), 1:2]
+            colnames(footnotes) <- c("footnote_id", "footnote")
+
+            # Remove footnotes in main table
             data %<>% filter(!is_footnote) %>% select(-is_footnote)
+            # Merge to specific rows
+            data_footnotes <- data %>% pull(`Value Footnotes`) %>% strsplit(split = ",", fixed = TRUE)
+
+            for (i in 1:nrow(data)) {
+                if (!is.na(data_footnotes[i])) {
+                    j <- 1
+                    for (id in unlist(data_footnotes[i])) {
+                        if (nrow(footnotes[footnotes$footnote_id == id, "footnote"]) == 1) {
+                            data[i, paste0("footnote", j)] <- footnotes[footnotes$footnote_id == id, "footnote"]
+                            j <- j + 1
+                        }
+                    }
+                }
+            }
+            data %<>% select(-starts_with("Value Footnotes"))
 
             # Add the the rest
             table <- bind_rows(table, data)

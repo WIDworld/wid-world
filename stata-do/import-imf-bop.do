@@ -121,22 +121,26 @@ foreach v of local varlist {
 drop gdp
 generate series = 6000
 
-// Rectangularize panel
-fillin iso series year
-drop _fillin
-
-// Interpolate in gaps
-sort iso series year
-ds iso year series, not
-local varlist = r(varlist)
-foreach v of varlist `varlist' {
-	by iso series: ipolate `v' year, gen(interp)
-	replace `v' = interp
-	drop interp
-}
-
+// Foreign income
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		(pinnx = fdinx + ptfnx) ///
+		(pinpx = fdipx + ptfpx) ///
+		(pinrx = fdirx + ptfrx) ///
+		(fdinx = fdirx - fdipx) ///
+		(ptfnx = ptfrx - ptfpx), fixed(nnfin) replace
+		
 save "$work_data/imf-foreign-income.dta", replace
 
+/*
 // -------------------------------------------------------------------------- //
 // Redistribute missing portfolio income
 // -------------------------------------------------------------------------- //
