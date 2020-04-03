@@ -18,3 +18,6 @@ wid-world.stpr
 # Stata files that are too large
 data-input/un-sna/*.dta
 data-input/france-data/france-ggp2017.dta
+*.dta
+data-input/oecd-data/national-accounts/SNA_TABLE14A_06032020123612266.csv
+data-input/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_10032020180957562.csv
