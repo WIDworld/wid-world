@@ -103,6 +103,8 @@ use "$work_data/distribute-national-income-output.dta", clear
 
 merge 1:1 iso year p widcode using "`data'", update noreplace nogenerate
 
+sort iso year p 
+
 save "$work_data/extrapolate-pretax-income-output.dta", replace
 
 // -------------------------------------------------------------------------- //
