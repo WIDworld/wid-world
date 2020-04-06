@@ -26,8 +26,8 @@ preserve
 	drop num
 
 	gen pop=0.01 if inrange(p,0,98000)
-	replace pop=0.001 if inrange(p,99000,99800)
-	replace pop=0.0001 if inrange(p,99900,99980)
+	replace pop=0.001   if inrange(p,99000,99800)
+	replace pop=0.0001  if inrange(p,99900,99980)
 	replace pop=0.00001 if p>99980
 	gen prod=pop*value
 	bys iso year: egen tot=sum(prod)
@@ -51,8 +51,8 @@ preserve
 	drop num
 
 	gen pop=0.01 if inrange(p,0,98000)
-	replace pop=0.001 if inrange(p,99000,99800)
-	replace pop=0.0001 if inrange(p,99900,99980)
+	replace pop=0.001   if inrange(p,99000,99800)
+	replace pop=0.0001  if inrange(p,99900,99980)
 	replace pop=0.00001 if p>99980
 	gen prod=pop*value
 	bys iso year: egen tot=sum(prod)
@@ -68,7 +68,8 @@ restore
 }
 
 // Replace these values in data
-use "$work_data/distribute-national-income-output.dta", clear
+*use "$work_data/distribute-national-income-output.dta", clear
+use "$work_data/extrapolate-pretax-income-output.dta", clear
 append using "`ptinc'"
 cap append using "`diinc'"
 duplicates tag iso year p widcode, gen(dup)
@@ -106,7 +107,8 @@ tempfile coef
 save "`coef'"
 
 // Calibrate series
-use "$work_data/distribute-national-income-output.dta", clear
+*use "$work_data/distribute-national-income-output.dta", clear
+use "$work_data/extrapolate-pretax-income-output.dta", clear
 merge n:1 iso year using "`coef'", nogenerate
 
 replace value = value*coefptinc if inlist(substr(widcode,1,6),"aptinc","optinc","tptinc","mptinc") ///
