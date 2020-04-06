@@ -104,6 +104,7 @@ drop nb_gperc
 
 // Compute percentiles shares
 drop if p_max!=100000
+drop if  iso == "NL" & p == "p99.75p100" 
 qui tab p
 assert r(r)==127
 sort iso year widcode p_min
