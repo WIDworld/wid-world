@@ -7,156 +7,6 @@
 // -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
-// Setting up environment: data path, etc.
-// -------------------------------------------------------------------------- //
-
-clear all
-
-// Directory (Gethin / Blanchet / Myczkowski)
-if substr("`c(pwd)'",1,10)=="C:\Users\A"{
-	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
-	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.4.1\bin\i386/R.exe"
-}
-if substr("`c(pwd)'",1,10)=="C:\WINDOWS" | strpos("`c(pwd)'","Gethin")>0{
-	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
-	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"
-}
-if substr("`c(pwd)'",1,10)=="/Users/tho"{
-	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
-	global project_dir "~/GitHub/wid-world"
-	global r_dir "/usr/local/bin/R"
-}
-if substr("`c(pwd)'",1,8)=="/Volumes"{
-	global wid_dir "/Volumes/Hard Drive/Users/Georges/Dropbox/W2ID"
-	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
-	global r_dir "/usr/local/bin/R"
-}
-if substr("`c(pwd)'",1,10)=="/Users/ali"{
-	global wid_dir "/Users/alixmyczkowski/Dropbox/W2ID"
-	global project_dir "/Users/alixmyczkowski/Documents/GitHub/wid-world"
-	global r_dir "/usr/local/bin/R"
-}
-if substr("`c(pwd)'",1,10)=="C:\Users\r"{
-	global wid_dir "C:/Users/r.khaled/Dropbox/W2ID"
-	global project_dir "C:/Users/r.khaled/Documents/GitHub/wid-world"
-}
-if substr("`c(pwd)'",1,10)=="/Users/rowaidakhaled"{
-	global wid_dir "/Users/rowaidakhaled/Dropbox/W2ID"
-	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
-}
-
-
-// WID folder directory
-*global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
-*global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
-*global wid_dir "/Users/iLucas/Dropbox/WID" // Lucas Chancel
-*global wid_dir "/Users/gzucman/Dropbox/WID" // Gabriel Zucman
-
-// Project directory
-*global project_dir "~/GitHub/wid-world" // macOS, Unix
-*global project_dir "C:/Users/Amory/Documents/GitHub/wid-world" // AG (Windows)
-
-// Directory of the DO files
-global do_dir "$project_dir/stata-do"
-
-// Directory of the ADO files
-global ado_dir "$project_dir/stata-ado"
-sysdir set PERSONAL "$ado_dir" // Add to the ADO path
-
-// Location of the codes dictionnary file
-global codes_dictionary "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx"
-
-// External data sources
-global input_data_dir "$project_dir/data-input"
-
-global wtid_data         "$input_data_dir/wtid-data"
-global un_data           "$input_data_dir/un-data"
-global oecd_data         "$input_data_dir/oecd-data"
-global wb_data           "$input_data_dir/wb-data"
-global imf_data          "$input_data_dir/imf-data"
-global gfd_data          "$input_data_dir/gfd-data"
-global fw_data           "$input_data_dir/fw-data"
-global std_data          "$input_data_dir/std-codes"
-global maddison_data     "$input_data_dir/maddison-data"
-global eastern_bloc_data "$input_data_dir/eastern-bloc-data"
-global eurostat_data     "$input_data_dir/eurostat-data"
-global argentina_data    "$input_data_dir/argentina-data"
-global east_germany_data "$input_data_dir/east-germany-data"
-global zucman_data       "$input_data_dir/missing-wealth"
-global france_data       "$input_data_dir/france-data"
-global us_data           "$input_data_dir/us-data"
-global us_states_data    "$input_data_dir/us-states-data"
-global china_pyz_data    "$input_data_dir/china-pyz-data"
-global uk_data 			 "$input_data_dir/uk-data"
-
-// Files to helps matching countries & currencies between the different sources
-global country_codes  "$input_data_dir/country-codes"
-global currency_codes "$input_data_dir/currency-codes"
-
-// Directory with intermediairy data files (not synced to GitHub)
-global work_data "$project_dir/work-data"
-
-// Directory with reports from the programs
-global report_output "$wid_dir/WIDGraphsTables"
-
-// Directory with the output
-global output_dir "$wid_dir/WIDData"
-
-// Old version directory to compare with udpated database
-global olddate 21_May_2019_09_27_03
-global oldoutput_dir "$output_dir/$olddate"
-
-// Directory with the summary table
-global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
-
-// Directory of the data availability quality index
-global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-final.xlsx"
-
-// Store date and time in a global macro to timestamp the output
-local c_date = c(current_date)
-local c_time = c(current_time)
-local c_time_date = "`c_date'"+"_" +"`c_time'"
-local time_string = subinstr("`c_time_date'", ":", "_", .)
-local time_string = subinstr("`time_string'", " ", "_", .)
-global time "`time_string'"
-
-// Store current and past years and to update WEO source and commands
-global year 2020 // this year matches WEO source in calculate-price-index
-				 // and calculate-national-accounts
-global pastyear 2019 // this year matches commands in gdp-vs-nni,
-					 // import-exchange-rates, aggregate-regions, impute-cfc,
-					 // and other do-files
-
-// Global macros to switch on/off some parts of the code (1=on, 0=off)
-global plot_missing_nfi    0
-global plot_nfi_countries  0
-global plot_imputation_cfc 0
-global export_with_labels  0
-
-// World summary table in market exchange rate (1) or PPP (0)
-global world_summary_market 1
-
-// -------------------------------------------------------------------------- //
-// Update Stata and install specific commands
-// -------------------------------------------------------------------------- //
-
-// Required ADO files
-/*
-*update all
-ssc install kountry
-ssc install coefplot
-ssc install sxpose
-ssc install egenmore
-ssc install carryforward
-ssc install quandl
-*/
-
-// You need to update Stata to the 14 version
-*version 14
-
-// -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
 
@@ -218,14 +68,6 @@ do "$do_dir/correct-widcodes.do"
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
-/*
-// Fetch the UN SNA detailed tables
-do "$do_dir/fetch-un-sna-detailed-tables.do"
-
-// Import the UN SNA detailed tables
-do "$do_dir/import-un-sna-detailed-tables.do"
-*/
-
 // Import the UN SNA summary tables
 do "$do_dir/import-un-sna-main-tables.do"
 
@@ -281,6 +123,9 @@ do "$do_dir/import-arklems-deflator.do"
 // Import deflator for former socialist economies
 do "$do_dir/import-eastern-bloc-deflator.do"
 
+// Import exchange rates from Open Exchange rates
+do "$do_dir/import-exchange-rate.do"
+
 // -------------------------------------------------------------------------- //
 // Import external population data
 // -------------------------------------------------------------------------- //
@@ -292,6 +137,32 @@ do "$do_dir/import-un-populations.do"
 // but has data for some countries that is missing from the World Population
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
+
+// Calculate the population series
+do "$do_dir/calculate-populations.do"
+
+// -------------------------------------------------------------------------- //
+// Generate harmonized series for GDP and deflators
+// -------------------------------------------------------------------------- //
+
+// Price index
+do "$do_dir/calculate-price-index.do"
+
+// GDP
+do "$do_dir/calculate-gdp.do"
+
+// -------------------------------------------------------------------------- //
+// Calculate PPPs
+// -------------------------------------------------------------------------- //
+
+// Import Purchasing Power Parities from the OECD
+do "$do_dir/import-ppp-oecd.do"
+
+// Import Purchasing Power Parities from the World Bank
+do "$do_dir/import-ppp-wb.do"
+
+// Combine and extrapolate PPPs
+do "$do_dir/calculate-ppp.do"
 
 // -------------------------------------------------------------------------- //
 // Generate data on the decomposition of income
@@ -317,9 +188,7 @@ do "$do_dir/combine-un-sna-online.do"
 do "$do_dir/import-oecd-data.do"
 
 // Import data from other sources
-*do "$do_dir/import-un-sna-main-nfi.do"
 do "$do_dir/import-imf-bop.do"
-do "$do_dir/import-fisher-post.do"
 do "$do_dir/import-income-researchers.do"
 do "$do_dir/reformat-wid-data.do"
 
@@ -331,78 +200,20 @@ do "$do_dir/finalize-series.do"
 // Perform corrections for tax havens and reinvested earnings on portfolio investment
 do "$do_dir/estimate-tax-haven-income.do"
 do "$do_dir/estimate-reinvested-earnings-portfolio.do"
+do "$do_dir/adjust-series.do"
+
+// Combine decomposition with totals
+do "$do_dir/calculate-national-accounts.do"
 
 // -------------------------------------------------------------------------- //
-// Generate harmonized series
+// Add PPP/exchange rates to the database
 // -------------------------------------------------------------------------- //
 
-// Price index
-do "$do_dir/calculate-price-index.do"
-
-// GDP
-do "$do_dir/calculate-gdp.do"
-
-// CFC
-do "$do_dir/calculate-cfc.do"
-
-// -------------------------------------------------------------------------- //
-// Generate NFI series with correction for the "missing wealth" (tax havens)
-// -------------------------------------------------------------------------- //
-
-// Import exchange rates from Quandl
-*do "$do_dir/import-exchange-rates.do"
-
-// Import exchange rates from Open Exchange rates
-do "$do_dir/import-exchange-rate-OpenExchgeRate.do"
-
-// Import IMF BOP data
-do "$do_dir/import-imf-bop.do"
-
-// NFI and its subcomponents
-do "$do_dir/calculate-nfi.do"
-
-// -------------------------------------------------------------------------- //
-// Calculate PPPs
-// -------------------------------------------------------------------------- //
-
-// Import Purchasing Power Parities from the OECD
-do "$do_dir/import-ppp-oecd.do"
-
-// Import Purchasing Power Parities from the World Bank
-do "$do_dir/import-ppp-wb.do"
-
-// Combine and extrapolate PPPs
-do "$do_dir/calculate-ppp.do"
-*/
 // Add to the database
 do "$do_dir/add-ppp.do"
 
-// -------------------------------------------------------------------------- //
-// Add the exchange rates to the database
-// -------------------------------------------------------------------------- //
-
 // Add market exchange rates in 2018
 do "$do_dir/add-exchange-rates.do"
-
-// -------------------------------------------------------------------------- //
-// Combine all the external information on population
-// -------------------------------------------------------------------------- //
-
-// Calculate the population series
-do "$do_dir/calculate-populations.do"
-
-// -------------------------------------------------------------------------- //
-// Impute CFC series
-// -------------------------------------------------------------------------- //
-
-do "$do_dir/impute-cfc.do"
-
-// -------------------------------------------------------------------------- //
-// Generate national accounts (GDP, CFC, NFI, NNI, NDP) series
-// -------------------------------------------------------------------------- //
-
-// Calculate the national accounts series
-do "$do_dir/calculate-national-accounts.do"
 
 // -------------------------------------------------------------------------- //
 // Incorporate the external info to the WID

@@ -72,11 +72,25 @@ enforce (comnx = comrx - compx) ///
 		(flcip = compx + pinpx), fixed(nnfin) replace
 		
 // Gross national income of the different sectors of the economy
-// (+ property income)
+// (+ specific income components)
 enforce (gdpro + nnfin = prghn + prgco + prggo) ///
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
 		(pinnx = prphn + prpco + prpgo) ///
 		(prphn = prpho + prpnp) ///
-		(prpco = prpfc + prpnf), fixed(gdpro nnfin pinnx) replace
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp), fixed(gdpro nnfin pinnx) replace
 
 // Consumption of fixed capital
 enforce (confc = cfchn + cfcco + cfcgo), fixed(confc) replace
@@ -206,48 +220,3 @@ enforce ///
 generate fkpin = prphn + prico + nsrhn + prpgo
 		
 save "$work_data/un-sna-full.dta", replace
-
-br iso series year cfcgo prggo prigo if iso == "IT"
-
-/*
-
-generate surplus = gsrco + gsrhn + gsrgo
-
-foreach v in co hn go {
-	gen share_gsr`v' = gsr`v'/surplus
-	gen share_cfc`v' = cfc`v'/confc
-}
-/*
-keep iso year series share_*
-reshape long share_gsr share_cfc, i(iso year series) j(sector) string
-
-gr tw (sc share_cfc share_gsr) (lfit share_cfc share_gsr, estopts(cons)) if inrange(share_gsr, -5, 5) & inrange(share_cfc, -5, 5), yscale(range(-5 5)) xscale(range(-5 5))
-
-exit 0
-*/
-gen gmean_cfc = (share_cfcco*share_cfchn*share_cfcgo)^(1/3)
-gen gmean_gsr = (share_gsrco*share_gsrhn*share_gsrgo)^(1/3)
-
-foreach v in co hn go {
-	gen clr_gsr`v' = log(share_gsr`v'/gmean_gsr)
-	gen clr_cfc`v' = log(share_cfc`v'/gmean_cfc)
-}
-
-keep iso year series clr_*
-reshape long clr_gsr clr_cfc, i(iso year series) j(sector) string
-
-gr tw (sc clr_cfc clr_gsr) (lfit clr_cfc clr_gsr, estopts(cons)) if inrange(clr_gsr, -5, 5) & inrange(clr_cfc, -5, 5), yscale(range(-5 5)) xscale(range(-5 5))
-reg clr_cfc c.clr_gsr#i.iso, nocons
-reg clr_cfc clr_gsr
-
-exit 0
-
-gr tw (sc clr_cfcco clr_gsrco) (sc clr_cfchn clr_gsrhn) (sc clr_cfcgo clr_gsrgo) if inrange(clr_cfcco, -5, 5) & inrange(clr_cfchn, -5, 5) & inrange(clr_cfcgo, -5, 5)
-
-gen x = cfcco/confc
-gen y = gsrco/()
-
-gr tw (scatter x y) (lfit x y), xscale(range(0 1)) yscale(range(0 1))
-
-reg x y
-*/

@@ -13,7 +13,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\A"{
 if substr("`c(pwd)'",1,10)=="C:\WINDOWS" | strpos("`c(pwd)'","Gethin")>0{
 	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
 	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"	
+	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"
 }
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
@@ -34,6 +34,10 @@ if substr("`c(pwd)'",1,10)=="C:\Users\r"{
 	global wid_dir "C:/Users/r.khaled/Dropbox/W2ID"
 	global project_dir "C:/Users/r.khaled/Documents/GitHub/wid-world"
 }
+if substr("`c(pwd)'",1,10)=="/Users/rowaidakhaled"{
+	global wid_dir "/Users/rowaidakhaled/Dropbox/W2ID"
+	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
+}
 
 
 // WID folder directory
@@ -50,7 +54,6 @@ if substr("`c(pwd)'",1,10)=="C:\Users\r"{
 global do_dir "$project_dir/stata-do"
 
 // Directory of the ADO files
-clear programs
 global ado_dir "$project_dir/stata-ado"
 sysdir set PERSONAL "$ado_dir" // Add to the ADO path
 
@@ -112,9 +115,9 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2019 // this year matches WEO source in calculate-price-index
+global year 2020 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2018 // this year matches commands in gdp-vs-nni,
+global pastyear 2019 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 
@@ -143,4 +146,4 @@ ssc install quandl
 */
 
 // You need to update Stata to the 14 version
-version 14
+*version 14

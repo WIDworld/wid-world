@@ -55,6 +55,14 @@ use "$work_data/imf-usd.dta", clear
 
 collapse (sum) ptfnx, by(year)
 
+replace ptfnx = . if year < 1980 
+drop if year < 1970
+replace ptfnx = 0 if year == 1970
+
+ipolate ptfnx year, gen(i)
+replace ptfnx = i
+drop i
+
 // Remove last year for which information is too incomplete
 sort year
 replace ptfnx = ptfnx[_N - 1] if _n == _N
@@ -98,9 +106,9 @@ replace ptfhr = ptfhr/gdp
 
 keep year iso ptfhr
 
-keep if inrange(year, 1970, 2018)
-expand 2 if year == 2018, gen(new)
-replace year = 2019 if new
+keep if inrange(year, 1970, $pastyear - 1)
+expand 2 if year == $pastyear - 1, gen(new)
+replace year = $pastyear if new
 drop new
 sort iso year
 

@@ -115,13 +115,3 @@ foreach v of varlist gsrco nsrco {
 }
 		
 save "$work_data/un-sna-corporations.dta", replace
-
-
-gen x = abs(prpco + gsrco - prgco)
-
-gsort -x
-br
-
-
-
-

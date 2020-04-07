@@ -53,6 +53,10 @@ egen ssb = rowtotal(ssc_recv ssb_recv), missing
 drop *_paid *_recv
 
 // Data fixes
+drop if country_or_area == "Sweden" & series == "200"
+drop if country_or_area == "Poland" & series == "200" & year == 1995
+
+
 replace gsr = gmx + gsr if country_or_area == "Australia" & inrange(year, 1959, 1964) & inlist(series, "100", "200") & sector == "hn"
 replace gsr = gsr - gmx if country_or_area == "Azerbaijan" & inlist(series, "200", "300") & sector == "ho"
 
@@ -122,6 +126,7 @@ replace nsm = nsr + nmx if missing(nsm)
 replace nsm = gsm - cfc if missing(nsm)
 
 replace ssb = . if country_or_area == "France" & series == "200" & sector == "hn"
+replace ssb = . if country_or_area == "Australia" & series == "1000" & sector == "hn" & year >= 1995
 
 generate seg = prg - tiw - ssc + ssb
 generate tax = ssc + tiw

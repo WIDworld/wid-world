@@ -8,8 +8,6 @@ merge n:1 country_or_area year series currency using "$work_data/un-sna-current-
 replace value = value/current_gdp
 drop current_gdp
 
-br if strpos(lower(footnote1), "includes taxes less subsidies")
-
 generate widcode = ""
 replace widcode = "confc" if item == "Less: Consumption of fixed capital"
 

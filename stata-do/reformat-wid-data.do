@@ -21,3 +21,12 @@ keep iso year confc nnfin
 generate series = 200000
 
 save "$work_data/sna-wid.dta", replace
+
+use "$work_data/correct-widcodes-metadata.dta", clear
+
+keep if inlist(sixlet, "mconfc", "mnnfin")
+
+generate widcode = substr(sixlet, 2, 5)
+drop sixlet
+
+save "$work_data/sna-wid-metadata.dta", replace

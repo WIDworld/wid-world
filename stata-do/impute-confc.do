@@ -22,19 +22,31 @@ rename value pop
 tempfile pop
 save "`pop'"
 
-use "$work_data/gdp.dta", clear
-merge 1:1 iso year using "$work_data/cfc.dta", nogenerate
-merge 1:1 iso year using "$work_data/nfi.dta", nogenerate
-
-merge n:1 iso using "`ppp'", keep(master match) nogenerate
-merge n:1 iso year using "`pop'", keep(master match) nogenerate
-
 // GDP
 use "$work_data/gdp.dta", clear
 merge 1:1 iso year using "$work_data/sna-combined.dta", keep(master match) keepusing(confc series_confc) nogenerate
 
 merge n:1 iso using "`ppp'", keep(master match) nogenerate
 merge n:1 iso year using "`pop'", keep(master match) nogenerate
+
+// Simple imputation based on countries with same currency for missin PPPs
+gegen ppp2 = median(ppp), by(currency)
+replace ppp = ppp2 if mi(ppp)
+drop ppp
+
+// Last resort: use exchange rate
+preserve
+	use "$work_data/exchange-rates.dta", clear
+	keep if year == $pastyear & widcode == "xlcusx999i"
+	rename value mer
+	collapse (mean) mer, by(currency)
+	tempfile mer
+	save "`mer'"
+restore
+
+merge n:1 currency using "`mer'", nogenerate keep(master match)
+replace ppp = mer if mi(ppp)
+assert !missing(ppp)
 
 // We smooth the GDP variable using Hodrick-Prescott filter so that the
 // imputation is not affected by short-term fluctuations
@@ -227,6 +239,8 @@ decode2 iso
 
 keep iso year confc series_confc
 
+keep if !missing(confc)
+
 save "$work_data/confc-imputed.dta", replace
 
 // -------------------------------------------------------------------------- //
@@ -238,7 +252,352 @@ drop confc
 
 merge 1:1 iso year using "$work_data/confc-imputed.dta", nogenerate
 
+// -------------------------------------------------------------------------- //
 // Start with CFC of the government sector
+// -------------------------------------------------------------------------- //
+
+replace cfcgo = gsrgo if missing(cfcgo)
+
+// Countries with cfcgo too high vs. confc: top-code cfcgo at 75% of total CFC
+generate flag = (cfcgo >= 0.75*confc) & !missing(cfcgo)
+
+generate old_cfcgo = max(cfcgo, 0)
+replace cfcgo = 0.75/(1 - 0.75)*(confc - old_cfcgo) if flag
+
+replace nsrgo = 0                         if flag
+replace gsrgo = cfcgo                     if flag
+replace confc = confc - old_cfcgo + cfcgo if flag
+replace gdpro = gdpro - old_cfcgo + cfcgo if flag
+replace prggo = prggo - old_cfcgo + cfcgo if flag
+replace seggo = seggo - old_cfcgo + cfcgo if flag
+replace saggo = saggo - old_cfcgo + cfcgo if flag
+generate gdpro_cal = 1
+drop old_cfcgo
+
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		///  Gross national income of the different sectors of the economy
+		(gdpro + nnfin = prghn + prgco + prggo) ///
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
+		(pinnx = prphn + prpco + prpgo) ///
+		(prphn = prpho + prpnp) ///
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp) ///
+		/// Consumption of fixed capital
+		(confc = cfchn + cfcco + cfcgo) ///
+		/// Household + NPISH sector
+		(prghn = comhn + caghn) ///
+		(caghn = gsmhn + prphn) ///
+		(caphn = nsmhn + prphn) ///
+		(nsmhn = gsmhn - cfchn) ///
+		(nsrhn = gsrhn - ccshn) ///
+		(nmxhn = gmxhn - ccmhn) ///
+		(cfchn = ccshn + ccmhn) ///
+		(prihn = prghn - cfchn) ///
+		(nsmhn = nmxhn + nsrhn) ///
+		(gsmhn = gmxhn + gsrhn) ///
+		(seghn = prghn - taxhn + ssbhn) ///
+		(taxhn = tiwhn + sschn) ///
+		(seghn = sechn + cfchn) ///
+		(saghn = seghn - conhn) ///
+		(saghn = savhn + cfchn) ///
+		/// Households
+        (prgho = comho + cagho) ///
+		(cagho = gsmho + prpho) ///
+		(capho = nsmho + prpho) ///
+		(nsmho = gsmho - cfcho) ///
+		(nsrho = gsrho - ccsho) ///
+		(nmxho = gmxho - ccmho) ///
+		(cfcho = ccsho + ccmho) ///
+		(priho = prgho - cfcho) ///
+		(nsmho = nmxho + nsrho) ///
+		(gsmho = gmxho + gsrho) ///
+		(segho = prgho - taxho + ssbho) ///
+		(taxho = tiwho + sscho) ///
+		(segho = secho + cfcho) ///
+		(sagho = segho - conho) ///
+		(sagho = savho + cfcho) ///
+		/// NPISH
+        (prgnp = comnp + cagnp) ///
+		(cagnp = gsrnp + prpnp) ///
+		(capnp = nsrnp + prpnp) ///
+		(nsrnp = gsrnp - cfcnp) ///
+		(prinp = prgnp - cfcnp) ///
+		(segnp = prgnp - taxnp + ssbnp) ///
+		(taxnp = tiwnp + sscnp) ///
+		(segnp = secnp + cfcnp) ///
+		(sagnp = segnp - connp) ///
+		(sagnp = savnp + cfcnp) ///
+		/// Combination of sectors
+		(prihn = priho + prinp) ///
+		(comhn = comho + comnp) ///
+		(prphn = prpho + prpnp) ///
+		(caphn = capho + capnp) ///
+		(caghn = cagho + cagnp) ///
+		(nsmhn = nsmho + nsrnp) ///
+		(gsmhn = gsmho + gsrnp) ///
+		(gsrhn = gsrho + gsrnp) ///
+		(gmxhn = gmxho) ///
+		(cfchn = cfcho + cfcnp) ///
+		(ccshn = ccsho + cfcnp) ///
+		(ccmhn = ccmho) ///
+		(sechn = secho + secnp) ///
+		(taxhn = taxho + taxnp) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(sschn = sscho + sscnp) ///
+		(ssbhn = ssbho + ssbnp) ///
+		(seghn = segho + segnp) ///
+		(savhn = savho + savnp) ///
+		(saghn = sagho + sagnp) ///
+		/// Corporate sector
+		/// Combined sectors, primary income
+		(prgco = prpco + gsrco) ///
+		(prgco = prico + cfcco) ///
+		(nsrco = gsrco - cfcco) ///
+		/// Financial, primary income
+		(prgfc = prpfc + gsrfc) ///
+		(prgfc = prifc + cfcfc) ///
+		(nsrfc = gsrfc - cfcfc) ///
+		/// Non-financial, primary income
+		(prgnf = prpnf + gsrnf) ///
+		(prgnf = prinf + cfcnf) ///
+		(nsrnf = gsrnf - cfcnf) ///
+		/// Combined sectors, secondary income
+		(segco = prgco - taxco + sscco - ssbco) ///
+		(segco = secco + cfcco) ///
+		/// Financial, secondary income
+		(segfc = prgfc - taxfc + sscfc - ssbfc) ///
+		(segfc = secfc + cfcfc) ///
+		/// Non-financial, secondary income
+		(segnf = prgnf - taxnf + sscnf - ssbnf) ///
+		(segnf = secnf + cfcnf) ///
+		/// Combination of sectors
+		(prico = prifc + prinf) ///
+		(prpco = prpfc + prpnf) ///
+		(nsrco = nsrfc + nsrnf) ///
+		(gsrco = gsrfc + gsrnf) ///
+		(cfcco = cfcfc + cfcnf) ///
+		(secco = secfc + secnf) ///
+		(taxco = taxfc + taxnf) ///
+		(sscco = sscfc + sscnf) ///
+		(segco = segfc + segnf) ///
+		/// Government
+		/// Primary income
+		(prggo = ptxgo + prpgo + gsrgo) ///
+		(nsrgo = gsrgo - cfcgo) ///
+		(prigo = prggo - cfcgo) ///
+		/// Taxes less subsidies of production
+		(ptxgo = tpigo - spigo) ///
+		(tpigo = tprgo + otpgo) ///
+		(spigo = sprgo + ospgo) ///
+		/// Secondary incomes
+		(seggo = prggo + taxgo - ssbgo) ///
+		(taxgo = tiwgo + sscgo) ///
+		(secgo = seggo - cfcgo) ///
+		/// Consumption and savings
+		(saggo = seggo - congo) ///
+		(congo = indgo + colgo) ///
+		(savgo = saggo - cfcgo) ///
+		/// Structure of gov spending
+		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
+		/// Labor + capital income decomposition
+		(fkpin = prphn + prico + nsrhn + prpgo) ///
+		(gdpro = gdpro_cal) ///
+		if flag, fixed(gdpro_cal nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
+
+drop flag gdpro_cal
+		
+// Country with cfcgo too low vs confc: bottom-code at 5% of total CFC:
+// we do that by adusting GDP upward too (more cfcgo => more gsrgo)
+generate flag = (cfcgo <= 0.05*confc) & !missing(cfcgo)
+
+generate old_cfcgo = max(cfcgo, 0)
+replace cfcgo = 0.05/(1 - 0.05)*(confc - old_cfcgo) if flag
+
+replace nsrgo = 0                         if flag
+replace gsrgo = cfcgo                     if flag
+replace confc = confc - old_cfcgo + cfcgo if flag
+replace gdpro = gdpro - old_cfcgo + cfcgo if flag
+replace prggo = prggo - old_cfcgo + cfcgo if flag
+replace seggo = seggo - old_cfcgo + cfcgo if flag
+replace saggo = saggo - old_cfcgo + cfcgo if flag
+generate gdpro_cal = 1
+drop old_cfcgo
+
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		///  Gross national income of the different sectors of the economy
+		(gdpro + nnfin = prghn + prgco + prggo) ///
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
+		(pinnx = prphn + prpco + prpgo) ///
+		(prphn = prpho + prpnp) ///
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp) ///
+		/// Consumption of fixed capital
+		(confc = cfchn + cfcco + cfcgo) ///
+		/// Household + NPISH sector
+		(prghn = comhn + caghn) ///
+		(caghn = gsmhn + prphn) ///
+		(caphn = nsmhn + prphn) ///
+		(nsmhn = gsmhn - cfchn) ///
+		(nsrhn = gsrhn - ccshn) ///
+		(nmxhn = gmxhn - ccmhn) ///
+		(cfchn = ccshn + ccmhn) ///
+		(prihn = prghn - cfchn) ///
+		(nsmhn = nmxhn + nsrhn) ///
+		(gsmhn = gmxhn + gsrhn) ///
+		(seghn = prghn - taxhn + ssbhn) ///
+		(taxhn = tiwhn + sschn) ///
+		(seghn = sechn + cfchn) ///
+		(saghn = seghn - conhn) ///
+		(saghn = savhn + cfchn) ///
+		/// Households
+        (prgho = comho + cagho) ///
+		(cagho = gsmho + prpho) ///
+		(capho = nsmho + prpho) ///
+		(nsmho = gsmho - cfcho) ///
+		(nsrho = gsrho - ccsho) ///
+		(nmxho = gmxho - ccmho) ///
+		(cfcho = ccsho + ccmho) ///
+		(priho = prgho - cfcho) ///
+		(nsmho = nmxho + nsrho) ///
+		(gsmho = gmxho + gsrho) ///
+		(segho = prgho - taxho + ssbho) ///
+		(taxho = tiwho + sscho) ///
+		(segho = secho + cfcho) ///
+		(sagho = segho - conho) ///
+		(sagho = savho + cfcho) ///
+		/// NPISH
+        (prgnp = comnp + cagnp) ///
+		(cagnp = gsrnp + prpnp) ///
+		(capnp = nsrnp + prpnp) ///
+		(nsrnp = gsrnp - cfcnp) ///
+		(prinp = prgnp - cfcnp) ///
+		(segnp = prgnp - taxnp + ssbnp) ///
+		(taxnp = tiwnp + sscnp) ///
+		(segnp = secnp + cfcnp) ///
+		(sagnp = segnp - connp) ///
+		(sagnp = savnp + cfcnp) ///
+		/// Combination of sectors
+		(prihn = priho + prinp) ///
+		(comhn = comho + comnp) ///
+		(prphn = prpho + prpnp) ///
+		(caphn = capho + capnp) ///
+		(caghn = cagho + cagnp) ///
+		(nsmhn = nsmho + nsrnp) ///
+		(gsmhn = gsmho + gsrnp) ///
+		(gsrhn = gsrho + gsrnp) ///
+		(gmxhn = gmxho) ///
+		(cfchn = cfcho + cfcnp) ///
+		(ccshn = ccsho + cfcnp) ///
+		(ccmhn = ccmho) ///
+		(sechn = secho + secnp) ///
+		(taxhn = taxho + taxnp) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(sschn = sscho + sscnp) ///
+		(ssbhn = ssbho + ssbnp) ///
+		(seghn = segho + segnp) ///
+		(savhn = savho + savnp) ///
+		(saghn = sagho + sagnp) ///
+		/// Corporate sector
+		/// Combined sectors, primary income
+		(prgco = prpco + gsrco) ///
+		(prgco = prico + cfcco) ///
+		(nsrco = gsrco - cfcco) ///
+		/// Financial, primary income
+		(prgfc = prpfc + gsrfc) ///
+		(prgfc = prifc + cfcfc) ///
+		(nsrfc = gsrfc - cfcfc) ///
+		/// Non-financial, primary income
+		(prgnf = prpnf + gsrnf) ///
+		(prgnf = prinf + cfcnf) ///
+		(nsrnf = gsrnf - cfcnf) ///
+		/// Combined sectors, secondary income
+		(segco = prgco - taxco + sscco - ssbco) ///
+		(segco = secco + cfcco) ///
+		/// Financial, secondary income
+		(segfc = prgfc - taxfc + sscfc - ssbfc) ///
+		(segfc = secfc + cfcfc) ///
+		/// Non-financial, secondary income
+		(segnf = prgnf - taxnf + sscnf - ssbnf) ///
+		(segnf = secnf + cfcnf) ///
+		/// Combination of sectors
+		(prico = prifc + prinf) ///
+		(prpco = prpfc + prpnf) ///
+		(nsrco = nsrfc + nsrnf) ///
+		(gsrco = gsrfc + gsrnf) ///
+		(cfcco = cfcfc + cfcnf) ///
+		(secco = secfc + secnf) ///
+		(taxco = taxfc + taxnf) ///
+		(sscco = sscfc + sscnf) ///
+		(segco = segfc + segnf) ///
+		/// Government
+		/// Primary income
+		(prggo = ptxgo + prpgo + gsrgo) ///
+		(nsrgo = gsrgo - cfcgo) ///
+		(prigo = prggo - cfcgo) ///
+		/// Taxes less subsidies of production
+		(ptxgo = tpigo - spigo) ///
+		(tpigo = tprgo + otpgo) ///
+		(spigo = sprgo + ospgo) ///
+		/// Secondary incomes
+		(seggo = prggo + taxgo - ssbgo) ///
+		(taxgo = tiwgo + sscgo) ///
+		(secgo = seggo - cfcgo) ///
+		/// Consumption and savings
+		(saggo = seggo - congo) ///
+		(congo = indgo + colgo) ///
+		(savgo = saggo - cfcgo) ///
+		/// Structure of gov spending
+		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
+		/// Labor + capital income decomposition
+		(fkpin = prphn + prico + nsrhn + prpgo) ///
+		(gdpro = gdpro_cal) ///
+		if flag, fixed(gdpro_cal nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
+
+drop flag gdpro_cal
+
+// Impute cfcgo
 replace cfcgo = gsrgo if missing(cfcgo) // In general, nsrgo = 0
 gegen median_cfcgo1 = median(cfcgo/confc), by(iso)
 gegen median_cfcgo2 = median(cfcgo/confc)
@@ -325,8 +684,158 @@ enforce (confc = cfcgo + cfcco + cfchn) ///
 		(ccshn = ccsho + cfcnp) ///
 		(ccmhn = ccmho) ///
 		(cfchn = ccshn + ccmhn) ///
-		(cfcho = ccsho + ccmho), fixed(confc) replace
+		(cfcho = ccsho + ccmho), fixed(confc cfcgo) replace
 
+// Foreign income
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		///  Gross national income of the different sectors of the economy
+		(gdpro + nnfin = prghn + prgco + prggo) ///
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
+		(pinnx = prphn + prpco + prpgo) ///
+		(prphn = prpho + prpnp) ///
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp) ///
+		/// Consumption of fixed capital
+		(confc = cfchn + cfcco + cfcgo) ///
+		/// Household + NPISH sector
+		(prghn = comhn + caghn) ///
+		(caghn = gsmhn + prphn) ///
+		(caphn = nsmhn + prphn) ///
+		(nsmhn = gsmhn - cfchn) ///
+		(nsrhn = gsrhn - ccshn) ///
+		(nmxhn = gmxhn - ccmhn) ///
+		(cfchn = ccshn + ccmhn) ///
+		(prihn = prghn - cfchn) ///
+		(nsmhn = nmxhn + nsrhn) ///
+		(gsmhn = gmxhn + gsrhn) ///
+		(seghn = prghn - taxhn + ssbhn) ///
+		(taxhn = tiwhn + sschn) ///
+		(seghn = sechn + cfchn) ///
+		(saghn = seghn - conhn) ///
+		(saghn = savhn + cfchn) ///
+		/// Households
+        (prgho = comho + cagho) ///
+		(cagho = gsmho + prpho) ///
+		(capho = nsmho + prpho) ///
+		(nsmho = gsmho - cfcho) ///
+		(nsrho = gsrho - ccsho) ///
+		(nmxho = gmxho - ccmho) ///
+		(cfcho = ccsho + ccmho) ///
+		(priho = prgho - cfcho) ///
+		(nsmho = nmxho + nsrho) ///
+		(gsmho = gmxho + gsrho) ///
+		(segho = prgho - taxho + ssbho) ///
+		(taxho = tiwho + sscho) ///
+		(segho = secho + cfcho) ///
+		(sagho = segho - conho) ///
+		(sagho = savho + cfcho) ///
+		/// NPISH
+        (prgnp = comnp + cagnp) ///
+		(cagnp = gsrnp + prpnp) ///
+		(capnp = nsrnp + prpnp) ///
+		(nsrnp = gsrnp - cfcnp) ///
+		(prinp = prgnp - cfcnp) ///
+		(segnp = prgnp - taxnp + ssbnp) ///
+		(taxnp = tiwnp + sscnp) ///
+		(segnp = secnp + cfcnp) ///
+		(sagnp = segnp - connp) ///
+		(sagnp = savnp + cfcnp) ///
+		/// Combination of sectors
+		(prihn = priho + prinp) ///
+		(comhn = comho + comnp) ///
+		(prphn = prpho + prpnp) ///
+		(caphn = capho + capnp) ///
+		(caghn = cagho + cagnp) ///
+		(nsmhn = nsmho + nsrnp) ///
+		(gsmhn = gsmho + gsrnp) ///
+		(gsrhn = gsrho + gsrnp) ///
+		(gmxhn = gmxho) ///
+		(cfchn = cfcho + cfcnp) ///
+		(ccshn = ccsho + cfcnp) ///
+		(ccmhn = ccmho) ///
+		(sechn = secho + secnp) ///
+		(taxhn = taxho + taxnp) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(sschn = sscho + sscnp) ///
+		(ssbhn = ssbho + ssbnp) ///
+		(seghn = segho + segnp) ///
+		(savhn = savho + savnp) ///
+		(saghn = sagho + sagnp) ///
+		/// Corporate sector
+		/// Combined sectors, primary income
+		(prgco = prpco + gsrco) ///
+		(prgco = prico + cfcco) ///
+		(nsrco = gsrco - cfcco) ///
+		/// Financial, primary income
+		(prgfc = prpfc + gsrfc) ///
+		(prgfc = prifc + cfcfc) ///
+		(nsrfc = gsrfc - cfcfc) ///
+		/// Non-financial, primary income
+		(prgnf = prpnf + gsrnf) ///
+		(prgnf = prinf + cfcnf) ///
+		(nsrnf = gsrnf - cfcnf) ///
+		/// Combined sectors, secondary income
+		(segco = prgco - taxco + sscco - ssbco) ///
+		(segco = secco + cfcco) ///
+		/// Financial, secondary income
+		(segfc = prgfc - taxfc + sscfc - ssbfc) ///
+		(segfc = secfc + cfcfc) ///
+		/// Non-financial, secondary income
+		(segnf = prgnf - taxnf + sscnf - ssbnf) ///
+		(segnf = secnf + cfcnf) ///
+		/// Combination of sectors
+		(prico = prifc + prinf) ///
+		(prpco = prpfc + prpnf) ///
+		(nsrco = nsrfc + nsrnf) ///
+		(gsrco = gsrfc + gsrnf) ///
+		(cfcco = cfcfc + cfcnf) ///
+		(secco = secfc + secnf) ///
+		(taxco = taxfc + taxnf) ///
+		(sscco = sscfc + sscnf) ///
+		(segco = segfc + segnf) ///
+		/// Government
+		/// Primary income
+		(prggo = ptxgo + prpgo + gsrgo) ///
+		(nsrgo = gsrgo - cfcgo) ///
+		(prigo = prggo - cfcgo) ///
+		/// Taxes less subsidies of production
+		(ptxgo = tpigo - spigo) ///
+		(tpigo = tprgo + otpgo) ///
+		(spigo = sprgo + ospgo) ///
+		/// Secondary incomes
+		(seggo = prggo + taxgo - ssbgo) ///
+		(taxgo = tiwgo + sscgo) ///
+		(secgo = seggo - cfcgo) ///
+		/// Consumption and savings
+		(saggo = seggo - congo) ///
+		(congo = indgo + colgo) ///
+		(savgo = saggo - cfcgo) ///
+		/// Structure of gov spending
+		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
+		/// Labor + capital income decomposition
+		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc cfcgo fkpin comhn nmxhn) replace
+	
 keep iso year confc cfc* ccs* ccm*
 
 renvars confc cfc* ccs* ccm*, prefix(imputed_)

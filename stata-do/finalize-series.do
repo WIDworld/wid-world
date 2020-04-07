@@ -39,6 +39,15 @@ replace confc = imputed_confc if missing(confc) & !missing(imputed_confc)
 drop imputed_*
 
 // -------------------------------------------------------------------------- //
+// Extrapolate net foreign income in the recent year
+// -------------------------------------------------------------------------- //
+
+sort iso year
+by iso: carryforward nnfin, replace cfindic(flag)
+replace series_nnfin = -2 if flag
+drop flag
+
+// -------------------------------------------------------------------------- //
 // Final calibration
 // -------------------------------------------------------------------------- //
 
@@ -55,8 +64,23 @@ enforce (comnx = comrx - compx) ///
 		(flcip = compx + pinpx) ///
 		///  Gross national income of the different sectors of the economy
 		(gdpro + nnfin = prghn + prgco + prggo) ///
-		/// Property income consistent accross sectors
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
 		(pinnx = prphn + prpco + prpgo) ///
+		(prphn = prpho + prpnp) ///
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
 		/// Household + NPISH sector

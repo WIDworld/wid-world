@@ -89,9 +89,6 @@ replace widcode = "ftaxx"     if indicatorcode == "BMIPO_BP6_USD"
 
 drop if widcode == ""
 
-*keep indicatorname indicatorcode widcode
-*duplicates drop
-
 keep iso year widcode value
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
@@ -140,63 +137,3 @@ enforce (comnx = comrx - compx) ///
 		(ptfnx = ptfrx - ptfpx), fixed(nnfin) replace
 
 save "$work_data/imf-foreign-income.dta", replace
-
-/*
-// -------------------------------------------------------------------------- //
-// Redistribute missing portfolio income
-// -------------------------------------------------------------------------- //
-
-collapse (sum) ptfnx, by(year)
-
-// Remove last year for which information is too incomplete
-sort year
-replace ptfnx = ptfnx[_N - 1] if _n == _N
-replace ptfnx = min(ptfnx, 0) // Unnecessary, but you never know
-
-preserve
-	// Import share of assets in tax havens by country
-	import excel "$raw_data/AJZ2017bData.xlsx", sheet("T.A3") cellrange(A6:D156) clear
-
-	keep A D
-	kountry A, from(other) stuck
-	rename _ISO3N_ iso3n
-	kountry iso3n, from(iso3n) to(iso2c)
-	rename _ISO2C_ iso
-
-	tab A if iso == ""
-
-	replace iso = "BO" if A == "Bolivia (Plurinational State of)"
-	replace iso = "CV" if A == "Cabo Verde"
-	replace iso = "CI" if A == "Côte d'Ivoire"
-	replace iso = "MK" if A == "Macedonia (the former Yugoslav Republic)"
-	replace iso = "TW" if A == "Taiwan, Province of China[a]"
-	replace iso = "GB" if A == "United Kingdom of Great Britain and Northern Ireland"
-	replace iso = "VE" if A == "Venezuela (Bolivarian Republic of)"
-
-	keep iso D
-	rename D share_havens
-	drop if missing(iso)
-
-	tempfile havens
-	save "`havens'", replace
-restore
-
-cross using "`havens'"
-replace share_havens = 0 if missing(share_havens)
-generate ptfhr = -ptfnx*share_havens
-drop share_havens
-
-save "`havens'", replace
-
-use "`imf'", clear
-
-merge 1:1 iso year using "`havens'", nogenerate keep(master match)
-
-ds iso year, not
-local varlist = r(varlist)
-renvars `varlist', prefix(value)
-
-greshape long value, i(iso year) j(widcode) string
-merge n:1 iso year using "`gdp'", keep(match) nogenerate
-
-replace value = value/gdp

@@ -158,7 +158,8 @@ replace method = "" if iso == "ZA"
 append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
 
 // Bauluz 2019 - Capital and labor shares (Bauluz2019)
-append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
+// (income data imported later)
+*append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
 
 // US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
 append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"

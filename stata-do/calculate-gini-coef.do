@@ -37,4 +37,5 @@ save "`gini'"
 use "$work_data/calculate-pareto-coef-output.dta", clear
 append using "`gini'"
 
+compress
 save "$work_data/calculate-gini-coef-output.dta", replace

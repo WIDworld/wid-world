@@ -203,6 +203,8 @@ egen ssc = rowtotal(ssc_paid ssb_paid), missing
 egen ssb = rowtotal(ssc_recv ssb_recv), missing
 drop *_paid *_recv
 
+replace ssb = . if location == "AUS"
+
 generate seg = prg - tiw - ssc + ssb
 generate pri = prg - cfc
 generate sec = seg - cfc
@@ -384,13 +386,27 @@ enforce (comnx = comrx - compx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx), fixed(nnfin) replace
-		
+	
 // Gross national income of the different sectors of the economy
-// (+ property income)
+// (+ specific income components)
 enforce (gdpro + nnfin = prghn + prgco + prggo) ///
+		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Property income
 		(pinnx = prphn + prpco + prpgo) ///
 		(prphn = prpho + prpnp) ///
-		(prpco = prpfc + prpnf), fixed(gdpro nnfin pinnx) replace
+		(prpco = prpfc + prpnf) ///
+		/// Taxes on income and wealth
+		(tiwgo = tiwhn + taxco) ///
+		(tiwhn = tiwho + tiwnp) ///
+		(taxco = taxnf + taxfc) ///
+		/// Social contributions
+		(sschn = sscco + sscgo) ///
+		(sscco = sscnf + sscfc) ///
+		(sschn = sscho + sscnp) ///
+		/// Social benefits
+		(ssbhn = ssbco + ssbgo) ///
+		(ssbco = ssbnf + ssbfc) ///
+		(ssbhn = ssbho + ssbnp), fixed(gdpro nnfin pinnx) replace
 
 // Consumption of fixed capital
 enforce (confc = cfchn + cfcco + cfcgo), fixed(confc) replace

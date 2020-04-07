@@ -9,8 +9,17 @@ merge 1:1 iso year using "$work_data/reinvested-earnings-portfolio.dta", nogener
 
 // Foreign portfolio income officially recorded
 generate ptfor = ptfrx
-generate ptfop = ptfrp
-generate ptfon = ptfrn
+generate ptfop = ptfpx
+generate ptfon = ptfnx
+
+generate series_ptfor = series_ptfrx
+generate series_ptfop = series_ptfpx
+generate series_ptfon = series_ptfnx
+
+generate series_ptfhr = -3
+generate series_ptfrr = -3
+generate series_ptfrp = -3
+generate series_ptfrn = -3
 
 // Distribute missing property income from tax havens to housholds
 foreach v of varlist ptfrx ptfnx pinrx pinnx flcir flcin finrx nnfin prpho prphn prgho prghn ///
@@ -36,5 +45,10 @@ foreach v of varlist ptfnx pinnx flcin nnfin prpco prpnf prgco prgnf ///
 
 	replace `v' = `v' - ptfrp if !missing(ptfrp)
 }
+
+// Finally calculate net national income
+generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
+generate ndpro = gdpro - confc
+generate gninc = gdpro + cond(missing(nnfin), 0, nnfin)
 
 save "$work_data/sna-series-adjusted.dta", replace

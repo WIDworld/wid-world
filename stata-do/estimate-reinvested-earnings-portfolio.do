@@ -118,7 +118,7 @@ import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_03-12-2020 18
 
 drop if countryname == "Cayman Islands" // Data inconsistent with EWN
 drop if value == 0
-keep if timeperiod > 2015 & timeperiod <= 2018
+keep if timeperiod > 2015 & timeperiod <= ($pastyear - 1)
 rename countrycode ifsid
 rename timeperiod year
 keep ifsid countryname indicatorcode year value
@@ -259,7 +259,7 @@ decode2 iso
 keep iso year share_foreign
 
 // Assume that foreign share was 0 in 1970 and then rose linearly (unless we know otherwise)
-keep if year >= 1970 & year <= 2018
+keep if year >= 1970 & year <= ($pastyear - 1)
 replace share_foreign = 0 if year == 1970 & missing(share_foreign)
 gsort iso year
 by iso: ipolate share_foreign year, gen(i)
@@ -281,7 +281,9 @@ save "`share_foreign'"
 
 use "$work_data/sna-series-finalized.dta", clear
 
-keep if year >= 1970 & year <= 2018
+keep if year >= 1970 & year <= ($pastyear - 1)
+fillin iso year
+drop _fillin
 
 // Extrapolate the value of net corporate savings
 gsort iso -year
@@ -298,6 +300,7 @@ foreach level in undet un {
 	replace secco = mean_secco if missing(secco)
 	drop GEO NAMES_STD mean_secco
 }
+
 assert !missing(secco)
 
 merge 1:1 iso year using "`share_foreign'", nogenerate
@@ -421,7 +424,7 @@ tempfile iso
 save "`iso'"
 
 clear
-local nobs = $pastyear - 1970 + 1
+local nobs = ($pastyear - 1) - 1970 + 1
 set obs `nobs'
 generate year = 1970 + _n - 1
 cross using "`iso'"
@@ -507,8 +510,8 @@ generate ptfrn = ptfrr - ptfrp
 
 keep if year >= 1970
 
-expand 2 if year == 2018, gen(new)
-replace year = 2019 if new
+expand 2 if year == ($pastyear - 1), gen(new)
+replace year = $pastyear if new
 drop new
 
 sort iso year

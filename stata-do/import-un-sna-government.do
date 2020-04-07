@@ -63,7 +63,7 @@ append using "`func'"
 
 drop if missing(widcode)
 foreach v of varlist footnote* {
-	egen tmp = mode(`v'), by(country_or_area series sector widcode)
+	egen tmp = mode(`v'), by(country_or_area series widcode)
 	replace `v' = tmp
 	drop tmp
 }
