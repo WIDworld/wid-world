@@ -53,6 +53,7 @@ save "$work_data/wid-luis-data.dta", replace
 // Import additional factor share data from Fisher-Post (2020)
 // -------------------------------------------------------------------------- //
 
+/*
 use "$wid_dir/Country-Updates/National_Accounts/Fisher_Post_2020/factor-shares-jan2020.dta", clear
 
 // Add net foreign labor income to get full compensation of employees of the household sector
@@ -76,4 +77,4 @@ drop if iso == ""
 keep iso year comhn gsmhn gsrco ptxgo series
 
 save "$work_data/fisher-post-data.dta", replace
-
+*/

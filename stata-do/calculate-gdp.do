@@ -104,7 +104,7 @@ replace growth_weo = . if (year >= estimatesstartafter)
 generate growth = .
 generate growth_src = ""
 foreach v of varlist growth_wid growth_mw growth_wb growth_un2 growth_un1* ///
-		growth_weo growth_gem growth_weo_forecast {
+		growth_weo /*growth_gem*/ growth_weo_forecast {
 	replace growth_src = "`v'" if (growth >= .) & (`v' < .)
 	replace growth = `v' if (growth >= .) & (`v' < .)
 }
