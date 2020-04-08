@@ -74,14 +74,14 @@ foreach v of varlist year* {
 }
 drop year*
 replace data_points = "[" + data_points + "]"
-generate extrapolation = "[[1980,$pastyear]]"
+generate extrapolation = "[[1990,$pastyear]]"
 
 tempfile africa_extra
 save "`africa_extra'"
 
 restore
 
-merge m:1 iso using "`africa_extra'", nogen
+merge m:1 iso using "`africa_extra'", nogen update replace
 
 // -------------------------------------------------------------------------- //
 // Add population notes
@@ -202,7 +202,7 @@ sort Alpha2 TwoLet ThreeLet
 // Correction for Australia
 replace Method = "Adults are individuals aged 15+. The series includes transfers. Averages exclude capital gains, shares include capital gains. " ///
 	+ "Shares for years from 1912 to 1920 refer to Victoria. Figures for 1912 and 1913 are for calendar years. " ///
-	+ "Figures for years from 1914 onwards are for tax years (e.g. 1914 denotes the tax year 1 July 1914 to 30 June 1915)." ///
+	+ "Figures for years from 1914 onwards are for tax years (e.g. 1914 denotes the tax year 1 July 1914 to 30 June 1915)." ///
 	if (Alpha2 == "AU") & (TwoLet == "fi") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"
