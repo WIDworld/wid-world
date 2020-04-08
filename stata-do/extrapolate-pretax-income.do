@@ -33,37 +33,43 @@ drop has_pretax
 generate source = "sptinc992j" if !missing(sptinc992j)
 
 // Combine individual fiscal income and tax unit fiscal income
-sort iso p year
-by iso p: generate coef = sfiinc992t/sfiinc992i
-by iso p: generate coef_extra = sfiinc992t/sfiinc992i[_n + 1]
+fillin iso p year
+drop _fillin
 
-foreach v of varlist coef coef_extra {
-	egen tmp1 = first(`v'), by(iso p)
-	egen tmp2 = mode(tmp1), by(iso p)
-	replace `v' = tmp2
-	drop tmp1 tmp2
-}
+gsort iso p -year
+by iso p: carryforward sfiinc992i, gen(sfiinc992i_cf)
+generate coef = (1 - sfiinc992t)/(1 - sfiinc992i_cf)
 
-replace coef = coef_extra if missing(coef)
-replace source = "sfiinc992i" if missing(sfiinc992t) & !missing(sfiinc992i/coef) & missing(sptinc992j)
-replace sfiinc992t = sfiinc992i/coef if missing(sfiinc992t)
-drop coef coef_extra
+egen coef2 = first(coef), by(iso p)
+replace coef2 = 1 if missing(coef2)
+
+// Fix for Hungary because 'i' and 't' do not overlap and are very far apart
+replace coef2 = 1 if iso == "HU"
+
+replace source = "sfiinc992t" if missing(sfiinc992i) & !missing(sfiinc992t - coef2)
+generate sfiinc992i_extra = sfiinc992i
+replace sfiinc992i_extra = 1 - ((1 - sfiinc992t)/coef2) if missing(sfiinc992i_extra)
+drop sfiinc992i_cf coef coef2
 
 // Combine corrected tax unit fiscal income with pretax income
-sort iso p year
-by iso p: generate coef = sptinc992j/sfiinc992t
+gsort iso p -year
+generate coef = (1 - sfiinc992i_extra)/(1 - sptinc992j)
+by iso p: carryforward coef, gen(coef2)
 
-egen tmp1 = first(coef), by(iso p)
-egen tmp2 = mode(tmp1), by(iso p)
-replace coef = tmp2
-drop tmp1 tmp2
+replace source = "sfiinc992i" if source == "" & missing(sptinc992j) & !missing(sfiinc992i_extra - coef2)
+replace sptinc992j = 1 - ((1 - sfiinc992i_extra)/coef2) if missing(sptinc992j)
 
-replace source = "sfiinc992t" if missing(sptinc992j) & !missing(sfiinc992t/coef) & source == ""
-replace sptinc992j = sfiinc992t/coef if missing(sptinc992j)
-drop coef
+drop coef coef2 sfiinc992i_extra
 
 tempfile data
 save "`data'"
+
+glevelsof iso if !strpos(iso, "-"), local(iso_list)
+local iso_list DK
+foreach cc of local iso_list {
+	gr tw line sfiinc992i sfiinc992t sptinc992j year if iso == "`cc'" & p == 99000, yscale(range(0 0.5)) ylabel(0(0.05)0.5)
+	graph export "$report_output/pretax-extrapolations/`cc'-top1.pdf", replace
+}
 
 collapse (min) year, by(iso source)
 
@@ -71,10 +77,11 @@ egen has_fiinc = total(strpos(source, "fiinc")), by(iso)
 keep if has_fiinc
 drop has_fiinc
 keep if source == "sptinc992j"
-
+// Drop countries with full historical DINA series
+drop if inlist(iso, "FR", "US")
 collapse (firstnm) year, by(iso)
 
-generate method2 = "Before " + string(year) + ", pretax income shares retropolated based on fiscal income."
+generate method2 = "Before " + string(year) + ", we retropolate pretax income shares based on the evolution of fiscal income (see fiscal income variable for details)."
 keep iso method2
 
 tempfile meta
