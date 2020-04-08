@@ -220,7 +220,7 @@ replace Alpha2="KV" if Alpha2=="KS"
 rename data_imputation imputation
 drop if Alpha2 == ""
 
-save "$work_data/metadata-fina.dta", replace
+save "$work_data/metadata-final.dta", replace
 
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
 
