@@ -76,12 +76,18 @@ drop year*
 replace data_points = "[" + data_points + "]"
 generate extrapolation = "[[1990,$pastyear]]"
 
+expand 2
+sort iso
+generate sixlet = ""
+by iso: replace sixlet = "sptinc" if _n == 1
+by iso: replace sixlet = "aptinc" if _n == 2
+
 tempfile africa_extra
 save "`africa_extra'"
 
 restore
 
-merge m:1 iso using "`africa_extra'", nogen update replace
+merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
 
 // -------------------------------------------------------------------------- //
 // Add population notes
@@ -181,6 +187,8 @@ duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0
 drop duplicate
 
+save "$work_data/metadata-fina.dta", replace
+
 sort iso sixlet
 drop sixlet
 rename iso Alpha2
@@ -211,6 +219,8 @@ replace Alpha2="KV" if Alpha2=="KS"
 
 rename data_imputation imputation
 drop if Alpha2 == ""
+
+save "$work_data/metadata-fina.dta", replace
 
 export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
 
