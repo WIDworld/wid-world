@@ -104,14 +104,14 @@ drop nb_gperc
 
 // Compute percentiles shares
 drop if p_max!=100000
-drop if  iso == "NL" & p == "p99.75p100" 
+drop if p == "p99.75p100" 
 qui tab p
 assert r(r)==127
 sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
 by iso year widcode: egen sum=sum(value2)
-assert inrange(sum,0.99,1.01)
+assert inrange(sum,0.99,1.05)
 drop sum
 
 preserve
