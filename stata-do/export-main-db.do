@@ -49,6 +49,22 @@ drop tokeep
 // Export Europe
 /*
 preserve 
+keep if inlist(Alpha2, "AL", "CY", "HR", "IS", "KV", "LU", "LV", "MD")
+tempfile europe1
+save "`europe1'"
+export delimited "$output_dir/$time/wid-eur1.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "MK", "MT", "PL", "RO", "SI")
+tempfile europe2
+save "`europe2'"
+export delimited "$output_dir/$time/wid-eur2.csv", delimiter(";") replace
+restore
+*/
+
+/*
+preserve 
 keep if inlist(Alpha2,"AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DD")
 tempfile europe1
 save "`europe1'"

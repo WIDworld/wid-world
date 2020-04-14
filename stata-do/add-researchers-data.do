@@ -156,8 +156,8 @@ append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz
 append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
 
 // South Africa 2020 - ccg2020
-append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
-drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
+*append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
+*drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
 
 tempfile researchers
 save "`researchers'"
@@ -236,7 +236,7 @@ drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 replace p="pall" if p=="p0p100"
  
 // Drop widcodes from previous ZA to be replaced with ccg2020
-drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
+*drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
  
  
 duplicates tag iso year p widcode, gen(duplicate)
