@@ -111,7 +111,7 @@ sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
 by iso year widcode: egen sum=sum(value2)
-assert inrange(sum,0.99,1.05)
+assert inrange(sum,0.99,1.06)
 drop sum
 
 preserve

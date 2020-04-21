@@ -195,11 +195,14 @@ rename iso Alpha2
 rename method Method
 rename source Source
 
-// Add hyperlink to Alvaredo & Atkinson source
+// Add hyperlink to Alvaredo & Atkinson source for ZA
 replace Source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/[/URL_LINK]"' + /// 
 	`"[URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
 	if Source == "Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors."
 
+// Add Source for ZA 2020
+replace Source = "[URL_TEXT]Chatterjee, Czajka and Gethin (2020). Estimating the Distribution of Household Wealth in South Africa.[/URL_TEXT][/URL]" if Source == "" & Alpha2 == "ZA"	
+	
 // Remove duplicates
 collapse (firstnm) Method Source data_quality data_imputation data_points extrapolation, by(TwoLet ThreeLet Alpha2)
 
