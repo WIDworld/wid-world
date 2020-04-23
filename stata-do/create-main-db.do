@@ -1,6 +1,6 @@
 // Label the variables ------------------------------------------------------ //
 
-use "$work_data/calculate-pareto-coef-output.dta", clear
+use "$work_data/calculate-gini-coef-output.dta", clear
 
 keep widcode
 duplicates drop
@@ -48,7 +48,7 @@ foreach c of local widcode_list {
 
 // Reshape the dataset (long)------------------------------------------------------ //
 
-use "$work_data/calculate-pareto-coef-output.dta", clear
+use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop if strpos(iso, "XQ")
 

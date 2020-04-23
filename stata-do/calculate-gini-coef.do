@@ -30,11 +30,16 @@ replace value = 2*value
 
 // Code as Gini
 replace widcode = "g" + substr(widcode, 2, .)
+generate p = "p0p100"
 
 tempfile gini
 save "`gini'"
 // Save
 use "$work_data/calculate-pareto-coef-output.dta", clear
+// Eliminate Duplicates old gptinc992j (119 obs)
+drop if widcode == "gptinc992j" & inlist(iso, "DJ", "ER", "MU", "SO", "SS")
+
 append using "`gini'"
+
 
 save "$work_data/calculate-gini-coef-output.dta", replace

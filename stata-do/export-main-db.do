@@ -46,6 +46,16 @@ egen tokeep = rownonmiss(`vars')
 keep if tokeep
 drop tokeep
 
+// Export Gini coefficients
+/*
+preserve
+keep Alpha2 year perc gcainc992j gdiinc992j gfainc992j gfiinc992i gfiinc992j gfiinc992t gflinc996f gflinc996i gflinc996m ghwbus992i ghwbus992j ghwdeb992i ghwdeb992j ghweal992i ghweal992j ghwequ992i ghwequ992j ghwfin992i ghwfin992j  ghwfix992i ghwfix992j ghwhou992i ghwhou992j ghwnfa992i ghwnfa992j ghwpen992i ghwpen992j gpkkin992j gpllin992f gpllin992i gpllin992j gpllin992m gptinc992i gptinc992j gptinc992t gptkin992j gptlin992j
+tempfile gini
+save "`gini'"
+export delimited "$output_dir/$time/wid-gini.csv", delimiter(";") replace
+restore
+*/
+
 // Export Europe
 /*
 preserve 
