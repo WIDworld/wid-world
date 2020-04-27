@@ -98,6 +98,7 @@ generate valueaptinc992j = anninc*sptinc992j/(1 - p/1e5)
 replace p = p/1e3
 tostring p, force replace format(%9.5g)
 replace p = "p" + p + "p100"
+replace p = "pall" if p == "p0p100"
 
 rename sptinc992j valuesptinc992j
 
