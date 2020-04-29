@@ -152,6 +152,13 @@ keep if Alpha2 == "ZA"
 export delimited "$output_dir/$time/wid-ZA.csv", delimiter(";") replace
 restore
 
+// Export China, China rural and China urban
+
+preserve
+keep if  inlist(Alpha2, "CN", "CN-RU", "CN-UR")
+export delimited "$output_dir/$time/wid-CN.csv", delimiter(";") replace
+restore
+
 // Export the rest of world
 
 preserve
