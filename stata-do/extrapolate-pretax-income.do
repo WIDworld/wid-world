@@ -92,7 +92,7 @@ keep if p == "pall" & widcode == "anninc992i"
 keep iso year value
 rename value anninc
 
-merge 1:n iso year using "`data'", keep(match) nogenerate
+merge 1:n iso year using "`data'", keep(match using) nogenerate
 
 generate valueaptinc992j = anninc*sptinc992j/(1 - p/1e5)
 replace p = p/1e3
@@ -104,6 +104,7 @@ rename sptinc992j valuesptinc992j
 
 keep iso year p value*
 greshape long value, i(iso year p) j(widcode) string
+drop if missing(value)
 
 save "`data'", replace
 
