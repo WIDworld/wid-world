@@ -224,7 +224,7 @@ use "`netpos'", clear
 // Estimate the fraction of equities owned by foreigners
 // -------------------------------------------------------------------------- //
 
-generate share_foreign = ptf_liabi*ratio_equ_liabi_row/equ_liabi*ratio_equ_liabi_dom
+generate share_foreign = ptf_liabi*ratio_equ_liabi_row/(equ_liabi*ratio_equ_liabi_dom + fdi_asset - fdi_liabi)
 generate ratio_liab = ptf_liabi*ratio_equ_liabi_row/gdp
 
 // Use liability ratio to exptrapolate share of foreign earnings (correlation around 0.85)
@@ -257,6 +257,8 @@ xtset, clear
 decode2 iso
 
 keep iso year share_foreign
+replace share_foreign = 1 if share_foreign > 1 & !missing(share_foreign)
+replace share_foreign = 0 if share_foreign < 0 & !missing(share_foreign)
 
 // Assume that foreign share was 0 in 1970 and then rose linearly (unless we know otherwise)
 keep if year >= 1970 & year <= ($pastyear - 1)
@@ -472,6 +474,8 @@ rename iso iso2
 replace value = value*ratio_equ_asset_row*ratio_equ_liabi_row
 gegen total = total(value), by(iso1 year)
 replace value = value/total
+
+exit 1
 
 replace value = 0 if year == 1970
 
