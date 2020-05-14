@@ -9,6 +9,11 @@ preserve
 	keep year index
 	duplicates drop
 	ren index us_index
+	// to be removed after 2020 Update
+	sum us_index if year == 2018
+	local 2018index = r(max)
+	replace us_index = us_index/`2018index' 
+
 	tempfile temp
 	save `temp'
 restore

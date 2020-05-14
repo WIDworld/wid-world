@@ -63,6 +63,8 @@ replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
 replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
 replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
 
+duplicates drop iso year p widcode, force
+
 compress
 
 save "$work_data/wid-long.dta", replace
