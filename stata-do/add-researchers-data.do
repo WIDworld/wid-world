@@ -188,12 +188,14 @@ save "`meta'"
 // -----------------------------------------------------------------------------
 
 use "$work_data/calculate-average-over-output.dta", clear
+drop if iso == "NZ"
+append using "$wid_dir/Country-Updates/NewZealand/2020_May/NZ.dta"
 gen oldobs=1
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
 
 // Drop Ginis for Germany
-drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
+*drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
 
 // Drop old rows available in new data
 duplicates tag iso year p widcode, gen(dup)
@@ -208,12 +210,12 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 
 // Bauluz 2017 updates: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
 preserve
-keep if author=="bauluz2017"
-keep iso widcode
-duplicates drop
-gen todrop=1
-tempfile todrop
-save "`todrop'"
+	keep if author=="bauluz2017"
+	keep iso widcode
+	duplicates drop
+	gen todrop=1
+	tempfile todrop
+	save "`todrop'"
 restore
 merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
 drop if todrop==1 & author!="bauluz2017" & !inlist(substr(widcode,1,1),"n","i")
