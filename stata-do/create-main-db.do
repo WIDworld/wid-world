@@ -104,7 +104,7 @@ END_OF_R
 
 // Reshape wide the dataset------------------------------------------------------//
 greshape wide value, i(iso year p) j(widcode) string
-renvars valueacainc992j - valuexlcyux999i, predrop(5)
+renvars valueacainc992i - valuexlcyux999i, predrop(5)
 
 save "$work_data/wid-wide.dta", replace
 
