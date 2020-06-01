@@ -6,6 +6,7 @@ generate widcode = "inyixx999i"
 sum value if iso == "US" & year == 2018
 local 2018index = r(max)
 replace value = value/`2018index' if iso == "US"
+//
 tempfile priceindex
 save "`priceindex'"
 
