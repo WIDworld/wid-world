@@ -38,7 +38,7 @@ replace pinpx = -pinpx if country_or_area == "Lesotho" & series == "40" & inrang
 
 replace flcir = . if country_or_area == "Luxembourg" & series == "300" & year < 1995
 replace flcip = . if country_or_area == "Luxembourg" & series == "300" & year < 1995
-drop if country_or_area == "Luxembourg" & series == "1000" & year < 2009
+drop if country_or_area == "Luxembourg" & series == "1000"
 
 // Data with production taxes included in flcin
 generate flag = strpos(lower(footnote1flcin), "refers to net primary income") ///

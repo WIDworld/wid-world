@@ -62,6 +62,11 @@ enforce (comnx = comrx - compx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
+		(pinnx = fdinx + ptfnx) ///
+		(pinpx = fdipx + ptfpx) ///
+		(pinrx = fdirx + ptfrx) ///
+		(fdinx = fdirx - fdipx) ///
+		(ptfnx = ptfrx - ptfpx) ///
 		///  Gross national income of the different sectors of the economy
 		(gdpro + nnfin = prghn + prgco + prggo) ///
 		(gdpro + nnfin = seghn + segco + seggo) ///

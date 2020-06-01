@@ -4,7 +4,8 @@
 // Import the WID to know the list of required currencies and associated countries
 use "$work_data/price-index.dta", clear
 keep iso currency year
-drop if currency == "" 
+drop if currency == ""
+replace currency = "MRU" if iso == "MR"
 *duplicates drop
 drop if year <= 1998
 tempfile countries
@@ -23,7 +24,15 @@ import delimited "$input_data_dir/currency-rates/currencies-rates-2019.csv", ///
 	clear  encoding("utf8")
 drop if currency == "CYP"
 replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)
-destring lcu_to_usd, replace 	
+destring lcu_to_usd, replace
+
+// Mauritania new ouguiya (MRU) = 10 old ouguiya (MRO)
+replace lcu_to_usd = lcu_to_usd/10 if currency == "MRO"
+drop if currency == "MRO" & year >= 2017
+replace currency = "MRU" if currency == "MRO"
+gduplicates tag year currency, gen(dup)
+assert dup == 0
+drop dup
 
 preserve
 keep if currency == "EUR"
@@ -46,9 +55,6 @@ keep if year == 2019
 
 
 replace lcu_to_usd = 80.9035       if (currency == "YUN") // source: mataf.net, march 2020
-
-// Introduction of the new Ouguiya in 2018, Mauritania
-replace lcu_to_usd = lcu_to_usd/10 if currency == "MRO" & year >= 2018
 
 // Correct Venezuelian exchange rate from hyperinflation 
 replace lcu_to_usd = 169554196767.29864793 if currency == "VEF" & year == 2019
@@ -78,6 +84,24 @@ generate p = "pall"
 tempfile xrate
 save "`xrate'"
 
+// Historical data in Somalia: WB and official exchange rate series are weird:
+// use the UN SNA instead
+import excel "$un_data/sna-main/exchange-rate/somalia/tableExPop.xlsx", clear firstrow
+drop in 1
+destring Year AMAexchangerate, replace
+keep Year AMAexchangerate
+rename Year year
+rename AMAexchangerate value
+generate currency = "SOS"
+generate iso = "SO"
+generate p = "pall"
+generate widcode = "xlcusx999i"
+expand 2 if year == 2018, gen(new)
+replace value = 24300*(1/.97969919)/(1/.98220074) if new
+replace year = 2019 if new
+drop new
+tempfile somalia
+save "`somalia'"
 
 // WORLD BANK exchange rates for historical series
 // Import exchange rates series from the World Bank
@@ -150,10 +174,28 @@ replace value=1 if inlist(iso,"SV","LR","ZW", "EC")
 
 append using "`xrate'"
 
+// Missing data (MR, 2004)
+expand 2 if iso == "MR" & year == 2003, gen(new)
+replace value = . if new
+replace year = 2004 if new
+ipolate value year if iso == "MR" & inrange(year, 2003, 2005), gen(i)
+replace value = i if new
+drop new i
+
+// Fix Somalia using UN data
+merge 1:1 iso year widcode using "`somalia'", nogenerate update replace
+
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"
 
 reshape wide value, i(iso year p currency) j(widcode) string
+
+fillin iso year
+replace currency = "USD" if iso == "ZW"
+replace valuexlcusx999i = 1 if iso == "ZW"
+replace p = "pall" if iso == "ZW"
+drop if _fillin & iso != "ZW"
+drop _fillin
 
 preserve
 keep if currency == "EUR"

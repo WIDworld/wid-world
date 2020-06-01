@@ -271,6 +271,30 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
+use "$work_data/calculate-gini-coef-output.dta", clear
+drop currency
+save "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/wid-data.dta", replace
+
+/*
+keep if iso == "GR"
+keep if inlist(widcode, "mnnfin999i", "mnninc999i", "mgdpro999i", "mconfc999i")
+greshape wide value, i(iso year) j(widcode) string
+
+gen r = valuemnnfin999i/valuemnninc999i
+*/
+/*
+keep if inlist(iso, "SO", "MR", "ZW")
+keep if inlist(widcode, "xlcusx999i", "xlcusp999i")
+greshape wide value, i(iso year) j(widcode) string
+gen r = valuexlcusx999i/valuexlcusp999i
+*/
+
+keep if inlist(widcode, "apinnx992i", "afdinx992i", "aptfnx992i")
+greshape wide value, i(iso year) j(widcode) string
+
+gen x = reldif(valueapinnx992i, valueafdinx992i + valueaptfnx992i)
+sum x
+
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //

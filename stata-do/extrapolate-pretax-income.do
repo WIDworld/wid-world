@@ -3,6 +3,14 @@
 // backward in time
 // -------------------------------------------------------------------------- //
 
+// Store the source of fiscal income
+use "$work_data/distribute-national-income-metadata.dta", clear
+keep if sixlet == "sfiinc"
+keep iso source
+rename source source_fiinc
+tempfile fiinc
+save "`fiinc'"
+
 use "$work_data/distribute-national-income-output.dta", clear
 
 // Do not extrapolate Mauritius (discrepancies too big)
@@ -74,7 +82,9 @@ keep if source == "sptinc992j"
 
 collapse (firstnm) year, by(iso)
 
-generate method2 = "Before " + string(year) + ", pretax income shares retropolated based on fiscal income."
+merge n:1 iso using "`fiinc'", nogenerate keep(master match)
+
+generate method2 = "Before " + string(year) + ", pretax income shares retropolated based on fiscal income: see " + source_fiinc
 keep iso method2
 
 tempfile meta
@@ -112,7 +122,7 @@ save "$work_data/extrapolate-pretax-income-output.dta", replace
 
 use "$work_data/distribute-national-income-metadata.dta", clear
 
-merge n:1 iso using "`meta'", nogenerate 
+merge n:1 iso using "`meta'", nogenerate
 
 replace method = rtrim(method)
 generate newmethod = method

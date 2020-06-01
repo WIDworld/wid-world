@@ -14,8 +14,8 @@ foreach v of varlist v* {
 	}
 }
 
-keep if weosubjectcode == "NGDP"
-drop iso weocountrycode weosubjectcode subjectdescriptor units ///
+keep if weosubjectcode == "NGDP" | weosubjectcode == "PPPEX"
+drop iso weocountrycode subjectdescriptor units ///
 	scale countryseriesspecificnotes
 
 /*
@@ -30,7 +30,13 @@ replace country = "Swaziland"             if country == "Eswatini"
 countrycode country, generate(iso) from("imf weo")
 drop country
 
-reshape long value, i(iso) j(year)
+reshape long value, i(iso weosubjectcode) j(year)
+reshape wide value, i(iso year) j(weosubjectcode) string
+
+// Zimbabwe: IMF moved to RTGS dollars unlike other databases: convert back to USD
+replace valueNGDP = valueNGDP/valuePPPEX if iso == "ZW"
+drop valuePPPEX
+
 drop if value >= .
 
 qui sum estimatesstartafter

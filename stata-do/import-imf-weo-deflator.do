@@ -10,12 +10,12 @@ foreach v of varlist v* {
 	}
 	else {
 		destring `v', replace force ignore(",")
-		rename `v' def_imf`year'
+		rename `v' value`year'
 	}
 }
 
-keep if weosubjectcode == "NGDP_D"
-drop iso weocountrycode weosubjectcode subjectdescriptor units ///
+keep if weosubjectcode == "NGDP_D" | weosubjectcode == "PPPEX"
+drop iso weocountrycode subjectdescriptor units ///
 	scale countryseriesspecificnotes
 
 /* 
@@ -32,7 +32,15 @@ countrycode country, generate(iso) from("imf weo")
 drop country
 
 
-reshape long def_imf, i(iso) j(year)
+reshape long value, i(iso weosubjectcode) j(year)
+reshape wide value, i(iso year) j(weosubjectcode) string
+
+// Zimbabwe: IMF moved to RTGS dollars unlike other databases: convert back to USD
+replace valueNGDP_D = valueNGDP_D/valuePPPEX if iso == "ZW"
+drop valuePPPEX
+
+rename valueNGDP_D def_imf
+
 drop if def_imf >= .
 
 drop if year>$pastyear

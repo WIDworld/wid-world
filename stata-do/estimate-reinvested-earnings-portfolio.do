@@ -463,7 +463,7 @@ drop nnmiss nnmiss_value
 
 // Match with net foreign asset position
 rename iso1 iso
-merge n:1 iso year using "`netpos'", keepusing(ptf_liabi ratio_equ_liabi_row) keep(master match) nogenerate
+merge n:1 iso year using "`netpos'", keepusing(ptf_liabi ratio_equ_liabi_row ratio_equ_liabi_dom) keep(master match) nogenerate
 rename iso iso1
 
 rename iso2 iso
@@ -475,7 +475,8 @@ replace value = value*ratio_equ_asset_row*ratio_equ_liabi_row
 gegen total = total(value), by(iso1 year)
 replace value = value/total
 
-exit 1
+// Tax haven-specific adjustment
+replace value = value/10 if inlist(iso2, "KY", "AN", "MU", "BM", "LU", "SX", "CW")
 
 replace value = 0 if year == 1970
 
