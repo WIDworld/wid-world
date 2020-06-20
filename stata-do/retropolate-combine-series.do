@@ -79,8 +79,15 @@ rename series series_
 greshape wide value series_, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
+// Use data from value-added tables for compensation of employees
+replace comhn = com_vahn + comnx if missing(comhn)
+drop com_vahn
+
 // Small data fix in MX
 replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
+
+br iso year confc cfc* if iso == "AU"
+
 
 // -------------------------------------------------------------------------- //
 // Perform re-calibration
@@ -120,6 +127,9 @@ enforce (comnx = comrx - compx) ///
 		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
+		/// National savings
+		(savig = savin + confc) ///
+		(savin = savhn + savgo + secco) ///
 		/// Household + NPISH sector
 		(prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///
@@ -243,5 +253,5 @@ foreach v of varlist *go {
 	replace `v' = . if inlist(iso, "TZ", "NA") & year < 2008
 	replace `v' = . if inlist(iso, "NA")
 }
-		
+
 save "$work_data/sna-combined.dta", replace

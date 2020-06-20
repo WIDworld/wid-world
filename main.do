@@ -247,7 +247,7 @@ do "$do_dir/add-researchers-data-real.do"
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
 
-// Wealth/income ratios
+// Wealth/income ratios (+ labor/capital shares)
 do "$do_dir/calculate-wealth-income-ratios.do"
 
 // Per capita/per adults series
@@ -271,29 +271,16 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
+levelsof iso if widcode == "wlabsh999i", local(iso_list)
+foreach cc of local iso_list {
+	gr tw connected value year if iso == "`cc'" & widcode == "wlabsh999i", sort(year) yscale(range(0 1)) ylabel(0(0.1)1)
+	graph export "~/Downloads/labsh/`cc'.pdf", replace
+}
+
 use "$work_data/calculate-gini-coef-output.dta", clear
 drop currency
+compress
 save "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/wid-data.dta", replace
-
-/*
-keep if iso == "GR"
-keep if inlist(widcode, "mnnfin999i", "mnninc999i", "mgdpro999i", "mconfc999i")
-greshape wide value, i(iso year) j(widcode) string
-
-gen r = valuemnnfin999i/valuemnninc999i
-*/
-/*
-keep if inlist(iso, "SO", "MR", "ZW")
-keep if inlist(widcode, "xlcusx999i", "xlcusp999i")
-greshape wide value, i(iso year) j(widcode) string
-gen r = valuexlcusx999i/valuexlcusp999i
-*/
-
-keep if inlist(widcode, "apinnx992i", "afdinx992i", "aptfnx992i")
-greshape wide value, i(iso year) j(widcode) string
-
-gen x = reldif(valueapinnx992i, valueafdinx992i + valueaptfnx992i)
-sum x
 
 // -------------------------------------------------------------------------- //
 // Export the database
@@ -304,7 +291,7 @@ capture mkdir "$output_dir/$time"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"
-do "$do_dir/export-metadata-other.do"  // the excel file codes dictionnary is not working
+do "$do_dir/export-metadata-other.do"
 
 // Export the units
 do "$do_dir/export-units.do"

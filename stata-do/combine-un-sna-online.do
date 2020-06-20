@@ -48,10 +48,26 @@ foreach v in pinnx flcin nnfin {
 	replace `v' = . if iso == "QA" & series == 100 & year == 2005
 }
 
+replace com_vahn = com_vahn - comnx if iso == "PH" & series == 1000
+
 swapval pinpx pinrx if iso == "TD" & series == 200 & inlist(year, 2005, 2006, 2007, 2009, 2010)
 foreach v in pinnx flcin flcir flcip nnfin finpx finrx {
 	replace `v' = . if iso == "TD" & series == 200 & inlist(year, 2005, 2006, 2007, 2009, 2010)
 }
+
+// Remove situations where production taxes from generation of income
+// account are too different from primary distribution of income
+
+foreach v of varlist ptxgo_va spigo_va tpigo_va {
+	replace `v' = . if iso == "NO" & series == 100
+	replace `v' = . if iso == "CL" & series == 1000
+	replace `v' = . if iso == "AR" & series == 1000
+}
+replace ptxgo_va = . if iso == "KW" & series == 30 & year == 2012
+replace ptxgo_va = . if iso == "DO" & series == 1000
+
+replace tpigo_va = . if iso == "DO" & series == 1000
+replace tpigo_va = . if iso == "CZ" & series == 100 & inlist(year, 1993, 1994)
 
 // -------------------------------------------------------------------------- //
 // Calibrate series
@@ -70,11 +86,19 @@ enforce (comnx = comrx - compx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx), fixed(nnfin) replace
-		
+
 // Gross national income of the different sectors of the economy
 // (+ specific income components)
 enforce (gdpro + nnfin = prghn + prgco + prggo) ///
 		(gdpro + nnfin = seghn + segco + seggo) ///
+		/// Production taxes
+		(ptxgo = ptxgo_va + taxnx) ///
+		(tpigo = tpigo_va + ftaxx) ///
+		(spigo = spigo_va + fsubx) ///
+		(ptxgo = tpigo - spigo) ///
+		(tpigo = tprgo + otpgo) ///
+		(spigo = sprgo + ospgo) ///
+		(ptxgo_va = tpigo_va - spigo_va) ///
 		/// Property income
 		(pinnx = prphn + prpco + prpgo) ///
 		(prphn = prpho + prpnp) ///
@@ -91,12 +115,19 @@ enforce (gdpro + nnfin = prghn + prgco + prggo) ///
 		(ssbhn = ssbco + ssbgo) ///
 		(ssbco = ssbnf + ssbfc) ///
 		(ssbhn = ssbho + ssbnp), fixed(gdpro nnfin pinnx) replace
+		
+// Use production taxes from generation of income account if necessary
+replace ptxgo = ptxgo_va + cond(missing(taxnx), 0, taxnx) if missing(ptxgo)
+replace tpigo = tpigo_va + cond(missing(ftaxx), 0, ftaxx) if missing(tpigo)
+replace spigo = spigo_va + cond(missing(fsubx), 0, fsubx) if missing(spigo)
+drop ptxgo_va tpigo_va spigo_va
 
 // Consumption of fixed capital
 enforce (confc = cfchn + cfcco + cfcgo), fixed(confc) replace
-		
-// Household + NPISH sector
-enforce (prghn = comhn + caghn) ///
+
+enforce (comhn = com_vahn + comnx) ///
+		/// Household + NPISH sector
+        (prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///
 		(caphn = nsmhn + prphn) ///
 		(nsmhn = gsmhn - cfchn) ///
@@ -157,6 +188,9 @@ enforce (prghn = comhn + caghn) ///
 		(seghn = segho + segnp) ///
 		(savhn = savho + savnp) ///
 		(saghn = sagho + sagnp), fixed(prghn cfchn) replace
+		
+sort iso series year
+br iso year series ccmhn ccshn cfchn gmxhn nmxhn gsrhn nsrhn gsmhn nsmhn if iso == "AU"
 
 // Corporate sector
 enforce /// Combined sectors, primary income

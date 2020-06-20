@@ -252,9 +252,13 @@ drop confc
 
 merge 1:1 iso year using "$work_data/confc-imputed.dta", nogenerate
 
+br iso year confc cfc* if iso == "AU"
+
 // -------------------------------------------------------------------------- //
 // Start with CFC of the government sector
 // -------------------------------------------------------------------------- //
+
+br iso year confc cfc* if inlist(iso, "LS", "MH", "TD")
 
 replace cfcgo = gsrgo if missing(cfcgo)
 
@@ -262,16 +266,9 @@ replace cfcgo = gsrgo if missing(cfcgo)
 generate flag = (cfcgo >= 0.75*confc) & !missing(cfcgo)
 
 generate old_cfcgo = max(cfcgo, 0)
-replace cfcgo = 0.75/(1 - 0.75)*(confc - old_cfcgo) if flag
-
-replace nsrgo = 0                         if flag
-replace gsrgo = cfcgo                     if flag
-replace confc = confc - old_cfcgo + cfcgo if flag
-replace gdpro = gdpro - old_cfcgo + cfcgo if flag
-replace prggo = prggo - old_cfcgo + cfcgo if flag
-replace seggo = seggo - old_cfcgo + cfcgo if flag
-replace saggo = saggo - old_cfcgo + cfcgo if flag
-generate gdpro_cal = 1
+replace cfcgo = 0.75*confc if flag
+replace nsrgo = 0          if flag
+replace gsrgo = cfcgo      if flag
 drop old_cfcgo
 
 enforce (comnx = comrx - compx) ///
@@ -310,6 +307,9 @@ enforce (comnx = comrx - compx) ///
 		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
+		/// National savings
+		(savig = savin + confc) ///
+		(savin = savhn + savgo + secco) ///
 		/// Household + NPISH sector
 		(prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///
@@ -427,26 +427,18 @@ enforce (comnx = comrx - compx) ///
 		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
 		/// Labor + capital income decomposition
 		(fkpin = prphn + prico + nsrhn + prpgo) ///
-		(gdpro = gdpro_cal) ///
-		if flag, fixed(gdpro_cal nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
+		if flag, fixed(gdpro nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
 
-drop flag gdpro_cal
+drop flag
 		
 // Country with cfcgo too low vs confc: bottom-code at 5% of total CFC:
 // we do that by adusting GDP upward too (more cfcgo => more gsrgo)
 generate flag = (cfcgo <= 0.05*confc) & !missing(cfcgo)
 
 generate old_cfcgo = max(cfcgo, 0)
-replace cfcgo = 0.05/(1 - 0.05)*(confc - old_cfcgo) if flag
-
-replace nsrgo = 0                         if flag
-replace gsrgo = cfcgo                     if flag
-replace confc = confc - old_cfcgo + cfcgo if flag
-replace gdpro = gdpro - old_cfcgo + cfcgo if flag
-replace prggo = prggo - old_cfcgo + cfcgo if flag
-replace seggo = seggo - old_cfcgo + cfcgo if flag
-replace saggo = saggo - old_cfcgo + cfcgo if flag
-generate gdpro_cal = 1
+replace cfcgo = 0.05*confc if flag
+replace nsrgo = 0          if flag
+replace gsrgo = cfcgo      if flag
 drop old_cfcgo
 
 enforce (comnx = comrx - compx) ///
@@ -485,6 +477,9 @@ enforce (comnx = comrx - compx) ///
 		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
+		/// National savings
+		(savig = savin + confc) ///
+		(savin = savhn + savgo + secco) ///
 		/// Household + NPISH sector
 		(prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///
@@ -602,10 +597,9 @@ enforce (comnx = comrx - compx) ///
 		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
 		/// Labor + capital income decomposition
 		(fkpin = prphn + prico + nsrhn + prpgo) ///
-		(gdpro = gdpro_cal) ///
-		if flag, fixed(gdpro_cal nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
+		if flag, fixed(gdpro nnfin confc fkpin comhn nmxhn cfcgo gsrgo nsrgo) replace
 
-drop flag gdpro_cal
+drop flag
 
 // Impute cfcgo
 replace cfcgo = gsrgo if missing(cfcgo) // In general, nsrgo = 0
@@ -733,6 +727,9 @@ enforce (comnx = comrx - compx) ///
 		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
+		/// National savings
+		(savig = savin + confc) ///
+		(savin = savhn + savgo + secco) ///
 		/// Household + NPISH sector
 		(prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///

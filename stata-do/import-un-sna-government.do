@@ -2,6 +2,24 @@
 // Import data for the general government
 // -------------------------------------------------------------------------- //
 
+// Separetely import production taxes
+// from valued-added tables to use as a fall back
+use "$input_data_dir/un-sna/401.dta", clear
+
+merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
+replace value = value/current_gdp
+drop current_gdp
+
+generate widcode = ""
+
+replace widcode = "ptxgo_va" if sub_group == "II.1.1 Generation of income account - Uses" & item == "Taxes on production and imports, less Subsidies"
+replace widcode = "tpigo_va" if sub_group == "II.1.1 Generation of income account - Uses" & item == "Taxes on production and imports"
+replace widcode = "spigo_va" if sub_group == "II.1.1 Generation of income account - Uses" & item == "Less: Subsidies"
+
+tempfile va
+save "`va'"
+
+// Separately import COFOG
 use "$input_data_dir/un-sna/301.dta", clear
 
 merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
@@ -25,6 +43,7 @@ replace widcode = "othgo" if item == "Plus: (Other functions)"
 tempfile func
 save "`func'"
 
+// Import from government sector account
 use "$input_data_dir/un-sna/405.dta", clear
 
 merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
@@ -60,6 +79,7 @@ replace widcode = "indgo" if item == "Individual consumption expenditure"
 replace widcode = "colgo" if item == "Collective consumption expenditure"
 
 append using "`func'"
+append using "`va'"
 
 drop if missing(widcode)
 foreach v of varlist footnote* {

@@ -1,5 +1,11 @@
-
 use "$work_data/calibrate-dina-output.dta", clear
+
+// Use KV rather than KS for Kosovo
+replace iso = "KV" if iso == "KS"
+// Make sure that we haven't created duplicates in the process
+gduplicates tag iso year widcode p if iso == "KV", gen(dup)
+assert dup == 0 if iso == "KV"
+drop dup
 
 // Generate average fiscal incomes based on total income controls
 keep if inlist(substr(widcode,1,3),"afi","mfi","nta") & p=="pall"

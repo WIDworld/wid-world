@@ -46,6 +46,9 @@ foreach v of varlist ptfnx pinnx flcin nnfin prpco prpnf prgco prgnf ///
 	replace `v' = `v' - ptfrp if !missing(ptfrp)
 }
 
+// Remove useless variables
+drop cap?? cag?? nsmnp
+
 // Finally calculate net national income
 replace gdpro = 1 if missing(gdpro)
 generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)

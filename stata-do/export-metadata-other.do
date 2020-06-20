@@ -11,7 +11,10 @@ tempfile variables
 local firstiter = 1
 foreach sheet in Wealth_Macro_Variables Income_Macro_Variables ///
 		Income_Distributed_Variables Other_Macro_Variables Wealth_Distributed_Variables {
-	import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("`sheet'") clear allstring
+	
+	*import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("`sheet'") clear allstring
+	import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("`sheet'") clear allstring
+	
 	keep  A B C D G J M Q
 	rename A onelet
 	replace onelet = "" if onelet=="."
@@ -64,7 +67,8 @@ save "$work_data/var-names.dta", replace
 // Series type
 
 clear
-import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Series_Type")
+*import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Series_Type")
+import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("Series_Type") clear allstring
 keep A B C D E
 rename A onetype
 rename B shortdes  
@@ -82,7 +86,8 @@ save "$work_data/var-types.dta", replace
 // Population type
 
 clear
-import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Population_Categories")
+*import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Population_Categories")
+import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("Population_Categories") clear allstring
 keep A B C D
 rename A onepop
 rename B shortdes
@@ -98,7 +103,8 @@ save "$work_data/var-pops.dta", replace
 // Age groups
 
 clear
-import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Age_Categories")
+*import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("Age_Categories")
+import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("Age_Categories") clear allstring
 keep A B C E
 rename A agecode
 rename B shortname

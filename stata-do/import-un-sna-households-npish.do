@@ -2,6 +2,22 @@
 // Import data from households and NPISH
 // -------------------------------------------------------------------------- //
 
+// Separetely fetch compensation of employees and mixed income
+// from valued-added tables to use as a fall back
+use "$input_data_dir/un-sna/401.dta", clear
+
+merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
+replace value = value/current_gdp
+
+generate widcode = ""
+
+replace widcode = "com_va" if item == "Compensation of employees" & sub_group == "II.1.1 Generation of income account - Uses"
+replace widcode = "gmx_va" if item == "MIXED INCOME, GROSS" & sub_group == "II.1.1 Generation of income account - Uses"
+generate sector = "hn"
+
+tempfile va
+save "`va'", replace
+
 use "$input_data_dir/un-sna/406.dta", clear
 generate sector = "ho"
 append using "$input_data_dir/un-sna/407.dta"
@@ -34,6 +50,8 @@ replace widcode = "ssb_paid" if item == "Social benefits other than social trans
 
 replace widcode = "con" if item == "Final consumption expenditure"
 
+append using "`va'"
+
 drop if missing(widcode)
 foreach v of varlist footnote* {
 	egen tmp = mode(`v'), by(country_or_area series sector widcode)
@@ -55,7 +73,8 @@ drop *_paid *_recv
 // Data fixes
 drop if country_or_area == "Sweden" & series == "200"
 drop if country_or_area == "Poland" & series == "200" & year == 1995
-
+drop if country_or_area == "Australia" & series == "1000"
+drop if country_or_area == "Australia" & series == "200"
 
 replace gsr = gmx + gsr if country_or_area == "Australia" & inrange(year, 1959, 1964) & inlist(series, "100", "200") & sector == "hn"
 replace gsr = gsr - gmx if country_or_area == "Azerbaijan" & inlist(series, "200", "300") & sector == "ho"
@@ -65,23 +84,25 @@ replace prg = com + prp + gmx + gsr if country_or_area == "Azerbaijan" & series 
 replace gsr = . if country_or_area == "Canada" & series == "100" & sector == "hn"
 
 replace gmx = . if country_or_area == "Malta"
-
 // Sometimes operating surplus and mixed income are pooled together, and
 // sometimes the values are recorded net
 generate gsm = .
 generate nsm = .
 generate nsr = .
 generate nmx = .
+generate nmx_va = .
 generate pri = .
 
-replace nmx = gmx if country_or_area == "Dominican Republic" & series == "100"
-
+replace nmx    = gmx    if country_or_area == "Dominican Republic" & series == "100"
+replace nmx_va = gmx_va if country_or_area == "Dominican Republic" & series == "100"
+replace gmx    = .      if country_or_area == "Dominican Republic" & series == "100"
+replace gmx_va = .      if country_or_area == "Dominican Republic" & series == "100"
 // Fix some footnotes
 replace footnote1gsr = "Refers to Operating Surplus, Net, plus total Consumption of Fixed Capital of the sector." if country_or_area == "Sweden" & series == "100"
 
-replace footnote1gmx = "Mixed income, net. Excludes consumption of fixed capital."                     if country_or_area == "Australia" & inlist(series, "200", "1000")
-replace footnote1gsr = "Refers to Operating Surplus, Net, i.e. excludes consumption of fixed capital." if country_or_area == "Australia" & inlist(series, "200", "1000")
-replace footnote1prg = "Excludes consumption of fixed capital."                                        if country_or_area == "Australia" & inlist(series, "200", "1000")
+*replace footnote1gmx = "Mixed income, net. Excludes consumption of fixed capital."                     if country_or_area == "Australia" & inlist(series, "200", "1000")
+*replace footnote1gsr = "Refers to Operating Surplus, Net, i.e. excludes consumption of fixed capital." if country_or_area == "Australia" & inlist(series, "200", "1000")
+*replace footnote1prg = "Excludes consumption of fixed capital."                                        if country_or_area == "Australia" & inlist(series, "200", "1000")
 
 // Better to look at the data directly than use footnote for this
 *replace gsm = gsr if strpos(footnote1gsr, "Includes Mixed Income, Gross.")
@@ -104,6 +125,11 @@ replace nmx = gmx if inlist(footnote1gmx, "Mixed income, net. Excludes consumpti
 replace gmx = .   if inlist(footnote1gmx, "Mixed income, net. Excludes consumption of fixed capital.", ///
 	"Refers to Net Mixed Income.", "Refers to Net value, i.e. excludes Consumption of fixed capital.")
 	
+replace nmx_va = gmx_va if inlist(footnote1gmx_va, "Mixed income, net. Excludes consumption of fixed capital.", ///
+	"Refers to Net Mixed Income.", "Refers to Net value, i.e. excludes Consumption of fixed capital.")
+replace gmx_va = .      if inlist(footnote1gmx_va, "Mixed income, net. Excludes consumption of fixed capital.", ///
+	"Refers to Net Mixed Income.", "Refers to Net value, i.e. excludes Consumption of fixed capital.")
+	
 replace pri = prg if inlist(footnote1prg, "Excludes consumption of fixed capital.")
 replace prg = .   if inlist(footnote1prg, "Excludes consumption of fixed capital.")
 
@@ -119,7 +145,12 @@ replace nsr = .   if missing(nmx) & !missing(nsr)
 
 replace nsm = nmx if missing(nsr) & !missing(nmx)
 replace nmx = .   if missing(nsr) & !missing(nmx)
-	
+
+// Use data from generation of income account for mixed income when necessary
+replace gmx = gmx_va if missing(gmx)
+replace nmx = nmx_va if missing(nmx)
+drop gmx_va nmx_va
+
 replace gsm = gsr + gmx if missing(gsm)
 replace gsm = nsm + cfc if missing(gsm)
 replace nsm = nsr + nmx if missing(nsm)
@@ -145,7 +176,7 @@ reshape wide `varlist', i(country_or_area year series) j(sector) string
 // Combine sectors ourselves if necessary
 foreach v of varlist *hn {
 	local stub = substr("`v'", 1, 3)
-	replace `v' = `stub'ho + `stub'np if missing(`v')
+	replace `v' = `stub'ho + cond(missing(`stub'np), 0, `stub'np) if missing(`v')
 }
 
 // No mixed income in the NPISH sector

@@ -30,6 +30,7 @@ replace value = 2*value
 
 // Code as Gini
 replace widcode = "g" + substr(widcode, 2, .)
+generate p = "p0p100"
 
 tempfile gini
 save "`gini'"

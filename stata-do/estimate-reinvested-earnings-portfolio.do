@@ -69,7 +69,10 @@ keep location time transact sector value
 greshape wide value, i(location time transact) j(sector) string
 greshape wide value*, i(location time) j(transact) string
 
-generate equ_liabi           = valueS1SAF5LINC
+generate equ_liabi_dom = valueS1SAF5LINC
+generate equ_liabi_row = valueS2SAF5ASNC
+generate equ_asset_row = valueS2SAF5LINC
+
 generate ratio_equ_liabi_dom = valueS1SAF51LINC/valueS1SAF5LINC
 generate ratio_equ_liabi_row = valueS2SAF51ASNC/valueS2SAF5ASNC
 generate ratio_equ_asset_row = valueS2SAF51LINC/valueS2SAF5LINC
@@ -77,7 +80,7 @@ generate ratio_equ_asset_row = valueS2SAF51LINC/valueS2SAF5LINC
 replace ratio_equ_liabi_row = . if location == "MEX"
 replace ratio_equ_liabi_row = . if location == "MEX"
 
-keep location time equ_liabi ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row
+keep location time equ_liabi_dom equ_liabi_row equ_asset_row ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row
 
 tempfile oecd
 save "`oecd'"
@@ -88,16 +91,19 @@ keep location time transact sector value
 greshape wide value, i(location time transact) j(sector) string
 greshape wide value*, i(location time) j(transact) string
 
-generate equ_liabi           = valueRS1LF5LINC
+generate equ_liabi_dom = valueRS1LF5LINC
+generate equ_liabi_row = valueRS2LF5ASNC
+generate equ_asset_row = valueRS2LF5LINC
+
 generate ratio_equ_liabi_dom = valueRS1LF51LINC/valueRS1LF5LINC
 generate ratio_equ_liabi_row = valueRS2LF51ASNC/valueRS2LF5ASNC
 generate ratio_equ_asset_row = valueRS2LF51LINC/valueRS2LF5LINC
 
-keep location time equ_liabi ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row
+keep location time equ_liabi_dom equ_liabi_row equ_asset_row ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row
 
 append using "`oecd'"
 
-collapse (mean) equ_liabi ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row, by(location time)
+collapse (mean) equ_liabi_dom equ_liabi_row equ_asset_row ratio_equ_liabi_dom ratio_equ_liabi_row ratio_equ_asset_row, by(location time)
 
 kountry location, from(iso3c) to(iso2c)
 rename _ISO2C_ iso
@@ -105,7 +111,9 @@ drop location
 
 rename time year
 
-replace equ_liabi = equ_liabi*1e6
+replace equ_liabi_dom = equ_liabi_dom*1e6
+replace equ_liabi_row = equ_liabi_row*1e6
+replace equ_asset_row = equ_asset_row*1e6
 
 save "`oecd'", replace
 
@@ -224,8 +232,10 @@ use "`netpos'", clear
 // Estimate the fraction of equities owned by foreigners
 // -------------------------------------------------------------------------- //
 
-generate share_foreign = ptf_liabi*ratio_equ_liabi_row/(equ_liabi*ratio_equ_liabi_dom + fdi_asset - fdi_liabi)
+generate share_foreign = ptf_liabi*ratio_equ_liabi_row/(equ_liabi_dom*ratio_equ_liabi_dom + fdi_asset - fdi_liabi)
 generate ratio_liab = ptf_liabi*ratio_equ_liabi_row/gdp
+
+gen a = fdi_asset - fdi_li
 
 // Use liability ratio to exptrapolate share of foreign earnings (correlation around 0.85)
 encode2 iso

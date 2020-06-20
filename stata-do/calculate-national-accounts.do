@@ -33,6 +33,9 @@ append using "`gdp'"
 sort iso widcode year
 
 replace widcode = "m" + widcode + "999i"
+generate p = "pall"
+
+// Kosovo: use KV rather than KS
 
 save "$work_data/national-accounts.dta", replace
 
@@ -59,11 +62,11 @@ rename series_ series
 
 drop if missing(value)
 
-merge n:1 iso widcode using "$work_data/sna-wid-metadata.dta", nogenerate keep(master match) keepusing(source)
+merge n:1 iso using "$work_data/sna-wid-metadata.dta", nogenerate keep(master match) keepusing(source)
 
 generate method = "extrapolated from last available year; " if (series == -2)
 replace method = "estimated value (see DINA guidelines); " if (series == -3)
-replace method = "estimated value (see DINA guidelines, foreign inflows of retained earnings were divided by 10 as in other tax havens to account for the heterogeneity between domestic and foreign-owned firms); " if (series == -3) & inlist(iso, "KY", "AN", "MU", "BM", "LU", "SX", "CW") & inlist(widcode, "ptfrr", "ptfrn")
+replace method = "estimated value (see DINA guidelines, foreign inflows of retained earnings were divided by 10 as in several other tax havens to account for the heterogeneity between domestic and foreign-owned firms); " if (series == -3) & inlist(iso, "KY", "AN", "MU", "BM", "LU", "SX", "CW") & inlist(widcode, "ptfrr", "ptfrn")
 replace method = "imputed value; " if (series == -1)
 replace method = "[URL][URL_LINK]http://data.un.org/Explorer.aspx[/URL_LINK][URL_TEXT]UN SNA (1968)[/URL_TEXT][/URL]; " if inrange(series, 1, 99)
 replace method = "[URL][URL_LINK]http://data.un.org/Explorer.aspx[/URL_LINK][URL_TEXT]UN SNA (1993)[/URL_TEXT][/URL]; " if inrange(series, 100, 999)

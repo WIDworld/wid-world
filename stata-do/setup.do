@@ -81,7 +81,6 @@ global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
-global uk_data 			 "$input_data_dir/uk-data"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"

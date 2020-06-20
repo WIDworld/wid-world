@@ -185,6 +185,14 @@ drop new i
 // Fix Somalia using UN data
 merge 1:1 iso year widcode using "`somalia'", nogenerate update replace
 
+// Manual fix for Nigeria, 1994-1998 (official rate does not reflect reality, use
+// backward PARE estimations from the UN)
+replace value = 35.743628082917010 if iso == "NG" & year == 1994 & widcode == "xlcusx999i"
+replace value = 61.407306954281104 if iso == "NG" & year == 1995 & widcode == "xlcusx999i"
+replace value = 76.278096344699490 if iso == "NG" & year == 1996 & widcode == "xlcusx999i"
+replace value = 78.775837490581820 if iso == "NG" & year == 1997 & widcode == "xlcusx999i"
+replace value = 82.580278068470160 if iso == "NG" & year == 1998 & widcode == "xlcusx999i"
+
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"
 
@@ -196,6 +204,20 @@ replace valuexlcusx999i = 1 if iso == "ZW"
 replace p = "pall" if iso == "ZW"
 drop if _fillin & iso != "ZW"
 drop _fillin
+
+// Fix countries with missing values
+fillin iso year
+egen currency2 = mode(currency), by(iso)
+replace currency = currency2
+drop currency2
+replace p = "pall"
+egen value2 = mean(valuexlcusx999i), by(year currency)
+replace valuexlcusx999i = value2 if missing(valuexlcusx999i)
+drop value2 _fillin
+merge 1:1 iso currency year using "`merged'", update noreplace keepusing(lcu_to_usd) nogenerate
+replace valuexlcusx999i = lcu_to_usd if missing(valuexlcusx999i)
+drop lcu_to_usd
+drop if missing(valuexlcusx999i)
 
 preserve
 keep if currency == "EUR"

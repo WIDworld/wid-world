@@ -1,3 +1,11 @@
+// -------------------------------------------------------------------------- //
+// Calculate wealth-income ratios and labor/capital shares
+// -------------------------------------------------------------------------- //
+
+// -------------------------------------------------------------------------- //
+// Wealth-income ratios
+// -------------------------------------------------------------------------- //
+
 use "$work_data/complete-variables-output.dta", clear
 
 keep if inlist(substr(widcode, 1, 6), "mpweal", "mhweal", "miweal", ///
@@ -19,8 +27,36 @@ drop if value >= .
 
 generate p = "pall"
 
-append using "$work_data/complete-variables-output.dta"
+tempfile ratios
+save "`ratios'"
 
+// -------------------------------------------------------------------------- //
+// Labor/capital share
+// -------------------------------------------------------------------------- //
+
+use "$work_data/complete-variables-output.dta", clear
+
+keep if inlist(widcode, "mfkpin999i", "mnmxho999i", "mcomhn999i")
+greshape wide value, i(iso year) j(widcode) string
+
+generate valuewlabsh999i = (valuemcomhn999i + 0.7*valuemnmxho999i)/(valuemcomhn999i + valuemfkpin999i + valuemnmxho999i)
+generate valuewcapsh999i = (valuemfkpin999i + 0.3*valuemnmxho999i)/(valuemcomhn999i + valuemfkpin999i + valuemnmxho999i)
+keep iso year p valuew*
+
+greshape long value, i(iso year) j(widcode) string
+
+tempfile shares
+save "`shares'"
+
+// -------------------------------------------------------------------------- //
+// Combine
+// -------------------------------------------------------------------------- //
+
+use "$work_data/complete-variables-output.dta", clear
+append using "`ratios'"
+append using "`shares'"
+
+drop if missing(value)
 duplicates drop iso year p widcode, force
 
 compress

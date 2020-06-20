@@ -88,6 +88,9 @@ enforce (comnx = comrx - compx) ///
 		(ssbhn = ssbho + ssbnp) ///
 		/// Consumption of fixed capital
 		(confc = cfchn + cfcco + cfcgo) ///
+		/// National savings
+		(savig = savin + confc) ///
+		(savin = savhn + savgo + secco) ///
 		/// Household + NPISH sector
 		(prghn = comhn + caghn) ///
 		(caghn = gsmhn + prphn) ///

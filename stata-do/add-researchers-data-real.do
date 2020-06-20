@@ -2,13 +2,19 @@
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------- //
+// WARNING: There must a good reason for adding add directly in real rather
+// than in nominal. Data imported directly in real terms will not be properly
+// updated to last year's prices during the annual update unless it is handled
+// correctly by calibrate-dina.do.
+//
+// (Regional data is the most common use case for the part of the code.)
+// -------------------------------------------------------------------------- //
+
 // France inequality 2017 (GGP2017)
 use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
 
-// UK wealth 2017 (Alvaredo2017)
-append using "$uk_data/uk-wealth-alvaredo2017.dta"
-
-// US inequality 2017 (PSZ2017)
+// US wealth inequality 2017 (PSZ2017)
 *append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-AppendixII.dta"
 
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
@@ -98,8 +104,7 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 // COMBINE NA AND DISTRIBUTIONAL METADATAS
 // -----------------------------------------------------------------------------------------------------------------
 
-use "$work_data/metadata-no-duplicates.dta", clear
-append using "$work_data/na-metadata.dta"
+use "$work_data/aggregate-regions-wir2018-metadata-output.dta", clear
 drop if iso=="CN" & mi(source) & inlist(sixlet,"xlcusx","xlcyux")
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace 

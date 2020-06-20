@@ -15,6 +15,8 @@ use "$work_data/distribute-national-income-output.dta", clear
 
 // Do not extrapolate Mauritius (discrepancies too big)
 drop if iso == "MU"
+// Do not extrapolate Portugel (only gain a few years, and deosn't work well)
+drop if iso == "PT"
 
 keep if widcode == "sptinc992j" | strpos(widcode, "sfiinc")
 
@@ -54,7 +56,9 @@ foreach v of varlist coef coef_extra {
 
 replace coef = coef_extra if missing(coef)
 replace source = "sfiinc992i" if missing(sfiinc992t) & !missing(sfiinc992i/coef) & missing(sptinc992j)
-replace sfiinc992t = sfiinc992i/coef if missing(sfiinc992t)
+replace coef = 1 if iso == "HU" // Fix for Hungary (big gap in the data)
+replace sfiinc992t = sfiinc992i*coef if missing(sfiinc992t)
+replace sfiinc992t = sfiinc992i if missing(sfiinc992t)
 drop coef coef_extra
 
 // Combine corrected tax unit fiscal income with pretax income
@@ -67,8 +71,28 @@ replace coef = tmp2
 drop tmp1 tmp2
 
 replace source = "sfiinc992t" if missing(sptinc992j) & !missing(sfiinc992t/coef) & source == ""
-replace sptinc992j = sfiinc992t/coef if missing(sptinc992j)
+replace sptinc992j = sfiinc992t*coef if missing(sptinc992j)
 drop coef
+
+// Small fix in GB to avoid series jump due to correction and missing years pattern
+by iso p: replace sptinc992j = (sptinc992j[_n - 1] + sptinc992j[_n + 1])/2 if iso == "GB" & year == 1980
+
+/*
+levelsof iso if !missing(sptinc992j) & inlist(p, 90000, 99000), local(iso)
+foreach cc of local iso {
+	count if (!missing(sfiinc992i) | !missing(sfiinc992t)) & iso == "`cc'"
+	
+	if (r(N) > 0) {
+		gr tw connected sfiinc992i sfiinc992t sptinc992j year if iso == "`cc'" & inlist(p, 90000), ///
+			yscale(range(0.1 0.7)) ylabel(0.1(0.1)0.7)
+		graph export "~/Dropbox/W2ID/WIDGraphsTables/pretax-extrapolations/`cc'-top10.pdf", replace
+		
+		gr tw connected sfiinc992i sfiinc992t sptinc992j year if iso == "`cc'" & inlist(p, 99000), ///
+			yscale(range(0 0.4)) ylabel(0(0.1)0.4)
+		graph export "~/Dropbox/W2ID/WIDGraphsTables/pretax-extrapolations/`cc'-top1.pdf", replace
+	}
+}
+*/
 
 tempfile data
 save "`data'"
