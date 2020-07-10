@@ -7,8 +7,8 @@ drop p widcode
 rename value gdp_lcu_wid
 
 // Add other data sources
-merge 1:1 iso year using "$work_data/un-sna-detailed-tables.dta", ///
-	nogenerate update assert(using master match) keepusing(gdp*)
+*merge 1:1 iso year using "$work_data/un-sna-detailed-tables.dta", ///
+*	nogenerate update assert(using master match) keepusing(gdp*)
 merge 1:1 iso year using "$work_data/un-sna-summary-tables.dta", ///
 	nogenerate update assert(using master match) keepusing(gdp*)
 merge 1:1 iso year using "$work_data/wb-macro-data.dta", ///
@@ -43,7 +43,7 @@ generate notelev = "Piketty and Zucman (2014)" if (year == refyear)
 // Other case: there are no WID values, we use the last value available from
 // Maddison & Wu (China only), the UN, the World Bank or the IMF
 generate gdp_lcu_weo_noest = gdp_lcu_weo if (year < estimatesstartafter)
-foreach v in mw un2 wb weo_noest {
+foreach v in mw wb un2 weo_noest {
 	egen refyear_`v' = lastnm(year) if (gdp_lcu_`v' < .) & !haswid, by(iso)
 	egen refyear_`v'2 = mode(refyear_`v'), by(iso)
 	drop refyear_`v'
@@ -58,6 +58,10 @@ foreach v in mw un2 wb weo_noest {
 	
 	drop refyear_`v'
 }
+// Special case for VE: 2014 is the last year where sources agree
+replace refyear = 2014 if iso == "VE"
+replace notelev = "wb" if iso == "VE"
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	egen refyear_un1_`i' = lastnm(year) ///
 		if (gdp_lcu_un1_serie`i' < .) & !haswid, by(iso)
@@ -74,6 +78,7 @@ foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	
 	drop refyear_un1_`i'
 }
+*/
 replace notelev = "" if (year != refyear)
 replace reflev = . if (year != refyear)
 replace notelev = "Piketty and Zucman (2014)" if (notelev == "wid") & (iso != "SE")
@@ -86,12 +91,14 @@ drop gdp_lcu_weo_noest
 
 // Generate growth rates
 sort iso year
-foreach v in wid mw un2 wb {
+foreach v in wid mw wb un2 {
 	by iso: generate growth_`v' = log(gdp_lcu_`v'[_n + 1]) - log(gdp_lcu_`v')
 }
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	by iso: generate growth_un1_serie`i' = log(gdp_lcu_un1_serie`i'[_n + 1]) - log(gdp_lcu_un1_serie`i')
 }
+*/
 foreach v in gem weo {
 	by iso: generate growth_`v' = log(gdp_lcu_`v'[_n + 1]) - log(gdp_lcu_`v')
 }
@@ -103,8 +110,8 @@ replace growth_weo = . if (year >= estimatesstartafter)
 // Keep preferred growth rate
 generate growth = .
 generate growth_src = ""
-foreach v of varlist growth_wid growth_mw growth_un2 growth_wb growth_un1* ///
-		growth_weo growth_gem growth_weo_forecast {
+foreach v of varlist growth_wid growth_mw growth_wb growth_un2 /*growth_un1**/ ///
+		growth_weo /*growth_gem*/ growth_weo_forecast {
 	replace growth_src = "`v'" if (growth >= .) & (`v' < .)
 	replace growth = `v' if (growth >= .) & (`v' < .)
 }
@@ -117,11 +124,26 @@ replace growth_src = "the IMF World Economic Outlook" if (growth_src == "growth_
 replace growth_src = "the IMF World Economic Outlook (forecast)" if (growth_src == "growth_weo_forecast")
 replace growth_src = "Maddison and Wu (2007)" if (growth_src == "growth_mw")
 
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	replace growth_src = "the UN SNA detailed tables (series `i')" ///
 		if (growth_src == "growth_un1_serie`i'")
 }
+*/
 
+// As a last resort: extrapoalte from previous years
+fillin iso year
+sort iso year
+by iso: carryforward growth if (year >= 2010), cfindic(cf) gen(growth_cf)
+replace growth_src = "the value for the previous year" if cf & year < $pastyear
+replace growth = growth_cf if cf & year < $pastyear
+drop if _fillin & !cf & year < $pastyear 
+drop _fillin cf growth_cf
+
+sort iso year
+by iso: carryforward refyear, replace
+
+/*
 // As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made, 2018 update: 0 changes
 egen lastyear = max(year), by(iso)
 expand 2 if (lastyear == 2014) & (year == 2014), generate(newobs)
@@ -148,6 +170,7 @@ sort iso year
 replace growth_src = "the value for the previous year" if (growth >= .) & (year == $pastyear - 1)
 replace growth = growth[_n - 1] if (growth >= .) & (year == $pastyear - 1)
 drop newobs lastyear
+*/
 
 generate growth_after = growth[_n - 1] if (year > refyear)
 generate growth_before = -growth if (year < refyear)
@@ -179,13 +202,14 @@ egen hasbreak = total(seriebreak), by(iso)
 drop if hasbreak & catbreak == 0
 
 // Generate note for level
-generate level_src = "GDP level in " + string(year) + " from " + notelev + "." ///
-	if (year == refyear)
+generate level_src = notelev if (year == refyear)
+generate level_year = refyear
 
 // Add Maddison real series for East Germany
 merge 1:1 iso year using "$work_data/east-germany-gdp.dta", ///
 	nogenerate
-replace level_src = "GDP level in 1991 from the OECD." if (year == 1991) & (iso == "DD")
+replace level_src = "OECD" if (year == 1991) & (iso == "DD")
+replace level_year = 1991 if (year == 1991) & (iso == "DD")
 replace growth2_src = "Maddison (1995)" if (year != 1991) & (iso == "DD")
 
 // Add price index and convert to real
@@ -200,14 +224,12 @@ replace gdp = gdp/`index_ddr' if (iso == "DD")
 // Add GDP from Maddison
 merge 1:1 iso year using "$work_data/maddison-gdp.dta", ///
 	nogenerate update assert(using master match)
-	
-
 
 // Remove Maddison when we have long-term WID data
 replace gdp_maddison = . if inlist(iso, "US", "FR", "DE", "GB")
 
 // Housekeeping
-keep iso year currency gdp gdp_maddison *_src
+keep iso year currency gdp gdp_maddison *_src level_year
 
 // Drop former countries after separation
 drop if (iso == "CS") & (year > 1990)
@@ -241,14 +263,14 @@ preserve
 	keep iso year gr_bcg
 	tempfile bcg
 	save `bcg'
-	restore
+restore
 merge m:m iso year using `bcg', nogen
 gsort iso -year
 by iso: replace gdp2=gdp2[_n-1]/gr_bcg if !mi(gr_bcg) & mi(gdp2)
 replace growth2_src="Maddison (2007)" if !mi(gr_bcg)
 
 // Check that there is no country with only Maddison data
-egen hasmaddison = total(gdp_maddison < .), by(iso)
+egen hasmaddison = total(gdp_maddison < . | !mi(gr_bcg)), by(iso)
 egen hasother = total(gdp < .), by(iso)
 assert hasother if hasmaddison
 
@@ -261,7 +283,7 @@ egen currency2 = mode(currency), by(iso)
 drop currency
 rename currency2 currency
 
-keep iso year gdp growth2_src level_src currency
+keep iso year gdp growth2_src level_src level_year currency
 rename growth2_src growth_src
 
 label data "Generated by calculate-gdp.do"

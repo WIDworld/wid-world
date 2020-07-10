@@ -147,25 +147,6 @@ restore
 drop if (iso == "TZ" | iso == "ZZ")
 append using `TZandZZ'
 
-
-
-/*
-drop if (iso == "ZZ") // Zanzibar data will be recalculated from Tanzania
-
-generate a = value_sna/value_wpp if (iso == "TZ") & (year >= 1990)
-egen b = mode(a) if (iso == "TZ") & (year >= 1990), by(year)
-// In $pastyear, use $pastyear-1 value for fraction of Tanzania population
-quietly levelsof b if (iso == "TZ") & (year == $pastyear - 1), local(valuepastpastyear)
-replace b = `valuepastpastyear' if (iso == "TZ") & (year == $pastyear)
-expand 2 if (iso == "TZ") & (year >= 1990), generate(new)
-replace value = value_wpp*b if (new == 0) & (iso == "TZ")
-replace value = value_wpp*(1 - b) if (new == 1) & (iso == "TZ")
-replace iso = "ZZ" if (new == 1) & (iso == "TZ")
-drop a b new
-*/
-
-
-
 // From 1970 to 1973, GDP data include the entire island. After that, it excludes
 // Northern Cyprus, but the WPP still include it. We adjust Cyprus population
 // as before. (The difference is, Northern Cyprus is never included in the data.)
@@ -247,6 +228,10 @@ replace src = "_wid" if (src == "")
 keep iso year src widcode value
 reshape wide value, i(iso year src) j(widcode) string
 reshape wide value*, i(iso year) j(src) string
+
+// Remove full population WID series for India (not very useful, and create
+// inconsistencies)
+replace valuenpopul999i_wid = . if iso == "IN"
 
 // Drop variables with missing value only
 foreach v of varlist value* {

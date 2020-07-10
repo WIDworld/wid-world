@@ -36,10 +36,10 @@ tempfile gini
 save "`gini'"
 // Save
 use "$work_data/calculate-pareto-coef-output.dta", clear
-// Eliminate Duplicates old gptinc992j (119 obs)
-drop if widcode == "gptinc992j" & inlist(iso, "DJ", "ER", "MU", "SO", "SS")
+
+drop if substr(widcode, 1, 1) == "g"
 
 append using "`gini'"
 
-
+compress
 save "$work_data/calculate-gini-coef-output.dta", replace

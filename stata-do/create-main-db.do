@@ -52,12 +52,6 @@ use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop if strpos(iso, "XQ")
 
-// Drop German Ginis (not correct)
-drop if (iso == "DE") & substr(widcode, 1, 1) == "g"
-
-// Change Kosovo code
-replace iso="KV" if iso=="KS"
-
 // Round up some variables
 replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
 replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
@@ -66,41 +60,6 @@ replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
 duplicates drop iso year p widcode, force
 
 compress
-
-save "$work_data/wid-long.dta", replace
-
-/*
-if substr("`c(pwd)'",1,10)=="C:\Users\A"{
-	rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
-	library(haven)
-	library(reshape2)
-	library(magrittr)
-
-	path <- "C:/Users/Amory/Documents/GitHub/wid-world/work-data"
-
-	setwd(path)
-	data <- read_dta(paste0(path, "/wid-long.dta"))
-	data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
-	write_dta(data, paste0(path, "/wid-wide.dta"))
-}
-*/
-// A piece of R code
-/*
-rsource, noloutput rpath("$r_dir") terminator(END_OF_R) roptions(`" --vanilla --args "$work_data" "')
-
-library(haven)
-library(reshape2)
-library(magrittr)
-
-path <- commandArgs(trailingOnly = TRUE)
-
-setwd(path)
-data <- read_dta(paste0(path, "/wid-long.dta"))
-data %<>% dcast(iso + year + p ~ widcode, value.var = "value")
-write_dta(data, paste0(path, "/wid-wide.dta"))
-
-END_OF_R
-*/
 
 // Reshape wide the dataset------------------------------------------------------//
 greshape wide value, i(iso year p) j(widcode) string
@@ -174,7 +133,7 @@ if ($export_with_labels) {
 
 
 // Erase temporary files
-erase "$work_data/wid-long.dta"
-erase "$work_data/wid-wide.dta"
+cap erase "$work_data/wid-long.dta"
+cap erase "$work_data/wid-wide.dta"
 
 

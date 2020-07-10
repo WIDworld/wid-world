@@ -48,8 +48,8 @@ duplicates drop
 
 sort iso currency
 
-merge n:1 currency using "`currencies'", keep(master match) assert(match) nogenerate
-merge n:1 currency using "`currencies'",  keep(master match) nogenerate //there are 9 small countries with currencies not matched with DINA 
+// Here: make sure that no new (unknown) currency has been introduced
+merge n:1 currency using "`currencies'", keep(master match) assert(match using) nogenerate
 rename currency currency_iso
 rename symbol currency_symbol
 rename name currency_name
@@ -70,17 +70,6 @@ drop nobs
 generate metadata = `""'
 replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
 	`"","unit_symbol":""' + currency_symbol + `""}"' if inlist(type, "a", "t", "m", "o")
-
-// Special for France, Germany and Netherlands
-// replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
-// 	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"1896-1950":"Old Francs","1951-":"euros"}}"' ///
-// 	if inlist(type, "a", "t", "m", "o") & (iso == "FR")
-replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
-	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"1850-1923":"Papiermark","1924-1950":"Reichsmark/Deutsche Mark","1951-":"euros"}}"' ///
-	if inlist(type, "a", "t", "m", "o") & (iso == "DE" | strpos(iso, "DE-"))
-// replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///
-// 	`"","unit_symbol":""' + currency_symbol + `"","nominal_unit_name":{"1914-1950":"Guilders","1951-":"euros"}}"' ///
-// 	if inlist(type, "a", "t", "m", "o") & (iso == "NL")
 
 // Yugoslavia: remove the year for the nominal serie
 replace metadata = `"{"unit":""' + currency_iso + `"","unit_name":""' + currency_name + ///

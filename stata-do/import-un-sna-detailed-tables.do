@@ -1,5 +1,7 @@
-use "$un_data/sna-detailed/401.dta", clear
-append using "$un_data/sna-detailed/402.dta"
+use "$input_data_dir/un-sna/401.dta", clear
+append using "$input_data_dir/un-sna/402.dta"
+
+renvars *, subst("_" "") 
 
 // Normalize variables ------------------------------------------------------ //
 replace currency = strtrim(stritrim(lower(currency)))

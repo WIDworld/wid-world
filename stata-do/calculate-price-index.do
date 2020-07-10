@@ -39,7 +39,7 @@ merge 1:1 iso year using "$work_data/eastern-bloc-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/arklems-deflator.dta", ///
 	nogenerate update assert(using master match)
-
+	
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
 assert ncu == 1 if (ncu < .)
@@ -61,8 +61,8 @@ egen nval = nvals(iso year)
 
 // For China: we only keep the Maddison-Wu data before 1978, and the WID after
 foreach v of varlist cpi_* def_* {
-	replace `v' = . if ("`v'" != "def_mw") & (iso == "CN") & (year < 1978)
-	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year>1979)
+	replace `v' = . if ("`v'" != "def_mw")  & (iso == "CN") & (year < 1978)
+	replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year > 1979)
 }
 
 // For Argentine: only keep ARKLEMS data from 1994 to 2013 (same problem)
@@ -85,8 +85,8 @@ drop estimatesstartafter
 // Select preferred inflation rates at each year
 generate delta_index = .
 generate index_source = ""
-foreach v of varlist delta_def_arklems delta_def_mw delta_def_east delta_def_wid delta_cpi_wid delta_def_un delta_def_wb ///
-	delta_def_weo delta_def_gem delta_cpi_wb delta_cpi_gfd delta_cpi_fw delta_def_weo_pred {
+foreach v of varlist delta_def_arklems delta_def_mw delta_def_east delta_def_wid delta_cpi_wid delta_def_wb delta_def_un  ///
+	delta_def_weo /*delta_def_gem*/ delta_cpi_wb delta_cpi_gfd delta_cpi_fw delta_def_weo_pred {
 
 	replace index_source = "`v'" if (delta_index >= .) & (`v' < .)
 	replace delta_index = `v' if (delta_index >= .) & (`v' < .)
@@ -99,7 +99,7 @@ egen firstyear = min(year), by(iso)
 drop if (delta_index >= .) & (year != firstyear)
 
 // Add source for the first year
-foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_un def_wb def_weo def_gem cpi_wb ///
+foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_wb def_un def_weo /*def_gem*/ cpi_wb ///
 	cpi_gfd cpi_fw {
 
 	replace index_source = "delta_`v'" if (year == firstyear) & (`v' < .) & (index_source == "")
@@ -293,7 +293,7 @@ foreach c of local countrybreak {
 	local maxcat = r(max)
 	forvalues i = 1/`maxcat' {
 		// Find a serie available in both time periods
-		foreach v of varlist def_wid cpi_wid def_un def_wb def_weo cpi_wb cpi_gfd cpi_fw {
+		foreach v of varlist def_wid cpi_wid def_wb def_un def_weo cpi_wb cpi_gfd cpi_fw {
 			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i' - 1)
 			local nnmiss_before = r(N)
 			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i')
@@ -388,6 +388,7 @@ sort iso source
 by iso: generate j = _n
 reshape wide source, i(iso) j(j)
 egen allsources = concat(source*)
+replace allsources = substr(allsources, 1, length(allsources) - 1)
 drop source*
 rename allsources source
 
@@ -396,93 +397,93 @@ save "`sources'"
 
 use "`meta'", clear
 
-replace index_source = "we use the price index provided by the researchers (see source)" ///
+replace index_source = "price index provided by the researchers (see source)" ///
 	if inlist(index_source, "delta_cpi_wid", "delta_def_wid")
-replace index_source = "we use the CPI for present day Ethiopia from the Wold Bank" ///
+replace index_source = "CPI for present day Ethiopia from the Wold Bank" ///
 	if index_source == "delta_cpi_wb_et"
-replace index_source = "we use the GDP deflator for present day Ethiopia from the UN SNA" ///
+replace index_source = "GDP deflator for present day Ethiopia from the UN SNA" ///
 	if index_source == "delta_def_un_et"
-replace index_source = "we use the GDP deflator for present day Ethiopia from the World Bank" ///
+replace index_source = "GDP deflator for present day Ethiopia from the World Bank" ///
 	if index_source == "delta_def_wb_et"
-replace index_source = "we use the GDP deflator for present day Ethiopia from the IMF World Economic Outlook" ///
+replace index_source = "GDP deflator for present day Ethiopia from the IMF World Economic Outlook" ///
 	if index_source == "delta_def_weo_et"
-replace index_source = "we use the average inflation rate of Curaçao and Sint Marteen" ///
+replace index_source = "average inflation rate of Curaçao and Sint Marteen" ///
 	if index_source == "avg_cuw_sxm"
-replace index_source = "we use the GDP deflator for the Netherland Antilles drom the UN SNA" ///
+replace index_source = "GDP deflator for the Netherland Antilles drom the UN SNA" ///
 	if index_source == "delta_def_un_xa"
-replace index_source = "we use the average inflation rate of Kenya and Tanzania" ///
+replace index_source = "average inflation rate of Kenya and Tanzania" ///
 	if index_source == "avg_ken_tza"
-replace index_source = "we take the average inflation rate over 1954-1966" ///
+replace index_source = "average inflation rate over 1954-1966" ///
 	if index_source == "avg_nga"
-replace index_source = "we carry the first inflation value backward" ///
+replace index_source = "first inflation value backward carried backward" ///
 	if index_source == "carrybackward"
-replace index_source = "we carry the last inflation value forward" ///
+replace index_source = "last inflation value carried forward" ///
 	if index_source == "carryforward"
-replace index_source = "we use the price index from Frankema and Waijenburg (2012)" ///
+replace index_source = "price index from Frankema and Waijenburg (2012)" ///
 	if index_source == "delta_cpi_fw"
-replace index_source = "we use the CPI from Global Financial Data" ///
+replace index_source = "CPI from Global Financial Data" ///
 	if index_source == "delta_cpi_gfd"
-replace index_source = "we use the CPI for Tanzania from Global Financial Data" ///
+replace index_source = "CPI for Tanzania from Global Financial Data" ///
 	if index_source == "delta_cpi_gfd_tza"
-replace index_source = "we use the CPI from the World Bank" ///
+replace index_source = "CPI from the World Bank" ///
 	if index_source == "delta_cpi_wb"
-replace index_source = "we use the CPI for Tanzania from the World Bank" ///
+replace index_source = "CPI for Tanzania from the World Bank" ///
 	if index_source == "delta_cpi_wb_tza"
-replace index_source = "see country report for details" ///
-	if index_source == "delta_cpi_wid"
-replace index_source = "we use the GDP deflator from the UN SNA" ///
+*replace index_source = "see country report for details" ///
+*	if index_source == "delta_cpi_wid"
+replace index_source = "GDP deflator from the UN SNA" ///
 	if index_source == "delta_def_un"
-replace index_source = "we use the GDP deflator for Sudan from the UN SNA" ///
+replace index_source = "GDP deflator for Sudan from the UN SNA" ///
 	if index_source == "delta_def_un_sdn"
-replace index_source = "we use the GDP deflator for Tanzania from the UN SNA" ///
+replace index_source = "GDP deflator for Tanzania from the UN SNA" ///
 	if index_source == "delta_def_un_tza"
-replace index_source = "we use the GDP deflator from the World Bank" ///
+replace index_source = "GDP deflator from the World Bank" ///
 	if index_source == "delta_def_wb"
-replace index_source = "we use the GDP deflator for Sudan from the World Bank" ///
+replace index_source = "GDP deflator for Sudan from the World Bank" ///
 	if index_source == "delta_def_wb_sdn"
-replace index_source = "we use the GDP deflator for Tanzania from the World Bank" ///
+replace index_source = "GDP deflator for Tanzania from the World Bank" ///
 	if index_source == "delta_def_wb_tza"
-replace index_source = "we use the GDP deflator from the IMF World Economic Outlook" ///
+replace index_source = "GDP deflator from the IMF World Economic Outlook" ///
 	if index_source == "delta_def_weo"
-replace index_source = "we use the GDP deflator forecast from the IMF World Economic Outlook" ///
+replace index_source = "GDP deflator forecast from the IMF World Economic Outlook" ///
 	if index_source == "delta_def_weo_pred"
-replace index_source = "we use the GDP deflator forecast from the IMF World Economic Outlook for Tanzania" ///
+replace index_source = "GDP deflator forecast from the IMF World Economic Outlook for Tanzania" ///
 	if index_source == "delta_def_weo_pred_tza"
-replace index_source = "see country report for details" ///
-	if index_source == "delta_def_wid"
-replace index_source = "we interpolate assuming a constant inflation rate" ///
+*replace index_source = "see country report for details" ///
+*	if index_source == "delta_def_wid"
+replace index_source = "interpolation assuming a constant inflation rate" ///
 	if index_source == "interpolation"
-replace index_source = "we assume zero inflation" ///
+replace index_source = "zero inflation assumed" ///
 	if index_source == "zero_infl"
-replace index_source = "we used the GDP deflator from Maddison & Wu (2017)" ///
+replace index_source = "GDP deflator from Maddison & Wu (2017)" ///
 	if index_source == "delta_def_mw"
-replace index_source = "we used the GDP deflator from Piketty, Yang & Zucman (2016)" ///
+replace index_source = "GDP deflator from Piketty, Yang & Zucman (2016)" ///
 	if index_source == "delta_def_pyz"
-replace index_source = "see country report for details" ///
-	if index_source == "delta_cpi_wid_us"
-replace index_source = "we use the GDP deflator provided by Filip Novokmet" ///
+*replace index_source = "see country report for details" ///
+*	if index_source == "delta_cpi_wid_us"
+replace index_source = "GDP deflator provided by Filip Novokmet" ///
 	if index_source == "delta_def_east"
-replace index_source = "we use the GDP deflator for the Czech Republic, provided by Filip Novokmet" ///
+replace index_source = "GDP deflator for the Czech Republic, provided by Filip Novokmet" ///
 	if index_source == "delta_def_east_cz"
-replace index_source = "we use the GDP deflator for the Russian Federation, provided by Filip Novokmet" ///
+replace index_source = "GDP deflator for the Russian Federation, provided by Filip Novokmet" ///
 	if index_source == "delta_def_east_ru"
-replace index_source = "we use the GDP deflator of the United States" ///
+replace index_source = "GDP deflator of the United States" ///
 	if index_source == "delta_def_wid_us"
-replace index_source = "the index was frozen at its 1990 value" ///
+replace index_source = "index frozen at its 1990 value" ///
 	if index_source == "frozen"
-replace index_source = "we use the implicit GDP deflator from ARKLEMS" ///
+replace index_source = "implicit GDP deflator from ARKLEMS" ///
 	if index_source == "delta_def_arklems"
-replace index_source = "we use the price index of Germany after 1991" ///
+replace index_source = "price index of Germany after 1991" ///
 	if regexm(index_source, "_de$")
 sort iso year
 by iso: generate categ = sum(index_source[_n - 1] != index_source)
 egen firstyear = min(year), by(iso categ)
 egen lastyear = max(year), by(iso categ)
 
-generate index_note = "In " + string(firstyear) + ", " + index_source + "." ///
+generate index_note = string(firstyear) + ": " + index_source + ";" ///
 	if (firstyear == lastyear) & (index < .)
-replace index_note = "From " + string(firstyear) + " to " + string(lastyear) + ///
-	", " + index_source + "." if (index < .) & (firstyear != lastyear)
+replace index_note = string(firstyear) + "-" + string(lastyear) + ///
+	": " + index_source + ";" if (index < .) & (firstyear != lastyear)
 generate note_group = string(firstyear) + string(lastyear)
 drop firstyear lastyear categ
 
@@ -494,6 +495,7 @@ drop note_group
 reshape wide index_note, i(iso) j(j)
 egen newnote = concat(index_note*), punct(" ")
 keep iso newnote 
+replace newnote = "We cumulate inflation rates from the following sources; " + substr(newnote, 1, length(newnote) - 1) + "."
 rename newnote method
 generate sixlet = "inyixx"
 

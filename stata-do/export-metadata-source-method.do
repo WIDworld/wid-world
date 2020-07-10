@@ -116,6 +116,7 @@ append using "$work_data/ppp-metadata.dta"
 // Add national accounts notes
 // -------------------------------------------------------------------------- //
 
+/*
 generate newobs = 0
 append using "$work_data/na-metadata-no-duplicates.dta"
 replace newobs = 1 if (newobs >= .)
@@ -135,6 +136,7 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 2, 5), "gdpro", "nninc", "ndpro", "popul", "confc", "nnfin")
 replace source = "WID.world computations" if (strtrim(source) == "") ///
 	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
+*/
 
 // -------------------------------------------------------------------------- //
 // Add data quality index note
