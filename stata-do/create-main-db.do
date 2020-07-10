@@ -52,8 +52,6 @@ use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop if strpos(iso, "XQ")
 
-keep if iso == "FR"
-
 // Round up some variables
 replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
 replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
@@ -133,7 +131,7 @@ if ($export_with_labels) {
 
 
 // Erase temporary files
-erase "$work_data/wid-long.dta"
-erase "$work_data/wid-wide.dta"
+cap erase "$work_data/wid-long.dta"
+cap erase "$work_data/wid-wide.dta"
 
 

@@ -142,7 +142,49 @@ ssc install sxpose
 ssc install egenmore
 ssc install carryforward
 ssc install quandl
+ssc install renvars
+ssc install dropmiss
+ssc install gtools
+ssc install swapvals
 */
 
 // You need to update Stata to the 14 version
 *version 14
+
+// -------------------------------------------------------------------------- //
+// Graphical theme
+// -------------------------------------------------------------------------- //
+
+set scheme s2color
+grstyle init
+grstyle color background white
+grstyle anglestyle vertical_tick horizontal
+grstyle yesno draw_major_hgrid yes
+grstyle yesno grid_draw_min yes
+grstyle yesno grid_draw_max yes
+grstyle color grid                   gs13
+grstyle color major_grid             gs13
+grstyle color minor_grid             gs13
+grstyle linewidth major_grid thin
+
+grstyle linewidth foreground   vvthin
+grstyle linewidth background   vvthin
+grstyle linewidth grid         vvthin
+grstyle linewidth major_grid   vvthin
+grstyle linewidth minor_grid   vvthin
+grstyle linewidth tick         vvthin
+grstyle linewidth minortick    vvthin
+
+grstyle yesno extend_grid_low        yes
+grstyle yesno extend_grid_high       yes
+grstyle yesno extend_minorgrid_low   yes
+grstyle yesno extend_minorgrid_high  yes
+grstyle yesno extend_majorgrid_low   yes
+grstyle yesno extend_majorgrid_high  yes
+
+grstyle clockdir legend_position     6
+grstyle gsize legend_key_xsize       8
+grstyle color legend_line            background
+grstyle yesno legend_force_draw      yes
+
+grstyle margin axis_title          medsmall

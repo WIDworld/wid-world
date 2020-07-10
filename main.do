@@ -123,9 +123,6 @@ do "$do_dir/import-arklems-deflator.do"
 // Import deflator for former socialist economies
 do "$do_dir/import-eastern-bloc-deflator.do"
 
-// Import exchange rates from Open Exchange rates
-do "$do_dir/import-exchange-rate.do"
-
 // -------------------------------------------------------------------------- //
 // Import external population data
 // -------------------------------------------------------------------------- //
@@ -152,8 +149,11 @@ do "$do_dir/calculate-price-index.do"
 do "$do_dir/calculate-gdp.do"
 
 // -------------------------------------------------------------------------- //
-// Calculate PPPs
+// Calculate PPPs & exchange rates
 // -------------------------------------------------------------------------- //
+
+// Import exchange rates from Open Exchange rates
+do "$do_dir/import-exchange-rate.do"
 
 // Import Purchasing Power Parities from the OECD
 do "$do_dir/import-ppp-oecd.do"
@@ -271,17 +271,6 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
-levelsof iso if widcode == "wlabsh999i", local(iso_list)
-foreach cc of local iso_list {
-	gr tw connected value year if iso == "`cc'" & widcode == "wlabsh999i", sort(year) yscale(range(0 1)) ylabel(0(0.1)1)
-	graph export "~/Downloads/labsh/`cc'.pdf", replace
-}
-
-use "$work_data/calculate-gini-coef-output.dta", clear
-drop currency
-compress
-save "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/wid-data.dta", replace
-
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
@@ -305,14 +294,6 @@ do "$do_dir/export-countries.do"
 
 // Make the variable tree
 do "$do_dir/make-variable-tree.do"
-
-quietly levelsof iso, local(iso_list)
-quietly levelsof iso, local(iso_list) // no iso is found!
-
-foreach cc of local iso_list {
-	gr tw line value year if (widcode == "anninc992i" & iso == "`cc'")
-	graph export "~/Desktop/wid/anninc992i-`cc'.pdf", replace
-}
 
 // -------------------------------------------------------------------------- //
 // Report updated and deleted data

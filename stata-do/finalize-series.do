@@ -6,20 +6,22 @@ use "$work_data/sna-combined.dta", clear
 
 merge 1:1 iso year using "$work_data/cfc-full-imputation.dta", nogenerate
 
+gegen toreplace2 = max(toreplace), by(iso)
+
 // -------------------------------------------------------------------------- //
 // Only include imputed sectorial CFCs if there are some gross/net data
 // -------------------------------------------------------------------------- //
 
 foreach s in ho hn {
 	foreach v of varlist gsm`s' nsm`s' prg`s' pri`s' seg`s' sec`s' sav`s' sag`s' {
-		replace series_cfc`s' = -1      if missing(cfc`s') & !missing(`v') & !missing(imputed_cfc`s')
-		replace cfc`s' = imputed_cfc`s' if missing(cfc`s') & !missing(`v') & !missing(imputed_cfc`s')
+		replace series_cfc`s' = -1      if (missing(cfc`s') | toreplace2) & !missing(`v') & !missing(imputed_cfc`s')
+		replace cfc`s' = imputed_cfc`s' if (missing(cfc`s') | toreplace2) & !missing(`v') & !missing(imputed_cfc`s')
 	}
-	replace series_ccs`s' = -1      if missing(ccs`s') & (!missing(gsr`s') | !missing(nsr`s')) & !missing(imputed_ccs`s')
-	replace ccs`s' = imputed_ccs`s' if missing(ccs`s') & (!missing(gsr`s') | !missing(nsr`s')) & !missing(imputed_ccs`s')
+	replace series_ccs`s' = -1      if (missing(ccs`s') | toreplace2) & (!missing(gsr`s') | !missing(nsr`s')) & !missing(imputed_ccs`s')
+	replace ccs`s' = imputed_ccs`s' if (missing(ccs`s') | toreplace2) & (!missing(gsr`s') | !missing(nsr`s')) & !missing(imputed_ccs`s')
 	
-	replace series_ccm`s' = -1      if missing(ccm`s') & (!missing(gmx`s') | !missing(nmx`s')) & !missing(imputed_ccm`s')
-	replace ccm`s' = imputed_ccm`s' if missing(ccm`s') & (!missing(gmx`s') | !missing(nmx`s')) & !missing(imputed_ccm`s')
+	replace series_ccm`s' = -1      if (missing(ccm`s') | toreplace2) & (!missing(gmx`s') | !missing(nmx`s')) & !missing(imputed_ccm`s')
+	replace ccm`s' = imputed_ccm`s' if (missing(ccm`s') | toreplace2) & (!missing(gmx`s') | !missing(nmx`s')) & !missing(imputed_ccm`s')
 }
 
 foreach s in co nf fc np go {
@@ -28,15 +30,15 @@ foreach s in co nf fc np go {
 			continue
 		}
 		
-		replace series_cfc`s' = -1      if missing(cfc`s') & !missing(`v') & !missing(imputed_cfc`s')
-		replace cfc`s' = imputed_cfc`s' if missing(cfc`s') & !missing(`v') & !missing(imputed_cfc`s')
+		replace series_cfc`s' = -1      if (missing(cfc`s') | toreplace2) & !missing(`v') & !missing(imputed_cfc`s')
+		replace cfc`s' = imputed_cfc`s' if (missing(cfc`s') | toreplace2) & !missing(`v') & !missing(imputed_cfc`s')
 	}
 }
 
-replace series_confc = -1     if missing(confc) & !missing(imputed_confc)
-replace confc = imputed_confc if missing(confc) & !missing(imputed_confc)
+replace series_confc = -1     if (missing(confc) | toreplace2) & !missing(imputed_confc)
+replace confc = imputed_confc if (missing(confc) | toreplace2) & !missing(imputed_confc)
 
-drop imputed_*
+drop imputed_* toreplace toreplace2
 
 // -------------------------------------------------------------------------- //
 // Extrapolate net foreign income in the recent year
@@ -67,6 +69,9 @@ enforce (comnx = comrx - compx) ///
 		(pinrx = fdirx + ptfrx) ///
 		(fdinx = fdirx - fdipx) ///
 		(ptfnx = ptfrx - ptfpx) ///
+		(fsubx = fpsub + fosub) ///
+		(ftaxx = fptax + fotax) ///
+		(taxnx = prtxn + optxn) ///
 		///  Gross national income of the different sectors of the economy
 		(gdpro + nnfin = prghn + prgco + prggo) ///
 		(gdpro + nnfin = seghn + segco + seggo) ///
@@ -207,7 +212,7 @@ enforce (comnx = comrx - compx) ///
 		/// Structure of gov spending
 		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
 		/// Labor + capital income decomposition
-		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc fkpin comhn nmxhn) replace
+		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc cfcgo fkpin comhn nmxhn) replace
 
 // Edit to zero
 ds iso year series_*, not
@@ -218,4 +223,3 @@ foreach v of varlist `varlist' {
 }
 
 save "$work_data/sna-series-finalized.dta", replace
-

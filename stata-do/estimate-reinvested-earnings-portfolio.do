@@ -277,12 +277,24 @@ gsort iso year
 by iso: ipolate share_foreign year, gen(i)
 replace share_foreign = i
 drop i
+egen nnonmiss = total(!missing(share_foreign)), by(iso)
+replace share_foreign = . if nnonmiss <= 1
+drop nnonmiss
 
 // Make extrapolation as a last resort
 gsort iso -year
 by iso: carryforward share_foreign, replace
 gsort iso year
 by iso: carryforward share_foreign, replace
+
+// Make regional imputation as last resort
+foreach level in undet un {
+	kountry iso, from(iso2c) geo(`level')
+	egen mean_share_foreign = mean(share_foreign), by(GEO year)
+	replace share_foreign = mean_share_foreign if missing(share_foreign)
+	drop GEO NAMES_STD mean_share_foreign
+}
+assert !missing(share_foreign)
 
 tempfile share_foreign
 save "`share_foreign'"
@@ -486,7 +498,7 @@ gegen total = total(value), by(iso1 year)
 replace value = value/total
 
 // Tax haven-specific adjustment
-replace value = value/10 if inlist(iso2, "KY", "AN", "MU", "BM", "LU", "SX", "CW")
+*replace value = value/10 if inlist(iso2, "KY", "AN", "MU", "BM", "LU", "SX", "CW")
 
 replace value = 0 if year == 1970
 
@@ -507,6 +519,8 @@ rename iso1 iso
 merge n:1 iso year using "`share_foreign'", nogenerate keep(master match)
 
 replace foreign_secco = value*foreign_secco
+
+exit 1
 
 collapse (sum) foreign_secco, by(iso2 year)
 
@@ -532,3 +546,16 @@ drop new
 sort iso year
 
 save "$work_data/reinvested-earnings-portfolio.dta", replace
+
+use "$work_data/reinvested-earnings-portfolio.dta", clear
+
+generate ptfrn_perc = 100*ptfrn
+
+graph set window fontface "Times"
+histogram ptfrn_perc if inrange(ptfrn_perc, -2, 2), bin(200) percent ///
+	xtitle("Reinvested Earnings on Foreign Portfolio Investment, Net (% of GDP)") ///
+	ytitle("% of country/years") ///
+	xlabel(-2 "-2%" -1.5 "-1.5%" -1 "-1%" -0.5 "-0.5%" 0 "0%" 0.5 "+0.5%" 1 "+1%" 1.5 "+1.5%" 2 "+2%") ///
+	ylabel(0 "0%" 5 "5%" 10 "10%" 15 "15%" 20 "20%" 25 "25%") lstyle(none) color(gray) graphregion(margin(0 3 0 3)) xsize(2) ysize(1) scale(1.2)
+graph export "$report_output/foreign-retained-earnings.pdf", replace
+	

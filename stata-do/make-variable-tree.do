@@ -71,6 +71,8 @@ import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes
 keep A-AA
 keep if ustrregexm(B, "[a-z][a-z]")
 
+assert !(missing(T) & missing(U) & missing(V) & missing(W) & missing(X) & missing(Y))
+
 // Fill in the variable tree with parent variables
 carryforward X, replace cfindic(cfX)
 replace X = "" if cfX & (!missing(T) | !missing(U) | !missing(V) | !missing(W))
@@ -128,6 +130,11 @@ keep path* comp* level* category* name* rank* orphan*
 generate i = _n
 reshape long path comp level category name rank orphan, i(i) j(j) string
 drop i j
+
+// drop duplicates (variables starting with letter other than * in the raw file)
+quietly bysort path:  gen dup = cond(_N==1,0,_n)
+drop if dup>1
+drop dup
 
 append using "`tree'"
 save "`tree'", replace

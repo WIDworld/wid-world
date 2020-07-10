@@ -197,7 +197,36 @@ br if changes == 0 & ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960)
 */	
-drop tot anninc coef_*
+drop tot anninc coef_* changes
+
+// Make sure that labor + capital income sums to total income
+greshape wide a s t, i(iso year age pop p n) j(fivelet) string
+
+// Same ranking
+replace aptlin = aptlin/(aptlin + aptkin)*aptinc
+replace tptlin = cond(tptinc != 0, tptlin/(tptlin + tptkin)*tptinc, 0)
+replace aptkin = aptkin/(aptlin + aptkin)*aptinc
+replace tptkin = cond(tptinc != 0, tptkin/(tptlin + tptkin)*tptinc, 0)
+// Re-estimate shares
+gegen tot_ptlin = total(aptlin*n/1e5), by(iso year pop age)
+gegen tot_ptkin = total(aptkin*n/1e5), by(iso year pop age)
+replace sptlin = aptlin/tot_ptlin*n/1e5
+replace sptkin = aptkin/tot_ptkin*n/1e5
+drop tot_*
+
+// Separate ranking
+gegen tot_pllin = total(apllin*n/1e5), by(iso year pop age)
+gegen tot_pkkin = total(apkkin*n/1e5), by(iso year pop age)
+gegen tot_ptinc = total(aptinc*n/1e5), by(iso year pop age)
+replace apllin = apllin/(tot_pllin + tot_pkkin)*tot_ptinc
+replace apkkin = apkkin/(tot_pllin + tot_pkkin)*tot_ptinc
+replace tpllin = tpllin/(tot_pllin + tot_pkkin)*tot_ptinc
+replace tpkkin = tpkkin/(tot_pllin + tot_pkkin)*tot_ptinc
+drop tot_*
+
+rename age _age
+greshape long a s t, i(iso year _age pop p n) j(fivelet) string
+rename _age age
 	
 // -------------------------------------------------------------------------- //
 // Put the data back in the correct format

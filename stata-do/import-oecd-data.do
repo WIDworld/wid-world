@@ -385,7 +385,10 @@ enforce (comnx = comrx - compx) ///
 		(finpx = compx + pinpx + ftaxx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
-		(flcip = compx + pinpx), fixed(nnfin) replace
+		(flcip = compx + pinpx) ///
+		(fsubx = fpsub + fosub) ///
+		(ftaxx = fptax + fotax) ///
+		(taxnx = prtxn + optxn), fixed(nnfin) replace
 	
 // Gross national income of the different sectors of the economy
 // (+ specific income components)

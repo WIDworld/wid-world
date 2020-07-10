@@ -13,6 +13,8 @@ save "`fiinc'"
 
 use "$work_data/distribute-national-income-output.dta", clear
 
+// Exclude countries with full historical DINA already
+drop if inlist(iso, "FR", "US")
 // Do not extrapolate Mauritius (discrepancies too big)
 drop if iso == "MU"
 // Do not extrapolate Portugel (only gain a few years, and deosn't work well)
@@ -94,6 +96,7 @@ foreach cc of local iso {
 }
 */
 
+drop if strpos(iso, "-") // Remove regions
 tempfile data
 save "`data'"
 
@@ -108,8 +111,8 @@ collapse (firstnm) year, by(iso)
 
 merge n:1 iso using "`fiinc'", nogenerate keep(master match)
 
-generate method2 = "Before " + string(year) + ", pretax income shares retropolated based on fiscal income: see " + source_fiinc
-keep iso method2
+generate method2 = "Before " + string(year) + ", pretax income shares retropolated based on fiscal income: see source."
+keep iso method2 source_fiinc
 
 tempfile meta
 save "`meta'"
@@ -119,7 +122,7 @@ keep if p == "pall" & widcode == "anninc992i"
 keep iso year value
 rename value anninc
 
-merge 1:n iso year using "`data'", keep(match) nogenerate
+merge 1:n iso year using "`data'", keep(match using) nogenerate
 
 generate valueaptinc992j = anninc*sptinc992j/(1 - p/1e5)
 replace p = p/1e3
@@ -130,6 +133,7 @@ rename sptinc992j valuesptinc992j
 
 keep iso year p value*
 greshape long value, i(iso year p) j(widcode) string
+drop if missing(value)
 
 save "`data'", replace
 
@@ -154,7 +158,13 @@ replace newmethod = method + ". " + method2 if strpos(sixlet, "ptinc") & method2
 replace newmethod = method2                 if strpos(sixlet, "ptinc") & method2 != "" & method == ""
 replace method = newmethod 
 
-drop method2 newmethod
+replace source = rtrim(source)
+generate newsource = source
+replace newsource = source + "; " + source_fiinc if strpos(sixlet, "ptinc") & source_fiinc != "" & substr(source, -1, .) != ";" & newsource != ""
+replace newsource = source_fiinc                 if strpos(sixlet, "ptinc") & source_fiinc != "" & source == ""
+replace source = newsource
+
+drop method2 newmethod newsource source_fiinc
 
 
 save "$work_data/extrapolate-pretax-income-metadata.dta", replace

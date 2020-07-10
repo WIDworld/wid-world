@@ -30,6 +30,7 @@ replace iso = "PS" if country_or_area == "State of Palestine"
 replace iso = "SD" if country_or_area == "Sudan (up to 2011)"
 replace iso = "TZ" if country_or_area == "Tanzania - Mainland"
 replace iso = "YA" if country_or_area == "Yemen Arab Republic [former]"
+replace iso = "VE" if country_or_area == "Venezuela (Bolivarian Republic of)"
 
 assert iso != ""
 drop country_or_area iso3n

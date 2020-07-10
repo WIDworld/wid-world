@@ -7,8 +7,8 @@ drop p widcode
 rename value gdp_lcu_wid
 
 // Add other data sources
-merge 1:1 iso year using "$work_data/un-sna-detailed-tables.dta", ///
-	nogenerate update assert(using master match) keepusing(gdp*)
+*merge 1:1 iso year using "$work_data/un-sna-detailed-tables.dta", ///
+*	nogenerate update assert(using master match) keepusing(gdp*)
 merge 1:1 iso year using "$work_data/un-sna-summary-tables.dta", ///
 	nogenerate update assert(using master match) keepusing(gdp*)
 merge 1:1 iso year using "$work_data/wb-macro-data.dta", ///
@@ -58,6 +58,10 @@ foreach v in mw wb un2 weo_noest {
 	
 	drop refyear_`v'
 }
+// Special case for VE: 2014 is the last year where sources agree
+replace refyear = 2014 if iso == "VE"
+replace notelev = "wb" if iso == "VE"
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	egen refyear_un1_`i' = lastnm(year) ///
 		if (gdp_lcu_un1_serie`i' < .) & !haswid, by(iso)
@@ -74,6 +78,7 @@ foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	
 	drop refyear_un1_`i'
 }
+*/
 replace notelev = "" if (year != refyear)
 replace reflev = . if (year != refyear)
 replace notelev = "Piketty and Zucman (2014)" if (notelev == "wid") & (iso != "SE")
@@ -89,9 +94,11 @@ sort iso year
 foreach v in wid mw wb un2 {
 	by iso: generate growth_`v' = log(gdp_lcu_`v'[_n + 1]) - log(gdp_lcu_`v')
 }
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	by iso: generate growth_un1_serie`i' = log(gdp_lcu_un1_serie`i'[_n + 1]) - log(gdp_lcu_un1_serie`i')
 }
+*/
 foreach v in gem weo {
 	by iso: generate growth_`v' = log(gdp_lcu_`v'[_n + 1]) - log(gdp_lcu_`v')
 }
@@ -103,7 +110,7 @@ replace growth_weo = . if (year >= estimatesstartafter)
 // Keep preferred growth rate
 generate growth = .
 generate growth_src = ""
-foreach v of varlist growth_wid growth_mw growth_wb growth_un2 growth_un1* ///
+foreach v of varlist growth_wid growth_mw growth_wb growth_un2 /*growth_un1**/ ///
 		growth_weo /*growth_gem*/ growth_weo_forecast {
 	replace growth_src = "`v'" if (growth >= .) & (`v' < .)
 	replace growth = `v' if (growth >= .) & (`v' < .)
@@ -117,11 +124,26 @@ replace growth_src = "the IMF World Economic Outlook" if (growth_src == "growth_
 replace growth_src = "the IMF World Economic Outlook (forecast)" if (growth_src == "growth_weo_forecast")
 replace growth_src = "Maddison and Wu (2007)" if (growth_src == "growth_mw")
 
+/*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	replace growth_src = "the UN SNA detailed tables (series `i')" ///
 		if (growth_src == "growth_un1_serie`i'")
 }
+*/
 
+// As a last resort: extrapoalte from previous years
+fillin iso year
+sort iso year
+by iso: carryforward growth if (year >= 2010), cfindic(cf) gen(growth_cf)
+replace growth_src = "the value for the previous year" if cf & year < $pastyear
+replace growth = growth_cf if cf & year < $pastyear
+drop if _fillin & !cf & year < $pastyear 
+drop _fillin cf growth_cf
+
+sort iso year
+by iso: carryforward refyear, replace
+
+/*
 // As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made, 2018 update: 0 changes
 egen lastyear = max(year), by(iso)
 expand 2 if (lastyear == 2014) & (year == 2014), generate(newobs)
@@ -148,6 +170,7 @@ sort iso year
 replace growth_src = "the value for the previous year" if (growth >= .) & (year == $pastyear - 1)
 replace growth = growth[_n - 1] if (growth >= .) & (year == $pastyear - 1)
 drop newobs lastyear
+*/
 
 generate growth_after = growth[_n - 1] if (year > refyear)
 generate growth_before = -growth if (year < refyear)

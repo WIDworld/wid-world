@@ -211,6 +211,9 @@ program countrycode, nclass
 			// WID codes
 			replace `generate' = "SD-FORMER" if (`varlist' == "Sudan (up to 2011)")
 			replace `generate' = "AN" if (`varlist' == "Netherlands Antilles")
+			
+			br if missing(`generate')
+			exit 1
 		}
 		else if ("`from'" == "un sna main") {
 			// Drop regions (population file only)

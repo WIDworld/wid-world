@@ -39,7 +39,7 @@ merge 1:1 iso year using "$work_data/eastern-bloc-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/arklems-deflator.dta", ///
 	nogenerate update assert(using master match)
-
+	
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
 assert ncu == 1 if (ncu < .)

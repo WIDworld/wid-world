@@ -21,7 +21,7 @@ replace confc = . if iso == "LS" & inrange(year, 1966, 1971)
 replace confc = . if iso == "ID" & year == 1961
 replace confc = . if iso == "BI" & series < 100
 replace confc = confc*2.6 if iso == "BZ" & year <= 1999
-replace confc = . if iso == "CL" & year == 1960
+*replace confc = . if iso == "CL" & year <= 1962
 replace confc = . if iso == "FJ" & inrange(year, 1973, 1976)
 replace confc = . if iso == "MD" & series < 10000
 replace confc = . if iso == "MG" & series < 10000
@@ -30,6 +30,7 @@ replace confc = . if iso == "PL" & year < 1995
 replace confc = . if iso == "SD" & inrange(year, 2009, 2010)
 replace confc = . if iso == "UZ" & year != 1990
 replace nnfin = . if iso == "SV" & series == 1
+replace confc = . if iso == "GY" & year >= 1985
 drop if iso == "BF" & series == 10
 
 *br iso series year cfc?? confc if iso == "MX"
@@ -37,8 +38,13 @@ drop if iso == "BF" & series == 10
 *br iso year series cfc?? confc if cfcgo >= confc & !missing(cfcgo) & !missing(confc)
 *br iso year cfc?? confc if cfcgo <= 0 & !missing(cfcgo) & !missing(confc)
 
-foreach v of varlist cfc* nsr* pri* nsm* nmx* sec* sav* ccm* ccs* cap* {
+foreach v of varlist cfc* nsr* gsrgo pri* nsm* nmx* sec* sav* ccm* ccs* cap* {
 	replace `v' = . if inlist(iso, "NA", "EG", "MN", "MZ", "BF", "CI", "NE", "PL", "TZ") & series < 10000
+	
+	// Only selected sectors for DO
+	if (inlist(substr("`v'", 4, 2), "ho", "hn", "go", "np")) {
+		replace `v' = . if iso == "DO"
+	}
 }
 
 // Retropolate and combine series
@@ -86,9 +92,6 @@ drop com_vahn
 // Small data fix in MX
 replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 
-br iso year confc cfc* if iso == "AU"
-
-
 // -------------------------------------------------------------------------- //
 // Perform re-calibration
 // -------------------------------------------------------------------------- //
@@ -106,6 +109,9 @@ enforce (comnx = comrx - compx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
+		(fsubx = fpsub + fosub) ///
+		(ftaxx = fptax + fotax) ///
+		(taxnx = prtxn + optxn) ///
 		///  Gross national income of the different sectors of the economy
 		(gdpro + nnfin = prghn + prgco + prggo) ///
 		(gdpro + nnfin = seghn + segco + seggo) ///
