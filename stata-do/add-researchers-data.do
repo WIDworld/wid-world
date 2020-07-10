@@ -175,6 +175,9 @@ replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" 
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 
 
+//French Colonies - ACP2020
+append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
+
 tempfile researchers
 save "`researchers'"
 
