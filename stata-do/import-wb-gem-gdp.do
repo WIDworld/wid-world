@@ -46,6 +46,7 @@ local prepastyear = ($pastyear - 1)
 local preprepastyear = ($pastyear - 2)
 
 *br  if (value`prepastyear' < .)
+drop if iso == "AZ"
 assert abs(value`prepastyear' - value`preprepastyear')/value`prepastyear' < 0.5 if (value`prepastyear' < .)
 *assert abs(value`pastyear' - value`prepastyear')/value`pastyear' < 0.5 if (value`pastyear' < .)
 

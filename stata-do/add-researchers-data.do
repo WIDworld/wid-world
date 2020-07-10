@@ -171,6 +171,9 @@ append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribut
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
 drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
 replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" & iso == "ZA"
+// French Colonies - ACP2020
+append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
+
 
 tempfile researchers
 save "`researchers'"
