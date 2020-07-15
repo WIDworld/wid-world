@@ -541,6 +541,9 @@ enforce ///
 
 // Net labor/capital income decomposition
 generate fkpin = prphn + prico + nsrhn + prpgo
+// National savings
+generate savin = savhn + savgo + secco
+generate savig = savin + confc
 
 save "$work_data/oecd-full.dta", replace
 
