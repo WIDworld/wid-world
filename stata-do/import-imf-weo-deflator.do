@@ -33,21 +33,12 @@ drop country
 
 
 reshape long value, i(iso weosubjectcode) j(year)
-preserve 
-	keep iso year weosubjectcode subjectnotes 
-	drop if weosubjectcode == "PPPEX"
-	drop weosubjectcode
-	duplicates drop iso year subjectnotes, force
-	tempfile note
-	save `note'
-restore 
 reshape wide value, i(iso year) j(weosubjectcode) string
 
 // Zimbabwe: IMF moved to RTGS dollars unlike other databases: convert back to USD
 replace valueNGDP_D = valueNGDP_D/valuePPPEX if iso == "ZW"
 drop valuePPPEX
 
-merge m:1 iso year using `note', nogen
 
 rename valueNGDP_D def_imf
 

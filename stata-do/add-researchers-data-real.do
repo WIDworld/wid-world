@@ -39,10 +39,10 @@ save "`researchers'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
-gduplicates drop
+duplicates drop
 
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
-gduplicates tag iso sixlet, gen(dup)
+duplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup
 

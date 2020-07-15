@@ -520,7 +520,7 @@ merge n:1 iso year using "`share_foreign'", nogenerate keep(master match)
 
 replace foreign_secco = value*foreign_secco
 
-exit 1
+*exit 1
 
 collapse (sum) foreign_secco, by(iso2 year)
 

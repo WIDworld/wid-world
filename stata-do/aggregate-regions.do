@@ -4,6 +4,7 @@ use "$work_data/add-populations-output.dta", clear
 keep if substr(widcode, 1, 3) == "xlc"
 keep if year == $pastyear
 keep iso widcode value
+duplicates drop iso widcode, force
 reshape wide value, i(iso) j(widcode) string
 foreach v of varlist value* {
 	drop if `v' >= .
