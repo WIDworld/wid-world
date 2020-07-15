@@ -72,9 +72,11 @@ foreach v of varlist year* {
 	replace data_points = data_points + "," + string(`v') if !missing(`v') & data_points != ""
 	replace data_points = string(`v')                     if !missing(`v') & data_points == ""
 }
+egen min_year = rowmin(year*)
 drop year*
 replace data_points = "[" + data_points + "]"
-generate extrapolation = "[[1990,$pastyear]]"
+generate extrapolation = "[[" + string(min_year) + ",$pastyear]]"
+drop min_year
 
 expand 2
 sort iso
