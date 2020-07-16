@@ -73,6 +73,7 @@ foreach v of varlist year* {
 	replace data_points = string(`v')                     if !missing(`v') & data_points == ""
 }
 egen min_year = rowmin(year*)
+replace min_year = min(min_year, 1990)
 drop year*
 replace data_points = "[" + data_points + "]"
 generate extrapolation = "[[" + string(min_year) + ",$pastyear]]"
