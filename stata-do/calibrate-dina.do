@@ -107,6 +107,8 @@ tempfile anninc
 save "`anninc'"
 
 use "`rect'", clear
+replace iso = "KV" if iso == "KS"
+
 merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 
 // -------------------------------------------------------------------------- //

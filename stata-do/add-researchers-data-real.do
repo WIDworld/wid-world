@@ -26,9 +26,29 @@ append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
 
 // Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
+preserve 
+	keep if year<1950 & author == "kim2018"
+	tempfile kr
+	save `kr'
+restore
+drop if iso == "KR"
+append using `kr'
 
 // Europe 2020 - bcg2020
-append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
+*append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
+
+// Add regions back (dropped from add-researchers-data)
+append using "$wid_dir/Country-Updates/World_regions/regionstoreal.dta"
+
+// -----------------------------------------------------------------------------
+// 2020 - UPDATE 
+// -----------------------------------------------------------------------------
+// Middle East Aggregates in MER & PPP
+append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-MER.dta"
+append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-PPP.dta"
+
+// Europe (East & West) Countries and Aggregates
+append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
 
 tempfile researchers
 save "`researchers'"
@@ -77,7 +97,7 @@ gduplicates tag iso year p widcode, gen(dupus)
 drop if dupus & oldobs==0 & iso=="US"
 */
 // Korea: drop old widcodes
-drop if iso=="KR" & oldobs==1 & inlist(substr(widcode,2,5),"gdpro","nninc")
+*drop if iso=="KR" & oldobs==1 & inlist(substr(widcode,2,5),"gdpro","nninc")
 
 replace p="pall" if p=="p0p100"
 

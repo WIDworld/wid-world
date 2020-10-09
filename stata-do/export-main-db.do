@@ -46,6 +46,200 @@ egen tokeep = rownonmiss(`vars')
 keep if tokeep
 drop tokeep
 
+// Export by regiosns
+/*
+*Middle East
+preserve
+keep if inlist(Alpha2,"AE", "BH", "EG", "IQ", "IR")
+export delimited "$output_dir/$time/wid-ME1.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2,"JO", "KW", "LB", "OM", "PS")
+export delimited "$output_dir/$time/wid-ME2.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2,"QA", "SA", "SY", "TR", "YE")
+export delimited "$output_dir/$time/wid-ME3.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2,"XM-MER", "XM", "VN")
+export delimited "$output_dir/$time/wid-ME4.csv", delimiter(";") replace
+restore
+*/
+*Asia - Povcal
+preserve
+keep if inlist(Alpha2,"BD", "BT", "JP", "KG")
+export delimited "$output_dir/$time/wid-AS1.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2,"MN", "MV", "NP", "PH")
+export delimited "$output_dir/$time/wid-AS2.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2,"KR", "KZ", "LA", "LK", "MM")
+export delimited "$output_dir/$time/wid-AS3.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2,"PK", "TJ", "TL", "TM", "UZ")
+export delimited "$output_dir/$time/wid-AS4.csv", delimiter(";") replace
+restore
+*Asia - the rest
+preserve
+keep if inlist(Alpha2, "CN", "IN", "ID")
+export delimited "$output_dir/$time/wid-AS5.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "TH", "TW", "SG", "MY")
+export delimited "$output_dir/$time/wid-AS6.csv", delimiter(";") replace
+restore
+
+* Europe (East & West) + Russia
+preserve 
+keep if inlist(Alpha2, "AL", "AT", "BA")
+	export delimited "$output_dir/$time/wid-eur1.csv", delimiter(";") replace
+restore
+preserve 
+keep if inlist(Alpha2, "BE", "BG", "CH")
+	export delimited "$output_dir/$time/wid-eur2.csv", delimiter(";") replace
+restore
+preserve 
+keep if inlist(Alpha2, "CY", "CZ", "DD")
+	export delimited "$output_dir/$time/wid-eur3.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "DE", "DK", "EE")
+	export delimited "$output_dir/$time/wid-eur4.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "ES", "FI", "GB")
+	export delimited "$output_dir/$time/wid-eur5.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "GR", "HR", "HU")
+	export delimited "$output_dir/$time/wid-eur6.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "IE", "IS", "IT")
+	export delimited "$output_dir/$time/wid-eur7.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "LT", "LU", "LV")
+	export delimited "$output_dir/$time/wid-eur8.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "MD", "ME", "MK")
+	export delimited "$output_dir/$time/wid-eur9.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2,"MT", "NL", "NO")
+	export delimited "$output_dir/$time/wid-eur10.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "PL", "PT", "QE")
+	export delimited "$output_dir/$time/wid-eur11.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "QE-MER", "QM", "QY")
+	export delimited "$output_dir/$time/wid-eur12.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "RO", "RS", "SE")
+	export delimited "$output_dir/$time/wid-eur13.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "SI", "SK", "RU")
+	export delimited "$output_dir/$time/wid-eur14.csv", delimiter(";") replace
+restore
+
+preserve 
+keep if inlist(Alpha2, "KV", "QM-MER", "QX", "QX-MER", "QY-MER")
+	export delimited "$output_dir/$time/wid-eur15.csv", delimiter(";") replace
+restore
+
+preserve
+keep if Alpha2 == "FR"
+export delimited "$output_dir/$time/wid-FR.csv", delimiter(";") replace
+restore
+
+* Export Latin America
+preserve
+keep if inlist(Alpha2, "BR", "CL", "CO")
+	export delimited "$output_dir/$time/wid-latam1.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2, "CR", "EC", "MX")
+	export delimited "$output_dir/$time/wid-latam2.csv", delimiter(";") replace
+
+restore
+
+*Export Africa
+preserve
+keep if inlist(Alpha2, "AO", "BF", "BI", "BJ", "BW" )
+	export delimited "$output_dir/$time/wid-africa1.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "CD", "CF", "CG", "CI", "CM")
+	export delimited "$output_dir/$time/wid-africa2.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "CV", "DJ", "DZ", "ER", "ET")
+	export delimited "$output_dir/$time/wid-africa3.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "GA", "GH", "GM", "GN", "GQ")
+	export delimited "$output_dir/$time/wid-africa4.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "GW", "KE", "KM", "LR", "LS")
+	export delimited "$output_dir/$time/wid-africa5.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "LY", "MA", "MG", "ML", "MR")
+	export delimited "$output_dir/$time/wid-africa6.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "MU", "MW", "MZ", "NA", "NE")
+	export delimited "$output_dir/$time/wid-africa7.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "NG", "QB", "QF", "QK", "QN")
+	export delimited "$output_dir/$time/wid-africa8.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "QO", "QT", "QV", "RW", "SC")
+	export delimited "$output_dir/$time/wid-africa9.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "SD", "SL", "SN", "SO", "SS")
+	export delimited "$output_dir/$time/wid-africa10.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "ST", "SZ", "TD", "TG", "TN")
+	export delimited "$output_dir/$time/wid-africa11.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "TZ", "UG", "ZM", "ZW", "ZZ" )
+	export delimited "$output_dir/$time/wid-africa12.csv", delimiter(";") replace
+restore
+preserve
+keep if inlist(Alpha2, "ZA")
+	export delimited "$output_dir/$time/wid-ZA.csv", delimiter(";") replace
+restore
+
+ 
 // Export Europe
 /*
 preserve 

@@ -1,6 +1,8 @@
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
+drop if iso == ""
+
 
 // -------------------------------------------------------------------------- //
 // Add data quality, labels
@@ -9,6 +11,7 @@ duplicates drop iso sixlet, force
 preserve
 	import excel "$input_data_dir/data-quality/data-quality.xlsx", first clear
 	keep iso quality
+	gsort iso
 	tempfile temp
 	save `temp'
 restore
@@ -28,6 +31,7 @@ replace data_quality = 3 if method == "Fiscal income rescaled to match the macro
 merge m:1 iso using `temp', nogen update noreplace
 replace quality = . if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
 replace quality = data_quality if quality != data_quality & data_quality != .
+replace quality = 4 if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
 replace data_quality = quality if data_quality == .
 tostring data_quality, replace
 replace data_quality = "" if quality == .
@@ -69,14 +73,14 @@ reshape wide year, i(iso) j(j)
 
 generate data_points = ""
 foreach v of varlist year* {
-	replace data_points = data_points + "," + string(`v') if !missing(`v') & data_points != ""
+	replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
 	replace data_points = string(`v')                     if !missing(`v') & data_points == ""
 }
 egen min_year = rowmin(year*)
 replace min_year = min(min_year, 1990)
 drop year*
 replace data_points = "[" + data_points + "]"
-generate extrapolation = "[[" + string(min_year) + ",$pastyear]]"
+generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
 drop min_year
 
 expand 2

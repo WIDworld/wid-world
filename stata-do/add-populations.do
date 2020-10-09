@@ -11,7 +11,7 @@ replace newobs = 1 if (newobs >= .)
 
 ///* SWEDEN - 992i: Bauluz estimates end in 2016, 2017 WID value (WID extrapolated with UN's growth rate) is too low (drop between 2016 and 2017)
 * take Bauluz's 2016 value and apply growth rate of WID between 2016 and 2017 
-
+/*
 foreach var in "992i" "999i" {
 	sum value if (iso == "SE" & year == 2016 & widcode == "npopul`var'" & newobs == 1)
 	local wid16 = r(mean)
@@ -22,7 +22,7 @@ foreach var in "992i" "999i" {
 	local Bauluz16 = r(mean)
 	replace value = (`Bauluz16' * (1 + `gwthwidSE')) if (iso == "SE" & year == 2017 & widcode == "npopul`var'" & newobs == 1)
 }
-
+*/
 
 duplicates tag iso widcode p year, generate(duplicate)
 drop if duplicate & newobs
