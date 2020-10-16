@@ -1,9 +1,9 @@
 use "$work_data/calibrate-dina-output.dta", clear
 
 // Use KV rather than KS for Kosovo
-replace iso = "KV" if iso == "KS"
+*replace iso = "KV" if iso == "KS"
 // Make sure that we haven't created duplicates in the process
-duplicates drop iso year widcode p if iso == "KV", force
+duplicates drop iso year widcode p if iso == "KS", force
 
 // Generate average fiscal incomes based on total income controls
 keep if inlist(substr(widcode,1,3),"afi","mfi","nta") & p=="pall"
@@ -115,7 +115,7 @@ sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
 by iso year widcode: egen sum=sum(value2)
-assert inrange(sum,0.99,1.04) /* if !inlist(iso, "BR", "CL", "CO", "CR", "EC", "MX") */
+assert inrange(sum,0.99,1.04)  if !inlist(iso, "AR", "CL", "CO", "CR", "EC", "MX", "PE", "SV", "UY")  
 drop sum
 
 preserve

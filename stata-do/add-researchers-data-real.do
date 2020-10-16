@@ -50,6 +50,10 @@ append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-PPP.dta"
 // Europe (East & West) Countries and Aggregates
 append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
 
+// Latin America Aggregates and countries with regional averages
+drop if inlist(iso, "XL", "XL-MER")
+append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatAm-constt-RegAv-Agg-2020.dta"
+
 tempfile researchers
 save "`researchers'"
 

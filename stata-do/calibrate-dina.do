@@ -102,12 +102,12 @@ use "$work_data/extrapolate-pretax-income-output.dta", clear
 keep if widcode == "anninc992i"
 keep iso year value
 rename value anninc
-replace iso = "KV" if iso == "KS"
+*replace iso = "KV" if iso == "KS"
 tempfile anninc
 save "`anninc'"
 
 use "`rect'", clear
-replace iso = "KV" if iso == "KS"
+*replace iso = "KV" if iso == "KS"
 
 merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 
@@ -199,7 +199,7 @@ br if changes == 0 & ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960)
 */	
-drop tot anninc coef_* changes
+drop tot anninc coef_* changes b
 
 // Make sure that labor + capital income sums to total income
 greshape wide a s t, i(iso year age pop p n) j(fivelet) string

@@ -17,7 +17,7 @@ use "$work_data/distribute-national-income-output.dta", clear
 drop if inlist(iso, "FR", "US")
 // Do not extrapolate Mauritius (discrepancies too big)
 drop if iso == "MU"
-// Do not extrapolate Portugel (only gain a few years, and deosn't work well)
+// Do not extrapolate Portugal (only gain a few years, and deosn't work well)
 drop if iso == "PT"
 
 keep if widcode == "sptinc992j" | strpos(widcode, "sfiinc")

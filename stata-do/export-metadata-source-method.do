@@ -2,8 +2,9 @@ use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 drop if iso == ""
-
-
+drop if inlist(iso, "QD", "QD-MER")
+replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
+replace extrapolation = "[[1988, 2014]]" if iso == "CI" & strpos(sixlet, "ptinc")
 // -------------------------------------------------------------------------- //
 // Add data quality, labels
 // -------------------------------------------------------------------------- //

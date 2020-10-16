@@ -65,7 +65,7 @@ preserve
 keep if inlist(Alpha2,"XM-MER", "XM", "VN")
 export delimited "$output_dir/$time/wid-ME4.csv", delimiter(";") replace
 restore
-*/
+
 *Asia - Povcal
 preserve
 keep if inlist(Alpha2,"BD", "BT", "JP", "KG")
@@ -93,7 +93,11 @@ preserve
 keep if inlist(Alpha2, "TH", "TW", "SG", "MY")
 export delimited "$output_dir/$time/wid-AS6.csv", delimiter(";") replace
 restore
-
+preserve
+keep if inlist(Alpha2, "AF", "BN", "KH", "KP", "MO", "QD", "QD-MER")
+export delimited "$output_dir/$time/wid-AS7.csv", delimiter(";") replace
+restore
+*/
 * Europe (East & West) + Russia
 preserve 
 keep if inlist(Alpha2, "AL", "AT", "BA")
@@ -173,6 +177,16 @@ keep if Alpha2 == "FR"
 export delimited "$output_dir/$time/wid-FR.csv", delimiter(";") replace
 restore
 
+preserve 
+keep if inlist(Alpha2, "AM", "AZ", "BY")
+	export delimited "$output_dir/$time/wid-eur16.csv", delimiter(";") replace
+restore
+preserve 
+keep if inlist(Alpha2, "GE", "UA", "KS")
+	export delimited "$output_dir/$time/wid-eur17.csv", delimiter(";") replace
+restore
+
+
 * Export Latin America
 preserve
 keep if inlist(Alpha2, "BR", "CL", "CO")
@@ -182,6 +196,41 @@ restore
 preserve
 keep if inlist(Alpha2, "CR", "EC", "MX")
 	export delimited "$output_dir/$time/wid-latam2.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "AR", "PE", "SV", "UY")
+	export delimited "$output_dir/$time/wid-latam3.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "BO", "BS", "BZ")
+	export delimited "$output_dir/$time/wid-latam4.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "CU", "DO", "GT")
+	export delimited "$output_dir/$time/wid-latam5.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "GY", "HN", "HT")
+	export delimited "$output_dir/$time/wid-latam6.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "JM", "NI", "PA")
+	export delimited "$output_dir/$time/wid-latam7.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "PY", "SR", "TT")
+	export delimited "$output_dir/$time/wid-latam8.csv", delimiter(";") replace
+
+restore
+preserve
+keep if inlist(Alpha2, "VE", "XL", "XL-MER")
+	export delimited "$output_dir/$time/wid-latam9.csv", delimiter(";") replace
 
 restore
 
@@ -239,51 +288,18 @@ keep if inlist(Alpha2, "ZA")
 	export delimited "$output_dir/$time/wid-ZA.csv", delimiter(";") replace
 restore
 
- 
-// Export Europe
-/*
-preserve 
-keep if inlist(Alpha2,"AL", "AT", "BA", "BE", "BG", "CH", "CY", "CZ", "DD")
-tempfile europe1
-save "`europe1'"
-	export delimited "$output_dir/$time/wid-eur1.csv", delimiter(";") replace
-restore
-
-preserve 
-keep if inlist(Alpha2,"DE", "DK", "EE", "ES", "FI", "GB", "GR", "HR", "HU")
-tempfile europe2
-save "`europe2'"
-	export delimited "$output_dir/$time/wid-eur2.csv", delimiter(";") replace
-restore
-
-preserve 
-keep if inlist(Alpha2,"IE", "IS", "IT", "LT", "LU", "LV", "MD", "ME", "MK")
-tempfile europe3
-save "`europe3'"
-	export delimited "$output_dir/$time/wid-eur3.csv", delimiter(";") replace
-restore
-
-
-preserve 
-keep if inlist(Alpha2,"MT", "NL", "NO", "PL", "PT", "QE", "QE-MER", "QM", "QY")
-tempfile europe4
-save "`europe4'"
-	export delimited "$output_dir/$time/wid-eur4.csv", delimiter(";") replace
-restore
-
-preserve 
-keep if inlist(Alpha2,"RO", "RS", "SE", "SI", "SK")
-tempfile europe5
-save "`europe5'"
-	export delimited "$output_dir/$time/wid-eur5.csv", delimiter(";") replace
-restore
-*/
-// Export France  data - bcg2020(diinc & ptinc)
-/*
+* Export AU NZ CA
 preserve
-keep if Alpha2 == "FR"
-export delimited "$output_dir/$time/wid-FR.csv", delimiter(";") replace
+keep if inlist(Alpha2, "AU", "NZ", "CA")
+	export delimited "$output_dir/$time/wid-AUNZCA.csv", delimiter(";") replace
 restore
+preserve
+keep if Alpha2 == "US"
+export delimited "$output_dir/$time/wid-US.csv", delimiter(";") replace
+restore
+
+
+/*
 */
 
 // Export South Africa

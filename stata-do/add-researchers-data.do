@@ -171,7 +171,7 @@ replace method = "" if iso == "ZA"
 *append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
 
 // US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
-append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
+*append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
 
 // South Africa 2020 - ccg2020
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
@@ -190,10 +190,11 @@ append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME
 drop if iso == "EG" & author != "assouad2017"
 
 *Asia (JMY 2020)
-append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia-povcal-long.dta"
+*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia-povcal-long.dta"
 
 * Asia (remaining countries - Yang)
-append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia2020.dta"
+*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia2020.dta"
+append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia_full_2020.dta"
 
 *Wealth Aggregates (Bauluz & Brassac 2020)
 append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
@@ -217,13 +218,16 @@ drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>19
 * Australia, New Zealand & Canada (Matt 2020)
 append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 
+* US (Zucman 2020)
+append using "$wid_dir/Country-Updates/US/2020/October/US_full_2020.dta"
+
 // Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
 preserve
-	keep if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV")
+	keep if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 	save "$wid_dir/Country-Updates/World_regions/regionstoreal.dta", replace
 restore
 
-drop if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV")
+drop if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 
 tempfile researchers
 save "`researchers'"
@@ -234,7 +238,7 @@ save "`researchers'"
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
-keep iso sixlet source method data_quality data_points extrapolation
+keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
 duplicates drop
 
