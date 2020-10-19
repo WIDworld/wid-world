@@ -62,7 +62,7 @@ keep if inlist(Alpha2,"QA", "SA", "SY", "TR", "YE")
 export delimited "$output_dir/$time/wid-ME3.csv", delimiter(";") replace
 restore
 preserve
-keep if inlist(Alpha2,"XM-MER", "XM", "VN")
+keep if inlist(Alpha2,"XM-MER", "XM", "VN", "IL")
 export delimited "$output_dir/$time/wid-ME4.csv", delimiter(";") replace
 restore
 

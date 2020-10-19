@@ -221,6 +221,9 @@ append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 * US (Zucman 2020)
 append using "$wid_dir/Country-Updates/US/2020/October/US_full_2020.dta"
 
+* Israel (Moshrif 2020)
+append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
+
 // Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
 preserve
 	keep if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")

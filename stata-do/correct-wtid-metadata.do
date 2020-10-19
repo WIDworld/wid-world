@@ -86,6 +86,8 @@ sort iso sixlet source
 
 replace source = source + `"; "'
 
+replace source = source + " Updated by Yang, “Regional DINA Update for Asia” (2020)" if strpos(sixlet, "fiinc") & inlist(iso, "ID", "SG", "TW")
+
 replace method = "Tax units are: individuals aged 15+ minus married females " + ///
 	"until 1969; individuals aged 15+ from 1970. Data before 1990 are based " + ///
 	"on tabulated tax data, and the unit of analysis is the tax unit. In 1990 " + ///
