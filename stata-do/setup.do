@@ -34,7 +34,7 @@ if substr("`c(pwd)'",1,10)=="C:\Users\r"{
 	global wid_dir "C:/Users/r.khaled/Dropbox/W2ID"
 	global project_dir "C:/Users/r.khaled/Documents/GitHub/wid-world"
 }
-if substr("`c(pwd)'",1,10)=="/Users/rowaidakhaled"{
+if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
 	global wid_dir "/Users/rowaidakhaled/Dropbox/W2ID"
 	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
 }

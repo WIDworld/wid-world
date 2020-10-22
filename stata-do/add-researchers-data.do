@@ -6,31 +6,33 @@
 // -----------------------------------------------------------------------------
 
 // China 2017 (PYZ2017)
-use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
+*use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
 
 // US Nominal 2017 (PSZ2017, new version in country-updates (2017-september)
 *append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
 
 // Ivory Coast 2017 (Czajka2017)
-append using "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta"
+use "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta", clear
 
 // UK 2017 (Alvaredo2017)
 append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
 drop if iso=="GB" & strpos(widcode,"ptinc")>0
 
 // Macro updates 2017 (Bauluz2017)
+/*
 append using "$wid_dir/Country-Updates/Spain/2017/August/spain-bauluz2017.dta" // Spain
 append using "$wid_dir/Country-Updates/Sweden/2017/August/sweden-bauluz2017.dta" // Sweden
 append using "$wid_dir/Country-Updates/Japan/2017/August/macro-updates-bauluz2017.dta" // All others (Japan folder)
 // Remove some duplicates
 drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpro","mnnfin","mnninc") ///
 	& author!="bauluz2017" // keep bauluz note for US
-
+*/
 // Brazil 2017 (Morgan2017)
 append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta"
+drop if strpos(widcode, "ptinc") & iso == "BR" & author == "morgan2017"
 
 // India 2018 (Chancel2018)
-append using "$wid_dir/Country-Updates/India/2018/June/india-chancel2018.dta"
+*append using "$wid_dir/Country-Updates/India/2018/June/india-chancel2018.dta"
 
 // Germany 2017 (Bartels2017)
 *append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.dta"
@@ -40,12 +42,14 @@ append using "$wid_dir/Country-Updates/UK/2017/June/uk-wealth-alvaredo2017.dta"
 
 // Russia 2017 (NPZ2017)
 append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
+drop if strpos(widcode, "ptinc") & iso == "RU" & author == "npz2017"
 
 // Hungary 2017 (Mosberger2017)
 append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
 
 // Middle-East 2017 (Assouad2017)
-append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
+*append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
+
 
 // Poland 2017 (Novokmet2017)
 append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
@@ -78,6 +82,7 @@ drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
 drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
 
 // Macro corrections (Bauluz 2018)
+/*
 preserve
 use "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", clear
 keep iso widcode
@@ -97,7 +102,7 @@ merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05
 replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "bauluz2018_corrections"
 drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
 replace author="bauluz2017" if author=="bauluz2018_corrections"
-
+*/
 // Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
@@ -106,6 +111,7 @@ append using "$wid_dir/Country-Updates/US_States/2018_July/us-states-frank2017-u
 
 // Chile 2018 (Flores2018)
 append using "$wid_dir/Country-Updates/Chile/2018_10/chile-flores2018.dta"
+drop if strpos(widcode, "ptinc") & iso == "CL" & author == "flores2018"
 
 // Korea 2018 (Kim2018), except for gdp and nni who had to be imported in constant LCU
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
@@ -114,7 +120,7 @@ append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 
 // Thailand 2018 (Jenmana2018)
-append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana2018.dta"
+*append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana2018.dta"
 
 // Belgium 2019 (Decoster2019)
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
@@ -144,9 +150,9 @@ append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
 // Africa 2019 (CGM2019)
-append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
-drop if iso == "EG" & author != "cgm2019"
-drop if iso == "CI" & author == "cgm2019"
+*append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
+*drop if iso == "EG" & author != "cgm2019"
+*drop if iso == "CI" & author == "cgm2019"
 
 //correct the reference by adding "Cogneau" + source for ZA
 replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
@@ -158,23 +164,73 @@ replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-an
 replace method = "" if iso == "ZA"
 
 // Malaysia 2019 (KY2019)
-append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
+*append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
 
 // Bauluz 2019 - Capital and labor shares (Bauluz2019)
 // (income data imported later)
 *append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
 
 // US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
-append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
+*append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
 
 // South Africa 2020 - ccg2020
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
 drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
 replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" & iso == "ZA"
 
-
 //French Colonies - ACP2020
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
+
+//
+// -----------------------------------------------------------------------------
+// 2020 - UPDATE 
+// -----------------------------------------------------------------------------
+*Middle East (Moshrif 2020)
+append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME.dta"
+drop if iso == "EG" & author != "assouad2017"
+
+*Asia (JMY 2020)
+*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia-povcal-long.dta"
+
+* Asia (remaining countries - Yang)
+*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia2020.dta"
+append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia_full_2020.dta"
+
+*Wealth Aggregates (Bauluz & Brassac 2020)
+append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
+
+*Russia (Neef2020)
+append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
+
+*Latin America (RFM 2020)
+append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
+
+*Africa (Robillard 2020)
+append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta"
+drop if iso == "CI" & author == "ccgm2019&robi2020"
+drop if iso == "EG" & author == "ccgm2019&robi2020"
+
+*India (Chancel 2020)
+append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
+drop if iso=="IN" & author=="chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
+drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>1947
+
+* Australia, New Zealand & Canada (Matt 2020)
+append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
+
+* US (Zucman 2020)
+append using "$wid_dir/Country-Updates/US/2020/October/US_full_2020.dta"
+
+* Israel (Moshrif 2020)
+append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
+
+// Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
+preserve
+	keep if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
+	save "$wid_dir/Country-Updates/World_regions/regionstoreal.dta", replace
+restore
+
+drop if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 
 tempfile researchers
 save "`researchers'"
@@ -185,9 +241,9 @@ save "`researchers'"
 
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
-keep iso sixlet source method
+keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
-gduplicates drop
+duplicates drop
 
 drop if sixlet=="npopul" & strpos(source,"chancel")>0
 
@@ -201,11 +257,15 @@ save "`meta'"
 // -----------------------------------------------------------------------------
 
 use "$work_data/calculate-average-over-output.dta", clear
-drop if iso == "NZ"
-append using "$wid_dir/Country-Updates/NewZealand/2020_May/NZ.dta"
-gen oldobs=1
+drop if inlist(iso, "NZ", "AU", "CA")
+drop if inlist(iso, "ID", "SG", "TW")
+gen oldobs = 1
+*append using "$wid_dir/Country-Updates/NewZealand/2020_May/NZ.dta"
+
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
+
+drop if iso == "ES" & year == 1900 & missing(value) & p == "pall"
 
 // Drop Ginis for Germany
 *drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
@@ -223,7 +283,7 @@ drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","apt
 
 // Bauluz 2017 updates: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
 preserve
-	keep if author=="bauluz2017"
+	keep if author=="Bauluz2020"
 	keep iso widcode
 	duplicates drop
 	gen todrop=1
@@ -231,10 +291,11 @@ preserve
 	save "`todrop'"
 restore
 merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
-drop if todrop==1 & author!="bauluz2017" & !inlist(substr(widcode,1,1),"n","i")
+
+drop if todrop==1 & author!="Bauluz2020" & !inlist(substr(widcode,1,1),"n","i")
 
 gduplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
-drop if usdup & iso=="US" & author!="bauluz2017"
+drop if usdup & iso=="US" & author!="Bauluz2020"
 
 // India 2017: drop duplicates and old fiscal income data
 drop if substr(widcode, 2, 5)=="fiinc" & oldobs==1 & iso=="IN"
