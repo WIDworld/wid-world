@@ -140,7 +140,7 @@ generate source = "WID.world computations using fiscal and net national income."
 tempfile meta
 save "`meta'"
 
-use "$work_data/complete-variables-metadata.dta", clear
+use "$work_data/calculate-wealth-income-ratio-metadata.dta", clear
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update
 

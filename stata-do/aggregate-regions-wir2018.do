@@ -131,6 +131,20 @@ drop if iso=="SU"
 // Drop 2017
 drop if year==$year
 
+preserve
+	collapse (firstnm) region4, by(iso year)
+	drop if region4 == ""
+	generate value = 1
+	greshape wide value, i(region4 year) j(iso)
+	foreach v of varlist value* {
+		replace `v' = 0 if missing(`v')
+	}
+	renvars value*, predrop(5)
+	rename region4 region
+	replace region = region + " (WIR 2018)"
+	export excel "$wid_dir/wid-regions-list.xlsx", sheet("WIR 2018", replace) firstrow(variables)
+restore
+
 // Calculate aggregates
 collapse (sum) value*, by(region4 year widcode)
 rename region4 region
@@ -185,6 +199,7 @@ save "`regions'"
 append using "$work_data/aggregate-regions-output.dta"
 
 duplicates tag iso year widcode p, gen(dup)
+*br if dup
 assert dup==0
 drop dup
 

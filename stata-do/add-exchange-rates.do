@@ -1,8 +1,5 @@
 use "$work_data/exchange-rates.dta", clear
 
-// Get rid of PPP/MER from Piketty-Yang-Zucman paper
-drop if substr(iso, 1, 2) == "CN" & substr(widcode, 1, 3) == "xlc"
-
 append using "$work_data/add-ppp-output.dta"
 
 // Add Chinese exchange rates to urban and rural China
