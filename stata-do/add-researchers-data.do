@@ -13,6 +13,8 @@
 
 // Ivory Coast 2017 (Czajka2017)
 use "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta", clear
+append using "$wid_dir/Country-Updates/Ivory Coast/2019_Oct/ivory-coast-czajka2019.dta"
+replace source = source + "Updated by Robilliard, “Regional DINA update for Africa” (2020)"
 
 // UK 2017 (Alvaredo2017)
 append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
@@ -226,11 +228,11 @@ append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
 
 // Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
 preserve
-	keep if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
+	keep if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 	save "$wid_dir/Country-Updates/World_regions/regionstoreal.dta", replace
 restore
 
-drop if inlist(iso, "QB", "QF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
+drop if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 
 tempfile researchers
 save "`researchers'"

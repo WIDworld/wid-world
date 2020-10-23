@@ -54,6 +54,10 @@ append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
 drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatAm-constt-RegAv-Agg-2020.dta"
 
+// World regions + World
+drop if inlist(iso, "XL", "QE", "XF", "QF", "QP", "WO", "XA", "XN", "XR") & strpos(widcode, "ptinc992j")
+append using "$wid_dir/Country-Updates/World_regions/World_Aggregates.dta"
+
 tempfile researchers
 save "`researchers'"
 
