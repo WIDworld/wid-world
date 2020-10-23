@@ -120,6 +120,20 @@ assert valiso2 == 1 if (region2 == "Australia and New Zealand")
 assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
 restore
 
+preserve
+	collapse (firstnm) region*, by(iso year)
+	generate region5 = "World"
+	greshape long region, i(iso year) j(j)
+	drop j
+	drop if region == ""
+	generate value = 1
+	greshape wide value, i(region year) j(iso)
+	foreach v of varlist value* {
+		replace `v' = 0 if missing(`v')
+	}
+	renvars value*, predrop(5)
+	export excel "$wid_dir/wid-regions-list.xlsx", sheet("WID", replace) firstrow(variables)
+restore
 
 // Convert to common currencies
 foreach v of varlist ppp* exc* {
