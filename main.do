@@ -282,6 +282,7 @@ do "$do_dir/calculate-gini-coef.do"
 
 // Create a folder for the timestamp
 capture mkdir "$output_dir/$time"
+capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"

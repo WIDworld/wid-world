@@ -21,6 +21,9 @@ merge 1:1 iso using "$work_data/import-region-codes-output.dta", nogenerate keep
 // Regions (MER)
 merge 1:1 iso using "$work_data/import-region-codes-mer-output.dta", nogenerate keep(master match_update match_conflict) update replace
 
+replace titlename = subinstr(titlename, "Russia and Ukraine", "Russia and Others", 1)
+replace shortname = subinstr(shortname, "Russia and Ukraine", "Russia and Others", 1)
+
 drop matchname
 rename iso Alpha2
 rename titlename TitleName
