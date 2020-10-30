@@ -29,13 +29,22 @@ replace value = value/index if inlist(substr(widcode, 1, 1), "a", "m", "t", "o")
 	& (substr(widcode, 4, 3) != "toq") ///
 	& !is_region
 
-assert !missing(index) if !inlist(iso, "CZ", "RU") ///
+assert !missing(index) if !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES", "ID") ///
 	& inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
 	& (substr(widcode, 4, 3) != "toq") ///
 	& strpos(widcode,"ptinc")==0 ///
 	& strpos(widcode,"diinc")==0 ///
 	& !is_region
 
+/*
+tab iso if missing(index) & !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES") ///
+	& inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
+	& (substr(widcode, 4, 3) != "toq") ///
+	& strpos(widcode,"ptinc")==0 ///
+	& strpos(widcode,"diinc")==0 ///
+	& !is_region
+
+*/
 // Convert monetary series to real $pastyear LCU
 
 // We do not convert World Regions because they do not have a price index.

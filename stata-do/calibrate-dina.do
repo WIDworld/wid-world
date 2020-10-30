@@ -76,7 +76,7 @@ foreach v of varlist a t {
 
 // Middle-East: estimate average from shares, assuming mean income = 1
 // (will be rescaled to true value after)
-replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM")
+replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM", "CA", "NZ")
 
 // When thresholds totally missing, use midpoints between averages
 by iso year fivelet age pop: generate t2 = (a + a[_n - 1])/2
@@ -192,9 +192,12 @@ assert changes <= 1
 assert changes > 0 if ///
 	!(substr(fivelet, 1, 2) == "hw") & ///
 	!(fivelet == "fiinc") & ///
-	!(fivelet == "ptinc" & iso == "RU" & year < 1960) // No overall income available, just shares
+	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
+	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
+	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
+	!(fivelet == "ptinc" & iso == "NZ" & year < 1950)  // No overall income available, just shares
 /*
-br if changes == 0 & ///
+tab iso year if changes == 0 & ///
 	!(substr(fivelet, 1, 2) == "hw") & ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960)
@@ -203,7 +206,7 @@ drop tot anninc coef_* changes b
 
 // Make sure that labor + capital income sums to total income
 greshape wide a s t, i(iso year age pop p n) j(fivelet) string
-
+/*
 // Same ranking
 replace aptlin = aptlin/(aptlin + aptkin)*aptinc
 replace tptlin = cond(tptinc != 0, tptlin/(tptlin + tptkin)*tptinc, 0)
@@ -215,7 +218,7 @@ gegen tot_ptkin = total(aptkin*n/1e5), by(iso year pop age)
 replace sptlin = aptlin/tot_ptlin*n/1e5
 replace sptkin = aptkin/tot_ptkin*n/1e5
 drop tot_*
-
+*/
 // Separate ranking
 gegen tot_pllin = total(apllin*n/1e5), by(iso year pop age)
 gegen tot_pkkin = total(apkkin*n/1e5), by(iso year pop age)

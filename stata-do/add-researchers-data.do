@@ -191,11 +191,7 @@ append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME.dta"
 drop if iso == "EG" & author != "assouad2017"
 
-*Asia (JMY 2020)
-*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia-povcal-long.dta"
-
-* Asia (remaining countries - Yang)
-*append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia2020.dta"
+* Asia 
 append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia_full_2020.dta"
 
 *Wealth Aggregates (Bauluz & Brassac 2020)
@@ -203,9 +199,6 @@ append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
 
 *Russia (Neef2020)
 append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
-
-*Latin America (RFM 2020)
-append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
 
 *Africa (Robillard 2020)
 append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta"
@@ -259,8 +252,8 @@ save "`meta'"
 // -----------------------------------------------------------------------------
 
 use "$work_data/calculate-average-over-output.dta", clear
-drop if inlist(iso, "NZ", "AU", "CA")
-drop if inlist(iso, "ID", "SG", "TW")
+drop if inlist(iso, "NZ", "AU", "CA", "ID", "SG", "TW")
+
 gen oldobs = 1
 *append using "$wid_dir/Country-Updates/NewZealand/2020_May/NZ.dta"
 

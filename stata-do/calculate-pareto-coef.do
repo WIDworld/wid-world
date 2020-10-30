@@ -1,4 +1,4 @@
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/World-and-regional-aggregates-output.dta", clear
 
 // Keep thresholds and top averages only
 keep if (substr(widcode, 1, 1) == "a" & regexm(p, "^p([0-9\.]+)p100$")) | ///
@@ -29,7 +29,7 @@ tempfile bp
 save "`bp'"
 
 // Add to the data
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/World-and-regional-aggregates-output.dta", clear
 
 drop if substr(widcode, 1, 1) == "b"
 

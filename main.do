@@ -5,7 +5,7 @@
 //
 // See README.md file for more information.
 // -------------------------------------------------------------------------- //
-
+do "$do_dir/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -61,11 +61,11 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/*
+
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
-
+/*
 // Import World Bank metadata (for currencies & fiscal year type)
 do "$do_dir/import-wb-metadata.do"
 
@@ -205,8 +205,8 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
-
 */
+
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
 // -------------------------------------------------------------------------- //
@@ -267,6 +267,9 @@ do "$do_dir/calibrate-dina.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
+//Compute World and Regional Aggregates
+do "$do_dir/world-and-regional-aggregates.do"
+
 // Compute Pareto coefficients
 do "$do_dir/calculate-pareto-coef.do"
 
@@ -285,10 +288,10 @@ do "$do_dir/export-metadata-source-method.do"
 do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations
-do "$do_dir/create-flag-variables.do"
+*do "$do_dir/create-flag-variables.do"
 
 // Export the units
-do "$do_dir/export-units.do"
+*do "$do_dir/export-units.do"
 
 // Export the main database
 do "$do_dir/create-main-db.do"

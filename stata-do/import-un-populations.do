@@ -59,19 +59,15 @@ countrycode regionsubregioncountryorar, generate(iso) from("wpp")
 drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
-replace value80 = value80_84 + value85_89 + value90_94 ///
-	+ value95_99 + value100 if (value80 >= .)
+generate value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100 
 
 // Calculate other population categories
 generate valuechildren = value0_4 + value5_9 + value10_14 + value15_19
-generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + ///
-	value65_69 + value70_74 + value75_79 + value80
+generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 generate value20_39 = value20_24 + value25_29 + value30_34 + value35_39
 generate value40_59 = value40_44 + value45_49 + value50_54 + value55_59
 generate value60 = value60_64 + value65_69 + value70_74 + value75_79 + value80
-generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64
+generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64
 generate value65 = value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
@@ -109,19 +105,15 @@ countrycode regionsubregioncountryorar, generate(iso) from("wpp")
 drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
-gen value80 = value80_84 + value85_89 + value90_94 ///
-	+ value95_99 + value100
+gen value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100
 
 // Calculate other population categories
 generate valuechildren = value0_4 + value5_9 + value10_14 + value15_19
-generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + ///
-	value65_69 + value70_74 + value75_79 + value80
+generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 generate value20_39 = value20_24 + value25_29 + value30_34 + value35_39
 generate value40_59 = value40_44 + value45_49 + value50_54 + value55_59
 generate value60 = value60_64 + value65_69 + value70_74 + value75_79 + value80
-generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64
+generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64
 generate value65 = value65_69 + value70_74 + value75_79 + value80
 generate value20_29 = value20_24 + value25_29
 generate value30_39 = value30_34 + value35_39
@@ -133,9 +125,7 @@ generate value80_89 = value80_84 + value85_89
 generate value90_99 = value90_94 + value95_99
 
 // Generate entire men population
-generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 ///
-	+ value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 ///
-	+ value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
+generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
 reshape long value, i(iso year) j(age) string
@@ -171,19 +161,15 @@ countrycode regionsubregioncountryorar, generate(iso) from("wpp")
 drop variant regionsubregioncountryorar notes countrycode
 
 // Calculate value for 80+ when we only have the detail
-gen value80 = value80_84 + value85_89 + value90_94 ///
-	+ value95_99 + value100
+gen value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100
 
 // Calculate other population categories
 generate valuechildren = value0_4 + value5_9 + value10_14 + value15_19
-generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + ///
-	value65_69 + value70_74 + value75_79 + value80
+generate valueadults = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 generate value20_39 = value20_24 + value25_29 + value30_34 + value35_39
 generate value40_59 = value40_44 + value45_49 + value50_54 + value55_59
 generate value60 = value60_64 + value65_69 + value70_74 + value75_79 + value80
-generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + ///
-	value40_44 + value45_49 + value50_54 + value55_59 + value60_64
+generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64
 generate value65 = value65_69 + value70_74 + value75_79 + value80
 generate value20_29 = value20_24 + value25_29
 generate value30_39 = value30_34 + value35_39
@@ -195,9 +181,7 @@ generate value80_89 = value80_84 + value85_89
 generate value90_99 = value90_94 + value95_99
 
 // Generate entire women population
-generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 ///
-	+ value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 ///
-	+ value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
+generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
 reshape long value, i(iso year) j(age) string

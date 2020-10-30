@@ -47,9 +47,9 @@ keep if tokeep
 drop tokeep
 
 // Export by regiosns
-/*
+/
 preserve
-keep if inlist(Alpha2,"IL", "WO", "XL")
+keep if inlist(Alpha2, "WO", "XL")
 export delimited "$output_dir/$time/wid-db1.csv", delimiter(";") replace
 restore
 
@@ -106,7 +106,7 @@ export delimited "$output_dir/$time/wid-AS4.csv", delimiter(";") replace
 restore
 *Asia - the rest
 preserve
-keep if inlist(Alpha2, "CN", "IN", "ID")
+keep if inlist(Alpha2, "CN", "IN", "ID", "PG")
 export delimited "$output_dir/$time/wid-AS5.csv", delimiter(";") replace
 restore
 preserve

@@ -246,22 +246,10 @@ append using "`fiscal_averages'"
 tempfile data
 save `data'
 
-import excel "$quality_file", sheet("Redux") first clear
-keep Country Score20
-renvars Country Score20 / isoname valueiquali999i
-drop if mi(isoname)
-preserve
-	import excel "$quality_file", ///
-		sheet("data") first clear
-	renvars Country Code / isoname iso
-	keep isoname iso
-	drop if mi(isoname)
-	tempfile temp
-	save `temp'
-restore
-merge 1:1 isoname using `temp', assert(matched) nogen
-keep iso valueiquali999i
-greshape long value, i(iso) j(widcode) string
+import excel "$quality_file", sheet("Scores_redux") first clear cellrange(A3)
+renvars B F / iso value
+keep iso value
+gen widcode = "iquali999i"
 gen year = $pastyear
 gen p = "p0p100"
 gen currency = ""

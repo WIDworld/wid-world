@@ -1,4 +1,4 @@
-use "$work_data/extrapolate-pretax-income-metadata.dta", clear
+use "$work_data/World-and-regional-aggregates-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 drop if iso == ""
@@ -152,9 +152,10 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 // -------------------------------------------------------------------------- //
 
 preserve
-import excel "$quality_file", sheet("data") first clear
-keep Code
-ren Code iso
+import excel "$quality_file", sheet("Scores_redux") first cellrange(A3) clear 
+keep B
+ren B iso
+duplicates drop iso, force // to be removed later
 gen sixlet = "iquali"
 gen method = "The inequality transparency index is estimated by the World Inequality Lab based on the availability " + ///
 	"of income and wealth surveys and tax data in the country considered. See " + ///

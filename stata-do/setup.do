@@ -103,7 +103,8 @@ global oldoutput_dir "$output_dir/$olddate"
 global sumtable_dir "$wid_dir/Country-Updates/AvailableData"
 
 // Directory of the data availability quality index
-global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-final.xlsx"
+*global quality_file "$wid_dir/Country-Updates/AvailableData-World/inequality-data-available-final.xlsx"
+global quality_file "$wid_dir/Country-Updates/AvailableData-World/Transparency_index_2020_update.xlsx"
 
 // Store date and time in a global macro to timestamp the output
 local c_date = c(current_date)
