@@ -4,7 +4,8 @@ duplicates drop iso sixlet, force
 drop if iso == ""
 drop if inlist(iso, "QD", "QD-MER")
 replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
-replace extrapolation = "[[1988, 2014]]" if iso == "CI" & strpos(sixlet, "ptinc")
+replace extrapolation = "[[1988, 2019]]" if iso == "CI" & strpos(sixlet, "ptinc")
+replace extrapolation = "" if extrapolation == "[[2019]]"
 // -------------------------------------------------------------------------- //
 // Add data quality, labels
 // -------------------------------------------------------------------------- //
@@ -66,7 +67,7 @@ drop if construction == "Imputed"
 drop if construction == ""
 drop construction
 
-drop if inlist(iso, "ZA", "CI")
+*drop if inlist(iso, "ZA", "CI")
 
 sort iso year
 by iso: generate j = _n

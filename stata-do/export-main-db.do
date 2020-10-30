@@ -48,6 +48,26 @@ drop tokeep
 
 // Export by regiosns
 /*
+preserve
+keep if inlist(Alpha2,"IL", "WO", "XL")
+export delimited "$output_dir/$time/wid-db1.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2,"QE", "QF")
+export delimited "$output_dir/$time/wid-db2.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2,"XN", "XA", "XF")
+export delimited "$output_dir/$time/wid-db3.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2,"QP", "XR")
+export delimited "$output_dir/$time/wid-db4.csv", delimiter(";") replace
+restore
+
 *Middle East
 preserve
 keep if inlist(Alpha2,"AE", "BH", "EG", "IQ", "IR")
