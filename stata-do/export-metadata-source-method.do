@@ -5,6 +5,7 @@ drop if iso == ""
 drop if inlist(iso, "QD", "QD-MER")
 replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
 replace extrapolation = "[[1988, 2019]]" if iso == "CI" & strpos(sixlet, "ptinc")
+
 replace extrapolation = "" if extrapolation == "[[2019]]"
 // -------------------------------------------------------------------------- //
 // Add data quality, labels
@@ -160,7 +161,9 @@ gen sixlet = "iquali"
 gen method = "The inequality transparency index is estimated by the World Inequality Lab based on the availability " + ///
 	"of income and wealth surveys and tax data in the country considered. See " + ///
 	"http://wid.world/transparency/ for more information ."
-gen source = "[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"
+gen source = `"[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"' + ///
+			 `"[URL][URL_LINK]http://wordpress.wid.world/document/inequality-transparency-index-update-world-inequality-lab-technical-note-2020-12/[/URL_LINK]"' + ///
+			 `"[URL_TEXT]; Burq, François and Chancel, Lucas. Inequality transaprency index update (2020)[/URL_TEXT][/URL]"'
 tempfile temp
 save `temp'
 restore
@@ -231,7 +234,7 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 // Correction for South Africa
 replace Method = "Fiscal income rescaled to match the macroeconomic aggregates." if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 replace data_imputation = "rescaling" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
-replace extrapolation = "[[1993,2002],[2012,2017]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
+replace extrapolation = "[[1993,2002],[2012,2019]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"
 

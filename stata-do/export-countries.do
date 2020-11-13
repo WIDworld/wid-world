@@ -16,13 +16,19 @@ gduplicates drop
 
 // Country and subcountries
 merge 1:1 iso using "$work_data/import-country-codes-output.dta", nogenerate keep(master match)
+drop if strpos(iso, " ")
+drop if strpos(iso, "-MER")
+drop if (strpos(iso, "X") | strpos(iso, "Q"))
+drop if inlist(iso, "WO", "Al", "SW")
+
 // Regions (PPP)
-merge 1:1 iso using "$work_data/import-region-codes-output.dta", nogenerate keep(master match_update match_conflict) update replace
+append using "$work_data/import-region-codes-output.dta"
 // Regions (MER)
-merge 1:1 iso using "$work_data/import-region-codes-mer-output.dta", nogenerate keep(master match_update match_conflict) update replace
+append using "$work_data/import-region-codes-mer-output.dta"
 
 replace titlename = subinstr(titlename, "Russia and Ukraine", "Russia and Others", 1)
 replace shortname = subinstr(shortname, "Russia and Ukraine", "Russia and Others", 1)
+
 
 drop matchname
 rename iso Alpha2
