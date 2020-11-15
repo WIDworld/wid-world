@@ -47,25 +47,30 @@ keep if tokeep
 drop tokeep
 
 // Export by regiosns
-/
+
 preserve
-keep if inlist(Alpha2, "WO", "XL")
+keep if inlist(Alpha2, "WO", "WO-MER", "XL", "XL-MER")
 export delimited "$output_dir/$time/wid-db1.csv", delimiter(";") replace
 restore
 
 preserve
-keep if inlist(Alpha2,"QE", "QF")
+keep if inlist(Alpha2,"QE", "QE-MER", "QF", "QF-MER")
 export delimited "$output_dir/$time/wid-db2.csv", delimiter(";") replace
 restore
 
 preserve
-keep if inlist(Alpha2,"XN", "XA", "XF")
+keep if inlist(Alpha2,"XN", "XN-MER", "XA", "XA-MER", "XF", "XF-MER")
 export delimited "$output_dir/$time/wid-db3.csv", delimiter(";") replace
 restore
 
 preserve
-keep if inlist(Alpha2,"QP", "XR")
+keep if inlist(Alpha2,"QP", "QP-MER", "XR", "XR-MER")
 export delimited "$output_dir/$time/wid-db4.csv", delimiter(";") replace
+restore
+
+preserve
+keep if inlist(Alpha2,"XM-MER", "XM", "QD", "QD-MER")
+export delimited "$output_dir/$time/wid-db5.csv", delimiter(";") replace
 restore
 
 *Middle East
@@ -82,7 +87,7 @@ keep if inlist(Alpha2,"QA", "SA", "SY", "TR", "YE")
 export delimited "$output_dir/$time/wid-ME3.csv", delimiter(";") replace
 restore
 preserve
-keep if inlist(Alpha2,"XM-MER", "XM", "VN", "IL")
+keep if inlist(Alpha2, "VN", "IL")
 export delimited "$output_dir/$time/wid-ME4.csv", delimiter(";") replace
 restore
 
@@ -114,7 +119,7 @@ keep if inlist(Alpha2, "TH", "TW", "SG", "MY")
 export delimited "$output_dir/$time/wid-AS6.csv", delimiter(";") replace
 restore
 preserve
-keep if inlist(Alpha2, "AF", "BN", "KH", "KP", "MO", "QD", "QD-MER")
+keep if inlist(Alpha2, "AF", "BN", "KH", "KP", "MO")
 export delimited "$output_dir/$time/wid-AS7.csv", delimiter(";") replace
 restore
 */

@@ -81,6 +81,7 @@ replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM", "CA", "NZ")
 // When thresholds totally missing, use midpoints between averages
 by iso year fivelet age pop: generate t2 = (a + a[_n - 1])/2
 replace t = t2 if missing(t)
+replace t = min(0, 2*a) if p == 0 & missing(t)
 drop t2
 
 // When missing, recalculate shares from averages

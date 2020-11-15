@@ -5,39 +5,19 @@
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
 
-// China 2017 (PYZ2017)
-*use "$wid_dir/Country-Updates/China/2017/china-pyz2017.dta", clear
-
-// US Nominal 2017 (PSZ2017, new version in country-updates (2017-september)
-*append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-nominal.dta"
-
 // Ivory Coast 2017 (Czajka2017)
 use "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta", clear
 append using "$wid_dir/Country-Updates/Ivory Coast/2019_Oct/ivory-coast-czajka2019.dta"
-replace source = source + "Updated by Robilliard, “Regional DINA update for Africa” (2020)"
+replace source = source + `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
+		`"[URL_TEXT] Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"'
 
 // UK 2017 (Alvaredo2017)
 append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
 drop if iso=="GB" & strpos(widcode,"ptinc")>0
 
-// Macro updates 2017 (Bauluz2017)
-/*
-append using "$wid_dir/Country-Updates/Spain/2017/August/spain-bauluz2017.dta" // Spain
-append using "$wid_dir/Country-Updates/Sweden/2017/August/sweden-bauluz2017.dta" // Sweden
-append using "$wid_dir/Country-Updates/Japan/2017/August/macro-updates-bauluz2017.dta" // All others (Japan folder)
-// Remove some duplicates
-drop if iso=="US" & inlist(substr(widcode,1,6),"npopul","inyixx","mconfc","mgdpro","mnnfin","mnninc") ///
-	& author!="bauluz2017" // keep bauluz note for US
-*/
 // Brazil 2017 (Morgan2017)
 append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta"
 drop if strpos(widcode, "ptinc") & iso == "BR" & author == "morgan2017"
-
-// India 2018 (Chancel2018)
-*append using "$wid_dir/Country-Updates/India/2018/June/india-chancel2018.dta"
-
-// Germany 2017 (Bartels2017)
-*append using "$wid_dir/Country-Updates/Germany/2017/August/germany-bartels2017.dta"
 
 // UK wealth 2017 (Alvaredo2017)
 append using "$wid_dir/Country-Updates/UK/2017/June/uk-wealth-alvaredo2017.dta"
@@ -48,9 +28,6 @@ drop if strpos(widcode, "ptinc") & iso == "RU" & author == "npz2017"
 
 // Hungary 2017 (Mosberger2017)
 append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
-
-// Middle-East 2017 (Assouad2017)
-*append using "$wid_dir/Country-Updates/Middle-East/2017/October/middle-east-assouad2017.dta"
 
 
 // Poland 2017 (Novokmet2017)
@@ -83,28 +60,6 @@ append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet
 drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
 drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
 
-// Macro corrections (Bauluz 2018)
-/*
-preserve
-use "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", clear
-keep iso widcode
-duplicates drop
-gen todrop=1
-tempfile temp
-save `temp'
-restore
-merge m:1 iso widcode using `temp', nogen
-drop if todrop==1
-drop todrop
-
-append using "$wid_dir/Country-Updates/WID_updates/2018-04 Macro corrections Bauluz/macro-corrections-bauluz2018.dta"
-merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/WID_updates/2018-05 Macro corrections Bauluz/macro-corrections-bauluz2018.dta", ///
-	nogenerate update replace
-
-replace value = 100*value if iso == "FR" & widcode == "inyixx999i" & author == "bauluz2018_corrections"
-drop if iso == "US" & widcode == "inyixx999i" & author != "bauluz2018_corrections"
-replace author="bauluz2017" if author=="bauluz2018_corrections"
-*/
 // Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
@@ -127,19 +82,6 @@ append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 // Belgium 2019 (Decoster2019)
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
-// Europe 2019 (BCG2019) - it was replaced by BCG2020 in researchers-data-real
-/*
-append using "$wid_dir/Country-Updates/Europe/2019_03/europe-bcg2019.dta"
-drop if iso=="FR" & author=="bcg2019"
-drop if iso=="PL" & author=="bcg2019" & strpos(widcode,"ptinc")>0
-drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
-drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
-drop if iso=="CZ" & mi(author) & strpos(widcode,"ptinc")>0
-drop if inlist(iso,"DE","PL","QE","QE-MER") & widcode=="gptinc992j" & author!="bcg2019"
-drop if iso=="BG" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
-drop if iso=="GB" & strpos(widcode,"ptinc")>0 & author!="bcg2019"
-*/
-
 // India 2019, wealth-income ratios (Kumar2019)
 append using "$wid_dir/Country-Updates/India/2019_04/india-kumar2019.dta"
 drop if iso=="IN" & author=="chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
@@ -151,11 +93,6 @@ append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
 // Netherlands 2019 update (Salverda2019)
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
-// Africa 2019 (CGM2019)
-*append using "$wid_dir/Country-Updates/Africa/2019_06/africa-cgm2019.dta"
-*drop if iso == "EG" & author != "cgm2019"
-*drop if iso == "CI" & author == "cgm2019"
-
 //correct the reference by adding "Cogneau" + source for ZA
 replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
 	`"[/URL_LINK][URL_TEXT]Chancel, Cogneau, Gethin & Myczkowski (2019), How large are African Inequalities? Towards Distributional National Accounts in Africa (1990-2017)[/URL_TEXT][/URL]; "' ///
@@ -165,16 +102,6 @@ replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-an
 	if iso == "ZA"
 replace method = "" if iso == "ZA"
 
-// Malaysia 2019 (KY2019)
-*append using "$wid_dir/Country-Updates/Malaysia/2019_07/malaysia-ky2019.dta"
-
-// Bauluz 2019 - Capital and labor shares (Bauluz2019)
-// (income data imported later)
-*append using "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/capital-shares-bauluz2019.dta"
-
-// US Full Nominal Data (1913 - 2014) - PSZ 2017 and MFP 2020 - added Feb 2020
-*append using "$wid_dir/Country-Updates/US/2020/January/US_full_nominal_distribution.dta"
-
 // South Africa 2020 - ccg2020
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
 drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
@@ -183,7 +110,6 @@ replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" 
 //French Colonies - ACP2020
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 
-//
 // -----------------------------------------------------------------------------
 // 2020 - UPDATE 
 // -----------------------------------------------------------------------------
@@ -191,7 +117,7 @@ append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME.dta"
 drop if iso == "EG" & author != "assouad2017"
 
-* Asia 
+* Asia (MCY 2020)
 append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia_full_2020.dta"
 
 *Wealth Aggregates (Bauluz & Brassac 2020)

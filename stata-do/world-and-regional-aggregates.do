@@ -14,7 +14,6 @@ global XL  AG AI AN AR AW BB BO BR  BS  BZ  CL  CO  CR  CU  CW  DM  DO  EC  FK  
 global QF  AU NZ PG  
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW  
 
-
 // -------------------------------------------------------------------------- //
 // National income and prices by year
 // -------------------------------------------------------------------------- //
@@ -131,8 +130,9 @@ rename xlceup999i PPP
 rename xlceux999i MER
 
 foreach y in PPP MER {
+	
 	foreach v of varlist a anninc992i average {
-		replace `v' = `v'/`y'
+		gen `v'_`y' = `v'/`y'
 	}
 
 
@@ -140,29 +140,31 @@ foreach y in PPP MER {
 // all regions and world
 foreach x in XN XA XF QP XR XL QF WO {
 preserve
+
 	foreach q in $`x'  {
 		replace keep = 1 if iso == "`q'"	
 	}
 	keep if keep == 1
 
 	drop if missing(a)
-	gsort year -a
+	gsort year -a_`y' 
 	by year: generate rank = sum(pop)
 	by year: replace rank = 1e5*(1 - rank/rank[_N])
 
 	egen bracket = cut(rank), at(0(1000)99000 99100(100)99900 99910(10)99990 99991(1)99999 200000)
 
-	collapse (mean) a [pw=pop], by(year bracket)
+	collapse (mean) a_`y' [pw=pop], by(year bracket)
 
 	generate iso = "`x'-`y'"
 	rename bracket p
-
+	rename a_`y' a
 
 	tempfile `x'_`y'
 	append using `combined'
 	save "`combined'", replace
 restore
 }
+
 }
 use "`combined'", clear
 replace iso = substr(iso, 1, 2) if strpos(iso, "-PPP")
@@ -181,7 +183,7 @@ bys iso year: gen n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
 keep year p a iso n
 sort iso year p
 by iso year: generate t = (a[_n - 1] + a)/2 
-by iso year: replace t = (a[_n - 1] + a)/2 if missing(t)
+by iso year: replace t = min(0, 2*a) if missing(t)
 
 
 by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
@@ -271,13 +273,30 @@ save `final'
 replace widcode = substr(widcode, 1, 6)
 rename widcode sixlet
 generate source = ""
-replace source = "Updated by Moshrif, “Regional DINA update for Middle East” (2020) " if (iso == "XN" | iso == "XN-MER")
-replace source = "Updated by Robilliard, “Regional DINA update for Africa” (2020)" if (iso == "XF" | iso == "XF-MER")
-replace source = "Updated by Yang, “Regional DINA Update for Asia” (2020)" if (iso == "XA" | iso == "XA-MER")
-replace source = "Update by Neef, “Regional DINA update for Russia”(2020)" if (iso == "XR" | iso == "XR-MER")
-replace source = "Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)" if (iso == "QF" | iso == "QF-MER")
-replace source = "Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)" if (iso == "QP" | iso == "QP-MER")
-replace source = "Chancel and Moshrif, “Update of global income inequality estimates on WID.world” (2020)" if (iso == "WO" | iso == "WO-MER")
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-in-the-middle-east-world-inequality-lab-technical-note-2020-06/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Moshrif, “Regional DINA update for Middle East” (2020)[/URL_TEXT][/URL]"' if (iso == "XN" | iso == "XN-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"' if (iso == "XF" | iso == "XF-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/whats-new-about-income-inequality-data-in-asia-world-inequality-lab-technical-note-2020-08/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Yang, “Regional DINA Update for Asia” (2020)[/URL_TEXT][/URL]"' if (iso == "XA" | iso == "XA-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-the-russian-federation-world-inequality-lab-technical-note-2020-05/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Neef, “Regional DINA update for Russia”(2020)[/URL_TEXT][/URL]"' if (iso == "XR" | iso == "XR-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' if (iso == "QF" | iso == "QF-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' if (iso == "QP" | iso == "QP-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-series-for-latin-america-world-inequality-lab-technical-note-2020-02/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Updated by Mauricio De Rosa, Ignacio Flores and Marc Morgan, “Regional DINA update for Latin America”(2020)[/URL_TEXT][/URL]"' if (iso == "XL" | iso == "XL-MER")
+
+replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/update-of-global-income-inequality-estimates-on-wid-world-world-inequality-lab-technical-note-2020-11/[/URL_LINK]"' + ///
+		`"[URL_TEXT]Chancel and Moshrif, “Update of global income inequality estimates on WID.world” (2020)[/URL_TEXT][/URL]"' ///
+ if (iso == "WO" | iso == "WO-MER")
 generate data_quality = 3
 
 tempfile meta 
@@ -292,9 +311,9 @@ save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//
 
 use "$work_data/clean-up-output.dta", clear
-drop if inlist(iso,"QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") ///
-      | inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") ///
-      | inlist(iso,"XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") & strpos(widcode, "ptinc")
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
 
 append using `final'
 save "$work_data/World-and-regional-aggregates-output.dta", replace

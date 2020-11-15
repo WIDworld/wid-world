@@ -249,6 +249,9 @@ save `data'
 import excel "$quality_file", sheet("Scores_redux") first clear cellrange(A3)
 renvars B F / iso value
 keep iso value
+replace iso = "AL" if iso == "Al"
+replace iso = "CL" if iso == "Cl"
+replace iso = substr(iso, 1, 2) if substr(iso, 3, .) == " "
 gen widcode = "iquali999i"
 gen year = $pastyear
 gen p = "p0p100"

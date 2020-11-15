@@ -5,7 +5,7 @@
 //
 // See README.md file for more information.
 // -------------------------------------------------------------------------- //
-do "$do_dir/setup.do"
+do "/Users/rowaidakhaled/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
