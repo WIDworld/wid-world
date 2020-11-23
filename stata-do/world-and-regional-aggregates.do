@@ -195,6 +195,7 @@ generate s = a*n/1e5/average
 gsort iso year -p
 by iso year: generate ts = sum(s)
 by iso year: generate ta = sum(a*n)/(1e5 - p)
+by iso year: generate tt = sum(t*n)/(1e5 - p)
 bys iso year : generate bottomsh = 1 - ts
 
 tempfile all 
@@ -211,10 +212,10 @@ replace p2 = 100 if p2 == .
 gen perc = "p"+string(p)+"p"+string(p2)
 drop p p2
 
-rename perc    p
-rename a aptinc992j
-rename s 	   sptinc992j
-rename t     tptinc992j
+rename perc p
+rename a    aptinc992j
+rename s    sptinc992j
+rename t    tptinc992j
 renvars aptinc992j sptinc992j tptinc992j, prefix(value)
 
 greshape long value, i(iso   year p) j(widcode) string
@@ -222,14 +223,15 @@ greshape long value, i(iso   year p) j(widcode) string
 
 preserve
 	use `all', clear
-	keep year iso  p ts ta
+	keep year iso  p ts ta tt
 	replace p = p/1000
 	gen perc = "p"+string(p)+"p100"
 	drop p
 	rename perc   p
-	rename ts  sptinc992j
+	rename ts sptinc992j
 	rename ta aptinc992j
-	renvars aptinc992j sptinc992j, prefix(value)
+	rename tt tptinc992j
+	renvars aptinc992j sptinc992j tptinc992j, prefix(value)
 	greshape long value, i(iso  year p) j(widcode) string
 	
 	tempfile top

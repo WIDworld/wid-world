@@ -140,7 +140,7 @@ drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>19
 append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 
 * US (Zucman 2020)
-append using "$wid_dir/Country-Updates/US/2020/October/US_full_2020.dta"
+append using "$wid_dir/Country-Updates/US/2020/November/US_2020.dta"
 
 * Israel (Moshrif 2020)
 append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
@@ -181,15 +181,11 @@ use "$work_data/calculate-average-over-output.dta", clear
 drop if inlist(iso, "NZ", "AU", "CA", "ID", "SG", "TW")
 
 gen oldobs = 1
-*append using "$wid_dir/Country-Updates/NewZealand/2020_May/NZ.dta"
 
 append using "`researchers'"
 replace oldobs=0 if oldobs!=1
 
 drop if iso == "ES" & year == 1900 & missing(value) & p == "pall"
-
-// Drop Ginis for Germany
-*drop if substr(widcode, 1, 1) == "g" & (iso == "DE") & (author == "Gini_Gethin2018")
 
 // Drop old rows available in new data
 gduplicates tag iso year p widcode, gen(dup)

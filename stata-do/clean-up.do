@@ -247,7 +247,8 @@ tempfile data
 save `data'
 
 import excel "$quality_file", sheet("Scores_redux") first clear cellrange(A3)
-renvars B F / iso value
+
+renvars B Seethetransparencyindext / iso value
 keep iso value
 replace iso = "AL" if iso == "Al"
 replace iso = "CL" if iso == "Cl"
