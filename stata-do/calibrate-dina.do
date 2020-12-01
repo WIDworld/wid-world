@@ -76,7 +76,7 @@ foreach v of varlist a t {
 
 // Middle-East: estimate average from shares, assuming mean income = 1
 // (will be rescaled to true value after)
-replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM", "CA", "NZ")
+replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM")
 
 // When thresholds totally missing, use midpoints between averages
 by iso year fivelet age pop: generate t2 = (a + a[_n - 1])/2
