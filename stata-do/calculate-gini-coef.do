@@ -43,3 +43,4 @@ append using "`gini'"
 
 compress
 save "$work_data/calculate-gini-coef-output.dta", replace
+save "/Users/rowaidakhaled/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/wid-data.dta", replace

@@ -23,5 +23,6 @@ yesno extend_majorgrid_low   yes
 yesno extend_majorgrid_high  yes
 clockdir legend_position     6
 gsize legend_key_xsize       8
+color legend_line            background
 yesno legend_force_draw      yes
 margin axis_title          medsmall
