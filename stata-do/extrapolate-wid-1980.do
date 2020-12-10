@@ -17,7 +17,7 @@ keep if p == "p0p100"
 
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
-/*
+/* 
 replace xlceup999i = . if year != 2019
 replace xlceux999i = . if year != 2019
 
@@ -39,8 +39,8 @@ drop if strpos(iso, "WO")
 *drop if year<1970
 
 	
-	keep iso year anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i
-*	replace anninc992i = anninc992i/PPP
+	keep iso year anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i 
+*	replace anninc992i = anninc992i/xlceup999i
 	reshape wide anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i, i(year) j(iso) string
 
 // -------------------------------------------------------------------------- //
@@ -177,6 +177,7 @@ drop x
 gsort iso year p
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
+
 // Make sure that the sum of shares are approximately 1
 replace s = (a*n/1e5)/anninc992i if !missing(a)
 egen sum = total(s) if !missing(s), by(iso year)
@@ -260,6 +261,7 @@ replace a = . if iso == "UY" & inrange(p, 99993, 99998)
 replace a = . if iso == "BR" & inrange(p, 99993, 99998)
 replace a = . if iso == "CL" & inrange(p, 99997, 99998)
 replace a = . if iso == "TW" & inrange(p, 99992, 99998)
+replace a = . if iso == "MX" & inrange(p, 99990, 99998)
 
 
 gsort iso year p
@@ -285,8 +287,8 @@ by iso year: replace a = t + 1e-4 if p == 0
 * Verification code
 gsort iso year -p
 
-bysort iso year (p): assert a[_n + 1] > a if _n == _N
-bysort iso year (p): assert a[_n + 1] != a if _n == _N
+bysort iso year (p): assert a[_n + 1] > a 
+bysort iso year (p): assert a[_n + 1] != a 
 bysort iso year (p): assert !missing(a) 
 bys iso year : assert _N == 127
 
@@ -310,6 +312,9 @@ drop n
 tempfile final
 save `final'
 
+*merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
+*drop inyixx999i xlceup999i xlceux999i
+*save "/Users/rowaidakhaled/Dropbox/Personal/wid-db.dta", replace
 // -------------------------------------------------------------------------- //
 // Reshape Long and prepare for WID format
 // -------------------------------------------------------------------------- //
