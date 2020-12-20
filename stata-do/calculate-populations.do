@@ -144,7 +144,7 @@ preserve
 	tempfile TZandZZ
 	save `TZandZZ'
 restore
-drop if (iso == "TZ" | iso == "ZZ")
+drop if (iso == "TZ" | iso == "ZZ") & year >= 1990
 append using `TZandZZ'
 
 // From 1970 to 1973, GDP data include the entire island. After that, it excludes

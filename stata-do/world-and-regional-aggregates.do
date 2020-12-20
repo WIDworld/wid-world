@@ -12,14 +12,15 @@ global QP  BM CA GL PM US
 global XR  RU UA BY GE AM AZ 
 global XL  AG AI AN AR AW BB BO BR  BS  BZ  CL  CO  CR  CU  CW  DM  DO  EC  FK  GD  GT  GY  HN  HT  JM  KN  KY  LC  MS  MX  NI  PA  PE  PR  PY  SR  SV  SX  TC  TT  UY  VC  VE  VG  VI 
 global QF  AU NZ PG  
-global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW  
+global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
+
 
 // -------------------------------------------------------------------------- //
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
@@ -46,7 +47,7 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 replace widcode = "sptinc992j" if widcode == "sptinc992i" & inlist(iso, "AU", "NZ", "PG")
 replace widcode = "aptinc992j" if widcode == "aptinc992i" & inlist(iso, "AU", "NZ", "PG")
@@ -84,6 +85,9 @@ reshape wide value, i(iso year p) j(widcode) string
 rename valueaptinc992j a
 rename valuesptinc992j s
 
+merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
+
+/*
 // Extrapolate backwards to fill in countries with no distribution data up to 1980
 drop if year<1970
 bys iso: egen min = min(year) 
@@ -104,7 +108,6 @@ replace s = x2 if missing(s)
 drop x* min 
 sort iso year p
 
-merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 sort iso p year 
 // Ex-soviet countries that have no anninc992i in the 80's
  foreach iso in AM AZ BY KG  KZ  TJ  TM  UZ  {
@@ -112,18 +115,19 @@ sort iso p year
 	 replace anninc992i=x if missing(anninc992i) 
 	drop x
 }
-
+*/
 drop if year<1980
 
 
-egen average = total(a*n/1e5), by(iso year)
+*egen average = total(a*n/1e5), by(iso year)
 
-replace a = a/average*anninc992i
+*replace a = a/average*anninc992i
 
-replace a = (s/n*1e5)*anninc992i if missing(a)
+*replace a = (s/n*1e5)*anninc992i if missing(a)
 
 generate pop = n*npopul992i
 gen keep = 0
+
 
 // PPP
 rename xlceup999i PPP
@@ -131,7 +135,7 @@ rename xlceux999i MER
 
 foreach y in PPP MER {
 	
-	foreach v of varlist a anninc992i average {
+	foreach v of varlist a anninc992i  {
 		gen `v'_`y' = `v'/`y'
 	}
 
@@ -312,7 +316,7 @@ append using "`meta'"
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 

@@ -61,8 +61,12 @@ duplicates drop iso year p widcode, force
 
 compress
 
+save "$work_data/wid-long.dta", replace
 // Reshape wide the dataset------------------------------------------------------//
 greshape wide value, i(iso year p) j(widcode) string
+
+*rsource using "$do_dir/reshape-wid.R"
+
 renvars valueacainc992i - valuexlcyux999i, predrop(5)
 
 save "$work_data/wid-wide.dta", replace

@@ -144,7 +144,7 @@ save "`meta'"
 use "$work_data/calculate-wealth-income-ratio-metadata.dta", clear
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update
-replace extrapolation = "[[2017, 2019]]" if iso == "ID" & strpos(sixlet, "ptinc")
+*replace extrapolation = "[[2017, 2019]]" if iso == "ID" & strpos(sixlet, "ptinc")
 replace extrapolation = "[[2014, 2019]]" if iso == "SG" & strpos(sixlet, "sptinc")
 replace extrapolation = "[[2013, 2019]]" if iso == "TW" & strpos(sixlet, "ptinc")
 replace extrapolation = "[[2018, 2019]]" if iso == "NZ" & strpos(sixlet, "ptinc")

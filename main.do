@@ -267,6 +267,9 @@ do "$do_dir/calibrate-dina.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
+// Extrapolate backwards income distribution up to 1980 for ALL countries
+do "$do_dir/extrapolate-wid-1980.do"
+
 //Compute World and Regional Aggregates
 do "$do_dir/world-and-regional-aggregates.do"
 
