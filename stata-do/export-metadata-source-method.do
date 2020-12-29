@@ -4,7 +4,7 @@ duplicates drop iso sixlet, force
 drop if iso == ""
 drop if inlist(iso, "QD", "QD-MER")
 replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
-replace extrapolation = "[[1988, 2019]]" if iso == "CI" & strpos(sixlet, "ptinc")
+replace extrapolation = "[[1980, 2019]]" if iso == "CI" & strpos(sixlet, "ptinc")
 
 replace extrapolation = "" if extrapolation == "[[2019]]"
 // -------------------------------------------------------------------------- //
@@ -238,7 +238,7 @@ replace extrapolation = "[[1993,2002],[2012,2019]]" if (Alpha2 == "ZA") & (TwoLe
 
 capture mkdir "$output_dir/$time/metadata"
 
-replace Alpha2="KV" if Alpha2=="KS"
+*replace Alpha2="KV" if Alpha2=="KS"
 
 rename data_imputation imputation
 drop if Alpha2 == ""

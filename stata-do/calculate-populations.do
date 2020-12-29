@@ -1,3 +1,8 @@
+clear all
+tempfile combined
+save `combined', emptyok
+
+
 use "$work_data/un-population.dta", clear
 
 // Some corrections for consistency with the macroeconomic data ------------- //
@@ -8,7 +13,7 @@ egen value2 = total(value) if inlist(iso, "FR", "GF", "GP", "MQ", "YT", "RE"), /
 drop if inlist(iso, "GF", "GP", "MQ", "YT", "RE")
 replace value = value2 if (iso == "FR")
 drop value2
-
+/*
 // In Indonesia, the SNA includes East Timor before 1999.
 egen value2 = total(value) if inlist(iso, "ID", "TL") & (year < 1999), by(year age sex)
 replace value = value2 if (iso == "ID") & (year < 1999)
@@ -19,7 +24,7 @@ egen value2 = total(value) if inlist(iso, "SS", "SD"), by(year age sex)
 replace value = value2 if (iso == "SD") & (year < 2008)
 drop if (iso == "SS") & (year < 2008)
 drop value2
-
+*/
 // Idem for Czechoslovakia
 egen value2 = total(value) if inlist(iso, "CZ", "SK"), by(year age sex)
 expand 2 if (iso == "CZ"), generate(newobs)
@@ -44,13 +49,13 @@ expand 2 if (iso == "RU"), generate(newobs)
 replace iso = "SU" if newobs
 replace value = value2 if newobs
 drop value2 newobs inUSSR
-
+/*
 // Idem for Ethiopia
 egen value2 = total(value) if inlist(iso, "ET", "ER"), by(year age sex)
 replace value = value2 if (iso == "ET") & (year < 1993)
 drop if (iso == "ER") & (year < 1993)
 drop value2
-
+*/
 // For the other adjustments, we use the population data from the SNA
 rename value value_wpp
 merge 1:1 iso year sex age using "$work_data/un-sna-population.dta", nogenerate
@@ -428,6 +433,58 @@ drop haswid minyear maxyear newobs
 // Round to the nearest integer
 replace value = round(value, 1)
 
+// Extrapolate backwards Countries that did not exist before certain year
+
+preserve
+
+	greshape wide value, i(iso year) j(widcode) string
+	renvars value*, predrop(5)
+	keep iso year npopul992i npopul999i  
+	greshape wide npopul992i npopul999i , i(year) j(iso) string
+
+	foreach var in npopul992i npopul999i {
+		
+		
+		// Kosovo 1990  with Serbia
+		gen ratioKS_RS = `var'KS/`var'RS if year == 1998
+		egen x2 = mode(ratioKS_RS) 
+		replace `var'KS = `var'RS*x2 if year <= 1998
+		replace `var'RS = `var'RS-`var'KS if year <= 1998
+		drop ratioKS_RS x2 
+
+		// Zanzibar and Tanzania
+		gen ratioZZ_TZ = `var'ZZ/`var'TZ if year == 1990
+		egen x2 = mode(ratioZZ_TZ) 
+		replace `var'ZZ = `var'TZ*x2 if missing(`var'ZZ)
+		replace `var'TZ = `var'TZ-`var'ZZ if year <= 1990
+		drop ratioZZ_TZ x2 
+		
+
+	tempfile `var'
+	append using `combined'
+	save `combined', replace
+	}
+	use `combined', clear
+	duplicates drop year, force
+
+	greshape long npopul992i npopul999i , i(year) j(iso) string
+	renvars npopul99*, pref(value)
+
+	greshape long value, i(iso year) j(widcode) string
+
+	tempfile extrap
+	save `extrap'
+
+restore
+
+drop if inlist(widcode, "npopul992i", "npopul999i")
+append using `extrap'
+
+duplicates tag iso year widcode value, gen(dup)
+assert dup == 0
+drop dup 
+
+drop if year == 2020
 generate p = "pall"
 
 keep iso widcode p year value

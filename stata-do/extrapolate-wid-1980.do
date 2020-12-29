@@ -111,7 +111,7 @@ restore
 // -------------------------------------------------------------------------- //
 use "$work_data/clean-up-output.dta", clear
 
-keep if inlist(widcode, "aptinc992j", "sptinc992j")
+keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
 
 // Parse percentiles
 generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
@@ -143,6 +143,7 @@ reshape wide value, i(iso year p) j(widcode) string
 
 rename valueaptinc992j a
 rename valuesptinc992j s
+rename valuetptinc992j t
 
 
 drop if strpos(iso, "-")
@@ -178,7 +179,7 @@ gsort iso year p
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 
-// Make sure that the sum of shares are approximately 1
+// Make sure that the sum of shares are approximately 1 (bracket shares std)
 replace s = (a*n/1e5)/anninc992i if !missing(a)
 egen sum = total(s) if !missing(s), by(iso year)
 * Verification code
@@ -244,11 +245,17 @@ drop order
 gsort iso year p
 
 by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
-
+//
+gen a2 = a
+//
 gsort iso year p
-bys iso year : generate miss = 1 if a==a[_n-1] & p[_n + 1] > p
-replace miss = . if p == 99999
+*replace a = round(a, 1)
+bys iso year (p): generate miss = 1 if round(a[_n+1],1)==round(a,1) & p[_n + 1] > p 
+replace miss = 1 if  round(a,1)==round(a[_n - 1],1)
+replace miss = . if inlist(p, 0, 99999)
+
 replace a = . if miss == 1
+/*
 replace a = . if iso == "AR" & inrange(p, 99930, 99998)
 replace a = . if iso == "SV" & inrange(p, 99950, 99998)
 replace a = . if iso == "CO" & inrange(p, 99980, 99998)
@@ -262,12 +269,13 @@ replace a = . if iso == "BR" & inrange(p, 99993, 99998)
 replace a = . if iso == "CL" & inrange(p, 99997, 99998)
 replace a = . if iso == "TW" & inrange(p, 99992, 99998)
 replace a = . if iso == "MX" & inrange(p, 99990, 99998)
-
+*/
 
 gsort iso year p
 bys iso year : ipolate a p, gen(x)
 replace a = x if missing(a)
-drop miss x
+drop miss x a2 
+
 
 * Verification code
 bysort iso: assert inrange(year, 1980, 2019) 
@@ -285,10 +293,10 @@ bysort iso year (p): assert !missing(t)
 by iso year: replace a = t + 1e-4 if p == 0
 
 * Verification code
-gsort iso year -p
+gsort iso year p
 
-bysort iso year (p): assert a[_n + 1] > a 
-bysort iso year (p): assert a[_n + 1] != a 
+bysort iso year (p): assert a[_n + 1] >= a 
+bysort iso year (p): assert a[_n + 1] != a
 bysort iso year (p): assert !missing(a) 
 bys iso year : assert _N == 127
 

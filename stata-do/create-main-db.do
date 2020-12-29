@@ -62,13 +62,23 @@ duplicates drop iso year p widcode, force
 compress
 
 save "$work_data/wid-long.dta", replace
+
 // Reshape wide the dataset------------------------------------------------------//
-greshape wide value, i(iso year p) j(widcode) string
+levelsof iso, local(x)
+foreach l in `x' {
+	use "$work_data/wid-long.dta", clear
+	keep if iso == "`l'"
+	greshape wide value, i(iso year p) j(widcode) string
+	renvars value*, predrop(5)
+	rename iso Alpha2
+	rename p perc
 
-*rsource using "$do_dir/reshape-wid.R"
+	sort Alpha2 perc year
 
-renvars valueacainc992i - valuexlcyux999i, predrop(5)
+	export delimited "$output_dir/$time/wid-`l'.csv", delimiter(";") replace
 
+}
+/*
 save "$work_data/wid-wide.dta", replace
 
 // Wide format

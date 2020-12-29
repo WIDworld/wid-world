@@ -18,7 +18,8 @@ gduplicates drop
 merge 1:1 iso using "$work_data/import-country-codes-output.dta", nogenerate keep(master match)
 drop if strpos(iso, " ")
 drop if strpos(iso, "-MER")
-drop if (strpos(iso, "X") | strpos(iso, "Q"))
+drop if substr(iso, 1, 1) == "X"
+drop if substr(iso, 1, 1) == "Q" & iso != "QA"
 drop if inlist(iso, "WO", "Al", "SW")
 
 // Regions (PPP)
