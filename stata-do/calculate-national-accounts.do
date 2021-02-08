@@ -2,7 +2,7 @@
 // Generate final national accounts series (totals + decomposition)
 // -------------------------------------------------------------------------- //
 
-use "$work_data/gdp.dta", clear
+use "$work_data/retropolate-gdp.dta", clear
 
 keep iso year gdp currency
 rename gdp value
@@ -15,7 +15,7 @@ use "$work_data/sna-series-adjusted.dta", clear
 
 drop gdpro series_*
 
-merge 1:1 iso year using "$work_data/gdp.dta", nogenerate keep(match) keepusing(gdp currency)
+merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp currency)
 
 ds iso year gdp currency, not
 local varlist = r(varlist)
@@ -46,7 +46,7 @@ save "$work_data/national-accounts.dta", replace
 use "$work_data/sna-series-adjusted.dta", clear
 
 // Only keep data with GDP too
-merge 1:n iso year using "$work_data/gdp.dta", nogenerate keep(match) keepusing(gdp)
+merge 1:n iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp)
 drop gdp
 
 drop gdpro
@@ -134,7 +134,7 @@ save "`compo'"
 // Generate metadata for GDP
 // -------------------------------------------------------------------------- //
 
-use "$work_data/gdp.dta", clear
+use "$work_data/retropolate-gdp.dta", clear
 
 egen tmp = mode(level_src), by(iso)
 replace level_src = tmp

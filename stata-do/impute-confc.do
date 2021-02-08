@@ -23,7 +23,7 @@ tempfile pop
 save "`pop'"
 
 // GDP
-use "$work_data/gdp.dta", clear
+use "$work_data/retropolate-gdp.dta", clear
 merge 1:1 iso year using "$work_data/sna-combined.dta", keep(master match) keepusing(confc series_confc) nogenerate
 
 merge n:1 iso using "`ppp'", keep(master match) nogenerate

@@ -4,7 +4,7 @@ duplicates drop iso sixlet, force
 drop if iso == ""
 drop if inlist(iso, "QD", "QD-MER")
 replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
-replace extrapolation = "[[1980, 2019]]" if iso == "CI" & strpos(sixlet, "ptinc")
+replace extrapolation = "[[1980, $pastyear]]" if iso == "CI" & strpos(sixlet, "ptinc")
 
 replace extrapolation = "" if extrapolation == "[[2019]]"
 // -------------------------------------------------------------------------- //
@@ -83,7 +83,8 @@ egen min_year = rowmin(year*)
 replace min_year = min(min_year, 1990)
 drop year*
 replace data_points = "[" + data_points + "]"
-generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
+generate extrapolation = "[[1980 , $pastyear]]"
+*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
 drop min_year
 
 expand 2
@@ -98,6 +99,7 @@ save "`africa_extra'"
 restore
 
 merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
+replace extrapolation = "[[1980, $pastyear]]" if strpos(sixlet, "ptinc") & data_quality == "0"
 
 // -------------------------------------------------------------------------- //
 // Add population notes

@@ -168,7 +168,7 @@ keep if inlist(Alpha2, "MD", "ME", "MK")
 restore
 
 preserve 
-keep if inlist(Alpha2,"MT", "NL", "NO")
+keep if inlist(Alpha2, "MT", "NL", "NO")
 	export delimited "$output_dir/$time/wid-eur10.csv", delimiter(";") replace
 restore
 

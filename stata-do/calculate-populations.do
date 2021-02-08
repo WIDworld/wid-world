@@ -440,6 +440,7 @@ preserve
 	greshape wide value, i(iso year) j(widcode) string
 	renvars value*, predrop(5)
 	keep iso year npopul992i npopul999i  
+	
 	greshape wide npopul992i npopul999i , i(year) j(iso) string
 
 	foreach var in npopul992i npopul999i {
@@ -477,8 +478,12 @@ preserve
 
 restore
 
+
 drop if inlist(widcode, "npopul992i", "npopul999i")
 append using `extrap'
+
+replace iso = "CN-RU" if iso == "CN_RU"
+replace iso = "CN-UR" if iso == "CN_UR"
 
 duplicates tag iso year widcode value, gen(dup)
 assert dup == 0

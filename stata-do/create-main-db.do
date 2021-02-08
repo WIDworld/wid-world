@@ -63,7 +63,12 @@ compress
 
 save "$work_data/wid-long.dta", replace
 
+// Reshape wide and Export by group of countries
+
+do "$do_dir/export-grouped-countries.do"
+
 // Reshape wide the dataset------------------------------------------------------//
+/*
 levelsof iso, local(x)
 foreach l in `x' {
 	use "$work_data/wid-long.dta", clear
@@ -78,6 +83,7 @@ foreach l in `x' {
 	export delimited "$output_dir/$time/wid-`l'.csv", delimiter(";") replace
 
 }
+*/
 /*
 save "$work_data/wid-wide.dta", replace
 

@@ -4,14 +4,14 @@
 use "$work_data/correct-widcodes-output.dta", clear
 keep if inlist(widcode, "icpixx999i", "inyixx999i")
 drop p
-
+replace currency = "EUR" if iso == "ES"
 // Add source for the WID data
 generate sixlet = substr(widcode, 1, 6)
 merge n:1 iso sixlet using "$work_data/correct-widcodes-metadata.dta", ///
 	nogenerate assert(match using) keep(master match) keepusing(source)
 drop sixlet
 
-reshape wide value source, i(iso year) j(widcode) string
+reshape wide value source, i(iso year ) j(widcode) string
 rename valueicpixx999i cpi_wid
 rename valueinyixx999i def_wid
 

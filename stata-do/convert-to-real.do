@@ -3,7 +3,7 @@ use "$work_data/add-exchange-rates-output.dta", clear
 merge n:1 iso year using "$work_data/price-index.dta", ///
 	nogenerate keepusing(index) keep(master match)
 
-bys iso year : replace index = .00134171 if year == 1900 & iso == "ES" & index == .
+*bys iso year : replace index = .00134171 if year == 1900 & iso == "ES" & index == .
 
 // Attribute US deflator to US States
 preserve
@@ -36,7 +36,7 @@ assert !missing(index) if !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES", "ID")
 	& strpos(widcode,"diinc")==0 ///
 	& !is_region
 
-/*
+
 tab iso if missing(index) & !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES") ///
 	& inlist(substr(widcode, 1, 1), "a", "m", "t", "o") ///
 	& (substr(widcode, 4, 3) != "toq") ///
@@ -44,7 +44,7 @@ tab iso if missing(index) & !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES") ///
 	& strpos(widcode,"diinc")==0 ///
 	& !is_region
 
-*/
+
 // Convert monetary series to real $pastyear LCU
 
 // We do not convert World Regions because they do not have a price index.

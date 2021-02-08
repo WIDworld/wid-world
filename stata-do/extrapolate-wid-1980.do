@@ -1,3 +1,6 @@
+// -------------------------------------------------------------------------- //
+// Extrapolate backwards up to 1980
+// -------------------------------------------------------------------------- //
 
 
 clear all
@@ -10,25 +13,13 @@ save `combined', emptyok
 // -------------------------------------------------------------------------- //
 
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/correct-negative-bracketavg-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
 
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
-/* 
-replace xlceup999i = . if year != 2019
-replace xlceux999i = . if year != 2019
-
-egen xlceup999i2 = mean(xlceup999i), by(iso)
-egen xlceux999i2 = mean(xlceux999i), by(iso)
-drop xlceup999i xlceux999i
-rename xlceup999i2 xlceup999i
-rename xlceux999i2 xlceux999i
-
-replace xlceup999i = 104.92 if iso == "KP"
-*/
 drop p currency
 
 drop if strpos(iso, "-")
@@ -36,80 +27,20 @@ drop if substr(iso, 1, 1) == "X"
 drop if substr(iso, 1, 1) == "Q" & iso != "QA"
 drop if strpos(iso, "WO")
 
-*drop if year<1970
-
-	
-	keep iso year anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i 
-*	replace anninc992i = anninc992i/xlceup999i
-	reshape wide anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i, i(year) j(iso) string
-
-// -------------------------------------------------------------------------- //
-// Extrapolate backwards anninc992i for countries that did not exist in 1980s
-// -------------------------------------------------------------------------- //
-foreach var in anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i {
-	
-	// Eriteria 1993 with Ethiopia
-	gen ratioET_ER = `var'ER/`var'ET if year == 1993
-	egen x2 = mode(ratioET_ER) 
-	replace `var'ER = `var'ET*x2 if missing(`var'ER)
-	drop ratioET_ER x2
-	
-	// Kosovo 1990  with Serbia
-	gen ratioKS_RS = `var'KS/`var'RS if year == 1990
-	egen x2 = mode(ratioKS_RS) 
-	replace `var'KS = `var'RS*x2 if missing(`var'KS)
-	drop ratioKS_RS x2
-	
-	// Timor Leste with Indonesia
-	gen ratioTL_ID = `var'TL/`var'ID if year == 1990
-	egen x2 = mode(ratioTL_ID) 
-	replace `var'TL = `var'ID*x2 if missing(`var'TL)
-	drop ratioTL_ID x2
-	
-	// South Sudan and Sudan
-	gen ratioSS_SD = `var'SS/`var'SD if year == 2008
-	egen x2 = mode(ratioSS_SD) 
-	replace `var'SS = `var'SD*x2 if missing(`var'SS)
-	drop ratioSS_SD x2
-	
-	// Zanzibar and Tanzania
-	gen ratioZZ_TZ = `var'ZZ/`var'TZ if year == 1990
-	egen x2 = mode(ratioZZ_TZ) 
-	replace `var'ZZ = `var'TZ*x2 if missing(`var'ZZ)
-	drop ratioZZ_TZ x2
-
-tempfile `var'
-append using `combined'
-save `combined', replace
-}
-use `combined', clear
-duplicates drop year, force
-	
-	// Ex-soviet countriees , there is a year of anninc992i in 1973 we interpolate up to that year
-	 foreach iso in AM AZ BY KG  KZ  TJ  TM  UZ EE LT LV MD {
-		ipolate anninc992i`iso' year , gen(x)
-		replace anninc992i`iso' = x if missing(anninc992i`iso') 
-		drop x
-}
-
-reshape long anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i, i(year) j(iso) string
-
 
 tempfile aggregates
 save "`aggregates'"
 
-preserve
-	renvars anninc992i npopul992i npopul999i inyixx999i xlceup999i xlceux999i, pref(value)
-	reshape long value, i(year iso) j(widcode) string
-	drop if missing(value)
-	generate p = "p0p100"
-	tempfile anninc992i
-	save `anninc992i'
-restore
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/correct-negative-bracketavg-output.dta", clear
+
+drop if strpos(iso, "-")
+drop if substr(iso, 1, 1) == "X"
+drop if substr(iso, 1, 1) == "Q" & iso != "QA"
+drop if strpos(iso, "WO")
+
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
 
@@ -144,19 +75,13 @@ reshape wide value, i(iso year p) j(widcode) string
 rename valueaptinc992j a
 rename valuesptinc992j s
 rename valuetptinc992j t
-
-
-drop if strpos(iso, "-")
-drop if substr(iso, 1, 1) == "X"
-drop if substr(iso, 1, 1) == "Q" & iso != "QA"
-drop if strpos(iso, "WO")
+ 
 
 // -------------------------------------------------------------------------- //
 // Interpolation missing years in between with uncontinuous series
 // -------------------------------------------------------------------------- //
 
 // Interpolate missing years for CI & BN
-drop if year<1970
 bys iso: egen min = min(year) 
 fillin iso year p 
 drop _fillin 
@@ -171,6 +96,21 @@ replace a = x if missing(a)
 drop x
 
 // -------------------------------------------------------------------------- //
+// Drop countries with distribution beyond 1980 & Focus on those in need of retropolation
+// -------------------------------------------------------------------------- //
+gsort iso year p
+
+drop if missing(a) & year<1980
+
+levelsof iso if min > 1980 , local(group1) // extrap, no -ve aptinc
+
+gen keep = 0
+	foreach q in `group1'  {
+		replace keep = 1 if iso == "`q'"	
+	}
+	keep if keep == 1
+
+// -------------------------------------------------------------------------- //
 // Extrapolate backwards all countries up to 1980
 // -------------------------------------------------------------------------- //
 
@@ -181,10 +121,10 @@ merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 // Make sure that the sum of shares are approximately 1 (bracket shares std)
 replace s = (a*n/1e5)/anninc992i if !missing(a)
-egen sum = total(s) if !missing(s), by(iso year)
+*egen sum = total(s) if !missing(s), by(iso year)
 * Verification code
-bys iso year: assert inrange(sum, .99, 1.01) if !missing(s)
-drop sum
+*bys iso year: assert inrange(sum, .99, 1.01) if !missing(s)
+*drop sum
 
 // Extrapolate the bracket shares backwards
 gsort iso year p
@@ -193,23 +133,32 @@ bys iso year : replace n = n[_n-1] if p == 99999
 bys iso year : generate x = s if year == min
 bys iso p : egen x2 = mode(x)
 sort iso p year 
-replace s = x2 if missing(s)
-drop x* min 
+replace s = x2 if missing(s) /* & /* !inlist(iso, "JP", "KR") */ */
+drop x*  
 
 sort iso p year 
 
-drop if year<1980
 drop if iso == "DD"
+drop min
 
 // recompute average and bracket averages
+generate miss_a = 1 if missing(a)
+replace miss_a = 0 if missing(miss_a)
 
 egen average = total(a*n/1e5), by(iso year)
 
 replace a = a/average*anninc992i
 
 replace a = (s/n*1e5)*anninc992i if missing(a)
+drop if missing(a) // this is only for JP & KR between 1980-89
 
 
+sort iso year p
+by iso year: replace t = (a[_n - 1] + a)/2 if miss_a == 1 
+by iso year: replace t = (a[_n - 1] + a)/2 if t<0
+by iso year: replace t = min(0, 2*a) if missing(t) & miss_a == 1 
+
+drop miss_a
 // -------------------------------------------------------------------------- //
 // Verification : Bracket Averages are increasing across percentiles + Sol.
 // -------------------------------------------------------------------------- //
@@ -222,7 +171,7 @@ gsort iso year p
 
 // Fix Order of percentiles
 
-keep year p a iso n
+keep year p a t iso n
 gsort iso year p
 bys iso year : generate order = _n
 
@@ -240,6 +189,9 @@ bys iso year : generate order = _n
 merge 1:1 iso year order using `p', nogenerate
 drop order
 
+by iso year: replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if t>a /* & round(a,1) != 0 */
+by iso year: replace t = min(0, 2*a) if missing(t) 
+
 // Fix repeated bracket averages
 * 2 - Bracket averages might be stagnant; test bracketavg equality
 gsort iso year p
@@ -252,7 +204,8 @@ gsort iso year p
 *replace a = round(a, 1)
 bys iso year (p): generate miss = 1 if round(a[_n+1],1)==round(a,1) & p[_n + 1] > p 
 replace miss = 1 if  round(a,1)==round(a[_n - 1],1)
-replace miss = . if inlist(p, 0, 99999)
+replace miss = . if inlist(p, 0, 99999)  
+replace miss = . if round(a,1) == 0
 
 replace a = . if miss == 1
 /*
@@ -278,27 +231,27 @@ drop miss x a2
 
 
 * Verification code
-bysort iso: assert inrange(year, 1980, 2019) 
+*bysort iso: assert inrange(year, 1980, 2019) 
 
 
 // Compute thresholds shares topsh bottomsh
-
+/*
 sort iso year p
 by iso year: generate t = (a[_n - 1] + a)/2 
 by iso year: replace t = min(0, 2*a) if missing(t)
-
+*/
 * Verification code
-bysort iso year (p): assert !missing(t) 
+bysort iso year (p): assert !missing(t) /* if  !inlist(iso, "JP", "KR") */
 
-by iso year: replace a = t + 1e-4 if p == 0
+*by iso year: replace a = t + 1e-4 if p == 0
 
 * Verification code
 gsort iso year p
 
-bysort iso year (p): assert a[_n + 1] >= a 
-bysort iso year (p): assert a[_n + 1] != a
-bysort iso year (p): assert !missing(a) 
-bys iso year : assert _N == 127
+bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 /* &  !inlist(iso, "JP", "KR") */
+bysort iso year (p): assert a[_n + 1] != a if round(a,1) != 0 /* &  !inlist(iso, "JP", "KR") */
+bysort iso year (p): assert !missing(a) /* if  !inlist(iso, "JP", "KR") */
+*bys iso year : assert _N == 127
 
 
 by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
@@ -320,9 +273,6 @@ drop n
 tempfile final
 save `final'
 
-*merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
-*drop inyixx999i xlceup999i xlceux999i
-*save "/Users/rowaidakhaled/Dropbox/Personal/wid-db.dta", replace
 // -------------------------------------------------------------------------- //
 // Reshape Long and prepare for WID format
 // -------------------------------------------------------------------------- //
@@ -384,16 +334,20 @@ append using `bottom'
 
 duplicates drop iso year p widcode, force
 
+drop if inlist(iso, "JP", "KR")
+
 tempfile all
 save `all'
-// -------------------------------------------------------------------------- //
-// replace previous clean-up-output with the extrapolated series
-// -------------------------------------------------------------------------- //
-use "$work_data/clean-up-output.dta", clear
+
+//
+
+use "$work_data/correct-negative-bracketavg-output.dta", clear
+
+merge 1:1 iso year p widcode using "`all'", update replace nogenerate
+/*
 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & year >= 1980 ///
-	& !(strpos(iso, "-") | strpos(iso, "Q") | strpos(iso, "X") | strpos(iso, "WO") )
-
+	& !(strpos(iso, "-") | strpos(iso, "Q") | strpos(iso, "X") | strpos(iso, "WO")) & /* !inlist(iso, "JP", "KR") */
 drop if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")  ///
 	& !(strpos(iso, "-") | strpos(iso, "Q") | strpos(iso, "X") | strpos(iso, "WO"))
 
@@ -404,8 +358,8 @@ drop if inlist(iso, "IQ", "QA", "MX", "GQ", "SX") ///
 	& inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i") 
 
 append using "`all'"
-append using "`anninc992i'"
-
+*append using "`anninc992i'"
+*/
 gduplicates tag iso year p widcode, gen(dup)
 assert dup == 0
 drop dup
