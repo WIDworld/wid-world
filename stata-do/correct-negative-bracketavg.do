@@ -7,6 +7,7 @@
 clear all
 tempfile combined
 save `combined', emptyok
+global plafond 5
 
 // -------------------------------------------------------------------------- //
 // World countries 
@@ -96,7 +97,7 @@ bys year iso (p) : egen numb_yrs = total(has_neg)
 drop if numb_yrs ==0
 
 replace t = . if a<0 
-bys iso year (p) : replace t = . if _n <= 5 
+bys iso year (p) : replace t = . if _n <= $plafond
 
 replace a = 0 if a<0 
 
@@ -116,10 +117,10 @@ bys iso year (p) : egen a_n = mode(m2)
 drop m2
 */
 gsort year iso p
-bys year iso (p) : egen average = mean(a) if _n <= 5
+bys year iso (p) : egen average = mean(a) if _n <= $plafond
 *bys iso year (p) : egen m       = mode(average) 
 replace a_k = 0 if missing(a_k) & p == 0
-bys iso year (p) : generate m = a if _n == 5
+bys iso year (p) : generate m = a if _n == $plafond
 bys iso year (p) : egen a_n = mode(m)
 drop m
 generate alpha = (a_n/average)-1

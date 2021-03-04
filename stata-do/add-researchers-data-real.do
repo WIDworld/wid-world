@@ -49,11 +49,17 @@ append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-PPP.dta"
 
 // Europe (East & West) Countries and Aggregates
 append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
+drop if iso == "FR" & inlist(widcode, "scainc992j", "sdiinc992j", "sptinc992j") ///
+	  & inlist(p, "p0p50", "p50p90", "p90p100", "p99p100") & inrange(year, 1980, 2019)
+//add Bertrand & Jonathan data for france (1900-1979)
+append using "$wid_dir/Country-Updates/France/2020/Octobre/wid-world-data-fr-1900.dta"
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER", "XF")
 append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
 
+// Asia PovcalNet Real 
+append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_povcal_real.dta"
 
 tempfile researchers
 save "`researchers'"
@@ -66,6 +72,7 @@ keep iso sixlet source method data_quality data_imputation data_points extrapola
 order iso sixlet source method
 duplicates drop
 
+drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 duplicates tag iso sixlet, gen(dup)
 assert dup==0

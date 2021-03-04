@@ -11,7 +11,16 @@ global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM 
 global QP  BM CA GL PM US 
 global XR  RU UA BY GE AM AZ 
 global XL  AG AI AN AR AW BB BO BR  BS  BZ  CL  CO  CR  CU  CW  DM  DO  EC  FK  GD  GT  GY  HN  HT  JM  KN  KY  LC  MS  MX  NI  PA  PE  PR  PY  SR  SV  SX  TC  TT  UY  VC  VE  VG  VI 
-global QF  AU NZ PG  
+global QF  AU NZ PG 
+global QE  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
+global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
+global QM  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
+global XM  AE BH EG IQ IR JO KW OM PS QA SA SY TR YE
+global QJ  KG KZ TJ TM UZ 
+global QS  ID KH LA MM MY PH SG TH TL VN
+global QU  AF BD BT IN IR LK MV NP PK
+global QW  AE AM AZ BH BY GE IL IQ JO KW LB OM PS QA RU SA
+
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
 
 /* JP KR */
@@ -19,6 +28,7 @@ global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ 
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
+set trace on
 
 use "$work_data/extrapolate-wid-1980-output.dta", clear
 
@@ -142,7 +152,7 @@ foreach y in PPP MER {
 
 
 // all regions and world
-foreach x in XN XA XF QP XR XL QF WO {
+foreach x in XN XA XF QP XR XL QF QE QX QM XM QU QW WO {
 preserve
 
 	foreach q in $`x'  {
@@ -311,6 +321,8 @@ save `meta'
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
 	| inlist(iso,"WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
+	| inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
+	| inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
 	| inlist(iso,"XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
 append using "`meta'"
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
@@ -320,6 +332,8 @@ use "$work_data/extrapolate-wid-1980-output.dta", clear
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") 
 
 append using `final'
 save "$work_data/World-and-regional-aggregates-output.dta", replace

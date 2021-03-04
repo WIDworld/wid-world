@@ -118,7 +118,7 @@ append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME
 drop if iso == "EG" & author != "assouad2017"
 
 * Asia (MCY 2020)
-append using "$wid_dir/Country-Updates/Asia_Povcal/2020/October/Asia_full_2020.dta"
+append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta"
 
 *Wealth Aggregates (Bauluz & Brassac 2020)
 append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
@@ -140,7 +140,7 @@ drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>19
 append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 
 * US (Zucman 2020)
-append using "$wid_dir/Country-Updates/US/2020/November/US_2020.dta"
+append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 
 * Israel (Moshrif 2020)
 append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"

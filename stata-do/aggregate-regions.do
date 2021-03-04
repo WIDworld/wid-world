@@ -53,7 +53,8 @@ replace region4 = "Middle East" if (iso == "BH")
 replace region4 = "Middle East" if (iso == "AE")
 replace region4 = "Middle East" if (iso == "KW")
 replace region4 = "Middle East" if (iso == "QA")
-/*
+
+
 // Remove some duplicated areas when border have changed
 drop if inlist(iso, "HR", "SI", "RS", "MK", "BA", "ME", "KS") & (year <= 1990)
 drop if (iso == "YU") & (year > 1990)
@@ -64,7 +65,8 @@ drop if (iso == "CS") & (year > 1990)
 drop if (iso == "DD") & (year >= 1991)
 
 // Kosovo considered part of Serbia before 1999
-drop if (iso == "KS") & (year < 1999)
+*drop if (iso == "KS") & (year < 1999)
+
 
 generate inUSSR = 0
 replace inUSSR = 1 if inlist(iso, "AM", "AZ", "BY", "EE", "GE", "KZ", "KG")
@@ -72,6 +74,7 @@ replace inUSSR = 1 if inlist(iso, "LV", "LT", "MD", "RU", "TJ")
 replace inUSSR = 1 if inlist(iso, "TM", "UA", "UZ")
 drop if inUSSR & (year <= 1990)
 drop if (iso == "SU") & (year > 1990)
+/*
 
 drop if (iso == "ER") & (year < 1993)
 drop if (iso == "SS") & (year < 2008)
@@ -84,7 +87,7 @@ drop if (iso == "DD") & (year >= 1991)
 
 // Remove within-country regions
 drop if strlen(iso) > 2
-
+*/
 // Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
 sort region2 iso year, stable
 by region2: egen num1=nvals(year) if inlist(region2, "Caribbean")
@@ -101,29 +104,29 @@ drop if inlist(iso,"SH","PM","FK","GI","VA","NU","TK","WF")
 
 // Check that the composition of groups does not change over time
 preserve
-egen niso = nvals(iso), by(region2 /*year*/)
-keep region2 niso year
-duplicates drop
-sort region2 year
-egen valiso2 = nvals(niso), by(region2)
-*assert valiso2 == 3 if (region2 == "Eastern Africa")
-assert valiso2 == 1 if (region2 == "Middle Africa")
-*assert valiso2 == 2 if (region2 == "Northern Africa")
-assert valiso2 == 1 if (region2 == "Southern Africa")
-assert valiso2 == 1 if (region2 == "Western Africa")
-assert valiso2 == 1 if (region2 == "Caribbean")
-assert valiso2 == 1 if (region2 == "Central America")
-assert valiso2 == 1 if (region2 == "Northern America")
-assert valiso2 == 1 if (region2 == "South America")
-assert valiso2 == 1 if (region2 == "Central Asia")
-assert valiso2 == 1 if (region2 == "Eastern Asia")
-assert valiso2 == 1 if (region2 == "South-Eastern Asia")
-assert valiso2 == 1 if (region2 == "Southern Asia")
-*assert valiso2 == 2 if (region2 == "Western Asia")
-*assert valiso2 == 3 if (region2 == "Eastern Europe")
-*assert valiso2 == 2 if (region2 == "Western Europe")
-assert valiso2 == 1 if (region2 == "Australia and New Zealand")
-assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
+	egen niso = nvals(iso), by(region2 /*year*/)
+	keep region2 niso year
+	duplicates drop
+	sort region2 year
+	egen valiso2 = nvals(niso), by(region2)
+	assert valiso2 == 1 if (region2 == "Eastern Africa")
+	assert valiso2 == 1 if (region2 == "Middle Africa")
+	assert valiso2 == 1 if (region2 == "Northern Africa")
+	assert valiso2 == 1 if (region2 == "Southern Africa")
+	assert valiso2 == 1 if (region2 == "Western Africa")
+	assert valiso2 == 1 if (region2 == "Caribbean")
+	assert valiso2 == 1 if (region2 == "Central America")
+	assert valiso2 == 1 if (region2 == "Northern America")
+	assert valiso2 == 1 if (region2 == "South America")
+	assert valiso2 == 1 if (region2 == "Central Asia")
+	assert valiso2 == 1 if (region2 == "Eastern Asia")
+	assert valiso2 == 1 if (region2 == "South-Eastern Asia")
+	assert valiso2 == 1 if (region2 == "Southern Asia")
+	assert valiso2 == 1 if (region2 == "Western Asia")
+	assert valiso2 == 1 if (region2 == "Eastern Europe")
+	assert valiso2 == 1 if (region2 == "Western Europe")
+	assert valiso2 == 1 if (region2 == "Australia and New Zealand")
+	assert valiso2 == 1 if (region2 == "Oceania (excl. Australia and New Zealand)")
 restore
 
 preserve
