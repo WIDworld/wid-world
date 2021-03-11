@@ -20,8 +20,7 @@ drop if (currency == "YUN")
 drop if (currency == "BYN")
 
 // Import exchange rates
-import delimited "$input_data_dir/currency-rates/currencies-rates-2019.csv", ///
-	clear  encoding("utf8")
+import delimited "$input_data_dir/currency-rates/currencies-rates-2019.csv", clear delim(";") encoding("utf8")
 drop if currency == "CYP"
 drop if currency == "CUP"
 replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)

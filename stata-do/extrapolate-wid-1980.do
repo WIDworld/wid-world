@@ -105,7 +105,7 @@ drop if missing(a) & year<1980
 levelsof iso if min > 1980 , local(group1) // extrap, no -ve aptinc
 
 gen keep = 0
-	foreach q in `group1'  {
+	foreach q in `group1' SG {
 		replace keep = 1 if iso == "`q'"	
 	}
 	keep if keep == 1
@@ -120,6 +120,9 @@ merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 
 // Make sure that the sum of shares are approximately 1 (bracket shares std)
+bys iso year : egen totshare = sum(s) if iso == "SG"
+replace s = 1-totshare if iso == "SG" & missing(s)
+drop totshare
 replace s = (a*n/1e5)/anninc992i if !missing(a)
 *egen sum = total(s) if !missing(s), by(iso year)
 * Verification code

@@ -138,7 +138,6 @@ generate m3 = a_n*((p_k1*((p_k1/p_n)^alpha))-(p_k*(p_k/p_n)^alpha))/((1+alpha)*(
 replace a_k = m3 if !missing(m3)
 replace a   = a_k
 drop s order has_neg-m3
-
 // -------------------------------------------------------------------------- //
 // Compute the rest
 // -------------------------------------------------------------------------- //

@@ -140,6 +140,7 @@ preserve
 	replace value_originET = value_originER
 	replace value_originID = value_originTL
 	replace value_originSD = value_originSS
+	replace value_originTZ = value_originZZ
 	reshape long
 	
 	tempfile double
@@ -152,7 +153,7 @@ replace gdp = gdp-value_origin if iso == "SD" & year < 2012
 replace gdp = gdp-value_origin if iso == "ET" & year < 1993
 replace gdp = gdp-value_origin if iso == "RS" & year < 1990
 replace gdp = gdp-value_origin if iso == "ID" & year < 1990
-replace gdp = gdp-value_origin if iso == "TZ" & year < 1990
+*replace gdp = gdp-value_origin if iso == "TZ" & year < 1990
 
 drop value* exchange 
 drop if missing(gdp)
