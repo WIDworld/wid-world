@@ -6,11 +6,18 @@ tempfile combined
 save `combined', emptyok
 
 global XN  AE AM AZ BH BY DZ EG IL IQ JO KW LB LY MA OM PS QA SA SY TN TR YE 
-global XA  AF BD BN BT CN HK ID IN IR  KG KH  KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
+global XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
 global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
 global QP  BM CA GL PM US 
 global XR  RU UA BY GE AM AZ 
-global XL  AG AI AN AR AW BB BO BR  BS  BZ  CL  CO  CR  CU  CW  DM  DO  EC  FK  GD  GT  GY  HN  HT  JM  KN  KY  LC  MS  MX  NI  PA  PE  PR  PY  SR  SV  SX  TC  TT  UY  VC  VE  VG  VI 
+global XL  AG AI AN AR AW BB BO BR BS BZ CL CO CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS MX NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI 
+global QB  AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TN TZ UG ZA ZM ZW ZZ 
+global QD  AE AF AM AZ BD BH BN BT BY CN GE HK ID IL IN IQ IR JO JP KG KH KP KR KW KZ LA LB LK MM MN MO MV MY NP OM PH PK PS QA RU SA SY SG TH TJ TL TM TR TW UA UZ VN YE  
+global QK  BI DJ ER ET KE KM MG MU MW MZ RW SC SO TZ UG ZM ZW ZZ
+global QN  AO CD CF CG CM GA GQ ST TD
+global QO  DZ EG EH LY MA SD SS TN
+global QT  BW LS NA SZ ZA
+global QV  BF BJ CI CV GH GM GN GW LR ML MR NE NG SH SL SN TG
 global QF  AU NZ PG 
 global QE  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
@@ -23,19 +30,19 @@ global QW  AE AM AZ BH BY GE IL IQ JO KW LB OM PS QA RU SA
 
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
 
+global all XN XA XF QP XR XL QB QD QK QN QO QT QV QF QE QX QM XM QJ QS QU QW WO
 /* JP KR */
 // -------------------------------------------------------------------------- //
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
-set trace on
 
 use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
 
-greshape wide value, i(iso year) j(widcode) string
+reshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
 replace xlceup999i = . if year != 2019
@@ -47,7 +54,7 @@ drop xlceup999i xlceux999i
 rename xlceup999i2 xlceup999i
 rename xlceux999i2 xlceux999i
 
-
+replace xlceux999i = xlceup999i if iso == "CU"
 
 drop p currency
 
@@ -97,43 +104,7 @@ rename valuesptinc992j s
 
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
-/*
-// Extrapolate backwards to fill in countries with no distribution data up to 1980
-drop if year<1970
-bys iso: egen min = min(year) 
-fillin iso year p 
-drop _fillin 
-
-bys iso : egen x = mode(min)
-replace min = x
-drop x
-
-gsort iso year p
-bys iso year : replace n = p[_n+1]-p
-bys iso year : replace n = n[_n-1] if p == 99999
-bys iso year : generate x = s if year == min
-bys iso p : egen x2 = mode(x)
-sort iso p year 
-replace s = x2 if missing(s)
-drop x* min 
-sort iso year p
-
-sort iso p year 
-// Ex-soviet countries that have no anninc992i in the 80's
- foreach iso in AM AZ BY KG  KZ  TJ  TM  UZ  {
-	 bys iso p: ipolate anninc992i year if iso == "`iso'" , gen(x)
-	 replace anninc992i=x if missing(anninc992i) 
-	drop x
-}
-*/
 drop if year<1980
-
-
-*egen average = total(a*n/1e5), by(iso year)
-
-*replace a = a/average*anninc992i
-
-*replace a = (s/n*1e5)*anninc992i if missing(a)
 
 generate pop = n*npopul992i
 gen keep = 0
@@ -149,16 +120,15 @@ foreach y in PPP MER {
 		gen `v'_`y' = `v'/`y'
 	}
 
-
-
 // all regions and world
-foreach x in XN XA XF QP XR XL QF QE QX QM XM QU QW WO {
+foreach x in $all {
 preserve
 
-	foreach q in $`x'  {
+	foreach q in $`x' {
 		replace keep = 1 if iso == "`q'"	
 	}
 	keep if keep == 1
+
 
 	drop if missing(a)
 	gsort year -a_`y' 
@@ -192,25 +162,24 @@ replace a=x
 drop x
 
 bys iso year: gen n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
+bysort iso year (p): assert !missing(a)
 
 // Compute thresholds shares topsh bottomsh
 keep year p a iso n
 sort iso year p
-by iso year: generate t = (a[_n - 1] + a)/2 
-by iso year: replace t = min(0, 2*a) if missing(t)
+by iso year : generate t = (a[_n - 1] + a)/2 
+by iso year : replace t = min(0, 2*a) if missing(t)
 
-
-by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
+by iso year : replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
 
 egen average = total(a*n/1e5), by(iso year)
 
 generate s = a*n/1e5/average
 
 gsort iso year -p
-by iso year: generate ts = sum(s)
-by iso year: generate ta = sum(a*n)/(1e5 - p)
-by iso year: generate tt = sum(t*n)/(1e5 - p)
-bys iso year : generate bottomsh = 1 - ts
+by iso year  : generate ts = sum(s)
+by iso year  : generate ta = sum(a*n)/(1e5 - p)
+bys iso year : generate bs = 1 - ts
 
 tempfile all 
 save `all'
@@ -232,28 +201,28 @@ rename s    sptinc992j
 rename t    tptinc992j
 renvars aptinc992j sptinc992j tptinc992j, prefix(value)
 
-greshape long value, i(iso   year p) j(widcode) string
+reshape long value, i(iso year p) j(widcode) string
 
 
 preserve
 	use `all', clear
-	keep year iso  p ts ta tt
+	keep year iso  p ts ta t
 	replace p = p/1000
 	gen perc = "p"+string(p)+"p100"
 	drop p
 	rename perc   p
 	rename ts sptinc992j
 	rename ta aptinc992j
-	rename tt tptinc992j
+	rename t  tptinc992j
 	renvars aptinc992j sptinc992j tptinc992j, prefix(value)
-	greshape long value, i(iso  year p) j(widcode) string
+	reshape long value, i(iso  year p) j(widcode) string
 	
 	tempfile top
 	save `top'
 restore
 preserve
 	use `all', clear
-	keep year iso  p bottomsh
+	keep year iso  p bs
 	replace p = p/1000
 	bys year iso  (p) : gen p2 = p[_n+1]
 	replace p2 = 100 if p2 == .
@@ -262,9 +231,9 @@ preserve
 
 	rename perc    p
 	keep if (p == "p50p51" | p == "p90p91")
-	reshape wide bottomsh, i(iso  year) j(p) string
-	rename bottomshp50p51 valuep0p50
-	rename bottomshp90p91 valuep0p90
+	reshape wide bs, i(iso  year) j(p) string
+	rename bsp50p51 valuep0p50
+	rename bsp90p91 valuep0p90
 	bys iso  year : gen valuep50p90 = valuep0p90 - valuep0p50
 	reshape long value, i(iso  year) j(p) string
 	gen widcode = "sptinc992j"
@@ -319,21 +288,26 @@ tempfile meta
 save `meta'
 
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
+
 drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
 	| inlist(iso,"WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
 	| inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
 	| inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
 	| inlist(iso,"XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
 append using "`meta'"
+
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//
 
 use "$work_data/extrapolate-wid-1980-output.dta", clear
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") 
 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QB", "QD", "QD-MER", "QK", "QN") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QO", "QT", "QV") 
 append using `final'
+
 save "$work_data/World-and-regional-aggregates-output.dta", replace

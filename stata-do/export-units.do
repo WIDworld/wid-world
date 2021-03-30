@@ -82,6 +82,7 @@ replace metadata = `"{"unit":"% of population"}"' if (type == "p")
 replace metadata = `"{"unit":"population"}"' if inlist(type, "n", "h", "f")
 replace metadata = `"{"unit":"share"}"' if inlist(type, "c", "s")
 replace metadata = `"{"unit":"local currency per foreign currency"}"' if (type == "x")
+replace metadata = `"{"unit":"CO2 emissions or CO2 equivalent"}"' if (type == "e")
 
 keep iso type metadata
 

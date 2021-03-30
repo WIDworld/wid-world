@@ -12,8 +12,7 @@ save `combined', emptyok
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
-
-use "$work_data/correct-negative-bracketavg-output.dta", clear
+use "$work_data/correct-bottom20-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
@@ -34,7 +33,7 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/correct-negative-bracketavg-output.dta", clear
+use "$work_data/correct-bottom20-output.dta", clear
 
 drop if strpos(iso, "-")
 drop if substr(iso, 1, 1) == "X"
@@ -91,7 +90,7 @@ replace min = x
 drop x
 
 gsort iso year p
-bys iso p : ipolate a year if inlist(iso, "BN", "CI"), gen(x)
+bys iso p : ipolate a year if inlist(iso, "BN", "CI", "RU"), gen(x)
 replace a = x if missing(a)
 drop x
 
@@ -105,7 +104,7 @@ drop if missing(a) & year<1980
 levelsof iso if min > 1980 , local(group1) // extrap, no -ve aptinc
 
 gen keep = 0
-	foreach q in `group1' SG {
+	foreach q in `group1' SG RU {
 		replace keep = 1 if iso == "`q'"	
 	}
 	keep if keep == 1
@@ -118,16 +117,7 @@ gen keep = 0
 gsort iso year p
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
-
-// Make sure that the sum of shares are approximately 1 (bracket shares std)
-bys iso year : egen totshare = sum(s) if iso == "SG"
-replace s = 1-totshare if iso == "SG" & missing(s)
-drop totshare
 replace s = (a*n/1e5)/anninc992i if !missing(a)
-*egen sum = total(s) if !missing(s), by(iso year)
-* Verification code
-*bys iso year: assert inrange(sum, .99, 1.01) if !missing(s)
-*drop sum
 
 // Extrapolate the bracket shares backwards
 gsort iso year p
@@ -204,28 +194,12 @@ by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
 gen a2 = a
 //
 gsort iso year p
-*replace a = round(a, 1)
 bys iso year (p): generate miss = 1 if round(a[_n+1],1)==round(a,1) & p[_n + 1] > p 
-replace miss = 1 if  round(a,1)==round(a[_n - 1],1)
+replace miss = 1 if round(a,1)==round(a[_n - 1],1)
 replace miss = . if inlist(p, 0, 99999)  
 replace miss = . if round(a,1) == 0
 
 replace a = . if miss == 1
-/*
-replace a = . if iso == "AR" & inrange(p, 99930, 99998)
-replace a = . if iso == "SV" & inrange(p, 99950, 99998)
-replace a = . if iso == "CO" & inrange(p, 99980, 99998)
-replace a = . if iso == "PE" & inrange(p, 99910, 99998)
-replace a = . if iso == "SG" & inrange(p, 99950, 99998)
-replace a = . if iso == "CR" & inrange(p, 99990, 99998)
-replace a = . if iso == "CU" & inrange(p, 99991, 99998)
-replace a = . if iso == "EC" & inrange(p, 99992, 99998)
-replace a = . if iso == "UY" & inrange(p, 99993, 99998)
-replace a = . if iso == "BR" & inrange(p, 99993, 99998)
-replace a = . if iso == "CL" & inrange(p, 99997, 99998)
-replace a = . if iso == "TW" & inrange(p, 99992, 99998)
-replace a = . if iso == "MX" & inrange(p, 99990, 99998)
-*/
 
 gsort iso year p
 bys iso year : ipolate a p, gen(x)
@@ -233,28 +207,16 @@ replace a = x if missing(a)
 drop miss x a2 
 
 
-* Verification code
-*bysort iso: assert inrange(year, 1980, 2019) 
-
 
 // Compute thresholds shares topsh bottomsh
-/*
-sort iso year p
-by iso year: generate t = (a[_n - 1] + a)/2 
-by iso year: replace t = min(0, 2*a) if missing(t)
-*/
 * Verification code
-bysort iso year (p): assert !missing(t) /* if  !inlist(iso, "JP", "KR") */
+bysort iso year (p): assert !missing(t) 
 
-*by iso year: replace a = t + 1e-4 if p == 0
-
-* Verification code
 gsort iso year p
 
-bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 /* &  !inlist(iso, "JP", "KR") */
-bysort iso year (p): assert a[_n + 1] != a if round(a,1) != 0 /* &  !inlist(iso, "JP", "KR") */
-bysort iso year (p): assert !missing(a) /* if  !inlist(iso, "JP", "KR") */
-*bys iso year : assert _N == 127
+bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 
+bysort iso year (p): assert a[_n + 1] != a if round(a,1) != 0 
+bysort iso year (p): assert !missing(a) 
 
 
 by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
@@ -268,8 +230,7 @@ by iso year : generate ts = sum(s)
 by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
 
-* Verification code
-bysort iso year (p): assert inrange(ts, 0, 1.03) if !inlist(iso, "CY", "IS") // issues in 2007/08
+bysort iso year (p) : assert inrange(ts, 0, 1.03) if !inlist(iso, "CY", "IS") // issues in 2007/08
 
 drop n
 
@@ -331,38 +292,41 @@ preserve
 	tempfile bottom
 	save `bottom'	
 restore
+preserve
+	use `final', clear
+	keep year iso p bs
+	replace p = p/1000
+	bys year iso (p) : gen p2 = p[_n+1]
+	replace p2 = 100 if p2 == .
+	gen perc = "p0p"+string(p2)
+	drop p p2
+
+	rename perc    p
+	rename bs sptinc992j
+	renvars  sptinc992j, prefix(value)
+	greshape long value, i(iso year p) j(widcode) string
+	drop if p == "p0p100"
+	tempfile bs
+	save `bs'	
+restore
 
 append using `top'
 append using `bottom'
+append using `bs'
 
 duplicates drop iso year p widcode, force
 
-drop if inlist(iso, "JP", "KR")
+*drop if inlist(iso, "JP", "KR")
 
 tempfile all
 save `all'
 
-//
+// Add the extrapolation data
 
-use "$work_data/correct-negative-bracketavg-output.dta", clear
+use "$work_data/correct-bottom20-output.dta", clear
 
 merge 1:1 iso year p widcode using "`all'", update replace nogenerate
-/*
 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & year >= 1980 ///
-	& !(strpos(iso, "-") | strpos(iso, "Q") | strpos(iso, "X") | strpos(iso, "WO")) & /* !inlist(iso, "JP", "KR") */
-drop if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")  ///
-	& !(strpos(iso, "-") | strpos(iso, "Q") | strpos(iso, "X") | strpos(iso, "WO"))
-
-drop if inlist(iso, "IQ", "QA", "MX", "GQ") ///
-	& inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & year >= 1980
-
-drop if inlist(iso, "IQ", "QA", "MX", "GQ", "SX") ///
-	& inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i") 
-
-append using "`all'"
-*append using "`anninc992i'"
-*/
 gduplicates tag iso year p widcode, gen(dup)
 assert dup == 0
 drop dup

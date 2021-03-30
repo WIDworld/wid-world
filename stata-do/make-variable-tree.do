@@ -285,5 +285,69 @@ append using "`tree'"
 destring rank, replace
 order path comp level category name orphan rank
 
+// -------------------------------------------------------------------------- //
+// Carbon macro variables
+// -------------------------------------------------------------------------- //
+
+import excel using "$codes_dictionary", sheet("Carbon") cellrange(A4) clear allstring
+keep A-W
+// Fill in the variable tree with parent variables
+carryforward V, replace cfindic(cfV)
+replace V = "" if cfV & (!missing(T) | !missing(U))
+drop cfV
+
+carryforward U, replace cfindic(cfU)
+replace U = "" if cfU & !missing(T)
+drop cfU
+
+carryforward T, replace
+// Loop over prefixes and create variables of the tree
+foreach prefix in e {
+	// Path
+	egen path`prefix' = concat(T U V W), punct(".")
+	replace path`prefix' = subinstr(path`prefix', "*", "`prefix'", .)
+	// Remove extra points
+	replace path`prefix' = ustrregexra(path`prefix', "\.+", ".")
+	replace path`prefix' = ustrregexra(path`prefix', "\.$", "")
+	
+	// Identify orphans
+	generate orphan`prefix' = regexm(R, "^\(.*\)$")
+	
+	// Rank
+	generate rank`prefix' = G
+	
+	// Composition
+	generate comp`prefix' = regexs(1) if regexm(R, "=([^\(\)]*)")
+	replace comp`prefix' = subinstr(comp`prefix', "*", "`prefix'", .)
+	
+	// Level
+	generate level`prefix' = 4 if !missing(W)
+	replace level`prefix' = 3 if missing(level`prefix') & !missing(V)
+	replace level`prefix' = 2 if missing(level`prefix') & !missing(U)
+	replace level`prefix' = 1 if missing(level`prefix') & !missing(T)
+	
+	// Category
+	generate category`prefix' = "Carbon-macro-variable"
+	
+	// Name
+	generate name`prefix' = strtrim(J)
+}
+
+
+
+keep path* comp* level* category* name* rank* orphan*
+generate i = _n
+reshape long path comp level category name rank orphan, i(i) j(j) string
+drop i j
+
+// drop duplicates (variables starting with letter other than * in the raw file)
+quietly bysort path:  gen dup = cond(_N==1,0,_n)
+drop if dup>1
+drop dup
+
+append using "`tree'"
+save "`tree'", replace
+
+
 export delimited "$output_dir/$time/metadata/variable-tree.csv", delimiter(";") replace
 
