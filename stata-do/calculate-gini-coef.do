@@ -43,4 +43,4 @@ append using "`gini'"
 
 compress
 save "$work_data/calculate-gini-coef-output.dta", replace
-save "/Users/rowaidakhaled/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace
+save "~/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace

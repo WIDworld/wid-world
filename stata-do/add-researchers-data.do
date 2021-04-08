@@ -110,6 +110,9 @@ replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" 
 //French Colonies - ACP2020
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 
+// Carbon - Chancel&Burq2021
+*append using "$wid_dir/Country-Updates/Carbon/March_2021/carbon.dta"
+
 // -----------------------------------------------------------------------------
 // 2020 - UPDATE 
 // -----------------------------------------------------------------------------
