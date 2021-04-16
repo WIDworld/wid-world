@@ -20,11 +20,11 @@ drop if (currency == "YUN")
 drop if (currency == "BYN")
 
 // Import exchange rates
-import delimited "$input_data_dir/currency-rates/currencies-rates-2019.csv", clear delim(";") encoding("utf8")
+import delimited "$input_data_dir/currency-rates/currencies-rates-$pastyear.csv", clear delim(",") encoding("utf8")
 drop if currency == "CYP"
 drop if currency == "CUP"
-replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)
-destring lcu_to_usd, replace
+*replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)
+*destring lcu_to_usd, replace
 
 // Mauritania new ouguiya (MRU) = 10 old ouguiya (MRO)
 replace lcu_to_usd = lcu_to_usd/10 if currency == "MRO"
@@ -100,7 +100,7 @@ save "`somalia'"
 
 // WORLD BANK exchange rates for historical series
 // Import exchange rates series from the World Bank
-import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2-2019.csv", ///
+import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$pastyear.csv", ///
 clear encoding("utf8") rowrange(3) varnames(4) delim(",")
 
 // Rename year variables
@@ -137,14 +137,16 @@ merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 	keep(master match) nogenerate //Regions are droppped
 
 // Identify currencies
+replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
+
 drop currency
 rename currency_iso currency
 
 // Reshape
 drop countryname countrycode indicatorname indicatorcode fiscalyearend
-gen widcode="xlcusx999i"
-gen p="pall"
+gen widcode = "xlcusx999i"
+gen p = "pall"
 reshape long value, i(iso currency widcode p) j(year)
 drop if mi(value)
 order iso widcode currency value year p

@@ -5,7 +5,7 @@
 
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_totalpopulation_bothsexes.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_totalpopulation_bothsexes.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -36,7 +36,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -82,7 +82,7 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -138,7 +138,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names

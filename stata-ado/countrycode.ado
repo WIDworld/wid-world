@@ -1190,6 +1190,7 @@ program countrycode, nclass
 			replace `generate' = "PK" if (`varlist' == "Pakistan")
 			replace `generate' = "PL" if (`varlist' == "Poland")
 			replace `generate' = "PR" if (`varlist' == "Puerto Rico")
+			replace `generate' = "PS" if (`varlist' == "West Bank and Gaza")
 			replace `generate' = "PT" if (`varlist' == "Portugal")
 			replace `generate' = "PW" if (`varlist' == "Palau")
 			replace `generate' = "PY" if (`varlist' == "Paraguay")

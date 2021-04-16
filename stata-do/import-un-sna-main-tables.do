@@ -85,6 +85,7 @@ drop exch
 
 // Identify currencies ------------------------------------------------------ //
 replace currency = "us dollar" if currency == "us$"
+*replace currency = "manat"     if currency == "turkmenistan manat"
 
 currencycode currency, generate(currency_iso) iso2c(iso) from("un sna main")
 drop currency

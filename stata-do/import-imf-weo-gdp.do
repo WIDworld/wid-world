@@ -18,12 +18,13 @@ keep if weosubjectcode == "NGDP" | weosubjectcode == "PPPEX"
 drop iso weocountrycode subjectdescriptor units ///
 	scale countryseriesspecificnotes
 
+replace country="Côte d'Ivoire"         if country=="Cte d'Ivoire"
+replace country="São Tomé and Príncipe" if country=="So Tom and Prncipe"
 /*
-replace country="Côte d'Ivoire" if country=="C�te d'Ivoire"
-replace country="São Tomé and Príncipe" if country=="S�o Tom� and Pr�ncipe"
-*/
 replace country = "Côte d'Ivoire"         if country == "C�te d'Ivoire"
 replace country = "São Tomé and Príncipe" if country == "S�o Tom� and Pr�ncipe"
+*/
+
 replace country = "Swaziland"             if country == "Eswatini"
 
 
