@@ -37,7 +37,7 @@ global all XN XA XF QP XR XL QB QD QK QN QO QT QV QF QE QX QM XM QJ QS QU QW WO
 // -------------------------------------------------------------------------- //
 
 
-use "$work_data/extrapolate-wid-1980-output.dta", clear
+use "$work_data/clean-up-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
@@ -64,7 +64,7 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/extrapolate-wid-1980-output.dta", clear
+use "$work_data/clean-up-output.dta", clear
 
 replace widcode = "sptinc992j" if widcode == "sptinc992i" & inlist(iso, "AU", "NZ", "PG")
 replace widcode = "aptinc992j" if widcode == "aptinc992i" & inlist(iso, "AU", "NZ", "PG")
@@ -299,7 +299,7 @@ append using "`meta'"
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//
 
-use "$work_data/extrapolate-wid-1980-output.dta", clear
+use "$work_data/clean-up-output.dta", clear
 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 

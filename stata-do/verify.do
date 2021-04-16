@@ -2,8 +2,7 @@
 //	 Verification code
 //
 
-*use "$work_data/calculate-gini-coef-output.dta", clear
-use "$work_data/correct-negative-bracketavg-output.dta", clear
+use "$work_data/calculate-gini-coef-output.dta", clear
 
 //Housekeeping
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
@@ -52,6 +51,7 @@ save `gperc'
 
 use "`original'", clear
 keep if regexm(p, "^p([0-9\.]+)(p100)?$")
+
 drop p p_max currency
 rename p_min p 
 gduplicates drop iso year p widcode, force
@@ -65,7 +65,31 @@ drop valuetptinc992j
 
 tempfile top 
 save `top'
-merge 1:1 iso year p using `gperc', keep(match) nogen
+*merge 1:1 iso year p using `gperc', keep(match) nogen
+
+// Get the bottom brackets
+use "`original'", clear
+keep if regexm(p, "^p0p([0-9\.]+)$")
+
+drop p p_min currency
+rename p_max p 
+gduplicates drop iso year p widcode, force
+sort iso year widcode p
+
+reshape wide value, i(iso year p) j(widcode) string
+
+rename valueaptinc992j ba
+rename valuesptinc992j bs
+drop valuetptinc992j
+
+tempfile bottom 
+save `bottom'
+*merge 1:1 iso year p using `gperc', keep(match) nogen
+
+use `gperc'
+merge 1:1 iso year p using `top', keep(match) nogen
+merge 1:1 iso year p using `bottom', keep(match) nogen
+
 *drop n
 
 // Start Verification
@@ -79,6 +103,32 @@ bys iso year : egen totshare = sum(s)
 // START CORRECTION
 levelsof iso if a[_n + 1] <= a & p != 99999 & round(a, 1) !=0 & !missing(a)
 levelsof iso if a[_n + 1] == a & p != 99999 & round(a, 1) !=0 & !missing(a)
+
+// Convert to Euro
+preserve 
+	use "$work_data/calculate-gini-coef-output.dta", clear
+	keep if inlist(widcode, "xlceup999i")
+	keep iso year value
+	rename value PPP
+	keep if year == 2019
+	drop year
+	
+	tempfile ppp
+	save `ppp'
+restore 
+merge m:1 iso using `ppp', keep(match) nogen
+replace a  =  a/PPP
+replace ta = ta/PPP
+replace ba = ba/PPP
+
+drop PPP
+
+/*
+gsort iso year p
+by iso year : generate ba = sum(a*n)/p
+*/
+tw (line ba year if iso == "EG" & p == 10000, sort)  (line ba year if iso == "FR" & p == 10000, sort), ///
+legend(order(1 "Egypt" 2 "France"))
 
 /*
 bysort iso year (p): assert !missing(t) if !missing(a) & !inlist(iso, "IN")

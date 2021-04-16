@@ -5,7 +5,7 @@
 //
 // See README.md file for more information.
 // -------------------------------------------------------------------------- //
-do "/Users/rowaidakhaled/Documents/GitHub/wid-world/stata-do/setup.do"
+do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -61,7 +61,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/**/
+/*
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -206,7 +206,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
-/**/
+*/
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -265,14 +265,14 @@ do "$do_dir/extrapolate-pretax-income.do"
 // Calibrate distributed data on national accounts totals
 do "$do_dir/calibrate-dina.do"
 
-// Clean up percentiles, etc.
-do "$do_dir/clean-up.do"
-
 // Correct Bottom 20% of the distribution
 do "$do_dir/correct-bottom20.do"
 
 // Extrapolate backwards income distribution up to 1980 for ALL countries
 do "$do_dir/extrapolate-wid-1980.do"
+
+// Clean up percentiles, etc.
+do "$do_dir/clean-up.do"
 
 //Compute World and Regional Aggregates
 do "$do_dir/world-and-regional-aggregates.do"

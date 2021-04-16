@@ -14,7 +14,7 @@ global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY
 // World countries 
 // -------------------------------------------------------------------------- //
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calibrate-dina-output.dta", clear
 
 drop if strpos(iso, "-")
 drop if substr(iso, 1, 1) == "X"
@@ -162,7 +162,11 @@ by iso year : generate ts = sum(s)
 by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
 
-keep year iso p a s t ts ta bs was_miss
+gsort iso year p
+by iso year : generate ba = sum(a*n)/p
+by iso year : replace ba = 0 if missing(ba) & p == 0
+
+keep year iso p a s t ts ta bs ba was_miss
 
 // Verification code
 gsort iso year p
@@ -255,10 +259,28 @@ preserve
 	tempfile bs
 	save `bs'	
 restore
+preserve
+	use `final', clear
+	keep year iso p ba
+	replace p = p/1000
+	bys year iso (p) : gen p2 = p[_n+1]
+	replace p2 = 100 if p2 == .
+	gen perc = "p0p"+string(p2)
+	drop p p2
+
+	rename perc    p
+	rename ba aptinc992j
+	renvars aptinc992j, prefix(value)
+	greshape long value, i(iso year p) j(widcode) string
+	drop if p == "p0p100"
+	tempfile ba
+	save `ba'	
+restore
 
 append using `top'
 append using `bottom'
 append using `bs'
+append using `ba'
 
 duplicates drop iso year p widcode, force
 
@@ -269,7 +291,7 @@ save `all'
 // -------------------------------------------------------------------------- //
 // Merge the corrected with the rest
 // -------------------------------------------------------------------------- //
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calibrate-dina-output.dta", clear
 
 
 merge 1:1 iso year p widcode using "`all'", update replace nogen
