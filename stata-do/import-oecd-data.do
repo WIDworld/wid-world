@@ -2,12 +2,12 @@
 // Import OECD national accounts data
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_10032020180957562.csv", clear encoding(utf8)
+import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_19042021180740312.csv", clear encoding(utf8)
 generate series = 10000
 tempfile oecd
 save "`oecd'"
 
-import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_06032020123612266.csv", clear encoding(utf8)
+import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_19042021180438124.csv", clear encoding(utf8)
 generate series = 20000
 append using "`oecd'"
 
@@ -25,7 +25,7 @@ save "$work_data/current-gdp-oecd.dta", replace
 // Import data from the different sectors
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_06032020123612266.csv", clear encoding(utf8)
+import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE14A_19042021180438124.csv", clear encoding(utf8)
 generate series = 20000
 append using "`oecd'"
 
@@ -316,18 +316,20 @@ save "$work_data/oecd-general-government.dta", replace
 // Government final expenditure by function
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE11_ARCHIVE_10032020180719530.csv", clear encoding(utf8)
+import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE11_ARCHIVE_19042021181111687.csv", clear encoding(utf8)
 generate series = 10000
 tempfile oecd
 save "`oecd'"
 
-import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE11_10032020180442951.csv", clear encoding(utf8)
+import delimited "$input_data_dir/oecd-data/national-accounts/SNA_TABLE11_19042021181239922.csv", clear encoding(utf8)
 generate series = 20000
 append using "`oecd'"
 
 merge n:1 location year series using "$work_data/current-gdp-oecd.dta", keep(match) nogenerate
 replace value = value/gdp
 drop gdp
+
+drop if function == "Total function"
 
 generate widcode = ""
 replace widcode = "gpsgo" if function == "General public services"
