@@ -35,36 +35,36 @@ assert dup == 0
 drop dup
 
 preserve
-keep if currency == "EUR"
-merge 1:n currency year using "`countries'", nogenerate
-drop if currency != "EUR"
-tempfile EUR
-save "`EUR'"
+	keep if currency == "EUR"
+	merge 1:n currency year using "`countries'", nogenerate
+	drop if currency != "EUR"
+	tempfile EUR
+	save "`EUR'"
 restore 
 
 drop if currency == "EUR" 
 merge 1:n currency year using "`countries'"
-drop if (_merge != 3) & (currency != "YUN" | year != 2019)
+drop if (_merge != 3) & (currency != "YUN" | year != $pastyear)
 drop _merge
 append using "`EUR'"
 
 tempfile merged
 save "`merged'" 
 
-keep if year == 2019
+keep if year == $pastyear
 
 
-replace lcu_to_usd = 80.9035       if (currency == "YUN") // source: mataf.net, march 2020
+replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, April 2021
 
 
 // Generate exchange rates with euro and yuan
 rename lcu_to_usd valuexlcusx999i
 // Exchange rate with euro
-quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == 2019), local(exchrate_eu) clean
+quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == $pastyear), local(exchrate_eu) clean
 generate valuexlceux999i = valuexlcusx999i/`exchrate_eu'
 
 // Exchange rate with Yuan
-quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == 2019), local(exchrate_cn) clean
+quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == $pastyear), local(exchrate_cn) clean
 generate valuexlcyux999i = valuexlcusx999i/`exchrate_cn'
 
 // Sanity checks
@@ -95,6 +95,11 @@ expand 2 if year == 2018, gen(new)
 replace value = 24300*(1/.97969919)/(1/.98220074) if new
 replace year = 2019 if new
 drop new
+expand 2 if year == 2019, gen(new)
+replace value = 24362.04727494*(1/.97969919)/(1/.98220074) if new
+replace year = 2020 if new
+drop new
+
 tempfile somalia
 save "`somalia'"
 
@@ -119,8 +124,8 @@ forval i=1999/`lastyear'{
 	egen e`i'=mean(x)
 	drop x
 	replace value`i'=e`i' if  (inlist(countryname, "Germany", "Austria", "Belgium", "Spain", "Finland", "France") ///
-						| inlist(countryname,"Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
-						| inlist(countryname,"Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
+						| inlist(countryname, "Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
+						| inlist(countryname, "Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
 						| inlist(countryname, "Latvia", "Lithuania")) ///
 						& value`i'==.
 }
@@ -152,22 +157,22 @@ drop if mi(value)
 order iso widcode currency value year p
 
 // Drop euro before year where countries joined
-drop if currency=="EUR"    & year<1999
-drop if currency=="EUR"    & iso=="GR" 			   & year<2001
-drop if currency=="EUR"    & iso=="SI"             & year<2007
-drop if currency=="EUR"    & inlist(iso,"CI","MT") & year<2001
-drop if currency=="EUR"    & iso=="MT"             & year<2008
-drop if currency=="EUR"    & iso=="CY"             & year<2008
-drop if currency=="EUR"    & iso=="SK"             & year<2009
-drop if currency=="EUR"    & iso=="EE" 			   & year<2011
-drop if currency=="EUR"    & iso=="LV" 			   & year<2014
-drop if currency=="EUR"    & iso=="LT" 			   & year<2015
+drop if currency == "EUR"    & year<1999
+drop if currency == "EUR"    & iso == "GR" 			   & year<2001
+drop if currency == "EUR"    & iso == "SI"             & year<2007
+drop if currency == "EUR"    & inlist(iso,"CI","MT")   & year<2001
+drop if currency == "EUR"    & iso == "MT"             & year<2008
+drop if currency == "EUR"    & iso == "CY"             & year<2008
+drop if currency == "EUR"    & iso == "SK"             & year<2009
+drop if currency == "EUR"    & iso == "EE" 			   & year<2011
+drop if currency == "EUR"    & iso == "LV" 			   & year<2014
+drop if currency == "EUR"    & iso == "LT" 			   & year<2015
 
 // Drop Syria before $pastyear (strange values)
 drop if inlist(iso, "SY") & (year<$pastyear)
 
 // Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
-replace value=1 if inlist(iso,"SV","LR","ZW", "EC")
+replace value = 1 if inlist(iso,"SV","LR","ZW", "EC")
 
 append using "`xrate'"
 
@@ -229,21 +234,21 @@ drop lcu_to_usd
 drop if missing(valuexlcusx999i)
 
 preserve
-keep if currency == "EUR"
-keep year valuexlcusx999i
-duplicates drop year, force
-rename valuexlcusx999i EURUSD
-tempfile eurusd
-save "`eurusd'"
+	keep if currency == "EUR"
+	keep year valuexlcusx999i
+	duplicates drop year, force
+	rename valuexlcusx999i EURUSD
+	tempfile eurusd
+	save "`eurusd'"
 restore
 
 preserve
-keep if currency == "CNY"
-keep year valuexlcusx999i
-duplicates drop year, force
-rename valuexlcusx999i CNYUSD
-tempfile cnyusd
-save "`cnyusd'"
+	keep if currency == "CNY"
+	keep year valuexlcusx999i
+	duplicates drop year, force
+	rename valuexlcusx999i CNYUSD
+	tempfile cnyusd
+	save "`cnyusd'"
 restore
 
 merge n:1 year using "`eurusd'", keep(master match) nogenerate

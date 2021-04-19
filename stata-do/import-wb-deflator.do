@@ -30,6 +30,7 @@ merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 drop countryname
 	
 // Identify currencies
+replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
 drop currency
 rename currency_iso currency
