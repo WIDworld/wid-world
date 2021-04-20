@@ -8,18 +8,18 @@ clear all
 tempfile combined
 save `combined', emptyok
 global plafond 5
+global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY SR SV TT UY VE 
 
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
 
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calibrate-dina-output.dta", clear
 
 drop if strpos(iso, "-")
 drop if substr(iso, 1, 1) == "X"
 drop if substr(iso, 1, 1) == "Q" & iso != "QA"
 drop if strpos(iso, "WO")
-
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
 
@@ -69,12 +69,19 @@ replace s = 1-totshare if iso == "SG" & missing(s)
 replace a = (s*average)/(n/1e5) if missing(a) & iso == "SG"
 drop totshare average
 
-drop if missing(a) & inlist(iso, "RU", "AU", "CA", "NZ")
+drop if inrange(year, 1922, 1950) & iso == "IN"
+
+generate was_miss = 1 if missing(a)
+replace was_miss = 0 if missing(was_miss)
+
+replace a = s/n*1e5 if missing(a) & inlist(iso, "RU", "AU", "CA", "NZ")
+
+*drop if missing(a) & inlist(iso, "RU", "AU", "CA", "NZ")
 	* -> Solution : re-rank the percentiles
 
 // Fix Order of percentiles
 
-keep year p a t iso n
+keep year p a t iso was_miss n
 gsort iso year p
 bys iso year : generate order = _n
 
@@ -91,12 +98,28 @@ merge 1:1 iso year order using `p', nogenerate
 
 // -------------------------------------------------------------------------- //
 // Fix the -ve bracketavg for only the years & iso that has -ve bracketavg
+// and fix the bottom 5% w/ 0 but there some exceptions
 // -------------------------------------------------------------------------- //
+gen exception = 1
 
+foreach q in $exception {
+	replace exception = 0 if iso == "`q'"	
+}
+
+preserve
+	keep if exception == 0
+	drop exception
+	
+	tempfile latam
+	save `latam'
+restore 
+
+keep if exception == 1
+drop exception 	
 replace order = (order - 1)/100
 
 replace a = 0 if a<0 
-bys iso year (p) : replace a = 0 if _n <= $plafond
+bys iso year (p) : replace a = 0 if _n <= $plafond 
 bys iso year (p) : replace t = . if inrange(p, 0, 20000)
 
 // Compute Alpha
@@ -128,6 +151,8 @@ replace a = m3 if !missing(m3)
 by iso year: replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if missing(t)
 by iso year: replace t = min(0, 2*a) if missing(t) 
 
+append using "`latam'"
+
 egen average = total(a*n/1e5), by(iso year)
 
 generate s = a*n/1e5/average
@@ -137,7 +162,11 @@ by iso year : generate ts = sum(s)
 by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
 
-keep year iso p a s t ts ta bs 
+gsort iso year p
+by iso year : generate ba = sum(a*n)/p
+by iso year : replace ba = 0 if missing(ba) & p == 0
+
+keep year iso p a s t ts ta bs ba was_miss
 
 // Verification code
 gsort iso year p
@@ -146,6 +175,12 @@ bysort iso year (p): assert !missing(t)
 
 bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 
 bys iso year : assert _N == 127 if !inlist(iso, "IN")  // there are no full distribution for India (1922-50)
+
+replace a  = . if was_miss == 1
+replace ta = . if was_miss == 1
+replace t  = . if was_miss == 1
+
+drop was_miss
 
 tempfile final
 save `final'
@@ -168,6 +203,7 @@ rename t    tptinc992j
 renvars aptinc992j sptinc992j tptinc992j, prefix(value)
 
 greshape long value, i(iso year p) j(widcode) string
+drop if missing(value)
 
 preserve
 	use `final', clear
@@ -180,6 +216,7 @@ preserve
 	rename ta   aptinc992j
 	renvars aptinc992j sptinc992j, prefix(value)
 	greshape long value, i(iso year p) j(widcode) string
+	drop if missing(value)
 	
 	tempfile top
 	save `top'	
@@ -222,10 +259,28 @@ preserve
 	tempfile bs
 	save `bs'	
 restore
+preserve
+	use `final', clear
+	keep year iso p ba
+	replace p = p/1000
+	bys year iso (p) : gen p2 = p[_n+1]
+	replace p2 = 100 if p2 == .
+	gen perc = "p0p"+string(p2)
+	drop p p2
+
+	rename perc    p
+	rename ba aptinc992j
+	renvars aptinc992j, prefix(value)
+	greshape long value, i(iso year p) j(widcode) string
+	drop if p == "p0p100"
+	tempfile ba
+	save `ba'	
+restore
 
 append using `top'
 append using `bottom'
 append using `bs'
+append using `ba'
 
 duplicates drop iso year p widcode, force
 
@@ -236,7 +291,7 @@ save `all'
 // -------------------------------------------------------------------------- //
 // Merge the corrected with the rest
 // -------------------------------------------------------------------------- //
-use "$work_data/clean-up-output.dta", clear
+use "$work_data/calibrate-dina-output.dta", clear
 
 
 merge 1:1 iso year p widcode using "`all'", update replace nogen
