@@ -1,4 +1,4 @@
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 // Use KV rather than KS for Kosovo
 *replace iso = "KV" if iso == "KS"
@@ -23,7 +23,7 @@ drop if mi(value)
 tempfile fisc_avg
 save `fisc_avg'
 
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 drop if substr(widcode,1,6)=="afiinc" & p=="pall"
 append using `fisc_avg'
 
