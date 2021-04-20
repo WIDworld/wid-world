@@ -267,14 +267,14 @@ do "$do_dir/extrapolate-pretax-income.do"
 // Calibrate distributed data on national accounts totals
 do "$do_dir/calibrate-dina.do"
 
-// Clean up percentiles, etc.
-do "$do_dir/clean-up.do"
-
 // Correct Bottom 20% of the distribution
 do "$do_dir/correct-bottom20.do"
 
 // Extrapolate backwards income distribution up to 1980 for ALL countries
 do "$do_dir/extrapolate-wid-1980.do"
+
+// Clean up percentiles, etc.
+do "$do_dir/clean-up.do"
 
 //Compute World and Regional Aggregates
 do "$do_dir/world-and-regional-aggregates.do"
