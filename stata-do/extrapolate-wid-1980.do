@@ -15,11 +15,11 @@ save `combined', emptyok
 use "$work_data/correct-bottom20-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
-keep if p == "p0p100"
+keep if p == "pall"
+drop p currency
 
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
-drop p currency
 
 drop if strpos(iso, "-")
 drop if substr(iso, 1, 1) == "X"
