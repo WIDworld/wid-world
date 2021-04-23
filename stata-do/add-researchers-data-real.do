@@ -34,9 +34,6 @@ restore
 drop if iso == "KR"
 append using `kr'
 
-// Europe 2020 - bcg2020
-*append using "$wid_dir/Country-Updates/Europe/2020_03/europe-bcg2020.dta"
-
 // Add regions back (dropped from add-researchers-data)
 append using "$wid_dir/Country-Updates/World_regions/regionstoreal.dta"
 
@@ -49,10 +46,8 @@ append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-PPP.dta"
 
 // Europe (East & West) Countries and Aggregates
 append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
-drop if iso == "FR" & inlist(widcode, "scainc992j", "sdiinc992j", "sptinc992j") ///
-	  & inlist(p, "p0p50", "p50p90", "p90p100", "p99p100") & inrange(year, 1980, 2019)
-//add Bertrand & Jonathan data for france (1900-1979)
-append using "$wid_dir/Country-Updates/France/2020/Octobre/wid-world-data-fr-1900.dta"
+*drop if iso == "FR" & inlist(widcode, "scainc992j", "sdiinc992j", "sptinc992j") ///
+*	  & inlist(p, "p0p50", "p50p90", "p90p100", "p99p100") & inrange(year, 1980, 2019)
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER", "XF")
