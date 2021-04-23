@@ -26,6 +26,10 @@ rename currency_iso currency
 keep iso currency value*
 
 reshape long value, i(iso) j(year)
+
+// Add back Syria data point that was removed in 2021
+replace value = 21.32 if year == 2011 & iso == "SY"
+
 drop if value >= .
 
 rename value ppp_wb
