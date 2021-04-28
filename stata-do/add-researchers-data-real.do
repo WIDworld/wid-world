@@ -12,10 +12,8 @@
 // -------------------------------------------------------------------------- //
 
 // France inequality 2017 (GGP2017)
-use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
-
-// US wealth inequality 2017 (PSZ2017)
-*append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-AppendixII.dta"
+use "$wid_dir/Country-Updates/France/france-data/france-ggp2017-updated-2021.dta", clear
+drop if strpos(widcode, "ptinc992j") & iso == "FR" & author == "ggp2017"
 
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
 append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
@@ -69,6 +67,8 @@ duplicates drop
 
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
+drop if iso == "FR" & sixlet == "ahweal" & missing(source)
+
 duplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup
