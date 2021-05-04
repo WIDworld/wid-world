@@ -34,7 +34,7 @@ replace currency = "STN" if currency == "STD"
 tempfile currencies
 save "`currencies'"
 
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/calculate-gini-coef-output.dta", clear
 
 // Add Euro for German subregions
 replace currency = "EUR" if strpos(iso, "DE-")
@@ -55,13 +55,13 @@ rename symbol currency_symbol
 rename name currency_name
 
 // Expand for all types (variable first letter)
-expand 14
+expand 17
 sort iso
 generate nobs = _n
 generate type = ""
 local i 0
-foreach c in a b c f g h i n s t m o p w x {
-	replace type = "`c'" if mod(nobs, 14) == `i'
+foreach c in a b c f g h i n s t m o p w x e k {
+	replace type = "`c'" if mod(nobs, 17) == `i'
 	local i = `i' + 1
 }
 drop nobs
@@ -82,7 +82,7 @@ replace metadata = `"{"unit":"% of population"}"' if (type == "p")
 replace metadata = `"{"unit":"population"}"' if inlist(type, "n", "h", "f")
 replace metadata = `"{"unit":"share"}"' if inlist(type, "c", "s")
 replace metadata = `"{"unit":"local currency per foreign currency"}"' if (type == "x")
-replace metadata = `"{"unit":"CO2 emissions or CO2 equivalent"}"' if (type == "e")
+replace metadata = `"{"unit":"CO2 emissions or CO2 equivalent"}"' if (inlist(type, "e", "k"))
 
 keep iso type metadata
 
@@ -91,7 +91,7 @@ sort iso type
 rename iso country
 rename type var_type
 
-replace country="KV" if country=="KS"
+replace country = "KV" if country == "KS"
 
 export delimited "$output_dir/$time/metadata/var-units.csv", replace delimiter(";")
 

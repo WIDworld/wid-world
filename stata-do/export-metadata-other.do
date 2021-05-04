@@ -10,10 +10,10 @@ tempfile variables
 
 local firstiter = 1
 foreach sheet in Wealth_Macro_Variables Income_Macro_Variables ///
-		Income_Distributed_Variables Other_Macro_Variables Wealth_Distributed_Variables {
+		Income_Distributed_Variables Other_Macro_Variables Wealth_Distributed_Variables Carbon {
 	
 	*import excel "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx", sheet("`sheet'") clear allstring
-	import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("`sheet'") clear allstring
+	import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_carbon.xlsx", sheet("`sheet'") clear allstring
 	
 	keep  A B C D G J M Q
 	rename A onelet
@@ -48,7 +48,7 @@ assert duplicate == 0
 drop duplicate
 
 // Check we don't miss any variable
-merge 1:1 fivelet using "`fivelet'", nogenerate assert(master match)
+merge 1:1 fivelet using "`fivelet'",  assert(master match)
 
 sort fivelet
 *drop fivelet onelet

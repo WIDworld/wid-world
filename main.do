@@ -274,8 +274,11 @@ do "$do_dir/extrapolate-wid-1980.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
-//Compute World and Regional Aggregates
+// Compute World and Regional Aggregates
 do "$do_dir/world-and-regional-aggregates.do"
+
+// Compute per-capita carbon series
+do "$do_dir/calculate-per-capita-carbon-series.do"
 
 // Compute Pareto coefficients
 do "$do_dir/calculate-pareto-coef.do"

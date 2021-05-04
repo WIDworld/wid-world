@@ -65,7 +65,7 @@ save "$work_data/wid-long.dta", replace
 
 // Reshape wide and Export by group of countries
 
-do "$do_dir/export-grouped-countries.do"
+do "$do_dir/export-grouped-countries_2.do"
 
 // Reshape wide the dataset------------------------------------------------------//
 /**/
