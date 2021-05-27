@@ -59,7 +59,7 @@ sysdir set PERSONAL "$ado_dir" // Add to the ADO path
 
 // Location of the codes dictionnary file
 *global codes_dictionary "$wid_dir/Methodology/Codes_Dictionnary_WID.xlsx"
-global codes_dictionary "$wid_dir/Methodology/Codes_Dictionnary_WID_Carbon.xlsx"
+global codes_dictionary "$wid_dir/Methodology/Codes_Dictionnary_WID_Carbon_LC.xlsx"
 
 // External data sources
 global input_data_dir "$project_dir/data-input"
