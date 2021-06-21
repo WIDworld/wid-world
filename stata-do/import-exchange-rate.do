@@ -176,6 +176,9 @@ replace value = 1 if inlist(iso,"SV","LR","ZW", "EC")
 
 append using "`xrate'"
 
+// Fix in Zambia
+replace value = value/1000 if iso == "ZM" & year < 1972
+
 // Missing data (MR, 2004)
 expand 2 if iso == "MR" & year == 2003, gen(new)
 replace value = . if new
@@ -200,12 +203,14 @@ drop if iso == "VE" & year > 2013
 expand ($pastyear - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
 replace year = year + sum(new) if new
 drop new
-replace value = value*1.380511724 if iso == "VE" & year == 2014
-replace value = value*3.867938241 if iso == "VE" & year == 2015
-replace value = value*16.09888793 if iso == "VE" & year == 2016
-replace value = value*133.9802825 if iso == "VE" & year == 2017
-replace value = value*161860.2692 if iso == "VE" & year == 2018
-replace value = value*196732173.9 if iso == "VE" & year == 2019
+// Data from UN using forward PARE
+replace value = 8.34 if iso == "VE" & year == 2014
+replace value = 17.51 if iso == "VE" & year == 2015
+replace value = 73.00 if iso == "VE" & year == 2016
+replace value = 607.69 if iso == "VE" & year == 2017
+replace value = 388549.29 if iso == "VE" & year == 2018
+replace value = 76369942.28 if iso == "VE" & year == 2019
+replace value = 76369942.28*24.25739753 if iso == "VE" & year == 2020
 
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"

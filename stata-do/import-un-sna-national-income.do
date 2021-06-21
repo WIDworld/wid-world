@@ -34,6 +34,8 @@ greshape wide value footnote*, i(country_or_area year series) j(widcode)
 renvars value*, predrop(5)
 
 // Data fixes
+drop if country_or_area == "Timor-Leste"
+
 replace pinpx = -pinpx if country_or_area == "Lesotho" & series == "40" & inrange(year, 1989, 1991)
 
 replace flcir = . if country_or_area == "Luxembourg" & series == "300" & year < 1995
