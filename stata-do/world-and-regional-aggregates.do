@@ -294,7 +294,7 @@ drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
 	| inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
 	| inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
 	| inlist(iso,"XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
-append using "`meta'"
+append using "`meta'", force
 
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//

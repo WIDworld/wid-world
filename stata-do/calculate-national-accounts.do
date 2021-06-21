@@ -91,7 +91,7 @@ preserve
 
 	egen s = concat(method*)
 	drop method*
-	replace s = "See [URL][URL_TEXT]DINA guidelines[\URL_TEXT][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[\URL_LINK][\URL] for methodological explanations. The sources used are: " + substr(s, 1, length(s) - 1) + "."
+	replace s = "See [URL][URL_TEXT]DINA guidelines[/URL_TEXT][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[/URL_LINK][/URL] for methodological explanations. The sources used are: " + substr(s, 1, length(s) - 1) + "."
 	rename s source
 	
 	tempfile source
@@ -118,11 +118,17 @@ egen m = concat(method*)
 drop method*
 replace m = "WID.world estimations as a proportion of GDP based on the following; " + substr(m, 1, length(m) - 1) + ". These estimates are then anchored to GDP (see GDP variable for details)."
 replace m = m + " "
-replace m = m + "The estimates of national accounts subcomponents in the WID are based on official country data and use the methodology presented in the [URL][URL_TEXT]DINA guidelines[\URL_TEXT][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[\URL_LINK][\URL]. We stress that these subcomponents estimates are more fragile than those of main aggregates such as national income. Countries may use classifications used are not always fully consistent with other countries or over time. Series breaks with no real economic significance can appear as a result. The WID include these estimates to provide a centralized source for this official data, so that it can be exploited more directly. We encourage users of this data to be careful and to pay attention to the source of the data, which we systematically indicate."
+replace m = m + ///
+"The estimates of national accounts subcomponents in the WID are based on official country data and use the methodology presented in the " + ///
+ `"[URL][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[/URL_LINK]"' + ///
+ `"[URL_TEXT]DINA guidelines[/URL_TEXT][/URL]."' + ///
+ " We stress that these subcomponents estimates are more fragile than those of main aggregates such as national income. Countries may use classifications used are not always fully consistent with other countries or over time. Series breaks with no real economic significance can appear as a result. The WID include these estimates to provide a centralized source for this official data, so that it can be exploited more directly. We encourage users of this data to be careful and to pay attention to the source of the data, which we systematically indicate."
 rename m method
 
 merge 1:1 iso widcode using "`source'", nogenerate
-replace source = "See [URL][URL_TEXT]DINA guidelines[\URL_TEXT][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[\URL_LINK][\URL] for methodological explanations." if source == ""
+replace source = "See " + ///
+ `"[URL][URL_LINK]https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/[/URL_LINK]"' + ///
+ `"[URL_TEXT]DINA guidelines[/URL_TEXT][/URL]."' if source == ""
 
 rename widcode sixlet
 order iso sixlet source method

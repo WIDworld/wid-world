@@ -61,7 +61,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/*
+/* 
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -206,7 +206,8 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
-*/
+
+ */
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -278,7 +279,7 @@ do "$do_dir/clean-up.do"
 do "$do_dir/world-and-regional-aggregates.do"
 
 // Compute per-capita carbon series
-do "$do_dir/calculate-per-capita-carbon-series.do"
+*do "$do_dir/calculate-per-capita-carbon-series.do"
 
 // Compute Pareto coefficients
 do "$do_dir/calculate-pareto-coef.do"
@@ -286,6 +287,8 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
+// Import carbon series (independent)
+do "$do_dir/add-carbon-series.do"
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //

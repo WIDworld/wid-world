@@ -28,16 +28,16 @@ foreach v of varlist data_quality data_imputation data_points extrapolation {
 }
 
 // Countries with rescaled fiscal income
-replace data_quality = 3 if method == "Fiscal income rescaled to match the macroeconomic aggregates."
+replace data_quality = "3" if method == "Fiscal income rescaled to match the macroeconomic aggregates."
 
 // Add quality from data quality file
 merge m:1 iso using `temp', nogen update noreplace
-replace quality = . if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
-replace quality = data_quality if quality != data_quality & data_quality != .
-replace quality = 4 if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
-replace data_quality = quality if data_quality == .
-tostring data_quality, replace
-replace data_quality = "" if quality == .
+tostring quality, replace 
+replace quality = "" if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
+replace quality = data_quality if quality != data_quality & data_quality != ""
+replace quality = "4" if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
+replace data_quality = quality if data_quality == ""
+replace data_quality = "" if quality == ""
 assert data_quality != "" if strpos(sixlet, "ptinc")
 assert data_quality != "" if strpos(sixlet, "diinc")
 assert data_quality != "" if strpos(sixlet, "cainc")
@@ -47,10 +47,10 @@ drop if mi(sixlet)
 // Set France to 5 because of the DINA data
 replace data_quality = "5" if data_quality != "" & iso == "FR"
 
-replace data_imputation = "region"    if inlist(data_quality, "0")
-replace data_imputation = "survey"    if inlist(data_quality, "1", "2")
-replace data_imputation = "tax"       if inlist(data_quality, "3", "4")
-replace data_imputation = "full"      if inlist(data_quality, "5")
+replace data_imputation = "region"    if inlist(data_quality, "0") & (strpos(sixlet, "ptinc") | strpos(sixlet, "diinc") | strpos(sixlet, "cainc"))
+replace data_imputation = "survey"    if inlist(data_quality, "1", "2") & (strpos(sixlet, "ptinc") | strpos(sixlet, "diinc") | strpos(sixlet, "cainc"))
+replace data_imputation = "tax"       if inlist(data_quality, "3", "4") & (strpos(sixlet, "ptinc") | strpos(sixlet, "diinc") | strpos(sixlet, "cainc"))
+replace data_imputation = "full"      if inlist(data_quality, "5") & (strpos(sixlet, "ptinc") | strpos(sixlet, "diinc") | strpos(sixlet, "cainc"))
 replace data_imputation = "rescaling" if method == "Fiscal income rescaled to match the macroeconomic aggregates."
 
 // -------------------------------------------------------------------------- //
@@ -244,6 +244,10 @@ capture mkdir "$output_dir/$time/metadata"
 
 rename data_imputation imputation
 drop if Alpha2 == ""
+
+rename *, lower
+keep alpha2 twolet threelet method source data_quality imputation extrapolation data_points
+order alpha2 twolet threelet method source data_quality imputation extrapolation data_points
 
 save "$work_data/metadata-final.dta", replace
 

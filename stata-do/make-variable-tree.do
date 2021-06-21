@@ -303,7 +303,7 @@ drop cfU
 
 carryforward T, replace
 // Loop over prefixes and create variables of the tree
-foreach prefix in e {
+foreach prefix in e k {
 	// Path
 	egen path`prefix' = concat(T U V W), punct(".")
 	replace path`prefix' = subinstr(path`prefix', "*", "`prefix'", .)
@@ -417,6 +417,9 @@ replace name = "Personal footprint of other gases [beta]" if path == "lpfghg.lpf
 append using "`tree'"
 save "`tree'", replace
 
+duplicates drop path comp level category name, force
+
+order path comp level category name orphan rank
 
 export delimited "$output_dir/$time/metadata/variable-tree.csv", delimiter(";") replace
 

@@ -57,18 +57,28 @@ replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
 replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
 replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
 
-*duplicates drop iso year p widcode, force
+duplicates drop iso year p widcode, force
 
-*compress
+compress
 
 save "$work_data/wid-long.dta", replace
-drop source method
+append using "$work_data/add-carbon-series-output.dta"
+keep iso year p widcode value 
+
+rename iso Alpha2
+rename p perc
+order Alpha2 year perc widcode
+
+export delim "$output_dir/$time/wid-data.csv", delimiter(";") replace
+
+// Reshape the dataset (long)------------------------------------------------------ //
+
+/*
 // Reshape wide and Export by group of countries
 
 do "$do_dir/export-grouped-countries_2.do"
 
 // Reshape wide the dataset------------------------------------------------------//
-/**/
 levelsof iso, local(x)
 foreach l in `x' {
 	use "$work_data/wid-long.dta", clear
@@ -83,7 +93,7 @@ foreach l in `x' {
 	export delimited "$output_dir/$time/wid-`l'.csv", delimiter(";") replace
 
 }
-/**/
+*/
 /*
 save "$work_data/wid-wide.dta", replace
 
