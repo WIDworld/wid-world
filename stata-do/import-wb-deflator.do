@@ -1,4 +1,4 @@
-import delimited "$wb_data/deflator/API_NY.GDP.DEFL.ZS_DS2_en_csv_v2-$pastyear.csv", ///
+import delimited "$wb_data/deflator/API_NY.GDP.DEFL.ZS_DS2_en_csv_v2_$pastyear.csv", ///
 	rowrange(3) varnames(4) clear encoding("utf8")
 
 foreach v of varlist v5-v64 {
@@ -30,6 +30,7 @@ merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 drop countryname
 	
 // Identify currencies
+replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
 drop currency
 rename currency_iso currency

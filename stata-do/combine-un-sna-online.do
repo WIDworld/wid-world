@@ -35,7 +35,7 @@ replace iso = "VE" if country_or_area == "Venezuela (Bolivarian Republic of)"
 assert iso != ""
 drop country_or_area iso3n
 
-gduplicates tag iso year series, gen(dup)
+duplicates tag iso year series, gen(dup)
 assert dup == 0
 drop dup
 

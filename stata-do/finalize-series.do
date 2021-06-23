@@ -209,6 +209,10 @@ enforce (comnx = comrx - compx) ///
 		(saggo = seggo - congo) ///
 		(congo = indgo + colgo) ///
 		(savgo = saggo - cfcgo) ///
+		/// Taxes paid = taxes received
+		(taxgo + sscco = taxhn + taxco) ///
+		(tiwgo = tiwhn + taxco) ///
+		(sschn = sscgo + sscco) ///
 		/// Structure of gov spending
 		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
 		/// Labor + capital income decomposition

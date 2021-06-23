@@ -1,17 +1,17 @@
 // Import all files
-import delimited "$wb_data/gdp-current-lcu/API_NY.GDP.MKTP.CN_DS2_en_csv_v2-$pastyear.csv", ///
+import delimited "$wb_data/gdp-current-lcu/API_NY.GDP.MKTP.CN_DS2_en_csv_v2_$pastyear.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 tempfile wb_macro_data
 save "`wb_macro_data'"
 
-import delimited "$wb_data/gdp-current-usd/API_NY.GDP.MKTP.CD_DS2_en_csv_v2-$pastyear.csv", ///
+import delimited "$wb_data/gdp-current-usd/API_NY.GDP.MKTP.CD_DS2_en_csv_v2_$pastyear.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 append using "`wb_macro_data'"
 save "`wb_macro_data'", replace
 
-import delimited "$wb_data/nfi/API_NY.GSR.NFCY.CD_DS2_en_csv_v2-$pastyear.csv", ///
+import delimited "$wb_data/nfi/API_NY.GSR.NFCY.CD_DS2_en_csv_v2_$pastyear.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 append using "`wb_macro_data'"
@@ -34,6 +34,7 @@ merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 	keep(master match) assert(match using) nogenerate
 
 // Identify currencies
+replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
 drop currency
 rename currency_iso currency

@@ -489,7 +489,6 @@ duplicates tag iso year widcode value, gen(dup)
 assert dup == 0
 drop dup 
 
-drop if year == 2020
 generate p = "pall"
 
 keep iso widcode p year value

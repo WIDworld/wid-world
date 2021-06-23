@@ -1,11 +1,11 @@
 // World and regions Aggregates in Both PPP & MER
-
+// Removed Syria because no PPP hence it cause missings at the regional levels XM XN
 
 clear all
 tempfile combined
 save `combined', emptyok
 
-global XN  AE AM AZ BH BY DZ EG IL IQ JO KW LB LY MA OM PS QA SA SY TN TR YE 
+global XN  AE AM AZ BH BY DZ EG IL IQ JO KW LB LY MA OM PS QA SA TN TR YE 
 global XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
 global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
 global QP  BM CA GL PM US 
@@ -22,7 +22,7 @@ global QF  AU NZ PG
 global QE  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QM  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
-global XM  AE BH EG IQ IR JO KW OM PS QA SA SY TR YE
+global XM  AE BH EG IQ IR JO KW OM PS QA SA TR YE
 global QJ  KG KZ TJ TM UZ 
 global QS  ID KH LA MM MY PH SG TH TL VN
 global QU  AF BD BT IN IR LK MV NP PK
@@ -158,7 +158,7 @@ drop _fillin
 
 // Interpolate missing percentiles
 bys iso year: ipolate a p, gen(x)
-replace a=x
+replace a = x
 drop x
 
 bys iso year: gen n = cond(_N == _n, 100000 - p, p[_n + 1] - p)

@@ -116,11 +116,13 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2020 // this year matches WEO source in calculate-price-index
+global year 2021 // this year matches WEO source in calculate-price-index
 				 // and calculate-national-accounts
-global pastyear 2019 // this year matches commands in gdp-vs-nni,
+global pastyear 2020 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
+global pastpastyear 2019 // only for WPP, needs to be changed every 2 years 
+						 // (changes made April 2021)
 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
 global plot_missing_nfi    0

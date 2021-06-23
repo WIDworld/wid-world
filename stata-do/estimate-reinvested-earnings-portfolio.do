@@ -497,8 +497,8 @@ replace value = value*ratio_equ_asset_row*ratio_equ_liabi_row
 gegen total = total(value), by(iso1 year)
 replace value = value/total
 
-// Tax haven-specific adjustment
-*replace value = value/10 if inlist(iso2, "KY", "AN", "MU", "BM", "LU", "SX", "CW")
+// Winsorize to avoid excessive adjustments
+winsor2 value, replace cuts(0 95) by(year)
 
 replace value = 0 if year == 1970
 

@@ -59,7 +59,7 @@ for (i in 1:n_tables) {
     cat(glue("--> {name}\n\n"))
 
     table <- tibble()
-    for (year in 1946:2019) {
+    for (year in 1946:2020) {
         cat(glue("* {year}..."))
 
         url <- glue(paste0("http://data.un.org/Handlers/DownloadHandler.ashx?",
