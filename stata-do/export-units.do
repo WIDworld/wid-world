@@ -34,7 +34,7 @@ replace currency = "STN" if currency == "STD"
 tempfile currencies
 save "`currencies'"
 
-use "$work_data/calculate-gini-coef-output.dta", clear
+use "$work_data/extrapolate-pretax-income-output.dta", clear
 append using "$work_data/add-carbon-series-output.dta"
 
 // Add Euro for German subregions

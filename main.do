@@ -296,7 +296,6 @@ do "$do_dir/add-carbon-series.do"
 // Create a folder for the timestamp
 capture mkdir "$output_dir/$time"
 capture mkdir "$output_dir/$time/metadata"
-capture mkdir "$output_dir/$time/grouped-countries"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"
