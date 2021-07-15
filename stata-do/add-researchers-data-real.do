@@ -43,18 +43,19 @@ append using "$wid_dir/Country-Updates/World_regions/regionstoreal.dta"
 // Middle East Aggregates in MER & PPP
 append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-MER.dta"
 append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-PPP.dta"
+drop data_* extrapolation
 
 // Europe (East & West) Countries and Aggregates
-append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta", force
+append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
 *drop if iso == "FR" & inlist(widcode, "scainc992j", "sdiinc992j", "sptinc992j") ///
 *	  & inlist(p, "p0p50", "p50p90", "p90p100", "p99p100") & inrange(year, 1980, 2019)
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER", "XF")
-append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta", force
+append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
 
 // Asia PovcalNet Real 
-append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_povcal_real.dta", force
+append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_povcal_real.dta"
 
 tempfile researchers
 save "`researchers'"

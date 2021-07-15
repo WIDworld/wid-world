@@ -63,9 +63,6 @@ drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
 // Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
 
-// US States 2017 (2018 update)
-append using "$wid_dir/Country-Updates/US_States/2018_July/us-states-frank2017-update2018.dta"
-
 // Chile 2018 (Flores2018)
 append using "$wid_dir/Country-Updates/Chile/2018_10/chile-flores2018.dta"
 drop if strpos(widcode, "ptinc") & iso == "CL" & author == "flores2018"
@@ -116,24 +113,26 @@ append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
 // Carbon Distribution - Chancel2021
 append using "$wid_dir/Country-Updates/Carbon/distribution/May_2021/carbon-distribution-2021.dta"
 
+// US States - update 2021
+append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-update2021.dta"
 // -----------------------------------------------------------------------------
 // 2020 - UPDATE 
 // -----------------------------------------------------------------------------
 *Middle East (Moshrif 2020)
-append using "$wid_dir/Country-Updates/Middle-East/2020/October/Final_current_ME.dta"
+append using "$wid_dir/Country-Updates/Middle-East/2020/October/MiddleEast2020.dta"
 *drop if iso == "EG" & author != "assouad2017" & substr(widcode, 1, 1) != "e"
 
 * Asia (MCY 2020)
-append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta", force
+append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta"
 
 *Wealth Aggregates (Bauluz & Brassac 2020)
-append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta", force
+append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
 
 *Russia (Neef2020)
-append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta", force
+append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
 
 *Africa (Robillard 2020)
-append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta"
+append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
 
@@ -149,7 +148,7 @@ append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 
 * Israel (Moshrif 2020)
-append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta", force
+append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
 
 // Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
 preserve
