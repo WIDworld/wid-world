@@ -1,7 +1,7 @@
 *! TB 07/07/2016
 
 *! year(2020) was changed to pastyear(2019) in the import command, bcz there is still no WPP 2020
-* once it is published, we have to switvh back to year 
+* once it is published, we have to switch back to year 
 
 // Both sexes, all ages ----------------------------------------------------- //
 
@@ -18,6 +18,29 @@ foreach v of varlist h-bz {
 		rename `v' value`year'
 	}
 }
+
+// Adding estimated year - Medium Variant - 2021
+preserve
+	import excel "$un_data/populations/wpp/WPP${pastpastyear}_totalpopulation_bothsexes.xlsx", ///
+		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+	// Correct column names
+	foreach v of varlist h-bz {
+		local year: var label `v'
+		if ("`year'" == "") {
+			drop `v'
+		}
+		else {
+			rename `v' value`year'
+		}
+	}
+
+	keep regionsubregioncountryorar notes countrycode type parentcode value2021	
+	
+	tempfile $year
+	save `$year'
+restore	
+
+merge 1:1 regionsubregioncountryorar notes countrycode type parentcode using `$year', nogen
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -53,6 +76,32 @@ foreach v of varlist i-ac {
 		rename `v' value`age'
 	}
 }
+// Adding estimated year - Medium Variant - 2021
+preserve
+	import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+			cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+		// Correct column names
+	foreach v of varlist i-ac {
+		destring `v', replace ignore("…")
+
+		local age: var label `v'
+		local age = subinstr("`age'", "-", "_", 1)
+		local age = subinstr("`age'", "+", "", 1)
+		if ("`age'" == "") {
+			drop `v'
+		}
+		else {
+			rename `v' value`age'
+		}
+	}
+
+	keep if referencedateasof1july == $year	
+	
+	tempfile age_$year
+	save `age_$year'
+restore	
+
+append using `age_$year'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -99,6 +148,33 @@ foreach v of varlist i-ac {
 		rename `v' value`age'
 	}
 }
+
+// Adding estimated year - Medium Variant - 2021
+preserve
+	import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+		// Correct column names
+	foreach v of varlist i-ac {
+		destring `v', replace ignore("…")
+
+		local age: var label `v'
+		local age = subinstr("`age'", "-", "_", 1)
+		local age = subinstr("`age'", "+", "", 1)
+		if ("`age'" == "") {
+			drop `v'
+		}
+		else {
+			rename `v' value`age'
+		}
+	}
+
+	keep if referencedateasof1july == $year	
+	
+	tempfile male_$year
+	save `male_$year'
+restore	
+
+append using `male_$year'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -155,6 +231,33 @@ foreach v of varlist i-ac {
 		rename `v' value`age'
 	}
 }
+
+// Adding estimated year - Medium Variant - 2021
+preserve
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+		// Correct column names
+	foreach v of varlist i-ac {
+		destring `v', replace ignore("…")
+
+		local age: var label `v'
+		local age = subinstr("`age'", "-", "_", 1)
+		local age = subinstr("`age'", "+", "", 1)
+		if ("`age'" == "") {
+			drop `v'
+		}
+		else {
+			rename `v' value`age'
+		}
+	}
+
+	keep if referencedateasof1july == $year	
+	
+	tempfile female_$year
+	save `female_$year'
+restore	
+
+append using `female_$year'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")

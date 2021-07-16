@@ -203,7 +203,7 @@ duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0
 drop duplicate
 
-save "$work_data/metadata-fina.dta", replace
+save "$work_data/metadata-final.dta", replace
 
 sort iso sixlet
 drop sixlet

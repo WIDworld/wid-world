@@ -46,7 +46,7 @@ rename valueNGDP_D def_imf
 
 drop if def_imf >= .
 
-drop if year>$pastyear
+drop if year>$year  // we are taking 2021 estimates
 
 rename def_imf def_weo
 
