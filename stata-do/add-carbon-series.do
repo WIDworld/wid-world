@@ -38,7 +38,8 @@ save `percapita'
 
 use "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta", clear
 append using "`percapita'"
-append using "$wid_dir/Country-Updates/Carbon/distribution/May_2021/carbon-distribution-2021.dta"
+append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
+keep iso year p widcode value
 
 duplicates tag iso year widcode p, gen(dup)
 assert dup == 0

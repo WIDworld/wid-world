@@ -153,6 +153,9 @@ restore
 use "`combined'", clear
 replace iso = substr(iso, 1, 2) if strpos(iso, "-PPP")
 
+// to be removed
+drop if year == 2020
+// 
 fillin iso year p
 drop _fillin
 

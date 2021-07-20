@@ -38,7 +38,7 @@ append using `kr'
 append using "$wid_dir/Country-Updates/World_regions/regionstoreal.dta"
 
 // -----------------------------------------------------------------------------
-// 2020 - UPDATE 
+// 2020 - UPDATE (to be 2021)
 // -----------------------------------------------------------------------------
 // Middle East Aggregates in MER & PPP
 append using "$wid_dir/Country-Updates/Middle-East/2020/October/XM-MER.dta"
@@ -52,7 +52,8 @@ append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER", "XF")
-append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
+*append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
+append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
 // Asia PovcalNet Real 
 append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_povcal_real.dta"

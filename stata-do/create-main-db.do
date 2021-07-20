@@ -59,10 +59,13 @@ replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
 
 duplicates drop iso year p widcode, force
 
-compress
 
 save "$work_data/wid-long.dta", replace
 append using "$work_data/add-carbon-series-output.dta"
+compress
+
+save "~/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace
+
 keep iso year p widcode value 
 
 rename iso Alpha2
@@ -70,6 +73,9 @@ rename p perc
 order Alpha2 year perc widcode
 
 export delim "$output_dir/$time/wid-data.csv", delimiter(";") replace
+
+timer off 1
+timer list 1
 
 // Reshape the dataset (long)------------------------------------------------------ //
 

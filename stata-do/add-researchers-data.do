@@ -4,7 +4,7 @@
 // -----------------------------------------------------------------------------
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
-
+timer on 1
 // Ivory Coast 2017 (Czajka2017)
 use "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta", clear
 append using "$wid_dir/Country-Updates/Ivory Coast/2019_Oct/ivory-coast-czajka2019.dta"
@@ -111,7 +111,7 @@ append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
 
 // Carbon Distribution - Chancel2021
-append using "$wid_dir/Country-Updates/Carbon/distribution/May_2021/carbon-distribution-2021.dta"
+append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
 
 // US States - update 2021
 append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-update2021.dta"
