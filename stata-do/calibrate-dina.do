@@ -38,11 +38,12 @@ sort iso year widcode p
 // -------------------------------------------------------------------------- //
 
 // Find widcodes with full distributions
-generate onelet = substr(widcode, 1, 1)
+generate onelet  = substr(widcode, 1, 1)
 generate fivelet = substr(widcode, 2, 5)
-generate age = substr(widcode, 7, 3)
-generate pop = substr(widcode, 10, 1)
+generate age     = substr(widcode, 7, 3)
+generate pop     = substr(widcode, 10, 1)
 
+drop if iso == "QD-MER"
 drop if missing(value)
 bys iso year widcode: egen num = nvals(p)
 keep if num >= 120 // A few complete distributions lack a few percentiles

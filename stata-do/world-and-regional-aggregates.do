@@ -66,8 +66,9 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 use "$work_data/clean-up-output.dta", clear
 
-replace widcode = "sptinc992j" if widcode == "sptinc992i" & inlist(iso, "AU", "NZ", "PG")
-replace widcode = "aptinc992j" if widcode == "aptinc992i" & inlist(iso, "AU", "NZ", "PG")
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if strpos(iso, "-")
+drop if iso == "WO"
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j")
 
@@ -153,11 +154,9 @@ restore
 use "`combined'", clear
 replace iso = substr(iso, 1, 2) if strpos(iso, "-PPP")
 
-// to be removed
-drop if year == 2020
-// 
 fillin iso year p
 drop _fillin
+drop if year == 2020 // temporary!
 
 // Interpolate missing percentiles
 bys iso year: ipolate a p, gen(x)
@@ -165,7 +164,7 @@ replace a = x
 drop x
 
 bys iso year: gen n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
-bysort iso year (p): assert !missing(a)
+bysort iso year (p): assert !missing(a) 
 
 // Compute thresholds shares topsh bottomsh
 keep year p a iso n

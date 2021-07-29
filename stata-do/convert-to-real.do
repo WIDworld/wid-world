@@ -45,7 +45,7 @@ tab iso if missing(index) & !inlist(iso, "CZ", "RU", "AU", "NZ", "CA", "ES") ///
 	& !is_region
 
 
-// Convert monetary series to real $pastyear LCU
+// Convert monetary series to real $year LCU
 
 // We do not convert World Regions because they do not have a price index.
 // They will be taken care of in calibrate-dina.do

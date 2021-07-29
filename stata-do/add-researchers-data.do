@@ -41,9 +41,6 @@ foreach x in aptinc992j bptinc992j sptinc992j tptinc992j {
 // France 2018 (Goupille2018, Gender series)
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
 
-// Gini coefficients (Gini_Gethin2018)
-*append using "$input_data_dir/gini-coefficients/gini-gethin2018.dta"
-
 // Czech Republic 2018 (Novokmet2018)
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
 drop if strpos(widcode, "fiinc") & (substr(widcode, -1, 1) == "i" | substr(widcode, -1, 1) == "t" ) & iso == "CZ"
@@ -119,8 +116,7 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-update2021
 // 2020 - UPDATE 
 // -----------------------------------------------------------------------------
 *Middle East (Moshrif 2020)
-append using "$wid_dir/Country-Updates/Middle-East/2020/October/MiddleEast2020.dta"
-*drop if iso == "EG" & author != "assouad2017" & substr(widcode, 1, 1) != "e"
+append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
 
 * Asia (MCY 2020)
 append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta"
@@ -148,16 +144,17 @@ append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 
 * Israel (Moshrif 2020)
-append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
+*append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
 
 // Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
+/*
 preserve
 	keep if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
 	save "$wid_dir/Country-Updates/World_regions/regionstoreal.dta", replace
 restore
 
 drop if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
-
+*/
 tempfile researchers
 save "`researchers'"
 

@@ -135,7 +135,8 @@ drop if iso == "DD"
 drop min
 
 // recompute average and bracket averages
-generate miss_a = 1 if missing(a)
+drop if missing(a) & year == 2020
+generate miss_a = 1 if missing(a) 
 replace miss_a = 0 if missing(miss_a)
 
 egen average = total(a*n/1e5), by(iso year)
