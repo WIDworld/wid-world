@@ -45,8 +45,8 @@ keep if p == "p0p100"
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
-replace xlceup999i = . if year != 2019
-replace xlceux999i = . if year != 2019
+replace xlceup999i = . if year != $year
+replace xlceux999i = . if year != $year
 
 egen xlceup999i2 = mean(xlceup999i), by(iso)
 egen xlceux999i2 = mean(xlceux999i), by(iso)

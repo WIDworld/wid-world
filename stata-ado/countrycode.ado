@@ -523,6 +523,8 @@ program countrycode, nclass
 			drop if (`varlist' == "Sub-Saharan Africa (IDA & IBRD countries)")
 			drop if (`varlist' == "Middle income")
 			drop if (`varlist' == "Pre-demographic dividend")
+			drop if (`varlist' == "Africa Eastern and Southern")
+			drop if (`varlist' == "Africa Western and Central")
 			
 			// Official codes
 			replace `generate' = "AD" if (`varlist' == "Andorra")
@@ -627,7 +629,7 @@ program countrycode, nclass
 			replace `generate' = "KI" if (`varlist' == "Kiribati")
 			replace `generate' = "KM" if (`varlist' == "Comoros")
 			replace `generate' = "KN" if (`varlist' == "St. Kitts and Nevis")
-			replace `generate' = "KP" if (`varlist' == "Korea, Dem. People’s Rep.")
+			replace `generate' = "KP" if (`varlist' == "Korea, Dem. People's Rep.")
 			replace `generate' = "KR" if (`varlist' == "Korea, Rep.")
 			replace `generate' = "KW" if (`varlist' == "Kuwait")
 			replace `generate' = "KY" if (`varlist' == "Cayman Islands")

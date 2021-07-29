@@ -3,12 +3,15 @@ library(glue)
 library(readr)
 
 df_all <- data.frame()
-for (year in 1999:2020) {
-    data <- fromJSON(glue("https://openexchangerates.org/api/historical/{year}-12-31.json?app_id=fe233264a30c4786ba7fc55d64cda2f7"))
+for (year in 1999:2021) {
+    data <- fromJSON(glue("https://openexchangerates.org/api/historical/{year}-06-30.json?app_id=fe233264a30c4786ba7fc55d64cda2f7"))
     df <- data.frame(currency = names(data$rates), lcu_to_usd = unlist(data$rates), year = year)
     df_all <- rbind(df_all, df)
 }
 
 rownames(df_all) <- NULL
 
-write_csv(df_all, "~/GitHub/wid-world/data-input/currency-rates/currencies-rates-2020.csv")
+write_csv(df_all, "~/Documents/GitHub/wid-world/data-input/currency-rates/currencies-rates-2021.csv")
+
+## return back this link by the end of the year as the above link is adjusted to half year of 2021 (RM - 29/07/2021)
+#data <- fromJSON(glue("https://openexchangerates.org/api/historical/{year}-12-31.json?app_id=fe233264a30c4786ba7fc55d64cda2f7"))

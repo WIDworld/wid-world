@@ -20,7 +20,7 @@ drop if (currency == "YUN")
 drop if (currency == "BYN")
 
 // Import exchange rates
-import delimited "$input_data_dir/currency-rates/currencies-rates-$pastyear.csv", clear delim(",") encoding("utf8")
+import delimited "$input_data_dir/currency-rates/currencies-rates-$year.csv", clear delim(",") encoding("utf8")
 drop if currency == "CYP"
 drop if currency == "CUP"
 *replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)
@@ -44,14 +44,14 @@ restore
 
 drop if currency == "EUR" 
 merge 1:n currency year using "`countries'"
-drop if (_merge != 3) & (currency != "YUN" | year != $pastyear)
+drop if (_merge != 3) & (currency != "YUN" | year != $year)
 drop _merge
 append using "`EUR'"
 
 tempfile merged
 save "`merged'" 
 
-keep if year == $pastyear
+keep if year == $year
 
 
 replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, April 2021
@@ -60,11 +60,11 @@ replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, A
 // Generate exchange rates with euro and yuan
 rename lcu_to_usd valuexlcusx999i
 // Exchange rate with euro
-quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == $pastyear), local(exchrate_eu) clean
+quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == $year), local(exchrate_eu) clean
 generate valuexlceux999i = valuexlcusx999i/`exchrate_eu'
 
 // Exchange rate with Yuan
-quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == $pastyear), local(exchrate_cn) clean
+quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == $year), local(exchrate_cn) clean
 generate valuexlcyux999i = valuexlcusx999i/`exchrate_cn'
 
 // Sanity checks
@@ -105,7 +105,7 @@ save "`somalia'"
 
 // WORLD BANK exchange rates for historical series
 // Import exchange rates series from the World Bank
-import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$pastyear.csv", ///
+import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$year.csv", ///
 clear encoding("utf8") rowrange(3) varnames(4) delim(",")
 
 // Rename year variables
@@ -114,20 +114,20 @@ foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'
 }
-cap drop value$pastyear
+cap drop value$year
 
 // Apply Euro area exchange rate to Euro area countries after 1999
 * Values are missing when country joins Euro, so one replaces all missing values
-local lastyear= $pastyear - 1
+local lastyear= $year - 1
 forval i=1999/`lastyear'{
-	gen x=value`i' if countryname=="Euro area"
+	gen x=value`i' if countryname == "Euro area"
 	egen e`i'=mean(x)
 	drop x
 	replace value`i'=e`i' if  (inlist(countryname, "Germany", "Austria", "Belgium", "Spain", "Finland", "France") ///
-						| inlist(countryname, "Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
-						| inlist(countryname, "Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
-						| inlist(countryname, "Latvia", "Lithuania")) ///
-						& value`i'==.
+						     | inlist(countryname, "Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
+						     | inlist(countryname, "Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
+						     | inlist(countryname, "Latvia", "Lithuania")) ///
+						     & value`i'==.
 }
 drop e*
 
@@ -143,6 +143,7 @@ merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 
 // Identify currencies
 replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
+replace currency = "democratic people's republic of korean won" if countryname == "Korea, Dem. People's Rep."  // compared to xrate from 2020, KP used to have the same xrate as KR from 1999 onwards
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
 
 drop currency
@@ -168,11 +169,11 @@ drop if currency == "EUR"    & iso == "EE" 			   & year<2011
 drop if currency == "EUR"    & iso == "LV" 			   & year<2014
 drop if currency == "EUR"    & iso == "LT" 			   & year<2015
 
-// Drop Syria before $pastyear (strange values)
-drop if inlist(iso, "SY") & (year<$pastyear)
+// Drop Syria before $year (strange values)
+drop if inlist(iso, "SY") & (year<$year)
 
 // Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
-replace value = 1 if inlist(iso,"SV","LR","ZW", "EC")
+replace value = 1 if inlist(iso, "SV", "LR", "ZW", "EC")
 
 append using "`xrate'"
 
@@ -200,16 +201,16 @@ replace value = 82.580278068470160 if iso == "NG" & year == 1998 & widcode == "x
 
 // VE: extrapolation using inflation rates after 2013
 drop if iso == "VE" & year > 2013
-expand ($pastyear - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
+expand ($year - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
 replace year = year + sum(new) if new
 drop new
 // Data from UN using forward PARE
-replace value = 8.34 if iso == "VE" & year == 2014
-replace value = 17.51 if iso == "VE" & year == 2015
-replace value = 73.00 if iso == "VE" & year == 2016
-replace value = 607.69 if iso == "VE" & year == 2017
-replace value = 388549.29 if iso == "VE" & year == 2018
-replace value = 76369942.28 if iso == "VE" & year == 2019
+replace value = 8.34                    if iso == "VE" & year == 2014
+replace value = 17.51                   if iso == "VE" & year == 2015
+replace value = 73.00                   if iso == "VE" & year == 2016
+replace value = 607.69                  if iso == "VE" & year == 2017
+replace value = 388549.29               if iso == "VE" & year == 2018
+replace value = 76369942.28             if iso == "VE" & year == 2019
 replace value = 76369942.28*24.25739753 if iso == "VE" & year == 2020
 
 // Introduction of the new Ouguiya in 2018
