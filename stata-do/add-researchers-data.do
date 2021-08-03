@@ -5,86 +5,59 @@
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
 timer on 1
-// Ivory Coast 2017 (Czajka2017)
-use "$wid_dir/Country-Updates/Ivory Coast/2017_July/ivory-coast-czajka2017.dta", clear
-append using "$wid_dir/Country-Updates/Ivory Coast/2019_Oct/ivory-coast-czajka2019.dta"
-replace source = source + `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
-		`"[URL_TEXT] Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"'
+// Ivory Coast 2017 (Czajka2017 + update 2020) - fiinc & ptinc series
+use "$wid_dir/Country-Updates/Ivory_Coast/2021_July/ivory_coast_Jul2021.dta", clear
 
-// UK 2017 (Alvaredo2017)
-append using "$wid_dir/Country-Updates/UK/2017/August/uk-income-alvaredo2017.dta"
-drop if iso=="GB" & strpos(widcode,"ptinc")>0
+// UK 2017 (Alvaredo2017) - fiinc series
+append using "$wid_dir/Country-Updates/UK/2017_August/UK_fiinc_Aug2017.dta"
 
-// Brazil 2017 (Morgan2017)
-append using "$wid_dir/Country-Updates/Brazil/2018/January/brazil-morgan2017.dta"
-drop if strpos(widcode, "ptinc") & iso == "BR" & author == "morgan2017"
+// Brazil 2017 (Morgan2017) - fiinc series
+append using "$wid_dir/Country-Updates/Brazil/2018_January/BR_fiinc_Jan2018.dta"
 
-// UK wealth 2017 (Alvaredo2017)
+// UK 2017 (Alvaredo2017) - Wealth series
 append using "$wid_dir/Country-Updates/UK/2017/June/uk-wealth-alvaredo2017.dta"
 
-// Russia 2017 (NPZ2017)
+// Russia 2017 (NPZ2017) - macro series & wealth and fiinc distribution series
 append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
-drop if strpos(widcode, "ptinc") & iso == "RU" & author == "npz2017"
 
-// Hungary 2017 (Mosberger2017)
+// Hungary 2017 (Mosberger2017) - few macro series & fiinc series
 append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2017.dta"
 
+// Poland 2017 (Novokmet2017) - fiinc series
+append using "$wid_dir/Country-Updates/Poland/2021_July/poland_fiinc_novokmet2017.dta"
 
-// Poland 2017 (Novokmet2017)
-append using "$wid_dir/Country-Updates/Poland/2017/December/poland-novokmet2017.dta"
-drop if iso == "PL" & year>=1992
-append using "$wid_dir/Country-Updates/Poland/2019_05/poland-novokmet2017-update2019.dta"
-foreach x in aptinc992j bptinc992j sptinc992j tptinc992j {
-	replace widcode = substr(widcode, 1, 1) + "fi" + substr(widcode, 4, .) if iso == "PL"
-}
+// Czech Republic 2018 (Novokmet2018) - fiinc series
+append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
 
-// France 2018 (Goupille2018, Gender series)
+// Bulgaria 2018 (Novokmet2018) - fiinc series
+append using "$wid_dir/Country-Updates/Bulgaria/2018/March/bulgaria-novokmet2018.dta"
+
+// Slovenia and Croatia 2018 (Novokmet 2018) - fiinc series
+append using "$wid_dir/Country-Updates/Croatia/2018/April/croatia_slovenia-novokmet2018.dta"
+
+// France 2018 (Goupille2018) - Gender series
 append using "$wid_dir/Country-Updates/France/2018/January/france-goupille2018-gender.dta"
 
-// Czech Republic 2018 (Novokmet2018)
-append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
-drop if strpos(widcode, "fiinc") & (substr(widcode, -1, 1) == "i" | substr(widcode, -1, 1) == "t" ) & iso == "CZ"
+// Chile 2018 (Flores2018) - fiinc series
+append using "$wid_dir/Country-Updates/Chile/2018_October/chile-flores2018.dta"
 
-// Poland top shares 2018 (Novokmet2017)
-append using "$wid_dir/Country-Updates/Poland/2018/March/poland-topshares-novokmet2017.dta"
-
-// Bulgaria 2018 (Novokmet2018) - fiinc and ptinc have the same values
-append using "$wid_dir/Country-Updates/Bulgaria/2018/03/bulgaria-novokmet2018.dta"
-drop if iso=="BG" & strpos(widcode,"ptinc")>0
-
-// Slovenia and Croatia 2018 (Novokmet 2018) - fiinc and ptinc have the same values
-append using "$wid_dir/Country-Updates/Croatia/2018/04/croatia_slovenia-novokmet2018.dta"
-drop if iso=="SI" & author=="novokmet2018_si" & strpos(widcode,"ptinc")>0
-drop if iso=="HR" & author=="novokmet2018_hr" & strpos(widcode,"ptinc")>0
-
-// Czech 2018 (Novokmet2018_Gpinter) - we have transformed ptinc to fiinc in the import do-file
-append using "$wid_dir/Country-Updates/Czech_Republic/2018/June/czech-novokmet2018-gpinter.dta"
-
-// Chile 2018 (Flores2018)
-append using "$wid_dir/Country-Updates/Chile/2018_10/chile-flores2018.dta"
-drop if strpos(widcode, "ptinc") & iso == "CL" & author == "flores2018"
-
-// Korea 2018 (Kim2018), except for gdp and nni who had to be imported in constant LCU
+// Korea 2018 (Kim2018) - wealth & fiinc series / gdp & nni cstt LCU imported in add-researchers-real.do 
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 
-// India wealth 2018 (Bharti2018)
+// India 2018 (Bharti2018) - wealth series
 append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 
-// Thailand 2018 (Jenmana2018)
-*append using "$wid_dir/Country-Updates/Thailand/2018/November/thailand-jenmana2018.dta"
+// India 2019 - wealth-income ratios & macro series (Kumar2019)
+append using "$wid_dir/Country-Updates/India/2019_April/india-kumar2019.dta"
+drop if iso == "IN" & author == "kumar2019" & inlist(widcode,"npopul999i") & year>1947
 
-// Belgium 2019 (Decoster2019)
+// Belgium 2019 (Decoster2019) - fiinc series
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
-// India 2019, wealth-income ratios (Kumar2019)
-append using "$wid_dir/Country-Updates/India/2019_04/india-kumar2019.dta"
-drop if iso=="IN" & author=="chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
-drop if iso=="IN" & author=="kumar2019" & inlist(widcode,"npopul999i") & year>1947
-
-// Greece 2019 (Chrissis2019)
+// Greece 2019 (Chrissis2019) - fiinc series
 append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
 
-// Netherlands 2019 update (Salverda2019)
+// Netherlands 2019 (Salverda2019) - fiinc series
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
 //correct the reference by adding "Cogneau" + source for ZA
@@ -96,65 +69,50 @@ replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-an
 	if iso == "ZA"
 replace method = "" if iso == "ZA"
 
-// South Africa 2020 - ccg2020
-append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-ccg2020.dta"
-drop if iso == "ZA" & (substr(widcode, -1, 1) == "c" | substr(widcode, -1, 1) == "k" ) & author == "ccg2020"
-replace widcode = "mp" + substr(widcode, 3, .) if substr(widcode, 1, 2) == "mh" & iso == "ZA"
+// South Africa 2020 (ccg2020) - wealth distribution series
+append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
 
-//French Colonies - ACP2020
+// French Colonies[Cameroon, Algeria, Tunisia, Vietnam] (ACP2020) - fiinc series
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 
-// Carbon Macro - Chancel&Burq2021
+// Carbon Macro (Chancel&Burq2021) - macro series
 append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
 
-// Carbon Distribution - Chancel2021
+// Carbon Distribution (Chancel2021) - distribution series
 append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
 
-// US States - update 2021
-append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-update2021.dta"
-// -----------------------------------------------------------------------------
-// 2020 - UPDATE 
-// -----------------------------------------------------------------------------
-*Middle East (Moshrif 2020)
+// US States (frank2021 & update 2021) - fiinc series
+append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dta"
+
+// Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series
 append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
 
-* Asia (MCY 2020)
+// Asia (MCY 2020) - ongoing
 append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta"
 
-*Wealth Aggregates (Bauluz & Brassac 2020)
-append using "$wid_dir/Country-Updates/Wealth_aggregates/Macro_wealth_2020.dta"
-
-*Russia (Neef2020)
+// Russia (Neef2020) - ongoing 
 append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
 
-*Africa (Robillard 2020)
+// Africa (Robillard 2020) - ongoing
 append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
 
-*India (Chancel 2020)
+// India (Chancel 2020) - ongoing
 append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
-drop if iso == "IN" & author == "chancel2018" & inlist(widcode,"anninc992i","mnninc999i")
-drop if iso == "IN" & author == "kumar2019" & inlist(widcode,"npopul999i") & year>1947
+drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
+drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
-* Australia, New Zealand & Canada (Matt 2020)
+// Australia, New Zealand & Canada (Matt 2020) - ongoing
 append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 
-* US (Zucman 2020)
+// US (Zucman 2020) - ongoing
 append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 
-* Israel (Moshrif 2020)
-*append using "$wid_dir/Country-Updates/Israel/2020_10/Israel2020.dta"
+// Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countrirs) - wealth macro series 
+append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
-// Exclude World regions to be insert it back in add-researchers-data-real.do, to solve the convert to real issue
-/*
-preserve
-	keep if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
-	save "$wid_dir/Country-Updates/World_regions/regionstoreal.dta", replace
-restore
 
-drop if inlist(iso, "QB", "XF", "QK", "QN", "QO", "QT", "QV", "QD", "QD-MER")
-*/
 tempfile researchers
 save "`researchers'"
 

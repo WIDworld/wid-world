@@ -53,9 +53,9 @@ use "$work_data/calculate-gini-coef-output.dta", clear
 drop if strpos(iso, "XQ")
 
 // Round up some variables
-replace value = round(value, 0.1) if inlist(substr(widcode,1,1),"a","t")
-replace value = round(value, 1) if inlist(substr(widcode,1,1),"m","n")
-replace value = round(value, 0.0001) if inlist(substr(widcode,1,1),"s")
+replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
+replace value = round(value, 1)      if inlist(substr(widcode, 1, 1), "m", "n")
+replace value = round(value, 0.0001) if inlist(substr(widcode, 1, 1), "s")
 
 duplicates drop iso year p widcode, force
 
@@ -69,10 +69,10 @@ save "~/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace
 keep iso year p widcode value 
 
 rename iso Alpha2
-rename p perc
+rename p   perc
 order Alpha2 year perc widcode
 
-export delim "$output_dir/$time/wid-data.csv", delimiter(";") replace
+export delim "$output_dir/$time/wid-data$time.csv", delimiter(";") replace
 
 timer off 1
 timer list 1
