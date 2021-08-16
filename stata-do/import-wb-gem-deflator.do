@@ -15,6 +15,7 @@ rename _var1 country
 
 replace country = "Macedonia, FYR" if country == "North Macedonia"
 replace country = "Swaziland"      if country == "Eswatini"
+*replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
 countrycode country, generate(iso) from("wb gem")
 drop country
 

@@ -20,8 +20,15 @@ foreach v of varlist ppp_oecd ppp_wb {
 }
 drop ppp_oecd ppp_wb
 drop if ppp >= .
-replace ppp_src = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' if (ppp_src == "ppp_wb")
-replace ppp_src = `"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "' if (ppp_src == "ppp_oecd")
+
+replace ppp_src = ///
+`"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' ///
+if (ppp_src == "ppp_wb")
+
+replace ppp_src = ///
+`"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "' ///
+if (ppp_src == "ppp_oecd")
+
 generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(year) + ") using the evolution of the price index relative to the reference country"
 
 // Add one data from the IMF for Taiwan (only source available)
@@ -31,8 +38,9 @@ replace iso = "TW" in l
 replace year = 2017 in l
 replace ppp = 14.7 in l
 replace ppp_method = "We extrapolate the PPP from its 2017 value using the evolution of the price index relative to the reference country" in l
-replace ppp_src = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' in l
+replace ppp_src = ///
+`"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK]"' + ///
+`"[URL_TEXT]IMF World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' in l
 
 replace currency = "TWD" in l
 
@@ -115,8 +123,9 @@ replace ppp = gdp/`gdp_ppp_qy' if (iso == "YU")
 keep if iso == "YU"
 generate currency = "YUN"
 generate ppp_method = "We define a PPP so that the GDP in 1990 matches the sum of its successor states"
-generate ppp_src = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' + ///
-	`"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "'
+generate ppp_src = ///
+`"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' + ///
+`"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "'
 keep iso year ppp ppp_src ppp_method currency
 
 append using "`ppp'"
@@ -135,16 +144,17 @@ save "`index'"
 import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$year.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
 
-drop if na_item!="Gross domestic product at market prices"
+drop if na_item != "Gross domestic product at market prices"
 destring value, ignore(":") replace
 split time, parse("Q")
 destring time1, generate(year)
 collapse (mean) value, by(year)
 keep if !missing(value)
-quietly levelsof value if _n==_N, local(indexyear)
+quietly levelsof value if _n == _N, local(indexyear)
 replace value = value/`indexyear'
 rename value index
 generate iso = "EA"
+
 append using "`index'"
 save "`index'", replace
 
@@ -195,6 +205,7 @@ use "`xlcusp'", clear
 append using "`xlceup'"
 append using "`xlcyup'"
 drop if iso == "EA" // Drop Euro area
+
 save "$work_data/ppp-metadata.dta", replace
 restore
 

@@ -1,12 +1,12 @@
-use "$work_data/extrapolate-wid-1980-output.dta", clear
+use "$work_data/extrapolate-wid-forward-output.dta", clear
 
 // Use KV rather than KS for Kosovo
 *replace iso = "KV" if iso == "KS"
 // Make sure that we haven't created duplicates in the process
-duplicates drop iso year widcode p if iso == "KS", force
+*duplicates drop iso year widcode p if iso == "KS", force
 
 // Generate average fiscal incomes based on total income controls
-keep if inlist(substr(widcode,1,3),"afi","mfi","nta") & p=="pall"
+keep if inlist(substr(widcode, 1, 3), "afi", "mfi", "nta") & p == "pall"
 keep iso year widcode p value
 greshape wide value, i(iso year p) j(widcode) string
 renpfix value
@@ -20,11 +20,12 @@ keep iso year p afiinc*
 renvars afiinc*, pref(value)
 greshape long value, i(iso year p) j(widcode) string
 drop if mi(value)
+
 tempfile fisc_avg
 save `fisc_avg'
 
-use "$work_data/extrapolate-wid-1980-output.dta", clear
-drop if substr(widcode,1,6)=="afiinc" & p=="pall"
+use "$work_data/extrapolate-wid-forward-output.dta", clear
+drop if substr(widcode, 1, 6) == "afiinc" & p == "pall"
 append using `fisc_avg'
 
 // Generate a- variables based on o- variables
@@ -61,6 +62,7 @@ save "`data'"
 
 // Compute average fiscal percentile incomes
 keep if strpos(widcode,"fiinc")>0
+
 tempfile fiscal
 save "`fiscal'"
 
@@ -70,6 +72,7 @@ greshape wide value, i(iso widcode p p_min p_max) j(year)
 renvars value*, presub("value" "mean")
 drop p
 replace widcode = substr(widcode,2,.)
+
 tempfile averages
 save "`averages'"
 
@@ -78,6 +81,7 @@ keep if strpos(widcode,"sfiinc")>0
 greshape wide value, i(iso widcode p p_min p_max) j(year)
 renvars value*, presub("value" "share")
 replace widcode = substr(widcode,2,.)
+
 tempfile shares
 save "`shares'"
 
@@ -96,6 +100,7 @@ greshape long value, i(iso widcode p) j(year)
 drop if mi(value)
 sort iso year widcode p value
 replace widcode = "a" + widcode
+
 tempfile fiscal_averages
 save "`fiscal_averages'"
 
@@ -115,23 +120,24 @@ sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
 by iso year widcode: egen sum=sum(value2)
-assert inrange(sum,0.99,1.01) if !inlist(iso, "TL")  
+assert inrange(sum,0.99,1.01) /* if !inlist(iso, "TL")  */
 drop sum
 
 preserve
-expand 2 if !missing(value2), generate(new)
-replace value = value2 if new
+	expand 2 if !missing(value2), generate(new)
+	replace value = value2 if new
 
-replace p_max = p_min + 1000 if new & inrange(p_min, 0, 98000)
-replace p_max = p_min + 100  if new & inrange(p_min, 99000, 99800)
-replace p_max = p_min + 10   if new & inrange(p_min, 99900, 99980)
-replace p_max = p_min + 1    if new & inrange(p_min, 99990, 99999)
-replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if new
-drop value2 new
-keep iso year p widcode value
-gduplicates drop iso year widcode p, force
-tempfile gperc_shares
-save "`gperc_shares'"
+	replace p_max = p_min + 1000 if new & inrange(p_min, 0, 98000)
+	replace p_max = p_min + 100  if new & inrange(p_min, 99000, 99800)
+	replace p_max = p_min + 10   if new & inrange(p_min, 99900, 99980)
+	replace p_max = p_min + 1    if new & inrange(p_min, 99990, 99999)
+	replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if new
+	drop value2 new
+	keep iso year p widcode value
+	gduplicates drop iso year widcode p, force
+	
+	tempfile gperc_shares
+	save "`gperc_shares'"
 restore
 
 // Percentile groups
@@ -172,6 +178,7 @@ append using "`groups'"
 replace widcode = substr(widcode, 2, .)
 generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
 generate long p_max = round(1000*real(regexs(2))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
+
 tempfile average_shares
 save "`average_shares'"
 
@@ -197,21 +204,22 @@ merge 1:1 iso year widcode p using "`average_shares'", nogenerate update replace
 // Change database structure: remove pX percentiles and expand thresholds
 * Make thresholds-percentiles combinations match those of shares
 preserve
-keep if substr(widcode, 1 , 1)=="t" | substr(widcode, 1, 1)=="s"
-replace value=. if substr(widcode, 1, 1)=="s"
-replace widcode = "t" + substr(widcode, 2, .) if substr(widcode, 1, 1)=="s"
-split p, parse(p)
-destring p2 p3, replace force
-bys iso year widcode p2: egen val=mean(value)
-drop if mi(val)
-drop if mi(p3)
-replace value=val
-drop p1 p2 p3 val
-tempfile thres
-save "`thres'"
+	keep if substr(widcode, 1 , 1) == "t" | substr(widcode, 1, 1) == "s"
+	replace value = . if substr(widcode, 1, 1) == "s"
+	replace widcode = "t" + substr(widcode, 2, .) if substr(widcode, 1, 1) == "s"
+	split p, parse(p)
+	destring p2 p3, replace force
+	bys iso year widcode p2: egen val = mean(value)
+	drop if mi(val)
+	drop if mi(p3)
+	replace value = val
+	drop p1 p2 p3 val
+	
+	tempfile thres
+	save "`thres'"
 restore
 
-drop if substr(widcode, 1, 1)=="t"
+drop if substr(widcode, 1, 1) == "t"
 append using "`thres'"
 
 // Drop top averages
@@ -273,7 +281,7 @@ save "$work_data/clean-up-output.dta", replace
 
 
 
-
+etime
 
 
 

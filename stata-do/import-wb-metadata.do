@@ -23,6 +23,7 @@ replace countryname = "Korea, Dem. People’s Rep." if (countryname == "Korea, D
 replace countryname = "Sao Tome and Principe" if (countryname == "São Tomé and Principe")
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland" if countryname == "Eswatini"
+replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
 
 replace currency = "swaziland lilangeni" if currency == "Swazi lilangeni"
 

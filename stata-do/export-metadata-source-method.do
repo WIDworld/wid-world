@@ -58,42 +58,42 @@ replace data_imputation = "rescaling" if method == "Fiscal income rescaled to ma
 
 preserve
 
-use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
+	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
 
-drop if construction == "Merge"
-drop if construction == "Extrapolated"
-drop if construction == "Interpolation"
-drop if construction == "Imputed"
-drop if construction == ""
-drop construction
+	drop if construction == "Merge"
+	drop if construction == "Extrapolated"
+	drop if construction == "Interpolation"
+	drop if construction == "Imputed"
+	drop if construction == ""
+	drop construction
 
-*drop if inlist(iso, "ZA", "CI")
+	*drop if inlist(iso, "ZA", "CI")
 
-sort iso year
-by iso: generate j = _n
-reshape wide year, i(iso) j(j)
+	sort iso year
+	by iso: generate j = _n
+	reshape wide year, i(iso) j(j)
 
-generate data_points = ""
-foreach v of varlist year* {
-	replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
-	replace data_points = string(`v')                     if !missing(`v') & data_points == ""
-}
-egen min_year = rowmin(year*)
-replace min_year = min(min_year, 1990)
-drop year*
-replace data_points = "[" + data_points + "]"
-generate extrapolation = "[[1980 , $pastyear]]"
-*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
-drop min_year
+	generate data_points = ""
+	foreach v of varlist year* {
+		replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
+		replace data_points = string(`v')                     if !missing(`v') & data_points == ""
+	}
+	egen min_year = rowmin(year*)
+	replace min_year = min(min_year, 1990)
+	drop year*
+	replace data_points = "[" + data_points + "]"
+	generate extrapolation = "[[1980 , $pastyear]]"
+	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
+	drop min_year
 
-expand 2
-sort iso
-generate sixlet = ""
-by iso: replace sixlet = "sptinc" if _n == 1
-by iso: replace sixlet = "aptinc" if _n == 2
+	expand 2
+	sort iso
+	generate sixlet = ""
+	by iso: replace sixlet = "sptinc" if _n == 1
+	by iso: replace sixlet = "aptinc" if _n == 2
 
-tempfile africa_extra
-save "`africa_extra'"
+	tempfile africa_extra
+	save "`africa_extra'"
 
 restore
 

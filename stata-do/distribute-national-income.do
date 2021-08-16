@@ -11,8 +11,8 @@ use "$work_data/calculate-per-capita-series-output.dta", clear
 
 drop currency
 
-generate sixlet = substr(widcode, 1, 6)
-generate pop = substr(widcode, 7, 3)
+generate sixlet  = substr(widcode, 1, 6)
+generate pop     = substr(widcode, 7, 3)
 generate vartype = substr(widcode, 10, 1)
 
 drop widcode
@@ -40,16 +40,16 @@ use "$work_data/calculate-per-capita-series-output.dta", clear
 
 drop currency
 
-generate onelet = substr(widcode, 1, 1)
+generate onelet  = substr(widcode, 1, 1)
 generate fivelet = substr(widcode, 2, 5)
-generate pop = substr(widcode, 7, 3)
+generate pop     = substr(widcode, 7, 3)
 generate vartype = substr(widcode, 10, 1)
 
 keep if fivelet == "fiinc" & inlist(onelet, "a", "t")
 
 merge n:1 iso year using "`factor'", nogenerate keep(match)
 
-replace value = value*factor
+replace value   = value*factor
 replace fivelet = "ptinc"
 replace widcode = onelet + fivelet + pop + vartype
 
@@ -76,8 +76,8 @@ use "$work_data/calculate-per-capita-series-output.dta", clear
 
 drop currency
 
-generate sixlet = substr(widcode, 1, 6)
-generate pop = substr(widcode, 7, 3)
+generate sixlet  = substr(widcode, 1, 6)
+generate pop     = substr(widcode, 7, 3)
 generate vartype = substr(widcode, 10, 1)
 
 keep if sixlet == "mfiinc"

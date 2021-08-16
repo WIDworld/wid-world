@@ -130,7 +130,7 @@ preserve
 	}
 	keep if keep == 1
 
-
+	levelsof iso
 	drop if missing(a)
 	gsort year -a_`y' 
 	by year: generate rank = sum(pop)
@@ -156,7 +156,6 @@ replace iso = substr(iso, 1, 2) if strpos(iso, "-PPP")
 
 fillin iso year p
 drop _fillin
-drop if year == 2020 // temporary!
 
 // Interpolate missing percentiles
 bys iso year: ipolate a p, gen(x)

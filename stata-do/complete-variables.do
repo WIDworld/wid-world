@@ -2,14 +2,14 @@ use "$work_data/add-researchers-data-real-output.dta", clear
 
 keep if (substr(widcode, 1, 3) == "mnw")
 
-reshape wide value, i(iso year p) j(widcode) string
+reshape wide value, i(iso year p currency) j(widcode) string
 
 replace valuemnwhou = valuemnwdwe + valuemnwlan if missing(valuemnwhou)
 replace valuemnwbus = valuemnwagr + valuemnwodk + cond(missing(valuemnwnat), 0, valuemnwnat) if missing(valuemnwbus)
 
 replace valuemnwnfa = valuemnwhou + valuemnwbus if missing(valuemnwnfa)
 
-reshape long value, i(iso year p) j(widcode) string
+reshape long value, i(iso year p currency) j(widcode) string
 drop if missing(value)
 
 tempfile completed

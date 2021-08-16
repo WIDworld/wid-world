@@ -74,9 +74,7 @@ order Alpha2 year perc widcode
 
 export delim "$output_dir/$time/wid-data$time.csv", delimiter(";") replace
 
-timer off 1
-timer list 1
-
+etime
 // Reshape the dataset (long)------------------------------------------------------ //
 
 /*

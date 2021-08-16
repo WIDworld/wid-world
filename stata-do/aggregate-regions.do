@@ -1,3 +1,7 @@
+// ---------------------------------------------------- //
+* 	Aggregates macro variables
+// ---------------------------------------------------- //
+
 use "$work_data/add-populations-output.dta", clear
 
 // Store PPP and exchange rates as an extra variable
@@ -90,9 +94,9 @@ drop if strlen(iso) > 2
 */
 // Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
 sort region2 iso year, stable
-by region2: egen num1=nvals(year) if inlist(region2, "Caribbean")
-by region2 iso: egen num2=nvals(year) if inlist(region2, "Caribbean")
-drop if num1!=num2
+by region2 :     egen num1=nvals(year) if inlist(region2, "Caribbean")
+by region2 iso : egen num2=nvals(year) if inlist(region2, "Caribbean")
+drop if num1 != num2
 drop num1 num2
 
 // Drop current year
@@ -100,7 +104,7 @@ drop if year==$year
 
 // Drop Saint-Helena because problematic and doesn't appear in the website/in WID data
 
-drop if inlist(iso,"SH","PM","FK","GI","VA","NU","TK","WF")
+drop if inlist(iso, "SH", "PM", "FK", "GI", "VA", "NU", "TK", "WF")
 
 // Check that the composition of groups does not change over time
 preserve
@@ -255,3 +259,4 @@ generate method = "WID.world aggregations of individual country data"
 
 append using "$work_data/metadata-no-duplicates.dta"
 save "$work_data/aggregate-regions-metadata-output.dta", replace
+

@@ -211,7 +211,8 @@ replace value = 73.00                   if iso == "VE" & year == 2016
 replace value = 607.69                  if iso == "VE" & year == 2017
 replace value = 388549.29               if iso == "VE" & year == 2018
 replace value = 76369942.28             if iso == "VE" & year == 2019
-replace value = 76369942.28*24.25739753 if iso == "VE" & year == 2020
+replace value = 76369942.28*24.55146    if iso == "VE" & year == 2020
+replace value = 76369942.28*56.000046   if iso == "VE" & year == 2021 // à vérifier
 
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"

@@ -4,12 +4,12 @@
 // -----------------------------------------------------------------------------
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
-timer on 1
+etime, start
 // Ivory Coast 2017 (Czajka2017 + update 2020) - fiinc & ptinc series
 use "$wid_dir/Country-Updates/Ivory_Coast/2021_July/ivory_coast_Jul2021.dta", clear
 
-// UK 2017 (Alvaredo2017) - fiinc series
-append using "$wid_dir/Country-Updates/UK/2017_August/UK_fiinc_Aug2017.dta"
+// UK 2021 (alvaredo2017&AST2021) - fiinc series
+append using "$wid_dir/Country-Updates/UK/2021_August/UK-fiinc-Aug2021.dta"
 
 // Brazil 2017 (Morgan2017) - fiinc series
 append using "$wid_dir/Country-Updates/Brazil/2018_January/BR_fiinc_Jan2018.dta"
@@ -25,6 +25,9 @@ append using "$wid_dir/Country-Updates/Hungary/2017/September/hungary-mosberger2
 
 // Poland 2017 (Novokmet2017) - fiinc series
 append using "$wid_dir/Country-Updates/Poland/2021_July/poland_fiinc_novokmet2017.dta"
+
+// Germany 2017 (Bartles2017 & update 2021) - fiinc series
+append using "$wid_dir/Country-Updates/Germany/2021_August/germany-fiinc-Aug2021.dta"
 
 // Czech Republic 2018 (Novokmet2018) - fiinc series
 append using "$wid_dir/Country-Updates/Czech_Republic/2018/March/czech-novokmet2018.dta"
@@ -54,32 +57,14 @@ drop if iso == "IN" & author == "kumar2019" & inlist(widcode,"npopul999i") & yea
 // Belgium 2019 (Decoster2019) - fiinc series
 append using "$wid_dir/Country-Updates/Belgium/2019_02/belgium-decoster2019.dta"
 
-// Greece 2019 (Chrissis2019) - fiinc series
-append using "$wid_dir/Country-Updates/Greece/2019_04/greece-chrissis2019.dta"
+// Greece 2019 (chrissis2019&Kout2021) - fiinc series
+append using "$wid_dir/Country-Updates/Greece/2021_August/greece-fiinc-2021.dta"
 
 // Netherlands 2019 (Salverda2019) - fiinc series
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
-//correct the reference by adding "Cogneau" + source for ZA
-replace source = `"[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/"' + ///
-	`"[/URL_LINK][URL_TEXT]Chancel, Cogneau, Gethin & Myczkowski (2019), How large are African Inequalities? Towards Distributional National Accounts in Africa (1990-2017)[/URL_TEXT][/URL]; "' ///
-	if source == "[URL][URL_LINK]http://wid.world/document/cgm2019-full-paper/[/URL_LINK][URL_TEXT]Chancel, Gethin & Myczkowski (2019)[/URL_TEXT][/URL]; "
-replace source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/"' + ///
-	`"[/URL_LINK][URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
-	if iso == "ZA"
-replace method = "" if iso == "ZA"
-
-// South Africa 2020 (ccg2020) - wealth distribution series
-append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
-
 // French Colonies[Cameroon, Algeria, Tunisia, Vietnam] (ACP2020) - fiinc series
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
-
-// Carbon Macro (Chancel&Burq2021) - macro series
-append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
-
-// Carbon Distribution (Chancel2021) - distribution series
-append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
 
 // US States (frank2021 & update 2021) - fiinc series
 append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dta"
@@ -87,14 +72,14 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dt
 // Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series
 append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
 
-// Asia (MCY 2020) - ongoing
-append using "$wid_dir/Country-Updates/Asia/2020/October/Asia_nominal_2020.dta"
+// Asia (MCY 2020) - many macro variables + fiinc + ptinc series
+append using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021.dta"
 
-// Russia (Neef2020) - ongoing 
+// Russia (Neef 2020) - ongoing 
 append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
 
-// Africa (Robillard 2020) - ongoing
-append using "$wid_dir/Country-Updates/Africa/2020_10/Africa2020.dta" // data_quality added in metadata do.file
+// Africa (ccgm & Robillard 2021) - ptinc
+append using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
 
@@ -109,9 +94,19 @@ append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
 // US (Zucman 2020) - ongoing
 append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 
+// South Africa 2020 (ccg2020) - wealth distribution series
+append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
+
 // Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countrirs) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
+// Carbon Macro (Chancel&Burq2021) - macro series
+append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
+
+// Carbon Distribution (Chancel2021) - distribution series
+append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
+
+compress, nocoalesce 
 
 tempfile researchers
 save "`researchers'"
@@ -119,7 +114,7 @@ save "`researchers'"
 // -----------------------------------------------------------------------------
 // CREATE METADATA
 // -----------------------------------------------------------------------------
-
+/* */
 // Save metadata
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method data_quality data_imputation data_points extrapolation
@@ -132,7 +127,7 @@ gduplicates drop iso sixlet, force
 
 tempfile meta
 save "`meta'"
-
+/* */
 // -----------------------------------------------------------------------------
 // ADD DATA TO WID
 // -----------------------------------------------------------------------------
@@ -140,65 +135,67 @@ save "`meta'"
 use "$work_data/calculate-average-over-output.dta", clear
 drop if inlist(iso, "NZ", "AU", "CA", "ID", "SG", "TW")
 
-gen oldobs = 1
+generate oldobs = 1
 
 append using "`researchers'"
-replace oldobs=0 if oldobs!=1
 
-drop if iso == "ES" & year == 1900 & missing(value) & p == "pall"
+replace p = "p0p100" if p == "pall"
+replace oldobs = 0 if missing(oldobs)
+
+*drop if iso == "ES" & year == 1900 & missing(value) & p == "p0p100"
 
 // Drop old rows available in new data
 gduplicates tag iso year p widcode, gen(dup)
 drop if dup & oldobs
 
 // US 2017: drop specific widcodes
-drop if (inlist(widcode,"ahweal992j","shweal992j","afainc992j","sfainc992j","aptinc992j") ///
-	| inlist(widcode,"sptinc992j","adiinc992j","sdiinc992j","npopul992i","mhweal992j") ///
-	| inlist(widcode,"mfainc992j","mfainc992j","mptinc992j","mdiinc992j","mnninc999i") ///
-	| inlist(widcode,"mgdpro999i","mnnfin999i"/*,"inyixx999i"*/,"mconfc999i")) ///
-	& (iso=="US") & (oldobs==1)
+drop if (inlist(widcode, "ahweal992j", "shweal992j", "afainc992j", "sfainc992j", "aptinc992j") ///
+	   | inlist(widcode, "sptinc992j", "adiinc992j", "sdiinc992j", "npopul992i", "mhweal992j") ///
+	   | inlist(widcode, "mfainc992j", "mfainc992j", "mptinc992j", "mdiinc992j", "mnninc999i") ///
+	   | inlist(widcode, "mgdpro999i", "mnnfin999i", "mconfc999i")) ///
+	   & (iso=="US") & (oldobs==1)
 
 // Bauluz 2017 updates: drop all old series (widcode-years combinations), except for "n" and "i" where we fill gaps
 preserve
-	keep if author=="Bauluz2020"
+	keep if author == "BBM2021"
 	keep iso widcode
 	duplicates drop
-	gen todrop=1
+	gen todrop = 1
+	
 	tempfile todrop
 	save "`todrop'"
 restore
 merge m:1 iso widcode using "`todrop'", assert(master matched) nogen
 
-drop if todrop==1 & author!="Bauluz2020" & !inlist(substr(widcode,1,1),"n","i")
+drop if todrop == 1 & author!= "BBM2021" & !inlist(substr(widcode, 1, 1), "n", "i")
 
-gduplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
-drop if usdup & iso=="US" & author!="Bauluz2020"
+*gduplicates tag iso year widcode p, gen(usdup) // solve conflict between bauluz and psz2017 (npopul, inyixx)
+*drop if usdup & iso == "US" & author!= "BBM2021"
 
 // India 2017: drop duplicates and old fiscal income data
-drop if substr(widcode, 2, 5)=="fiinc" & oldobs==1 & iso=="IN"
+drop if substr(widcode, 2, 5) == "fiinc" & oldobs == 1 & iso == "IN"
 
 // Korea 2018: drop all old variables present in updates
-drop if iso=="KR" & oldobs==1 ///
-	& (inlist(widcode,"aficap992i", "afidiv992i", "afiinc992i", "afiinc999i", "afiint992i") ///
-	| inlist(widcode,"afilin992i","ahweal992i","bfiinc992i","inyixx999i","mcwboo999i","mcwdeb999i","mcwdeq999i","mcwfin999i") ///
-	| inlist(widcode,"mcwnfa999i","mcwres999i","mcwtoq999i","mfiinc999i","mhweal999i","mnwboo999i","mnweal999i","npopul992i") ///
-	| inlist(widcode,"npopul999i","sfiinc992i","shweal992i","tfiinc992i","thweal992i"))
+drop if iso == "KR" & oldobs == 1 ///
+	& (inlist(widcode, "aficap992i", "afidiv992i", "afiinc992i", "afiinc999i", "afiint992i") ///
+	 | inlist(widcode, "afilin992i", "ahweal992i", "bfiinc992i", "inyixx999i", "mcwboo999i", "mcwdeb999i", "mcwdeq999i", "mcwfin999i") ///
+	 | inlist(widcode, "mcwnfa999i", "mcwres999i", "mcwtoq999i", "mfiinc999i", "mhweal999i", "mnwboo999i", "mnweal999i", "npopul992i") ///
+	 | inlist(widcode, "npopul999i", "sfiinc992i", "shweal992i", "tfiinc992i", "thweal992i"))
 
 // Drop old Malaysian top shares (fiinc992i)
 drop if iso == "MY" & strpos(widcode, "fiinc992i")>0
 
-replace p="pall" if p=="p0p100"
 
 // Drop widcodes from previous ZA to be replaced with ccg2020
-drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
-drop  if (substr(widcode, 1, 3) == "mpw" ) & iso == "ZA" & oldobs == 1 & author != "ccg2020" & widcode != "mpwodk999i"
+*drop if (widcode == "npopul992i"| widcode == "npopul999i" | widcode == "mnninc999i" ) & iso == "ZA" & author != "ccg2020"
+*drop if (substr(widcode, 1, 3) == "mpw" ) & iso == "ZA" & oldobs == 1 & author != "ccg2020" & widcode != "mpwodk999i"
 
 gduplicates tag iso year p widcode, gen(duplicate)
-assert duplicate==0
+assert duplicate == 0
 
 keep iso year p widcode currency value
 sort iso year p widcode
-drop if mi(value)
+drop if missing(value)
 
 // Remove carbon data (macro & distribution) as it will be performed separately
 drop if substr(widcode, 1, 1) == "l" | substr(widcode, 1, 1) == "e" 

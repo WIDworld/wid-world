@@ -273,6 +273,9 @@ do "$do_dir/correct-bottom20.do"
 // Extrapolate backwards income distribution up to 1980 for ALL countries
 do "$do_dir/extrapolate-wid-1980.do"
 
+// Extrapolate forward to $year/$pastyear
+do "$do_dir/extrapolate-wid-forward.do"
+
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 

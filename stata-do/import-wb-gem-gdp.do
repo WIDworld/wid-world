@@ -26,6 +26,7 @@ replace country = "Korea, Rep."          if country == "Korea Rep."
 replace country = "Macedonia, FYR"       if country == "Macedonia FYR"
 replace country = "Slovakia"             if country == "Slovak Republic"
 replace country = "Taiwan, China"        if country == "Taiwan China"
+replace country = "Korea, Dem. People's Rep." if country == "Korea, Dem. People’s Rep."
 drop if country == "Maldives"
 
 countrycode country, generate(iso) from("wb gem")

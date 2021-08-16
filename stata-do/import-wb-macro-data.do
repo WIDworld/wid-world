@@ -25,6 +25,7 @@ foreach v of varlist v* {
 
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland"      if countryname == "Eswatini"
+replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
 
 // Identify countries
 countrycode countryname, generate(iso) from("wb")

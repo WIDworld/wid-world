@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------- //
-// Extrapolate backwards up to 1980
+// Extrapolate onwards to $year/$pastyear
 // -------------------------------------------------------------------------- //
 
 
@@ -12,7 +12,7 @@ save `combined', emptyok
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
-use "$work_data/correct-bottom20-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "pall"
@@ -33,7 +33,7 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/correct-bottom20-output.dta", clear
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
 drop if strpos(iso, "-")
 drop if substr(iso, 1, 1) == "X"
@@ -80,156 +80,76 @@ rename valuetptinc992j t
 // Interpolation missing years in between with uncontinuous series
 // -------------------------------------------------------------------------- //
 
-// Interpolate missing years for CI & BN
-bys iso: egen min = min(year) 
 bys iso: egen max = max(year) 
 fillin iso year p 
 drop _fillin 
-
-bys iso : egen x = mode(min)
-replace min = x
-drop x
 
 bys iso : egen x = mode(max)
 replace max = x
 drop x
 
-gsort iso year p
-bys iso p : ipolate a year if inlist(iso, "BN", "CI", "RU"), gen(x)
-replace a = x if missing(a)
-drop x
-
 // -------------------------------------------------------------------------- //
-// Drop countries with distribution beyond 1980 & Focus on those in need of retropolation
+// Extrapolate onwards for all countries up to $year/$pastyear
 // -------------------------------------------------------------------------- //
-gsort iso year p
 
+gsort iso year p
+merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 drop if missing(a) & year<1980
 
-levelsof iso if min > 1980 , local(group1) // extrap, no -ve aptinc
+levelsof iso  if max == 2019 , local(group1) // extrap, no -ve aptinc
 
 gen keep = 0
-	foreach q in `group1' SG RU {
+	foreach q in `group1' {
 		replace keep = 1 if iso == "`q'"	
 	}
 	keep if keep == 1
-
-// -------------------------------------------------------------------------- //
-// Extrapolate backwards all countries up to 1980
-// -------------------------------------------------------------------------- //
-
-// Extrapolate backwards bracket shares to fill in countries with no distribution data up to 1980
-gsort iso year p
-merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
-
-replace s = (a*n/1e5)/anninc992i if !missing(a)
-
-// Extrapolate the bracket shares backwards
+drop keep
+// Extrapolate the bracket shares onwards
 gsort iso year p
 bys iso year : replace n = p[_n+1]-p
 bys iso year : replace n = n[_n-1] if p == 99999
-bys iso year : generate x = s if year == min
+bys iso year : generate x = s if year == max
 bys iso p : egen x2 = mode(x)
 sort iso p year 
-replace s = x2 if missing(s) /* & /* !inlist(iso, "JP", "KR") */ */
+replace s = x2 if missing(s) & max == 2019 & year == $pastyear /* & /* !inlist(iso, "JP", "KR") */ */
 drop x*  
 
 sort iso p year 
 
-drop if iso == "DD"
-drop min max
-
 // recompute average and bracket averages
 *drop if missing(a) /* & year == 2020 */
-generate miss_a = 1 if missing(a) 
+generate miss_a = 1 if missing(a) & max == 2019 & year == $pastyear
 replace miss_a = 0 if missing(miss_a)
 
 egen average = total(a*n/1e5), by(iso year)
 
 replace a = a/average*anninc992i
 
-replace a = (s/n*1e5)*anninc992i if missing(a)
+replace a = (s/n*1e5)*anninc992i if missing(a) & max == 2019 & year == $pastyear
 drop if missing(a) // this is only for JP & KR between 1980-89
-
 
 sort iso year p
 by iso year: replace t = (a[_n - 1] + a)/2 if miss_a == 1 
 by iso year: replace t = (a[_n - 1] + a)/2 if t<0
 by iso year: replace t = min(0, 2*a) if missing(t) & miss_a == 1 
 
-drop miss_a
+drop if iso == "DD"
+drop miss_a max
 // -------------------------------------------------------------------------- //
 // Verification : Bracket Averages are increasing across percentiles + Sol.
 // -------------------------------------------------------------------------- //
-
-* 1 - bracket averages are not increasing
-gsort iso year p
-
-	* -> Solution : re-rank the percentiles
-
-
-// Fix Order of percentiles
-
-keep year p a t iso n
-gsort iso year p
-bys iso year : generate order = _n
-
-preserve
-  gsort iso year p 
-  keep iso year p order
-  tempfile p 
-  save `p'
-restore 
-sort iso year a
-drop p order
-bys iso year : generate order = _n
-
-
-merge 1:1 iso year order using `p', nogenerate
-drop order
-
-by iso year: replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if t>a /* & round(a,1) != 0 */
-by iso year: replace t = min(0, 2*a) if missing(t) 
-
-// Fix repeated bracket averages
-* 2 - Bracket averages might be stagnant; test bracketavg equality
-gsort iso year p
-
-by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
-//
-gen a2 = a
-//
-gsort iso year p
-bys iso year (p): generate miss = 1 if round(a[_n+1],1)==round(a,1) & p[_n + 1] > p 
-replace miss = 1 if round(a,1)==round(a[_n - 1],1)
-replace miss = . if inlist(p, 0, 99999)  
-replace miss = . if round(a,1) == 0
-
-replace a = . if miss == 1
-
-gsort iso year p
-bys iso year : ipolate a p, gen(x)
-replace a = x if missing(a)
-drop miss x a2 
-
-
-
 // Compute thresholds shares topsh bottomsh
 * Verification code
-bysort iso year (p): assert !missing(t) 
+bysort iso year (p): assert !missing(t) if iso != "IN"
 
 gsort iso year p
 
-bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 
-bysort iso year (p): assert a[_n + 1] != a if round(a,1) != 0 
+*bysort iso year (p): assert a[_n + 1] >= a if round(a,1) != 0 
+*bysort iso year (p): assert a[_n + 1] != a if round(a,1) != 0 
 bysort iso year (p): assert !missing(a) 
 
 
 by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
-
-egen average = total(a*n/1e5), by(iso year)
-
-generate s = a*n/1e5/average
 
 gsort iso year -p
 by iso year : generate ts = sum(s)
@@ -327,17 +247,14 @@ duplicates drop iso year p widcode, force
 tempfile all
 save `all'
 
-// Add the extrapolation data
+use "$work_data/extrapolate-wid-1980-output.dta", clear
 
-use "$work_data/correct-bottom20-output.dta", clear
-
-merge 1:1 iso year p widcode using "`all'", update nogenerate
+merge 1:1 iso year p widcode using "`all'", update nogen
 
 gduplicates tag iso year p widcode, gen(dup)
 assert dup == 0
 drop dup
 
-save "$work_data/extrapolate-wid-1980-output.dta", replace
-
+save "$work_data/extrapolate-wid-forward-output.dta", replace
 
 
