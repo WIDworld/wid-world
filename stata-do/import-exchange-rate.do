@@ -135,6 +135,7 @@ drop e*
 // Identify countries
 replace countryname = "Swaziland"      if countryname == "Eswatini"
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
+replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
 countrycode countryname, generate(iso) from("wb")
 
 // Add currency from the metadata
