@@ -282,6 +282,9 @@ do "$do_dir/clean-up.do"
 //Compute World and Regional Aggregates
 do "$do_dir/world-and-regional-aggregates.do"
 
+// Compute Top10/Bottom50 ratio 
+do "$do_dir/calculate-top10bot50-ratio.do"
+
 // Compute Pareto coefficients
 do "$do_dir/calculate-pareto-coef.do"
 

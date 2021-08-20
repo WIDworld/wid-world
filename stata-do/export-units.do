@@ -56,12 +56,12 @@ rename symbol currency_symbol
 rename name currency_name
 
 // Expand for all types (variable first letter)
-expand 18
+expand 19
 sort iso
 generate nobs = _n
 generate type = ""
 local i 0
-foreach c in a b c f g h i n s t m o p w x e k l {
+foreach c in a b c f g h i n s t m o p w x e k l r {
 	replace type = "`c'" if mod(nobs, 18) == `i'
 	local i = `i' + 1
 }
@@ -85,6 +85,7 @@ replace metadata = `"{"unit":"share"}"' if inlist(type, "c", "s")
 replace metadata = `"{"unit":"local currency per foreign currency"}"' if (type == "x")
 replace metadata = `"{"unit":"CO2 emissions or CO2 equivalent"}"' if (inlist(type, "e", "k"))
 replace metadata = `"{"unit":"tCO2 equivalent/cap"}"' if (type == "l")
+replace metadata = `"{"unit":"Ratio of Top 10% average income to Bottom 50% average income"}"' if (type == "r")
 
 keep iso type metadata
 

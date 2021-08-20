@@ -9,13 +9,13 @@ save `combined', emptyok
 global QB  AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TN TZ UG ZA ZM ZW ZZ 
 // QC
 global QD  AE AF AM AZ BD BH BN BT BY CN GE HK ID IL IN IQ IR JO JP KG KH KP KR KW KZ LA LB LK MM MN MO MV MY NP OM PH PK PS QA RU SA SY SG TH TJ TL TM TR TW UA UZ VN YE  
-global QE  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
+global QE  AL BA BG CY CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QF  AU NZ PG 
 // QG QH QI
 global QJ  KG KZ TJ TM UZ 
 global QK  BI DJ ER ET KE KM MG MU MW MZ RW SC SO TZ UG ZM ZW ZZ
 // QL
-global QM  AL BA BG CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
+global QM  AL BA BG CY CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
 global QN  AO CD CF CG CM GA GQ ST TD
 global QO  DZ EG EH LY MA SD SS TN
 global QP  BM CA GL PM US 
@@ -29,15 +29,26 @@ global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QY  AT BE BG CS CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IM IT JE LT LU LV MS MT NL PL PT RO SE SI SK XI YU 
 
 global XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
+global XB  AS AU BM CA CK FJ FM GL GU KI MH MP NC NR NU NZ PF PM PW SB TK TO TV US VU WF WS // NEW
 global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
 global XL  AG AI AN AR AW BB BO BR BS BZ CL CO CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS MX NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI 
 global XM  AE BH EG IQ IR JO KW OM PS QA SA TR YE
-global XN  AE AM AZ BH BY DZ EG IL IQ JO KW LB LY MA OM PS QA SA TN TR YE 
-global XR  RU UA BY GE AM AZ 
+global XN  AE BH DZ EG EH IL IQ IR JO KW LB LY MA OM PS QA SA SY TN TR YE 
+global XR  AM AZ BY GE KG KZ RU TJ TM UA UZ // NEW  
+global XS  AF BD BN BT ID IN KH LA LK MM MV MY NP PG PH PK SG TH TL VN // NEW  
+
+global OA  AM AZ BY GE KG KZ TJ TM UA UZ // NEW  
+global OB  HK KP KR MN MO TW // NEW
+global OC  AD BE CH DD DK FI FO GI GR IE IM IS LI LU MC MT NL NO PT SM VA XI // NEW
+global OD  AG AI AN AR AW BB BO BS BZ CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI // NEW
+global OE  AE BH EH IL IQ IR JO KW LB LY MA OM PS QA SA SY TN YE 
+global OH  AS CK FJ FM GU KI MH MP NC NR NU PF PW SB TK TO TV VU WF WS // NEW 
+global OI  BN BT KH LA LK MM MV MY NP PH PK SG TH TL VN // NEW 
+global OJ  AO BF BI BJ BW CD CF CG CI CM CV DJ ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZM ZW ZZ // NEW
 
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
 
-global all  QB QD QE QF QJ QK QM QN QO QP QS QT QU QV QW QX QY XA XF XL XM XN XR
+global all  QB QD QE QF QJ QK QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OH OI OJ
 
 // ******************************************* //
 
@@ -190,6 +201,7 @@ gsort iso year -p
 by iso year  : generate ts = sum(s)
 by iso year  : generate ta = sum(a*n)/(1e5 - p)
 bys iso year : generate bs = 1 - ts
+bys iso year : generate ba = (s/(1-p/100000))*average
 
 tempfile all 
 save `all'
@@ -251,10 +263,31 @@ preserve
 	tempfile bottom
 	save `bottom'	
 restore
+preserve
+	use `all', clear
+	keep year iso  p ba
+	replace p = p/1000
+	bys year iso  (p) : gen p2 = p[_n+1]
+	replace p2 = 100 if p2 == .
+	gen perc = "p"+string(p)+"p"+string(p2)
+	drop p p2
+
+	rename perc    p
+	keep if (p == "p50p51" | p == "p90p91")
+	reshape wide ba, i(iso  year) j(p) string
+	rename bap50p51 valuep0p50
+	rename bap90p91 valuep0p90
+	bys iso  year : gen valuep50p90 = valuep0p90 - valuep0p50
+	reshape long value, i(iso  year) j(p) string
+	gen widcode = "aptinc992j"
+
+	tempfile bottomavg
+	save `bottomavg'	
+restore
 
 append using `top'
 append using `bottom'
-
+append using `bottomavg'
 
 duplicates drop iso  year p widcode, force
 
@@ -268,30 +301,46 @@ save `final'
 replace widcode = substr(widcode, 1, 6)
 rename widcode sixlet
 generate source = ""
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-in-the-middle-east-world-inequality-lab-technical-note-2020-06/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Moshrif, “Regional DINA update for Middle East” (2020)[/URL_TEXT][/URL]"' if (iso == "XN" | iso == "XN-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-in-the-middle-east-world-inequality-lab-technical-note-2020-06/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Moshrif, “Regional DINA update for Middle East” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XN" | iso == "XN-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"' if (iso == "XF" | iso == "XF-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XF" | iso == "XF-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/whats-new-about-income-inequality-data-in-asia-world-inequality-lab-technical-note-2020-08/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Yang, “Regional DINA Update for Asia” (2020)[/URL_TEXT][/URL]"' if (iso == "XA" | iso == "XA-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/whats-new-about-income-inequality-data-in-asia-world-inequality-lab-technical-note-2020-08/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Yang, “Regional DINA Update for Asia” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XA" | iso == "XA-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-the-russian-federation-world-inequality-lab-technical-note-2020-05/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Neef, “Regional DINA update for Russia”(2020)[/URL_TEXT][/URL]"' if (iso == "XR" | iso == "XR-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-the-russian-federation-world-inequality-lab-technical-note-2020-05/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Neef, “Regional DINA update for Russia”(2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XR" | iso == "XR-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' if (iso == "QF" | iso == "QF-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "QF" | iso == "QF-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' if (iso == "QP" | iso == "QP-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "QP" | iso == "QP-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-series-for-latin-america-world-inequality-lab-technical-note-2020-02/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Updated by Mauricio De Rosa, Ignacio Flores and Marc Morgan, “Regional DINA update for Latin America”(2020)[/URL_TEXT][/URL]"' if (iso == "XL" | iso == "XL-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-series-for-latin-america-world-inequality-lab-technical-note-2020-02/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Mauricio De Rosa, Ignacio Flores and Marc Morgan, “Regional DINA update for Latin America”(2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XL" | iso == "XL-MER")
 
-replace source = `"[URL][URL_LINK]http://wordpress.wid.world/document/update-of-global-income-inequality-estimates-on-wid-world-world-inequality-lab-technical-note-2020-11/[/URL_LINK]"' + ///
-		`"[URL_TEXT]Chancel and Moshrif, “Update of global income inequality estimates on WID.world” (2020)[/URL_TEXT][/URL]"' ///
- if (iso == "WO" | iso == "WO-MER")
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/update-of-global-income-inequality-estimates-on-wid-world-world-inequality-lab-technical-note-2020-11/[/URL_LINK]"' + ///
+`"[URL_TEXT]Chancel and Moshrif, “Update of global income inequality estimates on WID.world” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "WO" | iso == "WO-MER")
+
 generate data_quality = 3
 
 tempfile meta 
@@ -300,13 +349,15 @@ save `meta'
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 
 drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
-	| inlist(iso,"WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
-	| inlist(iso,"QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
-	| inlist(iso,"XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
-	| inlist(iso,"XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
+	| inlist(iso, "WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
+	| inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
+	| inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
+	| inlist(iso, "QY", "QY-MER") ///
+	| inlist(iso, "XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
 append using "`meta'", force
 
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
+
 //-----Append-------//
 
 use "$work_data/clean-up-output.dta", clear
@@ -318,6 +369,7 @@ drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QB", "QD", "QD-MER", "QK", "QN") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QO", "QT", "QV") 
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QY", "QY-MER") 
 append using `final'
 
 save "$work_data/World-and-regional-aggregates-output.dta", replace

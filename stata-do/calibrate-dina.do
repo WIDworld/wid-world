@@ -44,7 +44,7 @@ generate age     = substr(widcode, 7, 3)
 generate pop     = substr(widcode, 10, 1)
 
 drop if iso == "QD-MER"
-drop if iso == "CZ"
+*drop if iso == "CZ"
 drop if missing(value)
 bys iso year widcode: egen num = nvals(p)
 keep if num >= 120 // A few complete distributions lack a few percentiles
@@ -199,7 +199,7 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
-	!(fivelet == "ptinc" & inlist(iso, "CZ") & inrange(year, 1990, 2014)) // No overall income available, just shares
+	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
 /*
 tab iso year if changes == 0 & ///
 	!(substr(fivelet, 1, 2) == "hw") & ///

@@ -139,7 +139,7 @@ generate oldobs = 1
 
 append using "`researchers'"
 
-replace p = "p0p100" if p == "pall"
+replace p = "pall" if p == "p0p100"
 replace oldobs = 0 if missing(oldobs)
 
 *drop if iso == "ES" & year == 1900 & missing(value) & p == "p0p100"

@@ -71,9 +71,16 @@ keep iso year p widcode value
 rename iso Alpha2
 rename p   perc
 order Alpha2 year perc widcode
-
-export delim "$output_dir/$time/wid-data$time.csv", delimiter(";") replace
-
+//
+*keep if inlist(Alpha2, "KS") 
+*levelsof widcode, local(x)
+//
+*foreach l in `x' {
+*preserve
+*keep if widcode == "`l'"
+export delim "$output_dir/$time/wid-data_$time.csv", delimiter(";") replace
+*restore 
+*}
 etime
 // Reshape the dataset (long)------------------------------------------------------ //
 
