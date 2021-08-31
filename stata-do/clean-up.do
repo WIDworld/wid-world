@@ -119,8 +119,8 @@ assert r(r)==127
 sort iso year widcode p_min
 by iso year widcode: generate value2 = value - cond(missing(value[_n + 1]), 0, value[_n + 1]) ///
 	if (substr(widcode, 1, 1) == "s")
-by iso year widcode: egen sum=sum(value2)
-assert inrange(sum,0.99,1.01) /* if !inlist(iso, "TL")  */
+by iso year widcode: egen sum = sum(value2)
+assert inrange(sum, 0.99, 1.01) /* if !inlist(iso, "TL")  */
 drop sum
 
 preserve
@@ -247,7 +247,7 @@ append using "`toq'"
 gduplicates drop
 
 // Add fiscal averages to database
-drop if strpos(widcode,"afiinc")>0
+drop if strpos(widcode, "afiinc")>0
 append using "`fiscal_averages'"
 
 // Add quality of data availability index to the database
@@ -281,7 +281,6 @@ save "$work_data/clean-up-output.dta", replace
 
 
 
-etime
 
 
 

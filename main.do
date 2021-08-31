@@ -249,6 +249,9 @@ do "$do_dir/aggregate-regions-wir2018.do"
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
 
+// Add Wealth distribution 
+do "$do_dir/add-wealth-distribution.do"
+
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
 

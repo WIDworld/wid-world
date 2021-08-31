@@ -37,7 +37,7 @@ replace quality = data_quality if quality != data_quality & data_quality != ""
 replace quality = "4" if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
 replace data_quality = quality if data_quality == ""
 replace data_quality = "" if quality == ""
-assert data_quality != "" if strpos(sixlet, "ptinc") & !strpos(iso, "Q")
+assert data_quality != "" if strpos(sixlet, "ptinc") & !(substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q" | substr(iso, 1, 1) == "O")
 assert data_quality != "" if strpos(sixlet, "diinc")
 assert data_quality != "" if strpos(sixlet, "cainc")
 drop quality 
@@ -250,7 +250,7 @@ order alpha2 twolet threelet method source data_quality imputation extrapolation
 
 save "$work_data/metadata-final.dta", replace
 
-export delimited "$output_dir/$time/metadata/var-notes.csv", replace delimiter(";") quote
+export delimited "$output_dir/$time/metadata/var-notes-$time.csv", replace delimiter(";") quote
 
 
 

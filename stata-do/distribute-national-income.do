@@ -121,12 +121,12 @@ use "`averages'", clear
 append using "`shares'"
 append using "`aggregates'"
 
-gen x=1 if widcode=="aptinc992j"
-bys iso: egen has_j=total(x)
+gen x=1 if widcode == "aptinc992j"
+bys iso: egen has_j = total(x)
 drop if has_j>0 ///
-	& substr(widcode,2,5)=="ptinc" ///
-	& strpos(widcode,"ptinc992j")==0 ///
-	& !inlist(iso,"FR")
+	& substr(widcode,2,5) == "ptinc"    ///
+	& strpos(widcode, "ptinc992j") == 0 ///
+	& !inlist(iso, "FR")
 drop x has_j
 
 keep iso widcode

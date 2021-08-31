@@ -78,7 +78,7 @@ order Alpha2 year perc widcode
 *foreach l in `x' {
 *preserve
 *keep if widcode == "`l'"
-export delim "$output_dir/$time/wid-data_$time.csv", delimiter(";") replace
+export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 *restore 
 *}
 etime

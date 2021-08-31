@@ -14,9 +14,6 @@
 // France inequality 2017 (GGP2017)
 use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
 
-// US wealth inequality 2017 (PSZ2017)
-*append using "$wid_dir/Country-Updates/US/2017/September/PSZ2017-AppendixII.dta"
-
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
 append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
 drop if inlist(iso,"QE","QE-MER")
@@ -34,24 +31,16 @@ restore
 drop if iso == "KR"
 append using `kr'
 
-// Add regions back (dropped from add-researchers-data)
-*append using "$wid_dir/Country-Updates/World_regions/regionstoreal.dta"
-
 // -----------------------------------------------------------------------------
 // 2020 - UPDATE (to be 2021)
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
 append using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021.dta"
-*append using "$wid_dir/Country-Updates/Europe/2020_10/Europe2020.dta"
-*drop if iso == "FR" & inlist(widcode, "scainc992j", "sdiinc992j", "sptinc992j") ///
-*	  & inlist(p, "p0p50", "p50p90", "p90p100", "p99p100") & inrange(year, 1980, 2019)
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER", "XF")
-*append using "$wid_dir/Country-Updates/Latin_America/2020/October/LatinAmercia2020.dta"
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
-
 
 compress, nocoalesce 
 
@@ -86,18 +75,15 @@ append using "$work_data/aggregate-regions-wir2018-output.dta", generate(oldobs)
 drop if strpos(widcode, "fiinc") & (iso == "DE") & (oldobs == 1)
 
 // France 2017: drop specific widcodes
-drop if (inlist(widcode,"ahwbol992j","ahwbus992j","ahwcud992j","ahwdeb992j","ahweal992j") ///
-	   | inlist(widcode,"ahwequ992j","ahwfie992j","ahwfin992j","ahwfix992j","ahwhou992j") ///
-	   | inlist(widcode,"ahwnfa992j","ahwpen992j","bhweal992j","ohweal992j","shweal992j","thweal992j") ///
+drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///
+	   | inlist(widcode, "ahwequ992j", "ahwfie992j", "ahwfin992j", "ahwfix992j", "ahwhou992j") ///
+	   | inlist(widcode, "ahwnfa992j", "ahwpen992j", "bhweal992j", "ohweal992j", "shweal992j", "thweal992j") ///
 	   | substr(widcode, 2, 2) == "fi") ///
-	   & (iso == "FR") & (oldobs==1)
+	   & (iso == "FR") & (oldobs == 1)
 
 replace p = "pall" if p == "p0p100"
 
 // Drop old duplicated wid data
-*duplicates tag iso year p widcode, gen(dup)
-*drop if dup & oldobs==1
-
 gduplicates tag iso year p widcode if iso == "CZ", gen(duplicate)
 drop if duplicate == 1 & iso == "CZ" & oldobs == 1 & author != "bcg2020"
 drop duplicate
@@ -110,7 +96,7 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 
 // ----------------------------------------------------------------------------------------------------------------
 // COMBINE NA AND DISTRIBUTIONAL METADATAS
-// -----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
 
 use "$work_data/aggregate-regions-wir2018-metadata-output.dta", clear
 drop if iso == "CN" & mi(source) & inlist(sixlet,"xlcusx","xlcyux")

@@ -283,6 +283,7 @@ save "`calibrated'"
 // Make a list of calibrated country/year/widcodes
 keep iso year widcode
 gduplicates drop
+
 tempfile calibrated_widcodes
 save "`calibrated_widcodes'"
 

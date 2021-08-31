@@ -20,6 +20,7 @@ drop if strpos(iso, " ")
 drop if strpos(iso, "-MER")
 drop if substr(iso, 1, 1) == "X"
 drop if substr(iso, 1, 1) == "Q" & iso != "QA"
+drop if substr(iso, 1, 1) == "O" & iso != "OM"
 drop if inlist(iso, "WO", "Al", "SW")
 
 // Regions (PPP)
@@ -27,11 +28,11 @@ append using "$work_data/import-region-codes-output.dta"
 // Regions (MER)
 append using "$work_data/import-region-codes-mer-output.dta"
 
-replace titlename = subinstr(titlename, "Russia and Ukraine", "Russia and Others", 1)
-replace shortname = subinstr(shortname, "Russia and Ukraine", "Russia and Others", 1)
+*replace titlename = subinstr(titlename, "Russia and Ukraine", "Russia and Others", 1)
+*replace shortname = subinstr(shortname, "Russia and Ukraine", "Russia and Others", 1)
 
 
-drop matchname
+drop matchname region4 region5
 rename iso Alpha2
 rename titlename TitleName
 rename shortname ShortName
@@ -43,14 +44,14 @@ assert TitleName != ""
 assert ShortName != ""
 
 // Check that all countries are in a region
-assert region != "" if !inrange(Alpha2, "QB", "QZ") & !inlist(Alpha2, "WO", "XM") ///
-					& !inlist(Alpha2,"XA","XF","XL","XN","XR") ///
-					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.)!="-MER")
-assert region2 != "" if !inrange(Alpha2, "QB", "QZ") & !inlist(Alpha2, "WO", "XM") ///
-					& !inlist(Alpha2,"XA","XF","XL","XN","XR") ///
-					& !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.)!="-MER")
+assert region  != "" if !(inrange(Alpha2, "QB", "QZ") | Alpha2 == "WO"  | inrange(Alpha2, "OA", "OJ") ///
+			           | inrange(Alpha2, "XA", "XF") | inrange(Alpha2, "XL", "XS")) ///
+					  & !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.) != "-MER")
+assert region2 != "" if !(inrange(Alpha2, "QB", "QZ") | Alpha2 == "WO"  | inrange(Alpha2, "OA", "OJ") ///
+			          | inrange(Alpha2, "XA", "XF") | inrange(Alpha2, "XL", "XS")) ///
+					  & !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.) != "-MER")
 
-drop if Alpha2=="KS"
+drop if Alpha2 == "KV"
 sort Alpha2
 
 export delimited "$output_dir/$time/metadata/country-codes.csv", delimit(";") replace
