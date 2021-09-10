@@ -6,7 +6,7 @@ use "$work_data/add-populations-output.dta", clear
 
 // Store PPP and exchange rates as an extra variable
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == $pastyear
+keep if year == $year
 keep iso widcode value
 duplicates drop iso widcode, force
 reshape wide value, i(iso) j(widcode) string
@@ -39,24 +39,30 @@ merge n:1 iso using "`pppexc'", nogenerate
 // Add regions
 merge n:1 iso using "$work_data/import-country-codes-output", ///
 	nogenerate assert(match using) keep(match) keepusing(region*)
-	
+*drop region4 region5 // temporary
+replace region5 = "" if inlist(region5, "Eastern Asia", "Europe")
+drop if region4 == "Other Eastern Europe"
 // Add Middle East
-generate region4 = ""
-replace region4 = "Middle East" if (iso == "TR")
-replace region4 = "Middle East" if (iso == "IR")
-replace region4 = "Middle East" if (iso == "EG")
-replace region4 = "Middle East" if (iso == "IQ")
-replace region4 = "Middle East" if (iso == "SY")
-replace region4 = "Middle East" if (iso == "JO")
-replace region4 = "Middle East" if (iso == "LB")
-replace region4 = "Middle East" if (iso == "PS")
-replace region4 = "Middle East" if (iso == "YE")
-replace region4 = "Middle East" if (iso == "SA")
-replace region4 = "Middle East" if (iso == "OM")
-replace region4 = "Middle East" if (iso == "BH")
-replace region4 = "Middle East" if (iso == "AE")
-replace region4 = "Middle East" if (iso == "KW")
-replace region4 = "Middle East" if (iso == "QA")
+*generate region4 = ""
+replace region3 = "Middle East" if (iso == "TR")
+replace region3 = "Middle East" if (iso == "IR")
+replace region3 = "Middle East" if (iso == "EG")
+replace region3 = "Middle East" if (iso == "IQ")
+replace region3 = "Middle East" if (iso == "SY")
+replace region3 = "Middle East" if (iso == "JO")
+replace region3 = "Middle East" if (iso == "LB")
+replace region3 = "Middle East" if (iso == "PS")
+replace region3 = "Middle East" if (iso == "YE")
+replace region3 = "Middle East" if (iso == "SA")
+replace region3 = "Middle East" if (iso == "OM")
+replace region3 = "Middle East" if (iso == "BH")
+replace region3 = "Middle East" if (iso == "AE")
+replace region3 = "Middle East" if (iso == "KW")
+replace region3 = "Middle East" if (iso == "QA")
+
+// Add Asia excluding Middle East
+replace region3 = "Asia (excl. Middle East)" if region1 == "Asia" & region2 != "Western Asia"
+replace region3 = "Asia (excl. Middle East)" if region2 == "Central Asia" & iso!="RU"
 
 
 // Remove some duplicated areas when border have changed
@@ -91,7 +97,7 @@ drop if (iso == "DD") & (year >= 1991)
 
 // Remove within-country regions
 drop if strlen(iso) > 2
-*/
+**/
 // Create a balanced panel of countries for Caribbeans (one country missing and reapparing across time)
 sort region2 iso year, stable
 by region2 :     egen num1=nvals(year) if inlist(region2, "Caribbean")
@@ -135,7 +141,7 @@ restore
 
 preserve
 	collapse (firstnm) region*, by(iso year)
-	generate region5 = "World"
+	generate region6 = "World"
 	greshape long region, i(iso year) j(j)
 	drop j
 	drop if region == ""
@@ -155,44 +161,66 @@ foreach v of varlist ppp* exc* {
 
 // Calculate aggregates
 preserve
-collapse (sum) value*, by(region1 year widcode)
-rename region1 region
-tempfile region1
-save "`region1'"
+	collapse (sum) value*, by(region1 year widcode)
+	rename region1 region
+	
+	tempfile region1
+	save "`region1'"
 restore
 
 preserve
-collapse (sum) value*, by(region2 year widcode)
-rename region2 region
-tempfile region2
-save "`region2'"
+	collapse (sum) value*, by(region2 year widcode)
+	rename region2 region
+	
+	tempfile region2
+	save "`region2'"
 restore
 
 preserve
-collapse (sum) value* if (region3 == "European Union"), by(region3 year widcode)
+	collapse (sum) value* if !missing(region3), by(region3 year widcode)
+	rename region3 region
+	
+	tempfile region3
+	save "`region3'"
+restore
+
+preserve
+	collapse (sum) value* if !missing(region4), by(region4 year widcode)
+	rename region4 region
+	
+	tempfile region4
+	save "`region4'"
+restore
+
+preserve
+	collapse (sum) value* if !missing(region5), by(region5 year widcode)
+	rename region5 region
+	
+	tempfile region5
+	save "`region5'"
+restore
+
+/*
+preserve
+collapse (sum) value* if (region3 == "Middle East"), by(region3 year widcode)
 rename region3 region
-tempfile region3
-save "`region3'"
-restore
-
-preserve
-collapse (sum) value* if (region4 == "Middle East"), by(region4 year widcode)
-rename region4 region
 tempfile region4
 save "`region4'"
 restore
-
+*/
 preserve
-collapse (sum) value*, by(year widcode)
-generate region = "World"
-tempfile world
-save "`world'"
+	collapse (sum) value*, by(year widcode)
+	generate region = "World"
+	
+	tempfile world
+	save "`world'"
 restore
 
 use "`region1'", clear
 append using "`region2'"
 append using "`region3'"
 append using "`region4'"
+append using "`region5'"
 append using "`world'"
 
 // Bu default, use PPP EUR, but create a MER version of the data
@@ -240,6 +268,11 @@ tempfile regions
 save "`regions'"
 
 append using "$work_data/add-populations-output.dta"
+
+duplicates tag iso year widcode p, gen(dup)
+*br if dup
+assert dup == 0
+drop dup
 
 compress
 label data "Generated by aggregate-regions.do"

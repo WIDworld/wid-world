@@ -1,31 +1,36 @@
+// Store PPP and exchange rates as an extra variable
 use "$work_data/add-populations-output.dta", clear
 
-// Store PPP and exchange rates as an extra variable
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == $pastyear
+keep if year == $year
 keep iso widcode value
 reshape wide value, i(iso) j(widcode) string
+
 foreach v of varlist value* {
 	drop if `v' >= .
 }
+
 rename valuexlceup999i pppeur
 rename valuexlceux999i exceur
 rename valuexlcusp999i pppusd
 rename valuexlcusx999i excusd
 rename valuexlcyup999i pppcny
 rename valuexlcyux999i exccny
-tempfile pppexc
+
 drop if inlist(iso, "CN-UR", "CN-RU")
+
+tempfile pppexc
 save "`pppexc'"
 
+// Only keep data to aggregate, post-1980
 use "$work_data/add-populations-output.dta", clear
 
-// Only keep data to aggregate, post-1980
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///
 	| widcode == "mnninc999i" ///
 	| widcode == "mndpro999i" ///
 	| widcode == "mgdpro999i"
+
 drop if year < 1980
 drop if strlen(iso)>2
 
@@ -35,20 +40,20 @@ merge n:1 iso using "`pppexc'", nogenerate
 // Add regions
 merge n:1 iso using "$work_data/import-country-codes-output", ///
 	nogenerate assert(match using) keep(match) keepusing(region*)
-
+drop region4 region5 // temporary
 // Define WIR 2018 regions
-gen region4=""
-replace region4="Middle East and Northern Africa" if region2=="Northern Africa" | region2=="Western Asia"
-replace region4="Asia (excl. Middle East)" if region1=="Asia" & region2!="Western Asia"
-replace region4="Sub-Saharan Africa" if region1=="Africa" & region4!="Middle East and Northern Africa"
-replace region4="Russia and Ukraine" if region2=="Western Asia" & region4!="Middle East and Northern Africa"
-replace region4="Asia (excl. Middle East)" if region2=="Central Asia" & iso!="RU"
-replace region4="Europe" if region1=="Europe"
-replace region4="Russia and Ukraine" if iso=="RU" | iso=="UA" | iso=="BL"
-replace region4="Latin America" if region1=="Americas" & region2!="Northern America"
-replace region4="Sub-Saharan Africa" if iso=="SD" | iso=="SS" | iso=="EH"
-replace region4="Northern America" if region2=="Northern America"
-replace region4="Oceania" if region1=="Oceania"
+gen region4 = ""
+*replace region4 = "Middle East and Northern Africa" if region2 == "Northern Africa" | region2 == "Western Asia"
+replace region4 = "Asia (excl. Middle East)"        if region1 == "Asia" & region2 != "Western Asia"
+*replace region4 = "Sub-Saharan Africa"              if region1 == "Africa" & region4 != "Middle East and Northern Africa"
+*replace region4 = "Russia and Ukraine"              if region2 == "Western Asia" & region4 != "Middle East and Northern Africa"
+replace region4 = "Asia (excl. Middle East)"        if region2 == "Central Asia" & iso!="RU"
+replace region4 = "Europe"                          if region1 == "Europe"
+*replace region4 = "Russia and Ukraine"              if iso == "RU" | iso == "UA" | iso == "BL"
+replace region4 = "Latin America"                   if region1 == "Americas" & region2 != "Northern America"
+*replace region4 = "Sub-Saharan Africa"              if iso == "SD" | iso == "SS" | iso == "EH"
+*replace region4 = "Northern America"                if region2 == "Northern America"
+*replace region4 = "Oceania"                         if region1 == "Oceania"
 
 // Convert to common currencies
 foreach v of varlist ppp* exc* {
@@ -76,25 +81,25 @@ sort iso widcode year
 
 * Add missing years to the database as missing values
 preserve
-	keep if inUSSR==1 | iso=="SU"
-	keep if inlist(widcode,"mgdpro999i","mndpro999i","mnninc999i")
-	replace year=year-10
-	keep if inrange(year,1980,1990) & inlist(widcode,"mgdpro999i","mndpro999i","mnninc999i")
-	foreach var of varlist value*{
+	keep if inUSSR == 1 | iso == "SU"
+	keep if inlist(widcode, "mgdpro999i", "mndpro999i", "mnninc999i")
+	replace year = year-10
+	keep if inrange(year, 1980, 1990) & inlist(widcode, "mgdpro999i", "mndpro999i", "mnninc999i")
+	foreach var of varlist value* {
 		replace `var'=.
 	}
 	tempfile macro
 	save `macro'
 restore
-gen old=1
+gen old = 1
 append using `macro'
 duplicates tag iso year widcode, gen(dup)
-drop if dup==1 & old!=1
+drop if dup == 1 & old != 1
 drop old dup
 
 * Add total values for Soviet Union
 preserve
-	keep if iso=="SU" & inrange(year,1980,1989)
+	keep if iso == "SU" & inrange(year, 1980, 1989)
 	keep widcode year value_*
 	renvars value_*, pref(SU)
 	tempfile SU
@@ -104,32 +109,32 @@ merge m:1 widcode year using `SU', nogen
 
 * Add population ratios
 preserve
-	keep if (inUSSR==1 | iso=="SU") & widcode=="npopul992i"
+	keep if (inUSSR == 1 | iso == "SU") & widcode == "npopul992i"
 	keep iso year value
-	reshape wide value, i(year ) j(iso) string
+	reshape wide value, i(year) j(iso) string
 	rename valueSU SU
-	foreach var of varlist value*{
-		replace `var'=`var'/SU
+	foreach var of varlist value* {
+		replace `var' = `var'/SU
 	}
 	drop SU
 	reshape long value, i(year) j(iso) string
 	rename value ratio
-	drop if year==$year
+	drop if year == $year
 	tempfile ratios
 	save `ratios'
 restore
 merge m:1 iso year using `ratios', nogen
 
 * Fill in gaps
-foreach var in value_pppeur value_pppusd value_pppcny value_exceur value_excusd value_exccny{
-	replace `var'=SU`var'*ratio if inUSSR==1 & mi(`var') & !mi(SU`var') & !mi(ratio)
+foreach var in value_pppeur value_pppusd value_pppcny value_exceur value_excusd value_exccny {
+	replace `var' = SU`var'*ratio if inUSSR == 1 & mi(`var') & !mi(SU`var') & !mi(ratio)
 }
 drop SU* ratio
 sort iso widcode year
-drop if iso=="SU"
+drop if iso == "SU"
 
 // Drop 2017
-drop if year==$year
+drop if year == $year
 
 preserve
 	collapse (firstnm) region4, by(iso year)
@@ -146,7 +151,7 @@ preserve
 restore
 
 // Calculate aggregates
-collapse (sum) value*, by(region4 year widcode)
+collapse (sum) value* if region == "Asia (excl. Middle East)", by(region4 year widcode)
 rename region4 region
 
 // Bu default, use PPP EUR, but create a MER version of the data
@@ -200,7 +205,7 @@ append using "$work_data/aggregate-regions-output.dta"
 
 duplicates tag iso year widcode p, gen(dup)
 *br if dup
-assert dup==0
+assert dup == 0
 drop dup
 
 compress

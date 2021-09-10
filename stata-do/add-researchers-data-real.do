@@ -69,7 +69,7 @@ save "`meta'"
 // -----------------------------------------------------------------------------------------------------------------
 
 use iso year p widcode value author using "`researchers'", clear
-append using "$work_data/aggregate-regions-wir2018-output.dta", generate(oldobs)
+append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
 
 // Germany: drop old fiscal income series
 drop if strpos(widcode, "fiinc") & (iso == "DE") & (oldobs == 1)
@@ -98,7 +98,7 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 // COMBINE NA AND DISTRIBUTIONAL METADATAS
 // ----------------------------------------------------------------------------------------------------------------
 
-use "$work_data/aggregate-regions-wir2018-metadata-output.dta", clear
+use "$work_data/aggregate-regions-metadata-output.dta", clear
 drop if iso == "CN" & mi(source) & inlist(sixlet,"xlcusx","xlcyux")
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace 

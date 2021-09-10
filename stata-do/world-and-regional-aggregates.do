@@ -14,7 +14,7 @@ global QF  AU NZ PG
 // QG QH QI
 global QJ  KG KZ TJ TM UZ 
 global QK  BI DJ ER ET KE KM MG MU MW MZ RW SC SO TZ UG ZM ZW ZZ
-// QL
+global QL  CN HK JP KP KR MN MO TW
 global QM  AL BA BG CY CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
 global QN  AO CD CF CG CM GA GQ ST TD
 global QO  DZ EG EH LY MA SD SS TN
@@ -28,17 +28,17 @@ global QW  AE AM AZ BH BY GE IL IQ JO KW LB OM PS QA RU SA
 global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QY  AT BE BG CS CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IM IT JE LT LU LV MS MT NL PL PT RO SE SI SK XI YU 
 
-*sglobal XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
+global XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
 global XB  AS AU BM CA CK FJ FM GL GU KI MH MP NC NR NU NZ PF PM PW SB TK TO TV US VU WF WS // NEW
 global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
 global XL  AG AI AN AR AW BB BO BR BS BZ CL CO CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS MX NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI 
 global XM  AE BH EG IQ IR JO KW OM PS QA SA TR YE
-global XN  AE BH DZ EG IL IQ IR JO KW LB LY MA OM PS QA SA SY TN TR YE 
+global XN  AE BH DZ EG IL IQ JO KW LB LY MA OM PS QA SA SY TN TR YE 
 global XR  AM AZ BY GE KG KZ RU TJ TM UA UZ // NEW  
 global XS  AF BD BN BT ID IN KH LA LK MM MV MY NP PG PH PK SG TH TL VN // NEW  
 
 global OA  AM AZ BY GE KG KZ TJ TM UA UZ // NEW  
-*global OB  KP KR MN MO TW // NEW
+global OB  KP KR MN MO TW // NEW
 global OC  AD BE CH DD DK FI FO GI GR IE IM IS LI LU MC MT NL NO PT SM VA XI // NEW
 global OD  AG AI AN AR AW BB BO BS BZ CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI // NEW
 global OE  AE BH EH IL IQ IR JO KW LB LY MA OM PS QA SA SY TN YE 
@@ -48,7 +48,15 @@ global OJ  AO BF BI BJ BW CD CF CG CI CM CV DJ ER ET GA GH GM GN GQ GW KE KM LR 
 
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
 
-global all  QB QD QE QF QJ QK QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OC OD OE OI OJ
+global all  QB QD QE QF QJ QK QL QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ WO
+
+* R path depending on OS
+if "`c(os)'"=="MacOSX" | "`c(os)'"=="UNIX" {
+    global Rpath "/usr/local/bin/R"
+}
+else {  // windows, change version number if necerssary
+    global Rpath `"c:\r\R-3.5.1\bin\Rterm.exe"') 
+}
 
 // ******************************************* //
 
@@ -56,10 +64,12 @@ global all  QB QD QE QF QJ QK QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN
 // National income and prices by year
 // -------------------------------------------------------------------------- //
 
+// global work_data "~/Downloads"
+// global year 2021
 
 use "$work_data/clean-up-output.dta", clear
 
-keep if inlist(widcode, "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
+keep if inlist(widcode, "ahweal992i", "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "p0p100"
 
 reshape wide value, i(iso year) j(widcode) string
@@ -90,7 +100,7 @@ drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if strpos(iso, "-")
 drop if iso == "WO"
 
-keep if inlist(widcode, "aptinc992j", "sptinc992j")
+keep if inlist(widcode, "aptinc992j", "sptinc992j", "ahweal992j", "shweal992j")
 
 // Parse percentiles
 generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
@@ -115,15 +125,20 @@ drop if n == 100  & p_min >= 99900
 drop if n == 10   & p_min >= 99990
 drop p p_max currency
 rename p_min p
-gduplicates drop iso year p widcode, force
+duplicates drop iso year p widcode, force
 sort iso year widcode p
 
 reshape wide value, i(iso year p) j(widcode) string
 
-rename valueaptinc992j a
-rename valuesptinc992j s
+rename valueaptinc992j ai
+rename valuesptinc992j si
+rename valueahweal992j aw
+rename valueshweal992j sw
 
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
+
+rename anninc992i itot
+rename ahweal992i wtot
 
 drop if year<1980
 
@@ -135,14 +150,20 @@ gen keep = 0
 rename xlceup999i PPP
 rename xlceux999i MER
 
+
+foreach z in i w {
+
 foreach y in PPP MER {
+// 	local y PPP
 	
-	foreach v of varlist a anninc992i  {
+	foreach v of varlist a`z' `z'tot  {
 		gen `v'_`y' = `v'/`y'
 	}
 
 // all regions and world
-foreach x in $all {
+foreach x in /*QB QD QE*/ $all {
+	
+// 	local x QB QD QE
 preserve
 
 	foreach q in $`x' {
@@ -151,148 +172,200 @@ preserve
 	keep if keep == 1
 
 	levelsof iso
-	drop if missing(a)
-	gsort year -a_`y' 
+	drop if missing(a`z')
+	gsort year -a`z'_`y' 
 	by year: generate rank = sum(pop)
 	by year: replace rank = 1e5*(1 - rank/rank[_N])
 
 	egen bracket = cut(rank), at(0(1000)99000 99100(100)99900 99910(10)99990 99991(1)99999 200000)
 
-	collapse (mean) a_`y' [pw=pop], by(year bracket)
+	collapse (mean) a`z'_`y' [pw=pop], by(year bracket)
 
 	generate iso = "`x'-`y'"
 	levelsof iso
 	rename bracket p
-	rename a_`y' a
+	rename a`z'_`y' a`z'
 
-	tempfile `x'_`y'
+	tempfile `x'_`y'_`z'
 	append using `combined'
 	save "`combined'", replace
 restore
 }
 
 }
+
+}
+
 use "`combined'", clear
-replace iso = substr(iso, 1, 2) if strpos(iso, "-PPP")
 
-fillin iso year p
-drop _fillin
+bys iso year p (aw): replace aw = aw[1]
+bys iso year p (ai): replace ai = ai[1]
 
-// Interpolate missing percentiles
-bys iso year: ipolate a p, gen(x)
-replace a = x
-drop x
+duplicates drop iso year p, force
 
-bys iso year: gen n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
-bysort iso year (p): assert !missing(a) 
+reshape long a, i(iso year p) j(concept i w)
 
-// Compute thresholds shares topsh bottomsh
-keep year p a iso n
-sort iso year p
-by iso year : generate t = (a[_n - 1] + a)/2 
-by iso year : replace t = min(0, 2*a) if missing(t)
 
-by iso year : replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
+gen x = substr(iso,4,3)
+replace iso = substr(iso,1,2)
 
-egen average = total(a*n/1e5), by(iso year)
 
-generate s = a*n/1e5/average
+bys iso year concept x (p): gen test = a==a[_n-1] & _n!=1
+bys iso year concept x (p): drop if test
+drop test 
 
-gsort iso year -p
-by iso year  : generate ts = sum(s)
-by iso year  : generate ta = sum(a*n)/(1e5 - p)
-bys iso year : generate bs = 1 - ts
-bys iso year : generate ba = (s/(1-p/100000))*average
+bys iso year concept x (p): egen minp = min(p)
+replace p = 0 if p == minp 
+drop minp
 
-tempfile all 
-save `all'
+replace a = 0 if a==. & p==0 & concept!="w"
+bys iso year concept x (p): replace a = a[_n+1]-1 if a==. & a[_n+1]<0 & p==0 & concept=="w"
+bys iso x concept year (p): replace a = . if a==0 & a[_n-1]==a
+
+sort iso x concept year p
+
+drop if concept=="w" & year<1995
+
+
+save "$work_data/regions_temp.dta", replace
+
+
+*** gpinter those regions ***
+
+rsource, terminator(END_OF_R) rpath("$Rpath") roptions(--vanilla)
+
+
+rm(list = ls())
+
+library(pacman)
+p_load(magrittr)
+p_load(dplyr)
+p_load(readr)
+p_load(haven)
+p_load(tidyr)
+p_load(gpinter)
+p_load(purrr)
+p_load(stringr)
+p_load(ggplot2)
+p_load(glue)
+p_load(progress)
+p_load(zoo)
+p_load(ggrepel)
+p_load(countrycode)
+options(dplyr.summarise.inform = FALSE)
+
+setwd("~/Documents/GitHub/wid-world/work-data")
+data <- read_dta("~/Documents/GitHub/wid-world/work-data/regions_temp.dta")
+
+gperc <- c(
+  seq(0, 99000, 1000), seq(99100, 99900, 100),
+  seq(99910, 99990, 10), seq(99991, 99999, 1)
+)
+
+countries <- unique(data$iso) 
+regions = list()
+i <- 1
+for (concept in c("i","w")){
+  for (iso in countries){
+    for (x in c("MER","PPP")){
+      region <- data[data$iso==iso & data$concept==concept & data$x==x & !is.na(data$a),] %>% group_by(year) %>% group_split() %>% map_dfr(~ {
+        dist <- shares_fit(
+          bracketavg = .x$a,
+          p = .x$p/1e5,
+          fast = TRUE
+        )
+        
+        return(as.data.frame(
+          generate_tabulation(dist, gperc/1e5)) 
+          %>% mutate(year = .x$year[1],
+                     p = round(fractile*1e5),
+                     n = diff(c(p, 1e5)),
+                     ts = top_share,
+                     bs = bottom_share,
+                     s = bracket_share,
+                     a = bracket_average)
+        )
+      })
+      region$iso <- iso
+      region$concept <- concept
+      region$x <- x
+      regions[[i]] <- region
+      i<-i+1
+    }
+  }
+}
+regions <- do.call(rbind, regions)
+
+write_dta(regions, "~/Documents/GitHub/wid-world/work-data/regions_temp2.dta") 
+
+
+END_OF_R
+
+
+use "$work_data/regions_temp2.dta", clear
+
+replace iso = iso+"-"+upper(x) if x=="MER"
+
+keep year threshold top_* bottom_* bracket_* p n iso concept 
+
+
+ren (threshold top_share bottom_share bracket_share top_average bottom_average bracket_average) (t ts bs s ta ba a)
+order iso year concept p n a s ts bs ta ba 
+egen average = total(a*n/1e5), by(iso year concept)
+
+
 
 // -------------------------------------------------------------------- //
 
 // export long format
-keep year iso  p a s t
 
-replace p = p/1000
-bys year iso  (p) : gen p2 = p[_n+1]
-replace p2 = 100 if p2 == .
-gen perc = "p"+string(p)+"p"+string(p2)
-drop p p2
+bys iso concept year (p): gen p2 = "p"+string(p/1000)+"p"+string(p[_n+1]/1000)
 
-rename perc p
-rename a    aptinc992j
-rename s    sptinc992j
-rename t    tptinc992j
-renvars aptinc992j sptinc992j tptinc992j, prefix(value)
+expand 2, gen(new)
+replace p2 = "p"+string(p/1000)+"p100" if new==1
 
+expand 2 if p==50000 & new==0, gen(new2)
+replace p2 = "p0p50" if new2==1
+gen bot50 = p2=="p0p50"
+
+expand 2 if p==90000 & new==0, gen(new3)
+replace p2 = "p50p90" if new3==1
+
+
+	* top shares
+	replace a = ta if new==1
+	replace s = ts if new==1
+	
+	* bottom 50
+	replace a = ba if new2==1
+	replace s = bs if new2==1
+	
+	bys iso concept year (bot50): gen bot50s = s[_N]
+	bys iso concept year (bot50): gen bot50a = a[_N]
+	
+	* middle 40
+	replace s = bs-bot50s if new3==1
+	replace a = s*1e5*average/n/40 if new3==1
+
+	* get right thresholds for p0p50 & p50p90
+	bys iso concept year (p2): replace t = t[_n-1] if new2==1 | new3==1
+
+
+drop if p2 == "p99.999p."
+
+keep t s a year iso p2 concept 
+ren p2 p
+
+replace concept = "ptinc992j" if concept=="i"
+replace concept = "hweal992j" if concept=="w"
+
+renvars t s a, prefix(value)
+reshape wide valuea valuet values, i(iso year p) j(concept) string
 reshape long value, i(iso year p) j(widcode) string
 
+drop if (p=="p0p50" | p=="p50p90") & substr(widcode,1,1)=="t"
 
-preserve
-	use `all', clear
-	keep year iso  p ts ta t
-	replace p = p/1000
-	gen perc = "p"+string(p)+"p100"
-	drop p
-	rename perc   p
-	rename ts sptinc992j
-	rename ta aptinc992j
-	rename t  tptinc992j
-	renvars aptinc992j sptinc992j tptinc992j, prefix(value)
-	reshape long value, i(iso  year p) j(widcode) string
-	
-	tempfile top
-	save `top'
-restore
-preserve
-	use `all', clear
-	keep year iso  p bs
-	replace p = p/1000
-	bys year iso  (p) : gen p2 = p[_n+1]
-	replace p2 = 100 if p2 == .
-	gen perc = "p"+string(p)+"p"+string(p2)
-	drop p p2
-
-	rename perc    p
-	keep if (p == "p50p51" | p == "p90p91")
-	reshape wide bs, i(iso  year) j(p) string
-	rename bsp50p51 valuep0p50
-	rename bsp90p91 valuep0p90
-	bys iso  year : gen valuep50p90 = valuep0p90 - valuep0p50
-	reshape long value, i(iso  year) j(p) string
-	gen widcode = "sptinc992j"
-
-	tempfile bottom
-	save `bottom'	
-restore
-preserve
-	use `all', clear
-	keep year iso  p ba
-	replace p = p/1000
-	bys year iso  (p) : gen p2 = p[_n+1]
-	replace p2 = 100 if p2 == .
-	gen perc = "p"+string(p)+"p"+string(p2)
-	drop p p2
-
-	rename perc    p
-	keep if (p == "p50p51" | p == "p90p91")
-	reshape wide ba, i(iso  year) j(p) string
-	rename bap50p51 valuep0p50
-	rename bap90p91 valuep0p90
-	bys iso  year : gen valuep50p90 = valuep0p90 - valuep0p50
-	reshape long value, i(iso  year) j(p) string
-	gen widcode = "aptinc992j"
-
-	tempfile bottomavg
-	save `bottomavg'	
-restore
-
-append using `top'
-append using `bottom'
-append using `bottomavg'
-
-duplicates drop iso  year p widcode, force
-
-drop if year == .
+drop if year == . | value==.
 *drop p4
 tempfile final
 save `final'
@@ -348,21 +421,27 @@ tempfile meta
 save `meta'
 
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
-
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & strpos(iso, "-MER")
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & iso == "WO"
+/*
 drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
-	| inlist(iso, "WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
-	| inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
-	| inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
-	| inlist(iso, "QY", "QY-MER") ///
-	| inlist(iso, "XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
+	  | inlist(iso, "WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
+	  | inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
+	  | inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
+	  | inlist(iso, "QY", "QY-MER") ///
+	  | inlist(iso, "XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
+*/
 append using "`meta'", force
 
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
-
 //-----Append-------//
 
 use "$work_data/clean-up-output.dta", clear
-
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & strpos(iso, "-MER")
+drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & iso == "WO"
+/*
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
@@ -371,6 +450,10 @@ drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QB", "QD", "QD-MER", "QK", "QN") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QO", "QT", "QV") 
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QY", "QY-MER") 
+*/
 append using `final'
 
 save "$work_data/World-and-regional-aggregates-output.dta", replace
+
+cap rm "$work_data/regions_temp.dta"
+cap rm "$work_data/regions_temp2.dta"

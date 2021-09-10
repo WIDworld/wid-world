@@ -81,8 +81,20 @@ rename valuetptinc992j t
 // -------------------------------------------------------------------------- //
 
 bys iso: egen max = max(year) 
+expand 2 if year == max & max == 2019, gen(new)
+replace year = year + 1 if new == 1
+drop new
+
+expand 2 if year == 2020, gen(new)
+replace year = year + 1 if new == 1
+drop new
+	
 fillin iso year p 
 drop _fillin 
+
+replace a = . if year > max
+replace t = . if year > max
+replace s = . if year > max
 
 bys iso : egen x = mode(max)
 replace max = x
@@ -96,7 +108,7 @@ gsort iso year p
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 drop if missing(a) & year<1980
 
-levelsof iso  if max == 2019 , local(group1) // extrap, no -ve aptinc
+levelsof iso  if inlist(max, 2019, 2020) , local(group1) // extrap, no -ve aptinc
 
 gen keep = 0
 	foreach q in `group1' {
@@ -111,28 +123,31 @@ bys iso year : replace n = n[_n-1] if p == 99999
 bys iso year : generate x = s if year == max
 bys iso p : egen x2 = mode(x)
 sort iso p year 
-replace s = x2 if missing(s) & max == 2019 & year == $pastyear /* & /* !inlist(iso, "JP", "KR") */ */
+replace s = x2 if missing(s) & inlist(max, 2019, 2020) 
+*& year == $year /* & /* !inlist(iso, "JP", "KR") */ */
 drop x*  
 
 sort iso p year 
 
 // recompute average and bracket averages
 *drop if missing(a) /* & year == 2020 */
-generate miss_a = 1 if missing(a) & max == 2019 & year == $pastyear
+generate miss_a = 1 if missing(a) & inlist(max, 2019, 2020) 
+*& year == $year
 replace miss_a = 0 if missing(miss_a)
 
 egen average = total(a*n/1e5), by(iso year)
 
 replace a = a/average*anninc992i
 
-replace a = (s/n*1e5)*anninc992i if missing(a) & max == 2019 & year == $pastyear
+replace a = (s/n*1e5)*anninc992i if missing(a) & inlist(max, 2019, 2020) 
+*& year == $year
 drop if missing(a) // this is only for JP & KR between 1980-89
 
 sort iso year p
 by iso year: replace t = (a[_n - 1] + a)/2 if miss_a == 1 
 by iso year: replace t = (a[_n - 1] + a)/2 if t<0
-by iso year: replace t = min(0, 2*a) if missing(t) & miss_a == 1 
-
+by iso year: replace t = min(0, 2*a) if missing(t) & p == 0 
+*replace t = . if t>0 & missing(a)
 drop if iso == "DD"
 drop miss_a max
 // -------------------------------------------------------------------------- //

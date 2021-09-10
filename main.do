@@ -243,8 +243,8 @@ do "$do_dir/add-populations.do"
 // Aggregate by regions
 do "$do_dir/aggregate-regions.do"
 
-// Aggregate WIR 2018 regions
-do "$do_dir/aggregate-regions-wir2018.do"
+// Aggregate WIR 2018 regions (no longer needed, merged with the previous do)
+*do "$do_dir/aggregate-regions-wir2018.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
@@ -263,7 +263,7 @@ do "$do_dir/calculate-per-capita-series.do"
 
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
-
+**
 // Extrapolate pre-tax national income shares with fiscal income when possible
 do "$do_dir/extrapolate-pretax-income.do"
 

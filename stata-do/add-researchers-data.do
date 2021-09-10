@@ -69,10 +69,13 @@ append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 // US States (frank2021 & update 2021) - fiinc series
 append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dta"
 
+// Norway - fiinc series
+append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
+
 // Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series
 append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
 
-// Asia (MCY 2020) - many macro variables + fiinc + ptinc series
+// Asia (MCY 2020 & BM 2021) - many macro variables + fiinc + ptinc series
 append using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021.dta"
 
 // Russia (Neef 2020) - ongoing 
@@ -97,6 +100,12 @@ append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
 // South Africa 2020 (ccg2020) - wealth distribution series
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
 
+// Hong Kong 2021 (PY2021) - ptinc series
+append using "$wid_dir/Country-Updates/Hong Kong/HongKong_ptinc_2021.dta"
+
+// Georgia 2021 (Neef & BMN 2021) - ptinc series
+append using "$wid_dir/Country-Updates/Georgia/2021_08/dina_georgia_8sep2021.dta"
+
 // Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countrirs) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
@@ -105,6 +114,7 @@ append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
 
 // Carbon Distribution (Chancel2021) - distribution series
 append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
+
 
 compress, nocoalesce 
 

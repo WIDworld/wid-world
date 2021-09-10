@@ -120,6 +120,7 @@ generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + value4
 generate value65 = value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
+duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
 replace value = 1e3*value
@@ -204,6 +205,7 @@ generate value90_99 = value90_94 + value95_99
 generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
+duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
 replace value = 1e3*value
@@ -287,6 +289,7 @@ generate value90_99 = value90_94 + value95_99
 generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
 rename referencedateasof1july year
+duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
 replace value = 1e3*value

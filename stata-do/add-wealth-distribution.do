@@ -166,8 +166,18 @@ renvars `r(varlist)', pred(4)
 
 tempfile all
 save `all'
+/*
+use year iso average using "$wid_dir/Country-Updates/Wealth/2021_July/wealth-distributions-all-c.dta", clear
+duplicates drop
+rename average value
+generate widcode = "ahweal992j"
+generate p = "p0p100"
 
-// Reshape the data
+tempfile average
+save `average'
+*/
+// Reshape & Save the data
+*use "`all'", clear
 keep year iso  p a s t
 
 replace p = p/1000
@@ -219,6 +229,7 @@ restore
 append using `top'
 append using `bottom'
 append using `aggregates'
+*append using `average'
 
 duplicates drop iso year p widcode, force // p0p1  p99.999p100 for a & s
 

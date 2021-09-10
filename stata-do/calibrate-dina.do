@@ -199,13 +199,18 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
-	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
+	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
+	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
 /*
 tab iso year if changes == 0 & ///
 	!(substr(fivelet, 1, 2) == "hw") & ///
 	!(fivelet == "fiinc") & ///
-	!(fivelet == "ptinc" & iso == "RU" & year < 1960)
-*/	
+	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
+	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
+	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
+	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
+*/
 drop tot anninc coef_* changes b
 
 // Make sure that labor + capital income sums to total income
