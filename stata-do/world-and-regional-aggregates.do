@@ -421,9 +421,9 @@ tempfile meta
 save `meta'
 
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & strpos(iso, "-MER")
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & iso == "WO"
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if strpos(iso, "-MER")
+drop if iso == "WO"
 /*
 drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
 	  | inlist(iso, "WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
