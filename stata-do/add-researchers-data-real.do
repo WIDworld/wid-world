@@ -42,6 +42,9 @@ append using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021.dta"
 drop if inlist(iso, "XL", "XL-MER", "XF")
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
+// Gender - spllin992f
+drop if widcode == "spllin992f"
+append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
 compress, nocoalesce 
 
 tempfile researchers
@@ -57,6 +60,8 @@ duplicates drop
 
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
+drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")
+
 duplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup

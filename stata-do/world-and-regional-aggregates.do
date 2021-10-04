@@ -203,11 +203,26 @@ bys iso year p (ai): replace ai = ai[1]
 
 duplicates drop iso year p, force
 
+
+/*
+use "/Users/rowaidakhaled/Dropbox/Pre-prepared do-files/test-regions.dta", clear
+bys iso year (p) : generate n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
+
+merge n:1 iso year using "`aggregates'", nogenerate keep(master match) keepus(ahweal992i anninc992i)
+egen average_i = total(ai*n/1e5), by(iso year)
+egen average_w = total(aw*n/1e5) if year >= 1995, by(iso year) 
+replace anninc = average_i if missing(anninc)
+replace ahweal = average_w if missing(ahweal) & year >= 1995
+replace ai = ai/average_i*anninc if !missing(ai)
+replace aw = aw/average_w*ahweal if !missing(aw)
+drop n ahweal anninc average_*
+
+*/
+
 reshape long a, i(iso year p) j(concept i w)
 
-
-gen x = substr(iso,4,3)
-replace iso = substr(iso,1,2)
+gen x = substr(iso, 4, 3)
+replace iso = substr(iso, 1, 2)
 
 
 bys iso year concept x (p): gen test = a==a[_n-1] & _n!=1
@@ -218,14 +233,13 @@ bys iso year concept x (p): egen minp = min(p)
 replace p = 0 if p == minp 
 drop minp
 
-replace a = 0 if a==. & p==0 & concept!="w"
+replace a = 0 if a == . & p == 0 & concept != "w"
 bys iso year concept x (p): replace a = a[_n+1]-1 if a==. & a[_n+1]<0 & p==0 & concept=="w"
 bys iso x concept year (p): replace a = . if a==0 & a[_n-1]==a
 
 sort iso x concept year p
 
-drop if concept=="w" & year<1995
-
+drop if concept == "w" & year<1995
 
 save "$work_data/regions_temp.dta", replace
 
@@ -308,13 +322,47 @@ replace iso = iso+"-"+upper(x) if x=="MER"
 
 keep year threshold top_* bottom_* bracket_* p n iso concept 
 
-
 ren (threshold top_share bottom_share bracket_share top_average bottom_average bracket_average) (t ts bs s ta ba a)
 order iso year concept p n a s ts bs ta ba 
+keep iso year concept p n a /* s ts bs ta ba */
+
+egen average = total(a*n/1e5), by(iso year concept)
+/**/
+preserve 
+	use "$work_data/clean-up-output.dta", clear
+
+	keep if inlist(widcode, "ahweal992i", "anninc992i")
+	keep if p == "p0p100"
+	rename value value_average
+	generate concept = "i" if widcode == "anninc992i"
+	replace concept = "w" if widcode == "ahweal992i"
+	drop widcode p currency
+	
+	tempfile average
+	save `average'
+restore
+merge n:1 iso year concept using "`average'", nogenerate keep(master match) 
+gsort iso year concept p
+replace value_average = average if missing(value_average)
+replace a = a/average*value_average if !missing(a)
+drop average value_average
+
 egen average = total(a*n/1e5), by(iso year concept)
 
+bys iso year concept (p) : generate t = ((a - a[_n - 1] )/2) + a[_n - 1] 
+bys iso year concept (p) : replace t = min(0, 2*a) if missing(t) 
 
+generate s = a*n/1e5/average 
 
+gsort iso year concept -p
+bys iso year concept : generate ts = sum(s)
+bys iso year concept : generate ta = sum(a*n)/(1e5 - p)
+bys iso year concept : generate bs = 1-ts
+
+gsort iso year concept p
+by iso year concept : generate ba = bs*average/(0.5) if p == 50000
+
+/**/
 // -------------------------------------------------------------------- //
 
 // export long format

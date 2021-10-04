@@ -10,6 +10,15 @@ save `combined', emptyok
 global plafond 5
 global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY SR SV TT UY VE 
 
+
+use "$work_data/calibrate-dina-output.dta", clear
+keep if widcode == "anninc992i"
+keep iso year value
+rename value anninc
+*replace iso = "KV" if iso == "KS"
+tempfile anninc
+save "`anninc'"
+
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
@@ -148,14 +157,20 @@ generate m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p
 
 replace a = m3 if !missing(m3)
 
-by iso year: replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if missing(t)
-by iso year: replace t = min(0, 2*a) if missing(t) 
-
 append using "`latam'"
+
+merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 
 egen average = total(a*n/1e5), by(iso year)
 
-generate s = a*n/1e5/average
+replace anninc = average if missing(anninc) // only for years & countries where there are no anninc, but we still want to keep the topshares
+
+replace a = a/average*anninc 
+
+bys iso year (p) : replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if missing(t)
+bys iso year (p) : replace t = min(0, 2*a) if missing(t) 
+
+generate s = a*n/1e5/anninc 
 
 gsort iso year -p
 by iso year : generate ts = sum(s)
@@ -163,8 +178,7 @@ by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
 
 gsort iso year p
-by iso year : generate ba = sum(a*n)/p
-by iso year : replace ba = 0 if missing(ba) & p == 0
+by iso year : generate ba = bs*average/(0.5) if p == 50000
 
 keep year iso p a s t ts ta bs ba was_miss
 

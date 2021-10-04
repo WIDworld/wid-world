@@ -30,7 +30,11 @@ keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///
 	| widcode == "mnninc999i" ///
 	| widcode == "mndpro999i" ///
-	| widcode == "mgdpro999i"
+	| widcode == "mgdpro999i" ///
+	| widcode == "mnweal999i" ///
+	| widcode == "mpweal999i" ///
+	| widcode == "mgweal999i" 
+	
 drop if year < 1950
 
 // Add PPP and exchange rates
@@ -106,7 +110,7 @@ drop if num1 != num2
 drop num1 num2
 
 // Drop current year
-drop if year==$year
+*drop if year==$year
 
 // Drop Saint-Helena because problematic and doesn't appear in the website/in WID data
 
@@ -222,6 +226,8 @@ append using "`region3'"
 append using "`region4'"
 append using "`region5'"
 append using "`world'"
+
+drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i") & year<1995
 
 // Bu default, use PPP EUR, but create a MER version of the data
 expand 2, gen(mer)

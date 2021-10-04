@@ -236,6 +236,9 @@ by iso year : generate ts = sum(s)
 by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
 
+// gsort iso year p
+// by iso year : generate ba = bs*average/(0.5) if p == 50000
+
 bysort iso year (p) : assert inrange(ts, 0, 1.03) if !inlist(iso, "CY", "IS") // issues in 2007/08
 
 drop n
