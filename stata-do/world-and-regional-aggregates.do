@@ -28,12 +28,12 @@ global QW  AE AM AZ BH BY GE IL IQ JO KW LB OM PS QA RU SA
 global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
 global QY  AT BE BG CS CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IM IT JE LT LU LV MS MT NL PL PT RO SE SI SK XI YU 
 
-global XA  AF BD BN BT CN HK ID IN IR KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
+global XA  AF BD BN BT CN HK ID IN KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
 global XB  AS AU BM CA CK FJ FM GL GU KI MH MP NC NR NU NZ PF PM PW SB TK TO TV US VU WF WS // NEW
 global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
 global XL  AG AI AN AR AW BB BO BR BS BZ CL CO CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS MX NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI 
 global XM  AE BH EG IQ IR JO KW OM PS QA SA TR YE
-global XN  AE BH DZ EG IL IQ JO KW LB LY MA OM PS QA SA SY TN TR YE 
+global XN  AE BH DZ EG IL IQ IR JO KW LB LY MA OM PS QA SA SY TN TR YE 
 global XR  AM AZ BY GE KG KZ RU TJ TM UA UZ // NEW  
 global XS  AF BD BN BT ID IN KH LA LK MM MV MY NP PG PH PK SG TH TL VN // NEW  
 
@@ -469,6 +469,7 @@ tempfile meta
 save `meta'
 
 use "$work_data/extrapolate-pretax-income-metadata.dta", clear
+
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if strpos(iso, "-MER")
 drop if iso == "WO"
@@ -481,6 +482,7 @@ drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
 	  | inlist(iso, "XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
 */
 append using "`meta'", force
+keep iso sixlet source method data_points extrapolation data_quality data_imputation
 
 save "$work_data/World-and-regional-aggregates-metadata.dta", replace
 //-----Append-------//

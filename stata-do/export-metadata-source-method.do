@@ -2,11 +2,11 @@ use "$work_data/World-and-regional-aggregates-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 drop if iso == ""
-drop if inlist(iso, "QD", "QD-MER")
-replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
-replace extrapolation = "[[1980, $pastyear]]" if iso == "CI" & strpos(sixlet, "ptinc")
+// drop if inlist(iso, "QD", "QD-MER")
+// replace data_points = "[1988, 1993, 1998, 2002, 2008, 2014]" if iso == "CI" & strpos(sixlet, "ptinc")
+// replace extrapolation = "[[1980, $year]]" if iso == "CI" & strpos(sixlet, "ptinc")
 
-replace extrapolation = "" if extrapolation == "[[2019]]"
+// replace extrapolation = "" if extrapolation == "[[2019]]"
 // -------------------------------------------------------------------------- //
 // Add data quality, labels
 // -------------------------------------------------------------------------- //
@@ -31,7 +31,7 @@ foreach v of varlist data_quality data_imputation data_points extrapolation {
 replace data_quality = "3" if method == "Fiscal income rescaled to match the macroeconomic aggregates."
 
 // Add quality from data quality file
-merge m:1 iso using `temp', nogen update noreplace
+merge m:1 iso using `temp', nogen update //noreplace
 replace quality = "" if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
 replace quality = data_quality if quality != data_quality & data_quality != ""
 replace quality = "4" if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
@@ -82,7 +82,7 @@ preserve
 	replace min_year = min(min_year, 1990)
 	drop year*
 	replace data_points = "[" + data_points + "]"
-	generate extrapolation = "[[1980 , $pastyear]]"
+	generate extrapolation = "[[1980 , $year]]"
 	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
 	drop min_year
 
@@ -98,7 +98,7 @@ preserve
 restore
 
 merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
-replace extrapolation = "[[1980, $pastyear]]" if strpos(sixlet, "ptinc") & data_quality == "0"
+replace extrapolation = "[[1980, $year]]" if strpos(sixlet, "ptinc") & data_quality == "0"
 
 // -------------------------------------------------------------------------- //
 // Add population notes
@@ -235,7 +235,7 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 // Correction for South Africa
 replace Method = "Fiscal income rescaled to match the macroeconomic aggregates." if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 replace data_imputation = "rescaling" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
-replace extrapolation = "[[1993,2002],[2012,2019]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
+ replace extrapolation = "[[1963, 2002], [2012, 2021]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"
 

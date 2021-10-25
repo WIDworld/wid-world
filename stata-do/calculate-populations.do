@@ -92,6 +92,7 @@ preserve
 	generate iso = "KS"
 	keep iso year age sex value
 	drop if missing(value)
+
 	tempfile kosovo
 	save "`kosovo'"
 restore
@@ -311,21 +312,22 @@ drop newobs
 
 // Estimate missing $pastyear populations from past growth rate
 preserve
-keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
-bysort iso: gen obs=_N
-expand 2 if obs==2 & year==$pastyear - 1, gen(newobs)
-replace year=$pastyear if newobs==1
-replace growth_src_npopul999i="npopul999i_un" if newobs==1
-// Only npopul999i_un is available for these countries
-gen growth_factor = .
-sort iso year
-by iso: replace growth_factor = (npopul999i_un[_n])/(npopul999i_un[_n-1]) if (year==$pastyear - 1)
-by iso: replace npopul999i_un=npopul999i_un[_n - 1]*growth_factor[_n - 1] if newobs==1
-keep if newobs==1
-replace npopul999i_un=round(npopul999i_un)
-drop obs growth_factor
-tempfile imputed
-save "`imputed'"
+	keep if inlist(year,$pastyear - 2, $pastyear - 1, $pastyear)
+	bysort iso: gen obs=_N
+	expand 2 if obs==2 & year==$pastyear - 1, gen(newobs)
+	replace year=$pastyear if newobs==1
+	replace growth_src_npopul999i="npopul999i_un" if newobs==1
+	// Only npopul999i_un is available for these countries
+	gen growth_factor = .
+	sort iso year
+	by iso: replace growth_factor = (npopul999i_un[_n])/(npopul999i_un[_n-1]) if (year==$pastyear - 1)
+	by iso: replace npopul999i_un=npopul999i_un[_n - 1]*growth_factor[_n - 1] if newobs==1
+	keep if newobs==1
+	replace npopul999i_un=round(npopul999i_un)
+	drop obs growth_factor
+	
+	tempfile imputed
+	save "`imputed'"
 restore
 append using "`imputed'"
 

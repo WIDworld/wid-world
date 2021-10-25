@@ -15,8 +15,8 @@
 use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
 
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
-append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
-drop if inlist(iso,"QE","QE-MER")
+// append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
+// drop if inlist(iso,"QE","QE-MER")
 
 // Germany and subregions
 append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
@@ -39,12 +39,12 @@ append using `kr'
 append using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021.dta"
 
 // Latin America Aggregates and countries with regional averages
-drop if inlist(iso, "XL", "XL-MER", "XF")
+drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
 // Gender - spllin992f
-drop if widcode == "spllin992f"
-append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
+// drop if widcode == "spllin992f"
+// append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
 compress, nocoalesce 
 
 tempfile researchers
@@ -56,6 +56,7 @@ save "`researchers'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
+// replace extrapolation = subinstr(extrapolation, "2020", "2021", 1)
 duplicates drop
 
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")

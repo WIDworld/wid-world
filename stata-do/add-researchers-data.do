@@ -129,6 +129,7 @@ save "`researchers'"
 generate sixlet = substr(widcode, 1, 6)
 keep iso sixlet source method data_quality data_imputation data_points extrapolation
 order iso sixlet source method
+// replace extrapolation = subinstr(extrapolation, "2020", "2021", 1)
 duplicates drop
 
 drop if sixlet=="npopul" & strpos(source,"chancel")>0
