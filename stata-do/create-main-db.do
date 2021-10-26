@@ -59,7 +59,7 @@ replace value = round(value, 0.0001) if inlist(substr(widcode, 1, 1), "s")
 
 duplicates drop iso year p widcode, force
 
-
+drop if strpos(widcode, "hweal992j") & !inlist(iso, "US", "FR", "CN", "IN", "GB", "RU", "ZA", "KR")
 save "$work_data/wid-long.dta", replace
 append using "$work_data/add-carbon-series-output.dta"
 compress
