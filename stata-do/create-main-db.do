@@ -59,13 +59,13 @@ replace value = round(value, 0.0001) if inlist(substr(widcode, 1, 1), "s")
 
 duplicates drop iso year p widcode, force
 
-drop if strpos(widcode, "hweal992j") & !inlist(iso, "US", "FR", "CN", "IN", "GB", "RU", "ZA", "KR")
+// drop if strpos(widcode, "hweal992j") & !inlist(iso, "US", "FR", "CN", "IN", "GB", "RU", "ZA", "KR")
 save "$work_data/wid-long.dta", replace
 append using "$work_data/add-carbon-series-output.dta"
 compress
 
 // save "~/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace
-
+drop if missing(year)
 keep iso year p widcode value 
 
 rename iso Alpha2

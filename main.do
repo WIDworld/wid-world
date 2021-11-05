@@ -241,10 +241,7 @@ do "$do_dir/add-populations.do"
 // -------------------------------------------------------------------------- //
 
 // Aggregate by regions
-do "$do_dir/aggregate-regions.do"
-
-// Aggregate WIR 2018 regions (no longer needed, merged with the previous do)
-*do "$do_dir/aggregate-regions-wir2018.do"
+do "$do_dir/aggregate-macro-regions.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"

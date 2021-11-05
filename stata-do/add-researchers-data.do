@@ -106,7 +106,7 @@ append using "$wid_dir/Country-Updates/Hong Kong/HongKong_ptinc_2021.dta"
 // Georgia 2021 (Neef & BMN 2021) - ptinc series
 append using "$wid_dir/Country-Updates/Georgia/2021_08/dina_georgia_8sep2021.dta"
 
-// Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countrirs) - wealth macro series 
+// Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countries) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
 // Carbon Macro (Chancel&Burq2021) - macro series
