@@ -22,8 +22,7 @@ generate value999i = value/valuenpopul999i
 
 drop value valuenpopul999i
 
-reshape long value, i(iso year p widcode source method data_quality ///
-					  data_points extrapolation) j(pop) string
+reshape long value, i(iso year p widcode) j(pop) string
 replace widcode = "k" + substr(widcode, 2, 5) + pop
 
 drop pop

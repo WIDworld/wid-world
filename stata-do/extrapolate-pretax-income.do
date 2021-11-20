@@ -166,6 +166,10 @@ replace source = newsource
 
 drop method2 newmethod newsource source_fiinc
 
+gduplicates tag iso sixlet, gen(duplicate)
+assert duplicate == 0
+drop duplicate
+
 
 save "$work_data/extrapolate-pretax-income-metadata.dta", replace
 

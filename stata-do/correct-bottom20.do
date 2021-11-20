@@ -276,17 +276,19 @@ restore
 preserve
 	use `final', clear
 	keep year iso p ba
+	drop if missing(ba)
 	replace p = p/1000
-	bys year iso (p) : gen p2 = p[_n+1]
-	replace p2 = 100 if p2 == .
-	gen perc = "p0p"+string(p2)
-	drop p p2
+// 	bys year iso (p) : gen p2 = 100
+// 	replace p2 = 100 if p2 == .
+	gen perc = "p0p"+string(p)
+	drop p
 
 	rename perc    p
 	rename ba aptinc992j
 	renvars aptinc992j, prefix(value)
 	greshape long value, i(iso year p) j(widcode) string
-	drop if p == "p0p100"
+// 	drop if p == "p0p100"
+
 	tempfile ba
 	save `ba'	
 restore

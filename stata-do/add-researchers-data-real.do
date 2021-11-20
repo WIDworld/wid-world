@@ -43,8 +43,9 @@ drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
 // Gender - spllin992f
-// drop if widcode == "spllin992f"
-// append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
+ drop if widcode == "spllin992f" & p == "p0" & iso == "FR"
+merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
+
 compress, nocoalesce 
 
 tempfile researchers
@@ -54,20 +55,27 @@ save "`researchers'"
 // CREATE METADATA
 // -----------------------------------------------------------------------------------------------------------------
 generate sixlet = substr(widcode, 1, 6)
-keep iso sixlet source method data_quality data_imputation data_points extrapolation
+ds year p widcode value currency author, not
+keep `r(varlist)'
 order iso sixlet source method
-// replace extrapolation = subinstr(extrapolation, "2020", "2021", 1)
+drop if iso == "FR" & missing(source) & strpos(sixlet, "ptinc")
+drop if iso == "FR" & strpos(sixlet, "pllin")
 duplicates drop
-
+// drop if missing(source) & missing(method)
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021-metadata.dta", update replace nogen
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")
+duplicates drop
+
 
 duplicates tag iso sixlet, gen(dup)
 assert dup==0
 drop dup
 
 replace method = " " if method == ""
+
 tempfile meta
 save "`meta'"
 // ----------------------------------------------------------------------------------------------------------------

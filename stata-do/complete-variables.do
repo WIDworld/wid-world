@@ -29,7 +29,8 @@ merge n:1 iso sixlet using "$work_data/add-researchers-data-real-metadata.dta", 
 replace sixlet = substr(widcode, 1, 6)
 drop widcode
 generate new = 1
-append using "$work_data/add-researchers-data-real-metadata.dta"
+// append using "$work_data/add-researchers-data-real-metadata.dta"
+append using "$work_data/add-wealth-distribution-metadata.dta"
 replace new = 0 if missing(new)
 duplicates tag iso sixlet, gen(dup)
 drop if new & dup

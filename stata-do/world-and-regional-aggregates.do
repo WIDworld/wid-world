@@ -4,7 +4,7 @@
 clear all
 tempfile combined
 save `combined', emptyok
-
+/*
 // *******List of World Regions************ //
 global QB  AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TN TZ UG ZA ZM ZW ZZ 
 // QC
@@ -315,7 +315,7 @@ write_dta(regions, "~/Documents/GitHub/wid-world/work-data/regions_temp2.dta")
 
 END_OF_R
 
-
+*/
 use "$work_data/regions_temp2.dta", clear
 
 replace iso = iso+"-"+upper(x) if x=="MER"
@@ -424,18 +424,18 @@ replace widcode = substr(widcode, 1, 6)
 rename widcode sixlet
 generate source = ""
 replace source = ///
-`"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-in-the-middle-east-world-inequality-lab-technical-note-2020-06/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Moshrif, “Regional DINA update for Middle East” (2020)[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-middle-east-world-inequality-lab-technical-note-2021-4/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Bajard and Moshrif, “Regional DINA update for Middle East” (2021)[/URL_TEXT][/URL]"' ///
 if (iso == "XN" | iso == "XN-MER")
 
 replace source = ///
-`"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-countries-of-the-africa-region-world-inequality-lab-technical-note-2020-03/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2020)[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-africa-world-inequality-lab-technical-note-2021-5/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2021)[/URL_TEXT][/URL]"' ///
 if (iso == "XF" | iso == "XF-MER")
 
 replace source = ///
-`"[URL][URL_LINK]http://wordpress.wid.world/document/whats-new-about-income-inequality-data-in-asia-world-inequality-lab-technical-note-2020-08/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Yang, “Regional DINA Update for Asia” (2020)[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-asia-world-inequality-lab-technical-note-2021-6/[/URL_LINK]"' + ///
+`"[URL_TEXT]Updated by Bajard and Moshrif, “Regional DINA Update for Asia” (2021)[/URL_TEXT][/URL]"' ///
 if (iso == "XA" | iso == "XA-MER")
 
 replace source = ///
@@ -473,14 +473,7 @@ use "$work_data/extrapolate-pretax-income-metadata.dta", clear
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if strpos(iso, "-MER")
 drop if iso == "WO"
-/*
-drop if inlist(iso, "QF", "QF-MER", "QP", "QP-MER", "WO") ///
-	  | inlist(iso, "WO-MER", "XA", "XA-MER", "XF", "XF-MER", "XL") ///
-	  | inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") ///
-	  | inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") ///
-	  | inlist(iso, "QY", "QY-MER") ///
-	  | inlist(iso, "XL-MER", "XN", "XN-MER", "XR", "XR-MER") & strpos(sixlet, "ptinc")
-*/
+
 append using "`meta'", force
 keep iso sixlet source method data_points extrapolation data_quality data_imputation
 
@@ -491,19 +484,9 @@ use "$work_data/clean-up-output.dta", clear
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & strpos(iso, "-MER")
 drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & iso == "WO"
-/*
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QF" ,"QF-MER" ,"QP" ,"QP-MER" ,"WO" ,"WO-MER" ,"XA" ,"XA-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XF" ,"XF-MER" ,"XL" ,"XL-MER" ,"XN" ,"XN-MER" ,"XR" ,"XR-MER") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QE-MER", "QE", "QX-MER", "QX", "QM-MER", "QM") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "XM-MER", "XM", "QU-MER", "QU", "QW-MER", "QW") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QB", "QD", "QD-MER", "QK", "QN") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QO", "QT", "QV") 
-drop if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j") & inlist(iso, "QY", "QY-MER") 
-*/
 append using `final'
 
 save "$work_data/World-and-regional-aggregates-output.dta", replace
-
-cap rm "$work_data/regions_temp.dta"
-cap rm "$work_data/regions_temp2.dta"
+//
+// cap rm "$work_data/regions_temp.dta"
+// cap rm "$work_data/regions_temp2.dta"

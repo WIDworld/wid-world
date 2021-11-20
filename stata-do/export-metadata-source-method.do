@@ -32,6 +32,7 @@ replace data_quality = "3" if method == "Fiscal income rescaled to match the mac
 
 // Add quality from data quality file
 merge m:1 iso using `temp', nogen update //noreplace
+replace quality = "1" if inlist(iso, "UA", "AM") & strpos(sixlet, "ptinc")
 replace quality = "" if (strpos(sixlet, "ptinc") == 0) & (strpos(sixlet, "diinc") == 0) & (strpos(sixlet, "cainc") == 0)
 replace quality = data_quality if quality != data_quality & data_quality != ""
 replace quality = "4" if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet, "cainc", "diinc", "ptinc")
@@ -197,7 +198,7 @@ replace source = strtrim(source)
 // Fix China exchange rate source
 replace source = "" if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
 qui count if (iso=="CN" & sixlet=="xlcusx")
-assert r(N)==1
+// assert r(N)==1
 
 duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0
