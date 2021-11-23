@@ -70,7 +70,9 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | widcode == "mgdpro999i" ///
 	   | widcode == "mnweal999i" ///
 	   | widcode == "mpweal999i" ///
-	   | widcode == "mgweal999i" 
+	   | widcode == "mgweal999i" ///
+	   | widcode == "mhweal999i" 
+	   
 	
 drop if year < 1950
 drop refyear currency
