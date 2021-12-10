@@ -70,8 +70,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | widcode == "mgdpro999i" ///
 	   | widcode == "mnweal999i" ///
 	   | widcode == "mpweal999i" ///
-	   | widcode == "mgweal999i" ///
-	   | widcode == "mhweal999i" 
+	   | widcode == "mgweal999i" 
 	   
 	
 drop if year < 1950
@@ -174,6 +173,7 @@ rename region iso
 keep iso year widcode value currency
 generate p = "pall"
 replace value = round(value, 1) if strpos(widcode, "npopul")
+
 drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i") & year<1995
 
 tempfile regions

@@ -20,6 +20,7 @@ use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
 
 // Germany and subregions
 append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
+drop if iso == "DE"
 
 // Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
@@ -43,7 +44,7 @@ drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
 // Gender - spllin992f
- drop if widcode == "spllin992f" & p == "p0" & iso == "FR"
+drop if widcode == "spllin992f" & p == "p0" & iso == "FR"
 merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
 
 compress, nocoalesce 
@@ -84,9 +85,6 @@ save "`meta'"
 
 use iso year p widcode value author using "`researchers'", clear
 append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
-
-// Germany: drop old fiscal income series
-drop if strpos(widcode, "fiinc") & (iso == "DE") & (oldobs == 1)
 
 // France 2017: drop specific widcodes
 drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///

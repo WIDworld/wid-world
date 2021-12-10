@@ -295,6 +295,8 @@ order iso year widcode p value
 
 gduplicates drop iso year widcode p, force
 
+drop if iso == "FR" & widcode == "spllin992f" & p == "p0p100"
+
 tempfile calibrated
 save "`calibrated'"
 

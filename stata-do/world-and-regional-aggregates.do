@@ -422,48 +422,70 @@ save `final'
 //-------------------------------------//
 replace widcode = substr(widcode, 1, 6)
 rename widcode sixlet
+ds year p value, not
+keep `r(varlist)'
+duplicates drop
 generate source = ""
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-middle-east-world-inequality-lab-technical-note-2021-4/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Bajard and Moshrif, “Regional DINA update for Middle East” (2021)[/URL_TEXT][/URL]"' ///
-if (iso == "XN" | iso == "XN-MER")
+`"[URL_TEXT]Bajard and Moshrif, “Regional DINA update for Middle East” (2021)[/URL_TEXT][/URL]"' ///
+if inlist(iso, "XN", "XN-MER", "XM", "XM-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-africa-world-inequality-lab-technical-note-2021-5/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Robilliard, “Regional DINA update for Africa” (2021)[/URL_TEXT][/URL]"' ///
-if (iso == "XF" | iso == "XF-MER")
+`"[URL_TEXT]Robilliard, “Regional DINA update for Africa” (2021)[/URL_TEXT][/URL]"' ///
+if (iso == "XF" | iso == "XF-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/2021-dina-regional-update-for-asia-world-inequality-lab-technical-note-2021-6/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Bajard and Moshrif, “Regional DINA Update for Asia” (2021)[/URL_TEXT][/URL]"' ///
-if (iso == "XA" | iso == "XA-MER")
+`"[URL_TEXT]Bajard and Moshrif, “Regional DINA Update for Asia” (2021)[/URL_TEXT][/URL]"' ///
+if (iso == "XA" | iso == "XA-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/2020-dina-update-for-the-russian-federation-world-inequality-lab-technical-note-2020-05/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Neef, “Regional DINA update for Russia”(2020)[/URL_TEXT][/URL]"' ///
-if (iso == "XR" | iso == "XR-MER")
+`"[URL_TEXT]Neef, “Regional DINA update for Russia”(2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XR" | iso == "XR-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
-if (iso == "QF" | iso == "QF-MER")
+`"[URL_TEXT]Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "QF" | iso == "QF-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/simplified-dina-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2020-10/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
-if (iso == "QP" | iso == "QP-MER")
+`"[URL_TEXT]Matthew Fisher-Post, “Regional DINA Update for North America and Oceania” (2020)[/URL_TEXT][/URL]"' ///
+if (iso == "QP" | iso == "QP-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/income-inequality-series-for-latin-america-world-inequality-lab-technical-note-2020-02/[/URL_LINK]"' + ///
-`"[URL_TEXT]Updated by Mauricio De Rosa, Ignacio Flores and Marc Morgan, “Regional DINA update for Latin America”(2020)[/URL_TEXT][/URL]"' ///
-if (iso == "XL" | iso == "XL-MER")
+`"[URL_TEXT]De Rosa, M., Flores, I.,Morgan, M., “Regional DINA update for Latin America”(2020)[/URL_TEXT][/URL]"' ///
+if (iso == "XL" | iso == "XL-MER") & strpos(sixlet, "ptinc")
 
 replace source = ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/update-of-global-income-inequality-estimates-on-wid-world-world-inequality-lab-technical-note-2020-11/[/URL_LINK]"' + ///
 `"[URL_TEXT]Chancel and Moshrif, “Update of global income inequality estimates on WID.world” (2020)[/URL_TEXT][/URL]"' ///
-if (iso == "WO" | iso == "WO-MER")
+if /*(iso == "WO" | iso == "WO-MER")*/ missing(source) & strpos(sixlet, "ptinc")
 
-generate data_quality = 3
+
+replace source = source + ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/distributional-financial-accounts-in-europe-world-inequality-lab-technical-note-2021-12/[/URL_LINK]"' + ///
+`"[URL_TEXT]Blanchet, T., Martinez-Toledano, C. (2021), Distributional Financial Accounts in Europe[/URL_TEXT][/URL]; "' ///
+if inlist(iso, "QE", "QE-MER") & strpos(sixlet, "hweal")
+
+replace source = ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-world-inequality-lab-technical-note-2021-16/ [/URL_LINK]"' + ///
+`"[URL_TEXT]Bajard, F., Chancel, L., Moshrif, R., Piketty, T. (2021). “Global Wealth Inequality on WID.world: Estimates and Imputations”[/URL_TEXT][/URL]"' ///
+if missing(source) & strpos(sixlet, "hweal")
+
+generate method = "WID.world aggregations of individual country data"
+generate data_quality = "3" if strpos(sixlet, "ptinc")
+
+order iso sixlet source method
+duplicates drop
+
+duplicates tag iso sixlet, gen(dup)
+assert dup==0
+drop dup
 
 tempfile meta 
 save `meta'
