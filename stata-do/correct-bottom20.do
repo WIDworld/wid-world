@@ -8,7 +8,7 @@ clear all
 tempfile combined
 save `combined', emptyok
 global plafond 5
-global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY SR SV TT UY VE 
+global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY SR SV TT UY VE US
 
 
 use "$work_data/calibrate-dina-output.dta", clear

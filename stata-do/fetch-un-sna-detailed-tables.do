@@ -95,8 +95,8 @@ forvalues i = 1/2 {
 }
 
 // Copy new data to un-sna-detailed
-copy "$work_data/un-sna-detailed/401.dta" "$un_data/sna-detailed/401.dta", replace 
-copy "$work_data/un-sna-detailed/402.dta" "$un_data/sna-detailed/402.dta", replace
+copy "$work_data/un-sna-detailed/401.dta" "$input_data_dir/un-sna/401.dta", replace 
+copy "$work_data/un-sna-detailed/402.dta" "$input_data_dir/un-sna/402.dta", replace
 
 // Restore old working directory
 cd "`working_dir'"

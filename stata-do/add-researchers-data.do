@@ -77,8 +77,8 @@ append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul
 // Asia (MCY 2020 & BM 2021) - many macro variables + fiinc + ptinc series
 append using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021.dta"
 
-// Russia (Neef 2020) - ongoing 
-append using "$wid_dir/Country-Updates/Russia/2020/October/Russia2020.dta"
+// Russia (Neef 2021) -  ptinc series
+append using "$wid_dir/Country-Updates/Russia/2021/November/Russia2021.dta"
 
 // Africa (ccgm & Robillard 2021) - ptinc
 append using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021.dta" // data_quality added in metadata do.file
@@ -90,11 +90,11 @@ append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
 drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
-// Australia, New Zealand & Canada (Matt 2020) - ongoing
-append using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020"
+// Australia, New Zealand & Canada (Matt 2021) - ptinc & fiinc series
+append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021"
 
 // US (Zucman 2020) - ongoing
-append using "$wid_dir/Country-Updates/US/2021/February/US_full_2020.dta"
+append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
@@ -137,7 +137,7 @@ merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-20
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2021/February/US_full_2020-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/agg-carbon-distribution-2021-metadata.dta", update replace nogen
@@ -157,6 +157,7 @@ save "`meta'"
 
 use "$work_data/calculate-average-over-output.dta", clear
 drop if inlist(iso, "NZ", "AU", "CA", "ID", "SG", "TW")
+drop if missing(value)
 
 generate oldobs = 1
 

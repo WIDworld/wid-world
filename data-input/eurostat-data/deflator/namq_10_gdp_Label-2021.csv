@@ -1,10 +1,13 @@
-"DATASET: GDP and main components  (output, expenditure and income) [namq_10_gdp]"
+"DATASET: GDP and main components (output, expenditure and income) [namq_10_gdp]"
 
-"LAST UPDATE: 19.07.21 06:55:44"
+"LAST UPDATE: 08.04.22 09:16:39"
 
-"EXTRACTION DATE: 19.07.21 14:30:20"
+"EXTRACTION DATE: 08.04.22 14:42:27"
 
 "SOURCE OF DATA: Eurostat"
+
+"GEO"
+"Euro area - 19 countries  (from 2015)"
 
 "TIME"
 "1975Q1"
@@ -192,9 +195,9 @@
 "2020Q3"
 "2020Q4"
 "2021Q1"
-
-"GEO"
-"Euro area - 19 countries  (from 2015)"
+"2021Q2"
+"2021Q3"
+"2021Q4"
 
 "UNIT"
 "Price index (implicit deflator), 2015=100, euro"

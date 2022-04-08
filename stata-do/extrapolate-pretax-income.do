@@ -159,8 +159,10 @@ replace newmethod = method2                 if strpos(sixlet, "ptinc") & method2
 replace method = newmethod 
 
 replace source = rtrim(source)
+replace source_fiinc = rtrim(source_fiinc)
+replace source_fiinc = "" if source_fiinc == ";"
 generate newsource = source
-replace newsource = source + "; " + source_fiinc if strpos(sixlet, "ptinc") & source_fiinc != "" & substr(source, -1, .) != ";" & newsource != ""
+replace newsource = source_fiinc + " " + source if strpos(sixlet, "ptinc") & source_fiinc != "" & substr(source, -1, .) != ";" & newsource != ""
 replace newsource = source_fiinc                 if strpos(sixlet, "ptinc") & source_fiinc != "" & source == ""
 replace source = newsource
 

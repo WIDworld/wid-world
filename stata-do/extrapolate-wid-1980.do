@@ -77,7 +77,7 @@ rename valuetptinc992j t
  
 
 // -------------------------------------------------------------------------- //
-// Interpolation missing years in between with uncontinuous series
+// Interpolation missing years with uncontinuous series: RU CI BN
 // -------------------------------------------------------------------------- //
 
 // Interpolate missing years for CI & BN
@@ -131,7 +131,7 @@ bys iso year : replace n = n[_n-1] if p == 99999
 bys iso year : generate x = s if year == min
 bys iso p : egen x2 = mode(x)
 sort iso p year 
-replace s = x2 if missing(s) /* & /* !inlist(iso, "JP", "KR") */ */
+replace s = x2 if missing(s) & year != 2021 /* & /* !inlist(iso, "JP", "KR") */ */
 drop x*  
 
 sort iso p year 

@@ -1,3 +1,5 @@
+rm(list=ls())
+
 library(jsonlite)
 library(glue)
 library(readr)

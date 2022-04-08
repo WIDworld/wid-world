@@ -156,6 +156,7 @@ preserve
 		replace `v' = 0 if missing(`v')
 	}
 	renvars value*, predrop(5)
+	
 	export excel "$wid_dir/wid-regions-list.xlsx", sheet("WID", replace) firstrow(variables)
 restore
 

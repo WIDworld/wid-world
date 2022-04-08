@@ -33,7 +33,7 @@ drop if iso == "KR"
 append using `kr'
 
 // -----------------------------------------------------------------------------
-// 2020 - UPDATE (to be 2021)
+// 2021 UPDATE 
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
@@ -43,9 +43,9 @@ append using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021.dta"
 drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
 
-// Gender - spllin992f
-drop if widcode == "spllin992f" & p == "p0" & iso == "FR"
-merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
+// // Gender - spllin992f
+// drop if widcode == "spllin992f" & p == "p0" & iso == "FR"
+// merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta", nogen
 
 compress, nocoalesce 
 

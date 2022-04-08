@@ -10,7 +10,7 @@ save `combined', emptyok
 * 	Get regions decomposition
 // ---------------------------------------------------- //
 
-use "$work_data/import-country-codes-output", clear
+use "$work_data/import-country-codes-output.dta", clear
 
 drop if strpos(iso, "-")
 drop titlename shortname
@@ -99,6 +99,28 @@ drop if (iso == "DD") & (year >= 1991)
 drop if (iso == "SU") & (year > 1990)
 
 merge m:1 iso using "`region'", nogen keep(matched)
+
+preserve
+	collapse (firstnm) region*, by(iso year)
+	generate region7 = "World"
+	greshape long region, i(iso year) j(j)
+	drop j
+	drop if region == ""
+	generate value = 1
+	greshape wide value, i(region year) j(iso)
+	foreach v of varlist value* {
+		replace `v' = 0 if missing(`v')
+	}
+	renvars value*, predrop(5)
+	rename region iso
+	merge m:1 iso using "$work_data/import-region-codes-output.dta", keep(matched) nogen
+	drop iso shortname matchname
+	rename titlename region 
+	order region AD
+	gsort region year
+	
+	export excel "$wid_dir/wid-regions-list.xlsx", sheet("WID", replace) firstrow(variables)
+restore
 
 
 foreach x of varlist region* {

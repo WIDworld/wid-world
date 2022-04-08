@@ -64,7 +64,7 @@ save "$work_data/wid-long.dta", replace
 append using "$work_data/add-carbon-series-output.dta"
 compress
 
-save "~/Dropbox/W2ID/Latest_Updated_WID/wid-data.dta", replace
+save "~/Dropbox/WIL/W2ID/Latest_Updated_WID/wid-data.dta", replace
 drop if missing(year)
 keep iso year p widcode value 
 
