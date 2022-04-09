@@ -2,7 +2,7 @@
 import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
-rename grossdomesticproduct gdp
+rename gdpatcurrentpricesnationalcurren gdp
 cap ren unit currency
 
 tempfile gdp
@@ -18,7 +18,7 @@ cap ren unit currency
 // Dropping Ethiopian GNI 1987-1989 (no GDP data)
 *drop if countryorarea=="Ethiopia" & inlist(year,1987,1988,1989)
 
-rename grossnationalincome gni
+rename gninationalcurrency gni
 merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
 
 save "`gdp'", replace
@@ -29,7 +29,7 @@ import delimited "$un_data/sna-main/gdp/gdp-usd-current-$pastyear.csv", ///
 cap rename countryarea countryorarea
 drop if unit == "..."
 cap drop unit
-rename grossdomesticproduct gdp_usd
+rename gdpatcurrentpricesusdollars gdp_usd
 replace gdp_usd = subinstr(gdp_usd, ",", ".", 1)
 destring gdp_usd, replace
 merge 1:1 countryorarea year using "`gdp'", keep(match) nogenerate //Regions are dropped 
@@ -44,6 +44,7 @@ replace countryorarea = "Côte d'Ivoire"  if (countryorarea == "C�te d'Ivoire"
 replace countryorarea = "Curaçao"        if (countryorarea == "Cura�ao")
 replace countryorarea = "Swaziland"      if (countryorarea == "Kingdom of Eswatini")
 replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
+replace countryorarea = "China, People's Republic of" if (countryorarea == "China (mainland)")
 
 
 // Identify countries ------------------------------------------------------- //

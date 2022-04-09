@@ -10,6 +10,8 @@ replace countryorarea = "Côte d'Ivoire"    if (countryorarea=="C�te d'Ivoire"
 replace countryorarea = "Curaçao"          if (countryorarea=="Cura�ao")
 replace countryorarea = "Swaziland"      if (countryorarea == "Kingdom of Eswatini")
 replace countryorarea = "Czech Republic" if (countryorarea == "Czechia")
+replace countryorarea = "China, People's Republic of" if (countryorarea == "China (mainland)")
+
 countrycode countryorarea, generate(iso) from("un sna main")
 drop countryorarea
 

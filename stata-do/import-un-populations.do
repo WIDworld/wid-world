@@ -5,7 +5,7 @@
 
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_totalpopulation_bothsexes.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_totalpopulation_bothsexes.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -21,7 +21,7 @@ foreach v of varlist h-bz {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastyear}_totalpopulation_bothsexes.xlsx", ///
+	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_totalpopulation_bothsexes.xlsx", ///
 		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
 	// Correct column names
 	foreach v of varlist h-bz {
@@ -36,11 +36,11 @@ preserve
 
 	keep regionsubregioncountryorar notes countrycode type parentcode value2021	
 	
-	tempfile $year
-	save `$year'
+	tempfile $pastyear
+	save `$pastyear'
 restore	
 
-merge 1:1 regionsubregioncountryorar notes countrycode type parentcode using `$year', nogen
+merge 1:1 regionsubregioncountryorar notes countrycode type parentcode using `$pastyear', nogen
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -59,7 +59,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -78,7 +78,7 @@ foreach v of varlist i-ac {
 }
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
 			cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
 		// Correct column names
 	foreach v of varlist i-ac {
@@ -95,13 +95,13 @@ preserve
 		}
 	}
 
-	keep if referencedateasof1july == $year	
+	keep if referencedateasof1july == $pastyear	
 	
-	tempfile age_$year
-	save `age_$year'
+	tempfile age_$pastyear
+	save `age_$pastyear'
 restore	
 
-append using `age_$year'
+append using `age_$pastyear'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -132,7 +132,7 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -152,7 +152,7 @@ foreach v of varlist i-ac {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
 		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
 		// Correct column names
 	foreach v of varlist i-ac {
@@ -169,13 +169,13 @@ preserve
 		}
 	}
 
-	keep if referencedateasof1july == $year	
+	keep if referencedateasof1july == $pastyear	
 	
-	tempfile male_$year
-	save `male_$year'
+	tempfile male_$pastyear
+	save `male_$pastyear'
 restore	
 
-append using `male_$year'
+append using `male_$pastyear'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
@@ -216,7 +216,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -236,7 +236,7 @@ foreach v of varlist i-ac {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
 		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
 		// Correct column names
 	foreach v of varlist i-ac {
@@ -253,13 +253,13 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F15_3_ANNUAL_POPUL
 		}
 	}
 
-	keep if referencedateasof1july == $year	
+	keep if referencedateasof1july == $pastyear	
 	
-	tempfile female_$year
-	save `female_$year'
+	tempfile female_$pastyear
+	save `female_$pastyear'
 restore	
 
-append using `female_$year'
+append using `female_$pastyear'
 
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")

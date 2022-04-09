@@ -75,8 +75,8 @@ keep if p == "p0p100"
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
-replace xlceup999i = . if year != $year
-replace xlceux999i = . if year != $year
+replace xlceup999i = . if year != $pastyear
+replace xlceux999i = . if year != $pastyear
 
 egen xlceup999i2 = mean(xlceup999i), by(iso)
 egen xlceux999i2 = mean(xlceux999i), by(iso)
@@ -291,7 +291,7 @@ for (concept in c("i","w")){
         
         return(as.data.frame(
           generate_tabulation(dist, gperc/1e5)) 
-          %>% mutate(year = .x$year[1],
+          %>% mutate(year = .x$pastyear[1],
                      p = round(fractile*1e5),
                      n = diff(c(p, 1e5)),
                      ts = top_share,

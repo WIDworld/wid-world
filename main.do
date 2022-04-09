@@ -12,46 +12,46 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
 
-do "$do_dir/import-country-codes.do"
+// do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
 // Import, clean, and convert to the new format the old WTID
 // -------------------------------------------------------------------------- //
-
-// Import original Excel file to Stata
-do "$do_dir/import-wtid-from-excel-to-stata.do"
-
-// Import the conversion table from the old to the new WID codes
-do "$do_dir/import-conversion-table.do"
-
-// Add the new WID variable codes
-do "$do_dir/add-new-wid-codes.do"
-
-// Correct the metadata
-do "$do_dir/correct-wtid-metadata.do"
-
-// Identify and harmonize units from the old database
-do "$do_dir/harmonize-units.do"
-
-// Convert currency amounts to nominal
-do "$do_dir/convert-to-nominal.do"
-
-// Calculate income averages from shares
-do "$do_dir/calculate-averages.do"
-
-// Add some macroeconomic data from Piketty & Zucman (2013)
-do "$do_dir/add-macro-data.do"
-
+//
+// // Import original Excel file to Stata
+// do "$do_dir/import-wtid-from-excel-to-stata.do"
+//
+// // Import the conversion table from the old to the new WID codes
+// do "$do_dir/import-conversion-table.do"
+//
+// // Add the new WID variable codes
+// do "$do_dir/add-new-wid-codes.do"
+//
+// // Correct the metadata
+// do "$do_dir/correct-wtid-metadata.do"
+//
+// // Identify and harmonize units from the old database
+// do "$do_dir/harmonize-units.do"
+//
+// // Convert currency amounts to nominal
+// do "$do_dir/convert-to-nominal.do"
+//
+// // Calculate income averages from shares
+// do "$do_dir/calculate-averages.do"
+//
+// // Add some macroeconomic data from Piketty & Zucman (2013)
+// do "$do_dir/add-macro-data.do"
+//
 // -------------------------------------------------------------------------- //
 // Calculate new variables for the new database
 // -------------------------------------------------------------------------- //
-
-// Calculate income in each category from the composition variables
-do "$do_dir/calculate-income-categories.do"
-
-// Calculate o- variables
-do "$do_dir/calculate-average-over.do"
-
+//
+// // Calculate income in each category from the composition variables
+// do "$do_dir/calculate-income-categories.do"
+//
+// // Calculate o- variables
+// do "$do_dir/calculate-average-over.do"
+//
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -63,7 +63,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* 
+/* */
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -208,7 +208,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
- */
+/* */
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -313,13 +313,13 @@ do "$do_dir/export-metadata-other.do"
 
 // Export the main database
 do "$do_dir/create-main-db.do"
-do "$do_dir/export-main-db.do"
+// do "$do_dir/export-main-db.do"
 
 // Export the list of countries
-do "$do_dir/export-countries.do"
+// do "$do_dir/export-countries.do"
 
 // Make the variable tree
-do "$do_dir/make-variable-tree.do"
+// do "$do_dir/make-variable-tree.do"
 
 // -------------------------------------------------------------------------- //
 // Report updated and deleted data
@@ -353,4 +353,4 @@ do "$do_dir/make-variable-tree.do"
 // Summary table
 // -------------------------------------------------------------------------- //
 
-do "$do_dir/create-summary-table.do"
+// do "$do_dir/create-summary-table.do"
