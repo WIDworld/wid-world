@@ -193,6 +193,7 @@ bys iso year : assert _N == 127 if !inlist(iso, "IN")  // there are no full dist
 replace a  = . if was_miss == 1
 replace ta = . if was_miss == 1
 replace t  = . if was_miss == 1
+replace ba = . if was_miss == 1
 
 drop was_miss
 

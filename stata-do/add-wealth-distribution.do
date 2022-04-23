@@ -395,7 +395,7 @@ if iso == "PL" & strpos(sixlet, "hweal")
 replace source = source + ///
 `"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/distributional-financial-accounts-in-europe-world-inequality-lab-technical-note-2021-12/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Blanchet, T., Martinez-Toledano, C. (2021), Distributional Financial Accounts in Europe; "' + `"[/URL_TEXT][/URL]"' ///
-if strpos("FR GB DK DE FI IT NL NO ES CH", iso) != 0 & strpos(sixlet, "hweal")
+if strpos("AT BE BG CH CY CZ DK DE EE FI FR GB GR HU HR IS IE IT LV LT LU MT NL NO PL PT RO SK SI ES SE", iso) != 0 & strpos(sixlet, "hweal")
 
 * The rest of the world - imputed
 replace source = source + ///
