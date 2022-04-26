@@ -11,21 +11,18 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-<<<<<<< Updated upstream
 
 // do "$do_dir/import-country-codes.do"
 
 // -------------------------------------------------------------------------- //
 // Import, clean, and convert to the new format the old WTID
 // -------------------------------------------------------------------------- //
-=======
 //
 // do "$do_dir/import-country-codes.do"
 //
 // // -------------------------------------------------------------------------- //
 // // Import, clean, and convert to the new format the old WTID
 // // -------------------------------------------------------------------------- //
->>>>>>> Stashed changes
 //
 // // Import original Excel file to Stata
 // do "$do_dir/import-wtid-from-excel-to-stata.do"
@@ -51,15 +48,12 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // // Add some macroeconomic data from Piketty & Zucman (2013)
 // do "$do_dir/add-macro-data.do"
 //
-<<<<<<< Updated upstream
 // -------------------------------------------------------------------------- //
 // Calculate new variables for the new database
 // -------------------------------------------------------------------------- //
-=======
 // // -------------------------------------------------------------------------- //
 // // Calculate new variables for the new database
 // // -------------------------------------------------------------------------- //
->>>>>>> Stashed changes
 //
 // // Calculate income in each category from the composition variables
 // do "$do_dir/calculate-income-categories.do"
@@ -294,7 +288,7 @@ do "$do_dir/extrapolate-wid-forward.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
-//Compute World and Regional Aggregates
+//Compute World and Regional Aggregatesccxcccc
 do "$do_dir/world-and-region-dist-aggregates.do"
 
 // Compute Top10/Bottom50 ratio 
@@ -329,19 +323,16 @@ do "$do_dir/export-metadata-other.do"
 // Export the main database
 do "$do_dir/create-main-db.do"
 // do "$do_dir/export-main-db.do"
-<<<<<<< Updated upstream
 
 // Export the list of countries
 // do "$do_dir/export-countries.do"
 
 // Make the variable tree
-=======
 //
 // // Export the list of countries
 // do "$do_dir/export-countries.do"
 //
 // // Make the variable tree
->>>>>>> Stashed changes
 // do "$do_dir/make-variable-tree.do"
 
 // -------------------------------------------------------------------------- //

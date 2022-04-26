@@ -136,8 +136,8 @@ merge m:1 iso using `pppSS_SD', update replace nogen
 //
 generate value_origin = gdp/value if inlist(iso, "SS", "ER", "TL", "KS") 
 gsort iso year
-br if inlist(iso, "SD", "SS", "ER", "ET", "TL", "ID") ///
-	| inlist(iso, "KS", "RS", "TZ", "ZZ")
+// br if inlist(iso, "SD", "SS", "ER", "ET", "TL", "ID") ///
+// 	| inlist(iso, "KS", "RS", "TZ", "ZZ")
 
 preserve 
 	keep year iso gdp value_origin

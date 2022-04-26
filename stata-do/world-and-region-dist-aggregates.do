@@ -291,7 +291,7 @@ for (concept in c("i","w")){
         
         return(as.data.frame(
           generate_tabulation(dist, gperc/1e5)) 
-          %>% mutate(year = .x$pastyear[1],
+          %>% mutate(year = .x$year[1],
                      p = round(fractile*1e5),
                      n = diff(c(p, 1e5)),
                      ts = top_share,
@@ -317,7 +317,6 @@ END_OF_R
 
 /**/
 use "$work_data/regions_temp2.dta", clear
-
 replace iso = iso+"-"+upper(x) if x=="MER"
 
 keep year threshold top_* bottom_* bracket_* p n iso concept 
