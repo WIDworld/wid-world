@@ -67,7 +67,7 @@ rename s_2 bracket_share
 egen nb_gperc = count(bracket_share), by(iso year)
 bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
 assert round(total_s, 1) == 1 if !missing(total_s)
-drop total_s
+drop total_s nb_gperc
 gsort iso year -p
 by iso year  : generate ts = sum(bracket_share) 
 by iso year  : generate ta = sum(bracket_average*n)/(1e5 - p) if !missing(bracket_average) 
