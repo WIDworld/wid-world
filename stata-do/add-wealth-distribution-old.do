@@ -1,91 +1,212 @@
 
-// Add historical wealth series with corrected forbes wealth series from 1995 onwards
-// Complete replace of the series we have!
-// to double check 2021 when aggregate HH wealth is updated in October 2022
 
+// "wealth-distributions-all-c.dta" & "dist-wealth-Aug2021.dta" are the same dataset, the first is wide and the second is long format
+
+// I. HH wealth aggregates
+use if widcode == "mhweal999i" using "$wid_dir/Country-Updates/Wealth/2021_July/dist-wealth-Aug2021.dta", clear
+rename value value_c
+
+tempfile mhweal_all
+save `mhweal_all'
 
 use "$work_data/add-researchers-data-real-output.dta", clear
-keep if inlist(widcode, "mhweal999i", "npopul992i")
-drop p currency 
-reshape wide value, i(iso year) j(widcode) string
-renvars value*, pred(5)
-drop if missing(mhweal999i)
-generate ahweal992i = mhweal999i/npopul992i if !missing(mhweal999i)
+keep if widcode == "mhweal999i"
+
+merge 1:m iso year using `mhweal_all', nogen
+
+// Cross validation, compare the most recent series with existent series in WID
+
+// levelsof iso if !missing(value), local(x)
+// foreach l in `x' {
+// 	tw (line value year, sort) (line value_c year, sort) if iso == "`l'"
+// 	graph export "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2021_July/graphs/mhweal_`l'.png", replace	
+// }
+
+// Countries for which we replace completely the macro wealth
+replace value = . if (strpos("KR MX NL SG TW FI", iso) != 0) 
+
+// Countries for which we rescale WID to most up to data macro wealth
+bys iso : generate temp1 = value_c/value if year == 1995 & (strpos("CA CZ DK FR GB JP NO RU US", iso) != 0) 
+bys iso : egen ratio = mode(temp1)
+drop temp1
+bys iso : replace value_c = value*ratio if missing(value_c)
+drop value ratio
+rename value_c value
+
+// Fill in currency
+bys iso : egen currency_2 = mode(currency)
+replace currency = currency_2 
+drop currency_2
+
+tempfile aggregates
+save `aggregates'
+
+// II. Original Wealth Distribution series
+// Clean the format of original series
+use "$work_data/add-researchers-data-real-output.dta", clear
+
+keep if strpos(widcode, "hweal")
+drop if widcode == "ohweal992j" & inlist(iso, "CN", "CN-RU", "CN-UR")
+replace p = "p0p100" if p == "pall" & inlist(substr(widcode, 1, 1), "a", "s")
+split p, parse("p")
+drop p1 
+destring p2, replace force
+destring p3, replace force
+replace p3 = p2+1    if inrange(p2, 0, 98)         & missing(p3)
+replace p3 = p2+.1   if inrange(p2, 99, 99.8)      & missing(p3)
+replace p3 = p2+.01  if inrange(p2, 99.9, 99.98)   & missing(p3)
+replace p3 = p2+.001 if inrange(p2, 99.99, 99.998) & missing(p3)
+replace p3 = p2+.001 if p2 == 99.999               & missing(p3)
+
+replace p = "p" + string(p2) + "p" + string(p3) ///
+	if inlist(substr(widcode, 1, 1), "a", "t", "b") & inlist(iso, "FR", "CN", "CN-RU", "CN-UR") ///
+	 & !(substr(p, 3, 1) == "p" | substr(p, 4, 1) == "p")
+
+replace p = "p" + string(p2) + "p100" ///
+	if inlist(substr(widcode, 1, 1), "o", "s") & inlist(iso, "FR", "CN", "CN-RU", "CN-UR") ///
+	 & !(substr(p, 3, 1) == "p" | substr(p, 4, 1) == "p")
+	
+replace widcode = "a" + substr(widcode, 2, .) if substr(widcode, 1, 1) == "o"
+duplicates drop iso year p widcode if inlist(iso, "FR", "CN", "CN-RU", "CN-UR"), force	
+drop p3 p2
 
 
-tempfile mhweal
-save `mhweal'
+// Parse percentiles
+generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
+generate long p_max = round(1000*real(regexs(2))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
+
+replace p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)$")
+
+replace p_max = 1000*100 if missing(p_max)
+
+replace p_max = p_min + 1000 if missing(p_max) & inrange(p_min,     0, 98000)
+replace p_max = p_min + 100  if missing(p_max) & inrange(p_min, 99000, 99800)
+replace p_max = p_min + 10   if missing(p_max) & inrange(p_min, 99900, 99980)
+replace p_max = p_min + 1    if missing(p_max) & inrange(p_min, 99990, 99999)
+
+keep if inlist(substr(widcode, 1, 1) , "a", "t", "s")
+keep if inlist(substr(widcode, -1, 1) , "j")
+
+tempfile origin
+save `origin'
+
+// Keep only g-percentiles
+generate n = round(p_max - p_min, 1)
+keep if inlist(n, 1, 10, 100, 1000)
+drop if n == 1000 & p_min >= 99000
+drop if n == 100  & p_min >= 99900
+drop if n == 10   & p_min >= 99990
+drop p p_max currency
+rename p_min p
+
+reshape wide value, i(iso year p) j(widcode) string
+
+rename valueahweal992j a
+rename valueshweal992j s
+rename valuethweal992j t
+
+tempfile origin_gperc
+save `origin_gperc'
+
+// Keep top brackets
+use "`origin'", clear
+keep if regexm(p, "^p([0-9\.]+)(p100)?$")
+drop p p_max currency
+rename p_min p 
+gduplicates drop iso year p widcode, force
+sort iso year widcode p
+
+reshape wide value, i(iso year p) j(widcode) string
+
+rename valueahweal992j ta
+rename valueshweal992j ts
+drop valuethweal992j
+
+tempfile origin_top 
+save `origin_top'
+merge 1:1 iso year p using `origin_gperc', nogen
+drop n
+renvars a s t ta ts, pref("wid_")
+order iso year p wid_a wid_s wid_t wid_ta wid_ts
+
+tempfile original
+save `original'
+
+// III. Import New Series 
+* (!) Name of the imported dta might be different but it is the same data
+use year p iso bracket_average bracket_share top_share bottom_share bottom_average top_average threshold ///
+using "$wid_dir/Country-Updates/Wealth/2021_July/wealth-distributions-all-c.dta", clear
+
+renvars bracket_average bracket_share threshold top_share top_average bottom_share bottom_average \ a s t ts ta bs ba
+renvars a s t ts ta bs ba, pref("upd_")
+
+merge 1:m iso year p using `original', nogen
+
+// levelsof iso if !missing(wid_a), local(x)
+// foreach l in `x' {
+// 	tw (line upd_ta year, sort) (line wid_ta year, sort) if iso == "`l'" & p == 90000
+// 	graph export "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2021_July/graphs/ta_`l'.png", replace	
+// }
+// foreach l in `x' {
+// 	tw (line upd_ts year, sort) (line wid_ts year, sort) if iso == "`l'" & p == 90000
+// 	graph export "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2021_July/graphs/ts_`l'.png", replace	
+// }
 
 
-use "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear
-merge m:1 iso year using "`mhweal'", nogen keep(master match)
-replace a = . if missing(mhweal999i)
-// bys iso   : egen last_year = lastnm(year)
-// tab iso last_year 
-// bys iso : egen first_year = first(year)
-
-replace a = a*ahweal992i if !missing(ahweal992i)
-order iso year p s a 
-drop  ahweal992i 
-
-* Here we merge with the data corrected by Forbes (BBM + Correction)
-* with every wealth distribution updated we need to run the code here "~/Dropbox/WIL/WID_WealthForbes"
-// merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2022_May/wealth-distributions-all.dta", update replace nogen
-merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Wealth/2022_May/wealth-distributions-corrected.dta", update replace nogen
-replace n = n*1e5 if year>=1995
-keep iso year p n s a bracket_average bracket_share mhweal999i npopul992i threshold
-
-bys iso : egen year_common = min(year) if !missing(bracket_average) & !missing(a)
+bys iso : egen year_common = min(year) if !missing(upd_a) & !missing(wid_a)
 gsort iso year p
-bys iso p : generate temp1 = bracket_average/a   if year == year_common
+bys iso p : generate temp1 = upd_a/wid_a   if year == year_common
 bys iso p : egen ratio_a = mode(temp1)
-drop temp1 
-// US FR DK
-bys iso : replace bracket_average  = a*ratio_a   if !missing(a) & year<year_common & missing(bracket_average)
-drop  year_common ratio_a
+drop temp1
+bys iso p : generate temp1 = upd_ta/wid_ta if year == year_common
+bys iso p : egen ratio_ta = mode(temp1)
+drop temp1
+bys iso p : generate temp1 = upd_t/wid_t   if year == year_common
+bys iso p : egen ratio_t = mode(temp1)
+replace ratio_t = 1 if missing(ratio_t) 
+drop temp1 year_common
+
+bys iso : replace upd_a  = wid_a*ratio_a   if missing(upd_a)
+bys iso : replace upd_ta = wid_ta*ratio_ta if missing(upd_ta)
+bys iso : replace upd_t  = wid_t*ratio_t   if missing(upd_t)
+
+drop ratio_*
+
 gsort iso year p
-generate average = mhweal999i/npopul992i if !missing(mhweal999i)
- 
-bys iso : generate s_2  =  bracket_average*n/1e5/average  if !missing(bracket_average) 
+by iso year : generate n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
+egen average = total(upd_a*n/1e5), by(iso year)
 
-// bys iso p : generate temp1 = s_2/s if year == 1998 & iso == "DE"
-// bys iso p : egen ratio_s_de = mode(temp1)
-// drop temp1 
-// gsort iso year p
-//
-// replace s_2 = s*ratio_s_de if iso == "DE" & missing(s_2)
-// drop ratio_s_de
-//  br if iso == "DE" & p== 90000
-// tw (line s year, sort) (line s_2 year, sort)  if iso == "DE" & p == 90000
+replace upd_s = upd_a*n/1e5/average
 
-bys iso : generate miss_s = 1 if missing(s_2) & !missing(s)
-replace miss_s = 0 if missing(miss_s)
-replace s_2 = s if miss_s == 1
-drop s a npopul992i bracket_share miss_s 
-rename s_2 bracket_share
-
-egen nb_gperc = count(bracket_share), by(iso year)
-bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
-assert round(total_s, 1) == 1 if !missing(total_s)
-drop total_s
 gsort iso year -p
-by iso year  : generate ts = sum(bracket_share) 
-by iso year  : generate ta = sum(bracket_average*n)/(1e5 - p) if !missing(bracket_average) 
-bys iso year : generate bs = 1 - ts if !missing(ts)
-bys iso year : generate ba = (bracket_share/(1-p/100000))*average if !missing(bracket_average)
-order iso year p bracket_share bracket_average ts ta bs ba 
-gsort iso year p
+by iso year  : replace upd_ts = sum(upd_s)
+by iso year  : replace upd_ta = sum(upd_a*n)/(1e5 - p)
+bys iso year : replace upd_bs = 1 - upd_ts
+bys iso year : replace upd_ba = (upd_s/(1-p/100000))*average
 
-renvars bracket_average bracket_share threshold / a s t
-// tw (line ts year if iso == "DE" & p == 90000) ///
-//    (line ts year if iso == "US" & p == 90000) ///
-//    (line ts year if iso == "FR" & p == 90000)
+replace upd_s  = wid_s  if iso == "US" & year<1962
+replace upd_ts = wid_ts if iso == "US" & year<1962
+replace upd_bs = 1 - upd_ts if iso == "US" & year<1962
+
+drop wid_* average n
+ds iso year p, not
+renvars `r(varlist)', pred(4)
 
 tempfile all
 save `all'
+/*
+use year iso average using "$wid_dir/Country-Updates/Wealth/2021_July/wealth-distributions-all-c.dta", clear
+duplicates drop
+rename average value
+generate widcode = "ahweal992j"
+generate p = "p0p100"
 
-// Export 
-keep year iso p a s t
+tempfile average
+save `average'
+*/
+// Reshape & Save the data
+*use "`all'", clear
+keep year iso  p a s t
 
 replace p = p/1000
 bys year iso  (p) : gen p2 = p[_n+1]
@@ -132,21 +253,14 @@ preserve
 	tempfile bottom
 	save `bottom'	
 restore
-preserve 
-	use `all', clear
-	keep year iso mhweal999i
-	duplicates drop 
-	generate p = "pall"
-	generate widcode = "mhweal999i"
-	rename mhweal999i value
-	
-	tempfile aggregates
-	save `aggregates'
-restore
+
 append using `top'
 append using `bottom'
 append using `aggregates'
+*append using `average'
+
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
+
 duplicates drop iso year p widcode, force // p0p1  p99.999p100 for a & s
 
 compress
@@ -161,10 +275,11 @@ append using "`final'"
 duplicates drop iso year p widcode, force // FR & DE-'s 
 
 compress
-// tw (line value year if widcode == "shweal992j" & p == "p90p100" & iso == "DE", sort)
 save "$work_data/add-wealth-distribution-output.dta", replace
 
 // V. Metadata
+// use "$work_data/add-researchers-data-real-metadata.dta", clear
+// drop if sixlet == "ohweal"
 use "`final'", clear
 generate sixlet = substr(widcode, 1, 6)
 ds year p widcode value currency, not
@@ -305,33 +420,29 @@ drop duplicate
 label data "Generated by add-wealth-distribution.do"
 save "$work_data/add-wealth-distribution-metadata.dta", replace
 
-/* 
-br if inlist(iso, "US", "FR", "DE", "GB")
 
-tw (line ts year if p == 99000, sort) (line top_share year if p == 99000, sort) ///
-   (line ts year if p == 90000, sort) (line top_share year if p == 90000, sort) if iso == "DE"
-tw (line ta year, sort)  (line top_average year, sort)    if iso == "DE" & p == 90000
 
-tw (line ts year, sort) (line top_share year, sort) if iso == "US" & p == 99000
-tw (line ts year, sort) (line top_share year, sort) if iso == "US" & p == 90000
-tw (line ta year, sort)  (line top_average year, sort)     if iso == "US" & p == 90000
-tw (line top_average year, sort) if iso == "US" & p == 90000
-
-tw (line ts year, sort) (line top_share year, sort) if iso == "FR" & p == 99000
-tw (line ts year, sort) (line top_share year, sort) if iso == "FR" & p == 90000
-tw (line ta year, sort)  (line top_average year, sort)    if iso == "FR" & p == 90000
-tw (line top_average year, sort) if iso == "FR" & p == 90000
-
-tw (line ts year, sort) (line top_share year, sort) if iso == "GB" & p == 99000
-tw (line ts year, sort) (line top_share year, sort) if iso == "GB" & p == 90000
-tw (line ta year, sort)  (line top_average year, sort)    if iso == "GB" & p == 90000
-
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "SE" & p == 99000
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "SE" & p == 90000
-
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "PT" & p == 99000
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "PT" & p == 90000
-
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "PL" & p == 90000
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "NO" & p == 90000
-tw (line ts year, sort) (line ts_hist year, sort) if iso == "LU" & p == 90000
+//
+/*
+// Graph to compare previous series on WID with the 2021 update
+cd "~/Dropbox/W2ID/Country-Updates/Wealth/2021_July/graphs"
+levelsof iso if oldobs == 1, local(x)
+foreach l in `x' {
+	tw (line shweal992j year if oldobs == 0, sort) ///
+	   (line shweal992j year if oldobs == 1, sort) ///
+	 if iso == "`l'" & p == "p90p100", ///
+	 legend(order(1 "2021 wealth update" 2 "Wealth dist on WID")) ///
+	 title("Top 10% HH wealth share in `l'")	
+	 graph export "top10_`l'.eps", replace
+ 
+}
+levelsof iso, local(y)
+foreach l in `y' {
+	tw (line mhweal999i year if oldobs == 0, sort) ///
+	   (line mhweal999i year if oldobs == 1, sort) ///
+	 if iso == "`l'" & p == "pall", ///
+	 legend(order(1 "2021 wealth update" 2 "Wealth dist on WID"))
+	 graph export "mhweal_`l'.eps", replace
+ 
+}
+*/
