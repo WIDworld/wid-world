@@ -6,8 +6,7 @@
 // See README.md file for more information.
 // -------------------------------------------------------------------------- //
 
-do "~/Documents/GitHub/wid-world/stata-do/setup.do"
-
+do "~/Dropbox/Mac/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -288,7 +287,7 @@ do "$do_dir/extrapolate-wid-forward.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
-//Compute World and Regional Aggregatesccxcccc
+//Compute World and Regional Aggregates
 do "$do_dir/world-and-region-dist-aggregates.do"
 
 // Compute Top10/Bottom50 ratio 
