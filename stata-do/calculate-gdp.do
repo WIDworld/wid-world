@@ -146,7 +146,10 @@ drop _fillin cf growth_cf
 
 sort iso year
 by iso: carryforward refyear, replace
-
+// -->
+// TO BE REVISED - 09/06/2022 RM
+	drop if iso == "VE" & year >= $pastyear
+// <--
 /*
 // As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made, 2018 update: 0 changes
 egen lastyear = max(year), by(iso)

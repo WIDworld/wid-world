@@ -20,7 +20,7 @@ drop if (currency == "YUN")
 drop if (currency == "BYN")
 
 // Import exchange rates
-import delimited "$input_data_dir/currency-rates/currencies-rates-$year.csv", clear delim(",") encoding("utf8")
+import delimited "$input_data_dir/currency-rates/currencies-rates-$pastyear.csv", clear delim(",") encoding("utf8")
 drop if currency == "CYP"
 drop if currency == "CUP"
 *replace lcu_to_usd = substr(lcu_to_usd, 1, 1) + "." + substr(lcu_to_usd, 3, .)
@@ -44,14 +44,14 @@ restore
 
 drop if currency == "EUR" 
 merge 1:n currency year using "`countries'"
-drop if (_merge != 3) & (currency != "YUN" | year != $year)
+drop if (_merge != 3) & (currency != "YUN" | year != $pastyear)
 drop _merge
 append using "`EUR'"
 
 tempfile merged
 save "`merged'" 
 
-keep if year == $year
+keep if year == $pastyear
 
 
 replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, April 2021
@@ -60,11 +60,11 @@ replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, A
 // Generate exchange rates with euro and yuan
 rename lcu_to_usd valuexlcusx999i
 // Exchange rate with euro
-quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == $year), local(exchrate_eu) clean
+quietly levelsof valuexlcusx999i if (currency == "EUR") & (year == $pastyear), local(exchrate_eu) clean
 generate valuexlceux999i = valuexlcusx999i/`exchrate_eu'
 
 // Exchange rate with Yuan
-quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == $year), local(exchrate_cn) clean
+quietly levelsof valuexlcusx999i if (currency == "CNY") & (year == $pastyear), local(exchrate_cn) clean
 generate valuexlcyux999i = valuexlcusx999i/`exchrate_cn'
 
 // Sanity checks
@@ -105,7 +105,7 @@ save "`somalia'"
 
 // WORLD BANK exchange rates for historical series
 // Import exchange rates series from the World Bank
-import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$year.csv", ///
+import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$pastyear.csv", ///
 clear encoding("utf8") rowrange(3) varnames(4) delim(",")
 
 // Rename year variables
@@ -114,11 +114,11 @@ foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'
 }
-cap drop value$year
+cap drop value$pastyear
 
 // Apply Euro area exchange rate to Euro area countries after 1999
 * Values are missing when country joins Euro, so one replaces all missing values
-local lastyear= $year - 1
+local lastyear= $pastyear - 1
 forval i=1999/`lastyear'{
 	gen x=value`i' if countryname == "Euro area"
 	egen e`i'=mean(x)
@@ -170,8 +170,8 @@ drop if currency == "EUR"    & iso == "EE" 			   & year<2011
 drop if currency == "EUR"    & iso == "LV" 			   & year<2014
 drop if currency == "EUR"    & iso == "LT" 			   & year<2015
 
-// Drop Syria before $year (strange values)
-drop if inlist(iso, "SY") & (year<$year)
+// Drop Syria before $pastyear (strange values)
+drop if inlist(iso, "SY") & (year<$pastyear)
 
 // Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
 replace value = 1 if inlist(iso, "SV", "LR", "ZW", "EC")
@@ -202,18 +202,18 @@ replace value = 82.580278068470160 if iso == "NG" & year == 1998 & widcode == "x
 
 // VE: extrapolation using inflation rates after 2013
 drop if iso == "VE" & year > 2013
-expand ($year - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
+expand ($pastyear - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
 replace year = year + sum(new) if new
 drop new
 // Data from UN using forward PARE
-replace value = 8.34                    if iso == "VE" & year == 2014
-replace value = 17.51                   if iso == "VE" & year == 2015
-replace value = 73.00                   if iso == "VE" & year == 2016
-replace value = 607.69                  if iso == "VE" & year == 2017
-replace value = 388549.29               if iso == "VE" & year == 2018
-replace value = 76369942.28             if iso == "VE" & year == 2019
-replace value = 76369942.28*24.55146    if iso == "VE" & year == 2020
-replace value = 76369942.28*56.000046   if iso == "VE" & year == 2021 // à vérifier
+replace value = 8.33788105128762        if iso == "VE" & year == 2014
+replace value = 23.3403675155159        if iso == "VE" & year == 2015
+replace value = 97.3585006918627        if iso == "VE" & year == 2016
+replace value = 810.275758571322        if iso == "VE" & year == 2017
+replace value = 1335795.4237622         if iso == "VE" & year == 2018
+replace value = 278752277.045022        if iso == "VE" & year == 2019
+replace value = 6762275397.72307        if iso == "VE" & year == 2020
+replace value = 6762275397.72307*54.998 if iso == "VE" & year == 2021 // à vérifier
 
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"
@@ -246,6 +246,7 @@ preserve
 	keep year valuexlcusx999i
 	duplicates drop year, force
 	rename valuexlcusx999i EURUSD
+	
 	tempfile eurusd
 	save "`eurusd'"
 restore
@@ -255,6 +256,7 @@ preserve
 	keep year valuexlcusx999i
 	duplicates drop year, force
 	rename valuexlcusx999i CNYUSD
+	
 	tempfile cnyusd
 	save "`cnyusd'"
 restore

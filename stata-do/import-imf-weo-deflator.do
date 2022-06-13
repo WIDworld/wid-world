@@ -1,4 +1,4 @@
-import delimited "$imf_data/world-economic-outlook/WEO-$pastyear.csv", ///
+import delimited "$imf_data/world-economic-outlook/WEO-$pastpastyear.csv", ///
 	clear delimiter(";") varnames(1) encoding("utf8")
 
 dropmiss, obs force
@@ -23,8 +23,8 @@ replace country="Côte d'Ivoire" if country=="C�te d'Ivoire"
 replace country="São Tomé and Príncipe" if country=="S�o Tom� and Pr�ncipe"
 */
 
-*replace country = "Côte d'Ivoire"         if country == "Cte d'Ivoire"
-*replace country = "São Tomé and Príncipe" if country == "So Tom and Prncipe"
+// replace country = "Côte d'Ivoire"         if country == "Cte d'Ivoire"
+// replace country = "São Tomé and Príncipe" if country == "So Tom and Prncipe"
 replace country = "Côte d'Ivoire"         if country == "C�te d'Ivoire"
 replace country = "São Tomé and Príncipe" if country == "S�o Tom� and Pr�ncipe"
 replace country = "Swaziland"             if country == "Eswatini"
@@ -46,7 +46,7 @@ rename valueNGDP_D def_imf
 
 drop if def_imf >= .
 
-drop if year>$year  // we are taking 2021 estimates
+drop if year >=$year  // we are taking 2021 estimates
 
 rename def_imf def_weo
 

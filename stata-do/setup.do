@@ -36,7 +36,7 @@ if substr("`c(pwd)'",1,10)=="/Users/ali"{
 // }
 if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
 	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
-	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
+	global project_dir "/Users/rowaidakhaled/Dropbox/Mac/Documents/GitHub/wid-world"
 }
 
 
@@ -116,14 +116,14 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2021 // this year matches WEO source in calculate-price-index
-				 // and calculate-national-accounts
-global pastyear 2020 // this year matches commands in gdp-vs-nni,
+global year 2022 
+global pastyear 2021 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
-global pastpastyear 2019 // only for WPP, needs to be changed every 2 years 
+global pastpastyear 2020 
+global pastpastpastyear 2019 // only for WPP, needs to be changed every 2 years 
 						 // (changes made April 2021)
-
+						 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
 global plot_missing_nfi    0
 global plot_nfi_countries  0

@@ -8,6 +8,7 @@ use "$work_data/distribute-national-income-metadata.dta", clear
 keep if sixlet == "sfiinc"
 keep iso source
 rename source source_fiinc
+
 tempfile fiinc
 save "`fiinc'"
 

@@ -39,8 +39,8 @@ replace year = 2017 in l
 replace ppp = 14.7 in l
 replace ppp_method = "We extrapolate the PPP from its 2017 value using the evolution of the price index relative to the reference country" in l
 replace ppp_src = ///
-`"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$year/01/weodata/index.aspx/[/URL_LINK]"' + ///
-`"[URL_TEXT]IMF World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' in l
+`"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$pastyear/01/weodata/index.aspx/[/URL_LINK]"' + ///
+`"[URL_TEXT]IMF World Economic Outlook (04/$pastyear)[/URL_TEXT][/URL]; "' in l
 
 replace currency = "TWD" in l
 
@@ -130,7 +130,7 @@ keep iso year ppp ppp_src ppp_method currency
 
 append using "`ppp'"
 
-// Extrapolate the PPP to $year
+// Extrapolate the PPP to $pastyear
 save "`ppp'", replace
 
 // Temporary file with the other price indices
@@ -141,7 +141,7 @@ save "`index'"
 
 // Add Eurozone deflator from Eurostat
 // Fetch Eurozone GDP deflator from Eurostat
-import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$year.csv", ///
+import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
 
 drop if na_item != "Gross domestic product at market prices"
