@@ -148,7 +148,7 @@ sort iso year
 by iso: carryforward refyear, replace
 // -->
 // TO BE REVISED - 09/06/2022 RM
-	drop if iso == "VE" & year >= 2020
+	drop if iso == "VE" & year >= $pastyear
 // <--
 /*
 // As a last resort: use 2014 growth rate in 2015. 2017 update: 19 changes made, 2018 update: 0 changes
