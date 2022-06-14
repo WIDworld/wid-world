@@ -63,7 +63,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* 
+/* */
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -208,7 +208,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
- */
+/* */
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -280,7 +280,7 @@ do "$do_dir/extrapolate-wid-forward.do"
 do "$do_dir/clean-up.do"
 
 //Compute World and Regional Aggregates
-do "$do_dir/world-and-regional-aggregates.do"
+do "$do_dir/world-and-region-dist-aggregates.do"
 
 // Compute Top10/Bottom50 ratio 
 do "$do_dir/calculate-top10bot50-ratio.do"
@@ -302,8 +302,8 @@ capture mkdir "$output_dir/$time"
 capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
-do "$do_dir/export-metadata-source-method.do"
-do "$do_dir/export-metadata-other.do"
+// do "$do_dir/export-metadata-source-method.do"
+// do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations
 *do "$do_dir/create-flag-variables.do"

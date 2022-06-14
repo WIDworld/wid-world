@@ -189,6 +189,8 @@ replace ppp = ppp*index/index_us*factor_refyear
 drop index index_us factor_refyear
 drop if missing(ppp)
 
+replace ppp = ppp/1e5 if iso == "VE"
+
 preserve
 drop if ppp_method == "" & ppp_src == ""
 replace ppp_method = ppp_method + "."
