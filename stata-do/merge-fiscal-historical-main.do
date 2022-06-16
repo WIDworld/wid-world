@@ -7,8 +7,10 @@ keep if p == "pall" & inlist(widcode,"anninc992i", "anninc999i")
 keep iso year value widcode
 
 reshape wide value, i(iso year) j(widcode) string
+// renvars value*, predrop(5)
 
 merge 1:n iso year using "$work_data/longrun-pretax-gpinterized.dta", update noreplace keep(2 3 4 5)  //nogen
+
 *Copy per-adult shares to per-capita shares
 replace valuesptinc999j = valuesptinc992j if missing(valuesptinc999j)
 
@@ -40,7 +42,7 @@ save "`data'"
 use "$work_data/distribute-national-income-output.dta", clear
 merge 1:1 iso year p widcode using "`data'", update noreplace nogen
 
-save "$work_data/extrapolate-pretax-income-output.dta", replace
+save "$work_data/merge-fiscal-historical-output.dta", replace
 
 
 
@@ -128,5 +130,5 @@ assert duplicate == 0
 drop duplicate
 
 
-save "$work_data/extrapolate-pretax-income-metadata.dta", replace
+save "$work_data/merge-fiscal-historical-metadata.dta", replace
 
