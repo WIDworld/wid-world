@@ -124,7 +124,7 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // -------------------------------------------------------------------------- //
 
 // Adjsutment coefficients
-generate coef_ptinc = anninc/tot if (age == "992") & (fivelet == "ptinc")
+generate coef_ptinc = anninc/tot if /*(age == "992") &*/ (fivelet == "ptinc")
 generate coef_diinc = anninc/tot if (age == "992") & (fivelet == "diinc")
 generate coef_fainc = anninc/tot if (age == "992") & (fivelet == "fainc")
 // China => extend coefficients to rural and urban
@@ -152,6 +152,10 @@ generate changes = 0
 replace a = a*coef_ptinc if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
 replace t = t*coef_ptinc if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
 replace changes = changes + 1 if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
+
+replace a = a*coef_ptinc if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc)
+replace t = t*coef_ptinc if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc)
+replace changes = changes + 1 if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc)
 
 // diinc (post-tax national income) => direct rescaling on anninc
 replace a = a*coef_diinc if (age == "992") & (fivelet == "diinc") & !missing(coef_diinc)
@@ -202,12 +206,11 @@ assert changes > 0 if ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
-	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
-	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
 
-// tab year iso  if changes == 0 & ///
+// tab year iso  if changes == 0 & age!="999" & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
 // 	!(fivelet == "fiinc") & ///
 // 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///

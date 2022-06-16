@@ -38,8 +38,9 @@ if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
 	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
 	global project_dir "/Users/rowaidakhaled/Dropbox/Mac/Documents/GitHub/wid-world"
 }
-
-
+if substr("`c(pwd)'",1,20)=="/Users/silas"{
+	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
+}
 // WID folder directory
 *global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
 *global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
