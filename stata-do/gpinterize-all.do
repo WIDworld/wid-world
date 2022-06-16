@@ -123,18 +123,18 @@ foreach isoyr in `isoyears'{
 				preserve
 					drop popsize999 average999 bracketavg999 longrun
 					renvars popsize992 average992 bracketavg992 / popsize average bracketavg
-					save "$data/gpinter-peradults/`isoyr'.dta", replace
+					save "$work_data/gpinter-peradults/`isoyr'.dta", replace
 				restore
 				drop popsize992 average992 bracketavg992 longrun
 				renvars popsize999 average999 bracketavg999 / popsize average bracketavg
-				save "$data/gpinter-percapita/`isoyr'.dta", replace
+				save "$work_data/gpinter-percapita/`isoyr'.dta", replace
 
 			}
 			else{ //Export peradult for all other country-years
 				drop average999 popsize999 bracketavg999 longrun
 				renvars popsize992 average992 bracketavg992 / popsize average bracketavg
 
-				save "$data/gpinter-peradults/`isoyr'.dta", replace
+				save "$work_data/gpinter-peradults/`isoyr'.dta", replace
 			}
 
 		}
@@ -146,7 +146,7 @@ foreach isoyr in `isoyears'{
 *** gpinter countries  then regions***
 ****************************
 /*
-rsource, terminator(END_OF_R) rpath(`"c:\r\R-3.5.1\bin\Rterm.exe"') roptions(--vanilla)
+rsource, terminator(END_OF_R) rpath("$Rpath") roptions(--vanilla)
 
 rm(list = ls())
 library(haven)
@@ -172,16 +172,16 @@ library(plyr)
 library(readxl)
 library(WriteXLS)
 
-user ="C:/Users/silas/Dropbox (Personal)/WID_LongRun/Integration" 
+user ="~/Documents/GitHub/wid-world/work-data" 
 percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
 types <- c("peradults/", "percapita/")
 
 for(t in types){
-input = paste(user,"/Data/gpinter-",t,sep="")
+input = paste(user,"/gpinter-",t,sep="")
 file_names <- list.files(input) 
 cyrs <- unique(substr(file_names,1,6))
-cy <- "AR1820"
-output = paste(user,"/Data/gpinter-output-",t,sep="")
+
+output = paste(user,"/gpinter-output-",t,sep="")
 for(cy in cyrs){
   print(paste("Country-Year:",cy,"  | Importing distributions ...",sep="")) 
     print(paste(input,cy,".dta",sep=""))
@@ -207,4 +207,697 @@ END_OF_R
 * Gpinter regions *
 *****************************
 *Use R file
+/*
+rsource, terminator(END_OF_R) rpath("$Rpath") roptions(--vanilla)
+
+library(haven)
+library(gpinter)
+library(tidyverse)
+library(openxlsx)
+library(purrr)
+library(magrittr)
+library(xlsx)
+library(base)
+library(haven)
+library(dplyr)
+library(gdata)
+
+if (Sys.info()['sysname'] == 'Darwin') {
+  libjvm <- paste0(system2('/usr/libexec/java_home',stdout = TRUE)[1],'/jre/lib/server/libjvm.dylib')
+  message (paste0('Load libjvm.dylib from: ',libjvm))
+  dyn.load(libjvm)
+}
+
+library(rJava)
+library(gpinter)
+library(xlsx)
+library(plyr)
+library(readxl)
+library(WriteXLS)
+
+
+user ="~/Documents/GitHub/wid-world/work-data"
+
+input = paste(user,"/gpinter-",sep="")
+output = paste(user,"/gpinter-output-",sep="")
+
+countries<-c("RU","OA")
+years<-c(1820, 1850, 1880, 1900, 1910, 1920, 1930, 1940,1950,1960,1970)
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+type <- c("peradults/", "percapita/")
+type <- "peradults/"
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing distributions ...",sep="")) 
+  show(Sys.time())
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep="")) 
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average) 
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+  print(paste("Year:",y,"  | Merging OA distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld) 
+
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+  }
+  write_dta(wdist,paste(output,t,"WA",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WA Program 100% completed |")
+
+
+
+
+countries<-c("CN","JP","OB")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing distributions ...",sep="")) 
+  show(Sys.time())
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep="")) 
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+  print(paste("Year:",y,"  | Merging WB distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles)
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld) 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+  }
+  write_dta(wdist,paste(output,t,"WB",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WB Program 100% completed |")
+
+
+
+countries<-c("FR","DE","GB", "ES", "IT","SE","OK","OC")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing WC distributions ...",sep="")) 
+  show(Sys.time())
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep="")) 
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average) 
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average) 
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+  print(paste("Year:",y,"  | Merging WC distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld) 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WC",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WC Program 100% completed |")
+
+
+
+
+countries<-c("AR","BR","MX","CO","CL","OD")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing WD distributions ...",sep="")) 
+  show(Sys.time())
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep="")) 
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average) 
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit)
+  }
+  
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+  print(paste("Year:",y,"  | Merging WD distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld) 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WD",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WD Program 100% completed |")
+
+
+
+countries<-c("TR","DZ","EG","OE")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing WE distributions ...",sep="")) 
+  show(Sys.time())
+
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep="")) 
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average) 
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average) 
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+  
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+
+  print(paste("Year:",y,"  | Merging WE distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+  
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld) 
+
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WE",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WE Program 100% completed |")
+
+
+
+countries<-c("IN","ID","OI")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(y in years){
+  print(paste("Year:",y,"  | Importing WI distributions ...",sep="")) 
+  show(Sys.time())
+
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep=""))
+    assign(paste("pop",c,y,sep=""),df$popsize[1])
+    print("[1]")
+
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+ 
+  print(paste("Year:",y,"  | Merging WI distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+ 
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld)
+ 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WI",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 OI Program 100% completed |")
+
+
+
+countries<-c("US","CA")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing WG distributions ...",sep=""))
+  show(Sys.time())
+
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep=""))
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+ 
+  print(paste("Year:",y,"  | Merging WG distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+ 
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld)
+ 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WG",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WG Program 100% completed |")
+
+
+
+
+countries<-c("AU","NZ","OH")
+
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing OH distributions ...",sep=""))
+  show(Sys.time())
+
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep=""))
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+ 
+  print(paste("Year:",y,"  | Merging WH distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+ 
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld)
+ 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WH",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WH Program 100% completed |")
+
+
+
+
+
+countries<-c("ZA","OJ")
+percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
+
+for(t in type){
+for(y in years){
+  print(paste("Year:",y,"  | Importing WJ distributions ...",sep=""))
+  show(Sys.time())
+
+  match_perc<-function(c,p){
+    fitted_cdf(get(paste(c,y,sep="")),fitted_quantile(merged,p))
+  }
+
+  
+  loop<-0
+  for (c in countries){
+    loop<-loop+1
+    progress<-round(100*(loop)/(length(countries)), digits=1)
+    print(paste("Gpinterize world:", c," ",y," ",progress,"%...",sep=""))
+    df<-read_dta(paste(input,t,c,y,".dta",sep=""))
+    assign(paste("pop",c,y,sep=""),df$popsize[1]) 
+    print("[1]")
+
+    fit<-shares_fit(p=df$p, bracketavg=df$bracketavg, average=df$average)
+    print("[2]")
+    df<-generate_tabulation(fit,percentiles) 
+    df<-data.frame(df[1:9],fit$average)
+    cdist<-generate_tabulation(fit,percentiles)
+    cdist<-data.frame(p=cdist$fractile,bracketavg=cdist$bracket_average)
+    write_dta(cdist,paste(output,t,c,y,".dta",sep=""))
+    assign(paste(c,y,sep=""),fit) 
+  }
+  
+
+  list<-list()
+  for(c in countries){
+    list[[paste(c,y,sep="")]]<-get(paste(c,y,sep=""))
+  }
+  assign(paste("dist",y,sep=""),list)
+  
+
+  vec<-c()
+  for(c in countries){
+    vec[[paste("pop",c,y,sep="")]]<-get(paste("pop",c,y,sep=""))
+  }
+  assign(paste("pop",y,sep=""),vec)
+  
+ 
+  print(paste("Year:",y,"  | Merging WJ distributions...", sep=""))
+  print("1")
+  merged<-merge_dist(get(paste("dist",y,sep="")),unlist(get(paste("pop",y,sep=""))))
+  print("2")
+  decompworld <- decompose_population(merged, percentiles)
+ 
+  print("World Gpinterization...")
+  wdist<-generate_tabulation(merged,percentiles) 
+  print("3")
+  poptotal<-merged$poptotal
+  print("4")
+  average<-merged$average
+  wdist<-data.frame(wdist[1:9],poptotal,average,y,decompworld)
+ 
+  j<-13
+  for (c in countries){
+    j<-j+1  
+    j3<-paste("share",c,sep="")
+    colnames(wdist)[j] <- j3
+
+  }
+  write_dta(wdist,paste(output,t,"WJ",y,".dta",sep=""))
+  print("DONE")
+}
+}
+print("Pre 1980 WJ Program 100% completed |")
+
+
+
+END_OF_R
+*/
 

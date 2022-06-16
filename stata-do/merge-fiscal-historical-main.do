@@ -9,8 +9,7 @@ keep iso year value widcode
 reshape wide value, i(iso year) j(widcode) string
 
 merge 1:n iso year using "$work_data/longrun-pretax-gpinterized.dta", update noreplace keep(2 3 4 5)  //nogen
-*Copy per-adult shares to per-capita shares
-replace valuesptinc999j = valuesptinc992j if missing(valuesptinc999j)
+
 
 *Generate averages
 gen popsize = .01
@@ -20,10 +19,6 @@ replace popsize = .1 if pstr=="p90p100"
 replace popsize = .001 if (p>=99000 & p<99900 & pstr!="p99p100") | pstr=="p99.9p100"
 replace popsize = .0001 if (p>99900 & p<99990) | pstr=="p99.99p100" | pstr=="p99.9p99.91"
 replace popsize = .00001 if p>=99990
-
-foreach type in 992 999{
-	generate valueaptinc`type'j = valueanninc`type'i*valuesptinc`type'j/popsize
-}
 
 
 keep iso year pstr value*
@@ -40,7 +35,29 @@ save "`data'"
 use "$work_data/distribute-national-income-output.dta", clear
 merge 1:1 iso year p widcode using "`data'", update noreplace nogen
 
-save "$work_data/extrapolate-pretax-income-output.dta", replace
+*generate valueaptinc`type'j = valueanninc`type'i*valuesptinc`type'j/popsize
+
+tempfile data2
+save "`data2'"
+
+*Copy per-adult shares to per-capita shares
+keep if widcode=="sptinc992j"
+replace widcode="sptinc999j"
+gen new999 = 1
+
+append using "`data2'"
+duplicates drop
+duplicates tag iso year p widcode, gen(dup)
+drop if dup!=0 & new999!=1 //replaces old 999 with copy of 9992
+
+drop dup new999
+
+bys iso: egen currency_2 = mode(currency)
+replace currency = currency_2 
+drop currency_2
+replace currency="" if (substr(widcode,1, 1))== "s" | (substr(widcode,1, 1))== "n" 
+
+save "$work_data/merge-fiscal-historical-output.dta", replace
 
 
 
