@@ -27,7 +27,26 @@ replace p_max = p_min + 100  if (substr(widcode, 1, 1) == "a") & missing(p_max) 
 replace p_max = p_min + 10   if (substr(widcode, 1, 1) == "a") & missing(p_max) & inrange(p_min, 99900, 99980)
 replace p_max = p_min + 1    if (substr(widcode, 1, 1) == "a") & missing(p_max) & inrange(p_min, 99990, 99999)
 
+//Generate g-percentiles for France 1950-1979
+preserve 
+keep if iso=="FR" & year>=1900 & year<1980 & strpos(widcode, "sptinc")
+save "$work_data/tempfile.dta", replace
+use "$work_data/tempfile.dta", clear
+gen gp = real(substr(p,2,.)) if !inlist(p, "p0p50","p50p90","p90p100","p99p100")
+bys iso year widcode (gp): gen higher_share = value[_n+1] if iso=="FR" & year>=1900 & year<1980 & strpos(widcode, "sptinc")
+replace value = value - higher_share if !missing(gp) & !missing(gp[_n+1])
+replace p_max = p_min + 1000 if inrange(p_min, 0, 98000) & !missing(gp)
+replace p_max = p_min + 100  if inrange(p_min, 99000, 99800) & !missing(gp)
+replace p_max = p_min + 10   if inrange(p_min, 99900, 99980) & !missing(gp)
+replace p_max = p_min + 1    if inrange(p_min, 99990, 99999) & !missing(gp)
+replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if !missing(p_max) & !missing(gp)
+drop gp higher_share
+tempfile fr
+save "`fr'"
+restore
+append using "`fr'"
 replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if !missing(p_max)
+
 
 // Keep only g-percentiles
 generate n = round(p_max - p_min, 1)
@@ -72,9 +91,33 @@ foreach v of varlist iso year fivelet age pop {
 	drop tmp
 }
 drop i _fillin
+renvars value*, predrop(5)
+
+tempfile wide
+save "`wide'"
+
+// Create averages based on shares
+use "$work_data/merge-fiscal-historical-output.dta", clear
+keep if inlist(widcode, "anninc992i", "anninc999i")
+keep iso year value widcode
+greshape wide value, i(iso year) j(widcode) string
+renvars value*, predrop(5)
+
+// rename value anninc
+*replace iso = "KV" if iso == "KS"
+// generate age     = substr(widcode, 7, 3)
+// generate pop     = substr(widcode, 10, 1)
+
+
+tempfile anninc
+save "`anninc'"
+
+use "`wide'", clear
+merge n:1 iso year using "`anninc'", keep(master match) nogenerate
+replace a = s*anninc992i/(n/1e5) if (fivelet == "ptinc") & (age == "992")
+replace a = s*anninc999i/(n/1e5) if (fivelet == "ptinc") & (age == "999")
 
 // Interpolate averages linearly in the gaps
-renvars value*, predrop(5)
 sort iso year fivelet age pop p
 foreach v of varlist a t {
 	by iso year fivelet age pop: ipolate `v' p, gen(new)
@@ -130,6 +173,7 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // -------------------------------------------------------------------------- //
 // Rescale some distributions to macro aggregates
 // -------------------------------------------------------------------------- //
+
 
 // Adjsutment coefficients
 generate coef_ptinc992 = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
@@ -219,6 +263,7 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
+<<<<<<< Updated upstream
 
  tab year iso  if changes == 0 & age!="999" & ///
  	!(substr(fivelet, 1, 2) == "hw") & ///
@@ -229,6 +274,18 @@ assert changes > 0 if ///
  	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
  	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
 //
+=======
+//
+// tab iso year if changes == 0  & ///
+// 	!(substr(fivelet, 1, 2) == "hw") & ///
+// 	!(fivelet == "fiinc") & ///
+// 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
+// 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
+// 	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
+// 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+// 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
+
+>>>>>>> Stashed changes
 // br if changes == 0 & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
 // 	!(fivelet == "fiinc") & ///

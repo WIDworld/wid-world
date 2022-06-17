@@ -46,7 +46,7 @@ replace widcode="sptinc999j"
 gen new999 = 1
 
 append using "`data2'"
-duplicates drop
+*duplicates drop
 duplicates tag iso year p widcode, gen(dup)
 drop if dup!=0 & new999!=1 //replaces old 999 with copy of 9992
 
