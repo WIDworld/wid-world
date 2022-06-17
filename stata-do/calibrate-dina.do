@@ -263,18 +263,18 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
-<<<<<<< Updated upstream
+*Updated upstream
 
- tab year iso  if changes == 0 & age!="999" & ///
- 	!(substr(fivelet, 1, 2) == "hw") & ///
- 	!(fivelet == "fiinc") & ///
- 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
- 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
- 	!(fivelet == "ptinc" & /*iso == "CA" &*/ year < 1950) & ///
- 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
- 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
+//  tab year iso  if changes == 0 & age!="999" & ///
+//  	!(substr(fivelet, 1, 2) == "hw") & ///
+//  	!(fivelet == "fiinc") & ///
+//  	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
+//  	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
+//  	!(fivelet == "ptinc" & /*iso == "CA" &*/ year < 1950) & ///
+//  	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+//  	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
 //
-=======
+
 //
 // tab iso year if changes == 0  & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
@@ -285,7 +285,6 @@ assert changes > 0 if ///
 // 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
 
->>>>>>> Stashed changes
 // br if changes == 0 & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
 // 	!(fivelet == "fiinc") & ///
