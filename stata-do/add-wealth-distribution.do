@@ -166,7 +166,7 @@ use "$work_data/add-researchers-data-real-output.dta", clear
 drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j", "mhweal999i")
 append using "`final'"
 duplicates drop iso year p widcode, force // FR & DE-'s 
-
+drop if p == "p0p0"
 // Fill in currency
 bys iso : egen currency_2 = mode(currency)
 replace currency = currency_2 
