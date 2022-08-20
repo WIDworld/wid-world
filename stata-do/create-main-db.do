@@ -61,7 +61,7 @@ duplicates drop iso year p widcode, force
 
 // drop if strpos(widcode, "hweal992j") & !inlist(iso, "US", "FR", "CN", "IN", "GB", "RU", "ZA", "KR")
 save "$work_data/wid-long.dta", replace
-append using "$work_data/add-carbon-series-output.dta"
+// append using "$work_data/add-carbon-series-output.dta"
 compress
 
 save "~/Dropbox/WIL/W2ID/Latest_Updated_WID/wid-data.dta", replace

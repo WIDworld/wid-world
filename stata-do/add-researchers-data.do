@@ -4,8 +4,8 @@
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
 etime, start
-// Ivory Coast 2017 (Czajka2017 + update 2020) - fiinc & ptinc series
-use "$wid_dir/Country-Updates/Ivory_Coast/2021_July/ivory_coast_Jul2021.dta", clear
+// Ivory Coast 2017 (Czajka2017 + update 2020) - fiinc & ptinc series - YES 
+use "$wid_dir/Country-Updates/Ivory_Coast/2022/ivory_coast_2022.dta", clear
 
 // UK 2021 (alvaredo2017&AST2021) - fiinc series
 append using "$wid_dir/Country-Updates/UK/2021_August/UK-fiinc-Aug2021.dta"
@@ -71,21 +71,21 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dt
 // Norway - fiinc series
 append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
 
-// Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series
+// Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series - YES
 append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
 
-// Asia (MCY 2020 & BM 2021) - many macro variables + fiinc + ptinc series
+// Asia (MCY 2020 & BM 2021) - many macro variables + fiinc + ptinc series - YES
 append using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021.dta"
 
-// Russia (Neef 2021) -  ptinc series
+// Russia (Neef 2021) -  ptinc series - YES
 append using "$wid_dir/Country-Updates/Russia/2021/November/Russia2021.dta"
 
-// Africa (ccgm & Robillard 2021) - ptinc
+// Africa (ccgm & Robillard 2021) - ptinc - YES
 append using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
 
-// India (Chancel 2020) - ongoing
+// India (Chancel 2020) - 
 append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
 drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
@@ -93,7 +93,7 @@ drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & 
 // Australia, New Zealand & Canada (Matt 2021) - ptinc & fiinc series
 append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021"
 
-// US (Zucman 2020) - ongoing
+// US (Zucman 2020) - 
 append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series

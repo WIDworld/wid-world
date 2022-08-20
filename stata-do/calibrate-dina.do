@@ -224,7 +224,7 @@ assert changes > 0 if ///
 // 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
-
+//
 drop tot anninc coef_* changes b
 
 // Make sure that labor + capital income sums to total income

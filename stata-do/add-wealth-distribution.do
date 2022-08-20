@@ -199,7 +199,8 @@ if iso == "US" & strpos(sixlet, "hweal")
 * France
 replace source = source + ///
 `"[URL][URL_LINK]"' + `"http://wid.world/document/b-garbinti-j-goupille-and-t-piketty-wealth-concentration-in-france-1800-2014-methods-estimates-and-simulations-2016/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Garbinti, Goupille-Lebret and Piketty (2020), Accounting for Wealth Inequality Dynamics: Methods, Estimates and Simulations for France (1800-2014), Journal of the European Economic Association; "' + `"[/URL_TEXT][/URL]; "' ///
+`"[URL_TEXT]"' + `"Garbinti, Goupille-Lebret and Piketty (2020), Accounting for Wealth Inequality Dynamics: Methods, Estimates and Simulations for France (1800-2014), Journal of the European Economic Association; "' + `"[/URL_TEXT][/URL]; "' + ///
+`"After 2014, "' ///
 if iso == "FR" & strpos(sixlet, "hweal")
 
 * UK

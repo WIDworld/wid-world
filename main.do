@@ -280,7 +280,7 @@ do "$do_dir/extrapolate-wid-forward.do"
 do "$do_dir/clean-up.do"
 
 //Compute World and Regional Aggregates
-do "$do_dir/world-and-region-dist-aggregates.do"
+do "$do_dir/aggregate-distribution-regions.do"
 
 // Compute Top10/Bottom50 ratio 
 do "$do_dir/calculate-top10bot50-ratio.do"
@@ -291,8 +291,8 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
-// Import carbon series (independent)
-do "$do_dir/add-carbon-series.do"
+// Import carbon series (independent) - to be activated when updated!
+// do "$do_dir/add-carbon-series.do"
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
@@ -302,8 +302,8 @@ capture mkdir "$output_dir/$time"
 capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
-// do "$do_dir/export-metadata-source-method.do"
-// do "$do_dir/export-metadata-other.do"
+do "$do_dir/export-metadata-source-method.do"
+do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations
 *do "$do_dir/create-flag-variables.do"

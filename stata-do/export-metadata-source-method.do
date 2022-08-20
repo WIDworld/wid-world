@@ -57,48 +57,48 @@ replace data_imputation = "rescaling" if method == "Fiscal income rescaled to ma
 // Add interpolation/extrapolation in Africa
 // -------------------------------------------------------------------------- //
 
-preserve
-
-	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
-
-	drop if construction == "Merge"
-	drop if construction == "Extrapolated"
-	drop if construction == "Interpolation"
-	drop if construction == "Imputed"
-	drop if construction == ""
-	drop construction
-
-	*drop if inlist(iso, "ZA", "CI")
-
-	sort iso year
-	by iso: generate j = _n
-	reshape wide year, i(iso) j(j)
-
-	generate data_points = ""
-	foreach v of varlist year* {
-		replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
-		replace data_points = string(`v')                     if !missing(`v') & data_points == ""
-	}
-	egen min_year = rowmin(year*)
-	replace min_year = min(min_year, 1990)
-	drop year*
-	replace data_points = "[" + data_points + "]"
-	generate extrapolation = "[[1980 , $year]]"
-	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
-	drop min_year
-
-	expand 2
-	sort iso
-	generate sixlet = ""
-	by iso: replace sixlet = "sptinc" if _n == 1
-	by iso: replace sixlet = "aptinc" if _n == 2
-
-	tempfile africa_extra
-	save "`africa_extra'"
-
-restore
-
-merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
+// preserve
+//
+// 	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
+//
+// 	drop if construction == "Merge"
+// 	drop if construction == "Extrapolated"
+// 	drop if construction == "Interpolation"
+// 	drop if construction == "Imputed"
+// 	drop if construction == ""
+// 	drop construction
+//
+// 	*drop if inlist(iso, "ZA", "CI")
+//
+// 	sort iso year
+// 	by iso: generate j = _n
+// 	reshape wide year, i(iso) j(j)
+//
+// 	generate data_points = ""
+// 	foreach v of varlist year* {
+// 		replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
+// 		replace data_points = string(`v')                     if !missing(`v') & data_points == ""
+// 	}
+// 	egen min_year = rowmin(year*)
+// 	replace min_year = min(min_year, 1990)
+// 	drop year*
+// 	replace data_points = "[" + data_points + "]"
+// 	generate extrapolation = "[[1980 , $year]]"
+// 	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
+// 	drop min_year
+//
+// 	expand 2
+// 	sort iso
+// 	generate sixlet = ""
+// 	by iso: replace sixlet = "sptinc" if _n == 1
+// 	by iso: replace sixlet = "aptinc" if _n == 2
+//
+// 	tempfile africa_extra
+// 	save "`africa_extra'"
+//
+// restore
+//
+// merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
 replace extrapolation = "[[1980, $year]]" if strpos(sixlet, "ptinc") & data_quality == "0"
 
 // -------------------------------------------------------------------------- //
@@ -121,7 +121,7 @@ append using "$work_data/price-index-metadata.dta"
 // -------------------------------------------------------------------------- //
 // Add PPP notes
 // -------------------------------------------------------------------------- //
-
+drop if inlist(sixlet, "xlceup", "xlcusp", "xlcyup")
 append using "$work_data/ppp-metadata.dta"
 
 // -------------------------------------------------------------------------- //
@@ -155,19 +155,19 @@ replace source = "WID.world computations" if (strtrim(source) == "") ///
 // -------------------------------------------------------------------------- //
 
 preserve
-import excel "$quality_file", sheet("Scores_redux") first cellrange(A3) clear 
-keep B
-ren B iso
-duplicates drop iso, force // to be removed later
-gen sixlet = "iquali"
-gen method = "The inequality transparency index is estimated by the World Inequality Lab based on the availability " + ///
-	"of income and wealth surveys and tax data in the country considered. See " + ///
-	"http://wid.world/transparency/ for more information ."
-gen source = `"[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"' + ///
-			 `"[URL][URL_LINK]http://wordpress.wid.world/document/inequality-transparency-index-update-world-inequality-lab-technical-note-2020-12/[/URL_LINK]"' + ///
-			 `"[URL_TEXT]; Burq, François and Chancel, Lucas. Inequality transaprency index update (2020)[/URL_TEXT][/URL]"'
-tempfile temp
-save `temp'
+	import excel "$quality_file", sheet("Scores_redux") first cellrange(A3) clear 
+	keep B
+	ren B iso
+	duplicates drop iso, force // to be removed later
+	gen sixlet = "iquali"
+	gen method = "The inequality transparency index is estimated by the World Inequality Lab based on the availability " + ///
+		"of income and wealth surveys and tax data in the country considered. See " + ///
+		"http://wid.world/transparency/ for more information ."
+	gen source = `"[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"' + ///
+				 `"[URL][URL_LINK]http://wordpress.wid.world/document/inequality-transparency-index-update-world-inequality-lab-technical-note-2020-12/[/URL_LINK]"' + ///
+				 `"[URL_TEXT]; Burq, François and Chancel, Lucas. Inequality transaprency index update (2020)[/URL_TEXT][/URL]"'
+	tempfile temp
+	save `temp'
 restore
 append using `temp'
 
