@@ -152,12 +152,12 @@ replace s = x2 if missing(s) & year != $pastyear /* & !inlist(iso, "JP", "KR") *
 drop x*  
 
 // Extrapolate the bracket shares forwards
-
-bys iso year : generate x = s if year == max
-bys iso p : egen x2 = mode(x)
-gsort iso p year 
-replace s = x2 if missing(s) & year == $pastyear /* & !inlist(iso, "JP", "KR") */ 
-drop x*  
+drop if year == $pastyear 
+// bys iso year : generate x = s if year == max
+// bys iso p : egen x2 = mode(x)
+// gsort iso p year 
+// replace s = x2 if missing(s) & year == $pastyear /* & !inlist(iso, "JP", "KR") */ 
+// drop x*  
 
 gsort iso p year 
 

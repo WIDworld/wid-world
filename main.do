@@ -303,7 +303,7 @@ capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"
-do "$do_dir/export-metadata-other.do"
+// do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations
 *do "$do_dir/create-flag-variables.do"

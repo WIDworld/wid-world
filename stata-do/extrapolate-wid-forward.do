@@ -170,6 +170,7 @@ gsort iso year -p
 by iso year : generate ts = sum(s)
 by iso year : generate ta = sum(a*n)/(1e5 - p)
 by iso year : generate bs = 1-ts
+by iso year : generate ba = (bs/(1-p/1e5))*anninc992i
 
 // gsort iso year p
 // by iso year : generate ba = bs*average/(0.5) if p == 50000
@@ -253,10 +254,28 @@ preserve
 	tempfile bs
 	save `bs'	
 restore
+preserve
+	use `final', clear
+	keep year iso p ba
+	replace p = p/1000
+	bys year iso (p) : gen p2 = p[_n+1]
+	replace p2 = 100 if p2 == .
+	gen perc = "p0p"+string(p2)
+	drop p p2
+
+	rename perc    p
+	rename ba aptinc992j
+	renvars  aptinc992j, prefix(value)
+	greshape long value, i(iso year p) j(widcode) string
+	drop if p == "p0p100"
+	tempfile ba
+	save `ba'	
+restore
 
 append using `top'
 append using `bottom'
 append using `bs'
+append using `ba'
 
 duplicates drop iso year p widcode, force
 
