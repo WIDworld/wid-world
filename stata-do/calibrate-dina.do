@@ -2,7 +2,8 @@
 // Recompute pre-tax and post-tax averages when there is full DINA data
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
+*use "$work_data/extrapolate-pretax-income-output.dta", clear
+use "$work_data/merge-fiscal-historical-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"
@@ -26,7 +27,26 @@ replace p_max = p_min + 100  if (substr(widcode, 1, 1) == "a") & missing(p_max) 
 replace p_max = p_min + 10   if (substr(widcode, 1, 1) == "a") & missing(p_max) & inrange(p_min, 99900, 99980)
 replace p_max = p_min + 1    if (substr(widcode, 1, 1) == "a") & missing(p_max) & inrange(p_min, 99990, 99999)
 
+//Generate g-percentiles for France 1950-1979
+preserve 
+keep if iso=="FR" & year>=1900 & year<1980 & strpos(widcode, "sptinc")
+save "$work_data/tempfile.dta", replace
+use "$work_data/tempfile.dta", clear
+gen gp = real(substr(p,2,.)) if !inlist(p, "p0p50","p50p90","p90p100","p99p100")
+bys iso year widcode (gp): gen higher_share = value[_n+1] if iso=="FR" & year>=1900 & year<1980 & strpos(widcode, "sptinc")
+replace value = value - higher_share if !missing(gp) & !missing(gp[_n+1])
+replace p_max = p_min + 1000 if inrange(p_min, 0, 98000) & !missing(gp)
+replace p_max = p_min + 100  if inrange(p_min, 99000, 99800) & !missing(gp)
+replace p_max = p_min + 10   if inrange(p_min, 99900, 99980) & !missing(gp)
+replace p_max = p_min + 1    if inrange(p_min, 99990, 99999) & !missing(gp)
+replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if !missing(p_max) & !missing(gp)
+drop gp higher_share
+tempfile fr
+save "`fr'"
+restore
+append using "`fr'"
 replace p = "p" + string(round(p_min/1e3, 0.001)) + "p" + string(round(p_max/1e3, 0.001)) if !missing(p_max)
+
 
 // Keep only g-percentiles
 generate n = round(p_max - p_min, 1)
@@ -71,9 +91,33 @@ foreach v of varlist iso year fivelet age pop {
 	drop tmp
 }
 drop i _fillin
+renvars value*, predrop(5)
+
+tempfile wide
+save "`wide'"
+
+// Create averages based on shares
+use "$work_data/merge-fiscal-historical-output.dta", clear
+keep if inlist(widcode, "anninc992i", "anninc999i")
+keep iso year value widcode
+greshape wide value, i(iso year) j(widcode) string
+renvars value*, predrop(5)
+
+// rename value anninc
+*replace iso = "KV" if iso == "KS"
+// generate age     = substr(widcode, 7, 3)
+// generate pop     = substr(widcode, 10, 1)
+
+
+tempfile anninc
+save "`anninc'"
+
+use "`wide'", clear
+merge n:1 iso year using "`anninc'", keep(master match) nogenerate
+replace a = s*anninc992i/(n/1e5) if (fivelet == "ptinc") & (age == "992")
+replace a = s*anninc999i/(n/1e5) if (fivelet == "ptinc") & (age == "999")
 
 // Interpolate averages linearly in the gaps
-renvars value*, predrop(5)
 sort iso year fivelet age pop p
 foreach v of varlist a t {
 	by iso year fivelet age pop: ipolate `v' p, gen(new)
@@ -88,13 +132,13 @@ replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM")
 // When thresholds totally missing, use midpoints between averages
 by iso year fivelet age pop: generate t2 = (a + a[_n - 1])/2
 replace t = t2 if missing(t)
-replace t = min(0, 2*a) if p == 0 & missing(t)
+replace t = min(0, 2*a) if p == 0 & missing(t) & !missing(a)
 drop t2
 
 // When missing, recalculate shares from averages
 sort iso year fivelet age pop p
-gegen tot = total(n*a/1e5), by(iso year fivelet age pop)
-generate s2 = a*n/tot/1e5
+gegen tot = total(n*a/1e5) if !missing(a), by(iso year fivelet age pop)
+generate s2 = a*n/tot/1e5  if !missing(a)
 replace s = s2 if missing(s)
 drop s2
 
@@ -106,11 +150,18 @@ save "`rect'"
 // Rescale distributions to proper macro aggregates
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
-keep if widcode == "anninc992i"
-keep iso year value
-rename value anninc
+use "$work_data/merge-fiscal-historical-output.dta", clear
+keep if inlist(widcode, "anninc992i", "anninc999i")
+keep iso year value widcode
+greshape wide value, i(iso year) j(widcode) string
+renvars value*, predrop(5)
+
+// rename value anninc
 *replace iso = "KV" if iso == "KS"
+// generate age     = substr(widcode, 7, 3)
+// generate pop     = substr(widcode, 10, 1)
+
+
 tempfile anninc
 save "`anninc'"
 
@@ -123,10 +174,12 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // Rescale some distributions to macro aggregates
 // -------------------------------------------------------------------------- //
 
+
 // Adjsutment coefficients
-generate coef_ptinc = anninc/tot if (age == "992") & (fivelet == "ptinc")
-generate coef_diinc = anninc/tot if (age == "992") & (fivelet == "diinc")
-generate coef_fainc = anninc/tot if (age == "992") & (fivelet == "fainc")
+generate coef_ptinc992 = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
+generate coef_ptinc999 = anninc999i/tot if (age == "999") & (fivelet == "ptinc")
+generate coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
+generate coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
 // China => extend coefficients to rural and urban
 preserve
 	keep if iso == "CN"
@@ -140,7 +193,7 @@ preserve
 restore
 merge n:1 iso year fivelet age pop using "`cn'", update noreplace nogenerate
 // Extent these coefficients to all obs within a country/year
-foreach s in ptinc diinc fainc {
+foreach s in ptinc992 ptinc999 diinc fainc {
 	gegen coef2 = mean(coef_`s'), by(iso year)
 	replace coef_`s' = coef2 if missing(coef_`s')
 	drop coef2
@@ -149,12 +202,17 @@ foreach s in ptinc diinc fainc {
 generate changes = 0
 
 // ptinc (pretax national income) => direct rescaling on anninc
-replace a = a*coef_ptinc if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc)
+* Per-adult
+replace a = a*coef_ptinc992   if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992   if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "992") & (fivelet == "ptinc") & !missing(coef_ptinc992)
+* Per-capita
+replace a = a*coef_ptinc999   if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc999)
+replace t = t*coef_ptinc999   if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc999)
+replace changes = changes + 1 if (age == "999") & (fivelet == "ptinc") & !missing(coef_ptinc999)
 
 // diinc (post-tax national income) => direct rescaling on anninc
-replace a = a*coef_diinc if (age == "992") & (fivelet == "diinc") & !missing(coef_diinc)
+replace a = a*coef_diinc   if (age == "992") & (fivelet == "diinc") & !missing(coef_diinc)
 replace t = t*coef_diinc if (age == "992") & (fivelet == "diinc") & !missing(coef_diinc)
 replace changes = changes + 1 if (age == "992") & (fivelet == "diinc") & !missing(coef_diinc)
 
@@ -169,29 +227,29 @@ replace t = t*coef_diinc if (age == "992") & (fivelet == "cainc") & !missing(coe
 replace changes = changes + 1 if (age == "992") & (fivelet == "cainc") & !missing(coef_diinc)
 
 // flinc (factor labor income) => same coef as ptinc
-replace a = a*coef_ptinc if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc)
+replace a = a*coef_ptinc992 if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992 if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc992)
 
 // pkkin (pretax capital income) => same coef as ptinc
-replace a = a*coef_ptinc if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc)
+replace a = a*coef_ptinc992 if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992 if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "992") & (fivelet == "pkkin") & !missing(coef_ptinc992)
 
 // pllin (pretax labor income) => same coef as ptinc
-replace a = a*coef_ptinc if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc)
+replace a = a*coef_ptinc992 if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992 if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "992") & (fivelet == "pllin") & !missing(coef_ptinc992)
 
 // ptkin (pretax capital income, pretax income ranking) => same coef as ptinc
-replace a = a*coef_ptinc if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc)
+replace a = a*coef_ptinc992 if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992 if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "992") & (fivelet == "ptkin") & !missing(coef_ptinc992)
 
 // ptlin (pretax labor income, pretax income ranking) => same coef as ptinc
-replace a = a*coef_ptinc if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc)
-replace t = t*coef_ptinc if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc)
+replace a = a*coef_ptinc992 if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc992)
+replace t = t*coef_ptinc992 if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc992)
+replace changes = changes + 1 if (age == "992") & (fivelet == "ptlin") & !missing(coef_ptinc992)
 
 // Make sure that every value has been adjusted at most once
 assert changes <= 1
@@ -202,20 +260,31 @@ assert changes > 0 if ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
-	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
-	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
+*Updated upstream
 
-// tab year iso  if changes == 0 & ///
+//  tab year iso  if changes == 0 & age!="999" & ///
+//  	!(substr(fivelet, 1, 2) == "hw") & ///
+//  	!(fivelet == "fiinc") & ///
+//  	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
+//  	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
+//  	!(fivelet == "ptinc" & /*iso == "CA" &*/ year < 1950) & ///
+//  	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
+//  	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
+//
+
+//
+// tab iso year if changes == 0  & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
 // 	!(fivelet == "fiinc") & ///
 // 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
 // 	!(fivelet == "ptinc" & iso == "AU" & year < 1960) & ///
-// 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
+// 	!(fivelet == "ptinc" /*& iso == "CA"*/ & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
-//
+
 // br if changes == 0 & ///
 // 	!(substr(fivelet, 1, 2) == "hw") & ///
 // 	!(fivelet == "fiinc") & ///
@@ -224,8 +293,8 @@ assert changes > 0 if ///
 // 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
-//
-drop tot anninc coef_* changes b
+
+drop tot anninc* coef_* changes b
 
 // Make sure that labor + capital income sums to total income
 greshape wide a s t, i(iso year age pop p n) j(fivelet) string
@@ -312,7 +381,7 @@ save "`calibrated_widcodes'"
 // Put the data back
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
+use "$work_data/merge-fiscal-historical-output.dta", clear
 
 // Remove calibrated data from the original
 merge n:1 iso year widcode using "`calibrated_widcodes'", nogenerate keep(master)
