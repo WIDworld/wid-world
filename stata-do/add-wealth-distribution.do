@@ -44,15 +44,17 @@ drop temp1
 bys iso : replace bracket_average  = a*ratio_a   if !missing(a) & year<year_common & missing(bracket_average)
 drop  year_common ratio_a
 gsort iso year p
-	// Correct mhweal for VE 
-	replace mhweal999i = mhweal999i/1e5 if iso == "VE"
+* ------------- *
+// // Correct mhweal for VE 
+// replace mhweal999i = mhweal999i/1e5 if iso == "VE"
 generate average = mhweal999i/npopul992i if !missing(mhweal999i)
-
-	bys iso year : egen average_VE = total(bracket_average*n/1e5)  if iso == "VE"
-	replace bracket_average = (bracket_average/average_VE)*average if iso == "VE"
-	bys iso year : replace threshold = ((bracket_average - bracket_average[_n - 1] )/2) + bracket_average[_n - 1] if iso == "VE"
-	bys iso year : replace threshold = min(0, 2*bracket_average) if iso == "VE" & missing(threshold)
-	drop average_VE
+//
+// bys iso year : egen average_VE = total(bracket_average*n/1e5)  if iso == "VE"
+// replace bracket_average = (bracket_average/average_VE)*average if iso == "VE"
+// bys iso year : replace threshold = ((bracket_average - bracket_average[_n - 1] )/2) + bracket_average[_n - 1] if iso == "VE"
+// bys iso year : replace threshold = min(0, 2*bracket_average) if iso == "VE" & missing(threshold)
+// drop average_VE
+* ------------- *
 bys iso : generate s_2  =  bracket_average*n/1e5/average  if !missing(bracket_average) 
 
 // bys iso p : generate temp1 = s_2/s if year == 1998 & iso == "DE"

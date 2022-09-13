@@ -100,6 +100,7 @@ save "`aggregates'"
 use "$work_data/clean-up-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if (substr(iso, 1, 1) == "O") & iso != "OM"
 drop if strpos(iso, "-")
 drop if iso == "WO"
 

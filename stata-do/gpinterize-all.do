@@ -16,30 +16,32 @@ rename pc average999
 merge 1:1 iso year using "$work_data/popincsgpinter-peradults.dta", keep(3) nogen
 rename pop popsize992
 rename pc average992
-replace popsize992=1000*popsize992
-replace popsize999=1000*popsize999
+replace popsize992 = 1000*popsize992
+replace popsize999 = 1000*popsize999
 save "$work_data/long-run-agg-eur.dta", replace
 
 *LCU file
 use "$work_data/distribute-national-income-output.dta", clear
+
 keep if inlist(widcode, "npopul992i", "anninc992i", "npopul999i", "anninc999i")
 keep iso year widcode value 
 reshape wide value, i(iso year) j(widcode) string
-replace iso="OK" if iso=="QM"
+replace iso = "OK" if iso == "QM"
 renvars valueanninc992i valuenpopul992i valueanninc999i valuenpopul999i / average992 popsize992 average999 popsize999
-merge 1:1 iso year using "$work_data/long-run-aggregates-lcu.dta", update nogen //update but without replace so any updates to old aggregates will be kept
+merge 1:1 iso year using "$work_data/long-run-aggregates-lcu.dta", update nogen // update but without replace so any updates to old aggregates will be kept
+
 save "$work_data/anninc_npopul.dta", replace
 
 *Restrict to long-run country-years for file to add aggregates back in
 keep if inlist(year, 1820, 1850, 1880, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020)
-gen keep=0
-replace keep=1 if inlist(iso,"RU","CN","JP","FR","DE","GB","ES","IT")
-replace keep=1 if inlist(iso,"SE","AR","BR","CO","CL","MX","DZ","ZA")
-replace keep=1 if inlist(iso,"EG","TR","US","CA","AU","NZ","IN","ID")
-replace keep=1 if inlist(iso,"WA", "WB", "WC", "WD", "WE", "WG", "WH", "WI", "WJ")
-replace keep=1 if inlist(iso,"OA", "OB", "OC", "OD", "OE", "OK", "OH", "OI", "OJ")
+gen keep = 0
+replace keep = 1 if inlist(iso, "RU", "CN", "JP", "FR", "DE", "GB", "ES", "IT")
+replace keep = 1 if inlist(iso, "SE", "AR", "BR", "CO", "CL", "MX", "DZ", "ZA")
+replace keep = 1 if inlist(iso, "EG", "TR", "US", "CA", "AU", "NZ", "IN", "ID")
+replace keep = 1 if inlist(iso, "WA", "WB", "WC", "WD", "WE", "WG", "WH", "WI", "WJ")
+replace keep = 1 if inlist(iso, "OA", "OB", "OC", "OD", "OE", "OK", "OH", "OI", "OJ")
 
-keep if keep==1
+keep if keep == 1
 drop keep
 save "$work_data/long-run-aggregates.dta", replace
 ******************************
@@ -51,33 +53,37 @@ save "$work_data/long-run-aggregates.dta", replace
 use "$work_data/merge-longrun-all-output.dta", clear
 
 drop if missing(sptinc992j) 
-bys iso year (p): gen n=_n
+bys iso year (p): gen n = _n
 bys iso year: egen maxn = max(n)
 gen needs_gp = 1 if maxn<126
-replace needs_gp=0 if missing(needs_gp)
+replace needs_gp = 0 if missing(needs_gp)
 
-keep if (needs_gp==1 & maxn>1) |longrun==1 //remove countries that only have one data point available
+keep if (needs_gp == 1 & maxn>1) |longrun == 1 //remove countries that only have one data point available
 tostring(year), gen(yearstr)
-gen isoyear=iso+yearstr
+gen isoyear = iso+yearstr
 sort iso year
 
+drop if year>1980
+drop if inlist(p, 95000) & inlist(iso, "FR", "NL")
+drop if inlist(p, 90000) & inlist(iso, "NO")
 
+save "$work_data/merge-longrun-all-pre-gpinter-output.dta", replace
 //to delete:
-*keep if longrun==1
+*keep if longrun == 1
 
 levelsof isoyear, local(isoyears)
 
 foreach isoyr in `isoyears'{
-	local iso = substr("`isoyr'", 1,2)
-		local year = substr("`isoyr'",3,4)
+	    local iso  = substr("`isoyr'", 1, 2)
+		local year = substr("`isoyr'",3, 4)
 		disp("`iso'`year'...")
 		quietly{
-			use "$work_data/merge-longrun-all-output.dta", clear
-			keep if iso=="`iso'"
-			keep if year==`year'
+			use "$work_data/merge-longrun-all-pre-gpinter-output.dta", clear
+			keep if iso == "`iso'"
+			keep if year == `year'
 			drop if missing(sptinc992j)
 			egen maxlongrun = max(longrun)
-			if maxlongrun==1{
+			if maxlongrun == 1{
 				drop if missing(longrun) //drop percentiles in LR country-years that are not from LR estimates
 			}
 			
@@ -85,22 +91,22 @@ foreach isoyr in `isoyears'{
 			sort iso year p
 			
 			*Put in gpinter format
-			expand 2 if _n==1, gen(dup)
-			replace p=0 if dup==1
+			expand 2 if _n == 1, gen(dup)
+			replace p=0 if dup == 1
 			sort p
 			gen bracketsize = p[_n+1]-p
 			replace bracketsize = 100000-p if missing(bracketsize)
 			gen brackets = sptinc992j-sptinc992j[_n+1] 
-			replace brackets=1-sptinc992j if dup==1
+			replace brackets = 1-sptinc992j if dup == 1
 			replace brackets = sptinc992j if missing(brackets)
 			replace p = p/100000
 			replace bracketsize=bracketsize/100000
 			
 			*Merge in aggregates
-			if longrun==1{
+			if longrun == 1 {
 				merge m:1 year iso using "$work_data/long-run-agg-eur.dta", keep(1 3) nogen //export in EUR for longrun country-years to allow for regional aggregation
 			}
-			else{
+			else {
 			    merge m:1 year iso using "$work_data/anninc_npopul.dta", keep(1 3) nogen //export in LCU
 
 			}
@@ -112,14 +118,14 @@ foreach isoyr in `isoyears'{
 			drop dup bracketsize sptinc992j
 			rename iso country
 			order year country popsize* average* p brackets
-			replace year=. if _n!=1
-			replace country="" if _n!=1
-			replace popsize992=. if _n!=1
-			replace average992=. if _n!=1
-			replace popsize999=. if _n!=1
-			replace average999=. if _n!=1
+			replace year = .       if _n != 1
+			replace country = ""   if _n != 1
+			replace popsize992 = . if _n != 1
+			replace average992 = . if _n != 1
+			replace popsize999 = . if _n != 1
+			replace average999 = . if _n != 1
 			*Export peradult and percapita values for LR country-years
-			if longrun==1{
+			if longrun == 1 {
 				preserve
 					drop popsize999 average999 bracketavg999 longrun
 					renvars popsize992 average992 bracketavg992 / popsize average bracketavg
@@ -130,14 +136,14 @@ foreach isoyr in `isoyears'{
 				save "$work_data/gpinter-percapita/`isoyr'.dta", replace
 
 			}
-			else{ //Export peradult for all other country-years
+			else { //Export peradult for all other country-years
 				drop average999 popsize999 bracketavg999 longrun
 				renvars popsize992 average992 bracketavg992 / popsize average bracketavg
 
 				save "$work_data/gpinter-peradults/`isoyr'.dta", replace
 			}
 
-		}
+	}
 }
 
 
@@ -160,7 +166,7 @@ library(base)
 library(haven)
 library(dplyr)
 library(gdata)
-if (Sys.info()['sysname'] == 'Darwin') {
+if (Sys.info()['sysname']  ==  'Darwin') {
   libjvm <- paste0(system2('/usr/libexec/java_home',stdout = TRUE)[1],'/jre/lib/server/libjvm.dylib')
   message (paste0('Load libjvm.dylib from: ',libjvm))
   dyn.load(libjvm)
@@ -222,7 +228,7 @@ library(haven)
 library(dplyr)
 library(gdata)
 
-if (Sys.info()['sysname'] == 'Darwin') {
+if (Sys.info()['sysname']  ==  'Darwin') {
   libjvm <- paste0(system2('/usr/libexec/java_home',stdout = TRUE)[1],'/jre/lib/server/libjvm.dylib')
   message (paste0('Load libjvm.dylib from: ',libjvm))
   dyn.load(libjvm)

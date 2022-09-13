@@ -13,11 +13,11 @@ merge 1:n iso year using "$work_data/longrun-pretax-gpinterized.dta", update nor
 
 *Generate averages
 gen popsize = .01
-replace popsize = .5 if pstr=="p0p50"
-replace popsize = .4 if pstr=="p50p90"
-replace popsize = .1 if pstr=="p90p100"
-replace popsize = .001 if (p>=99000 & p<99900 & pstr!="p99p100") | pstr=="p99.9p100"
-replace popsize = .0001 if (p>99900 & p<99990) | pstr=="p99.99p100" | pstr=="p99.9p99.91"
+replace popsize = .5 if pstr == "p0p50"
+replace popsize = .4 if pstr == "p50p90"
+replace popsize = .1 if pstr == "p90p100"
+replace popsize = .001   if (p>=99000 & p<99900 & pstr!="p99p100")   | pstr=="p99.9p100"
+replace popsize = .0001  if (p>99900 & p<99990) | pstr=="p99.99p100" | pstr=="p99.9p99.91"
 replace popsize = .00001 if p>=99990
 
 
@@ -26,8 +26,8 @@ rename pstr p
 greshape long value, i(iso year p) j(widcode) string
 drop if missing(value)
 
-drop if p!="p0p1" & !strpos(widcode,"ptinc")
-replace p="pall" if !strpos(widcode,"ptinc")
+drop if p != "p0p1" & !strpos(widcode, "ptinc")
+replace p = "pall" if !strpos(widcode, "ptinc")
 
 tempfile data
 save "`data'"
@@ -41,8 +41,8 @@ tempfile data2
 save "`data2'"
 
 *Copy per-adult shares to per-capita shares
-keep if widcode=="sptinc992j"
-replace widcode="sptinc999j"
+keep if widcode == "sptinc992j"
+replace widcode = "sptinc999j"
 gen new999 = 1
 
 append using "`data2'"
@@ -55,7 +55,7 @@ drop dup new999
 bys iso: egen currency_2 = mode(currency)
 replace currency = currency_2 
 drop currency_2
-replace currency="" if (substr(widcode,1, 1))== "s" | (substr(widcode,1, 1))== "n" 
+replace currency = "" if (substr(widcode,1, 1)) == "s" | (substr(widcode,1, 1)) == "n" 
 
 save "$work_data/merge-fiscal-historical-output.dta", replace
 
@@ -74,6 +74,7 @@ save "`meta'"
 
 *Long-run metadata
 use "$work_data/merge-longrun-all-output.dta", clear
+
 collapse (min) year, by(iso source)
 replace iso="QM" if iso=="OK"
 egen is_long_run = total(strpos(source, "long-run")), by(iso)
@@ -84,21 +85,25 @@ collapse (firstnm) year, by(iso)
 generate method1 = "Before " + string(year) + ", pretax income shares estimated based on methodology in long-run paper: see source."
 gen source1 = "[URL][URL_LINK]https://wid.world/document/longrunpaper/[/URL_LINK][URL_TEXT]Chancel, L., Piketty, T. (2021). “Global Income Inequality, 1820-2020: The Persistence and Mutation of Extreme Inequality”[/URL_TEXT][/URL]"
 keep iso method1 source1
+
 tempfile longrun
 save "`longrun'"
 
 *Imputed metadata
 use "$work_data/merge-longrun-all-output.dta", clear
+
 collapse (min) year, by(iso source)
 keep if source == "historical inequality technical note"
 generate method2 = string(year) + " based on methodology described in source"
 gen source2 = "[URL][URL_LINK]TO BE ADDED[/URL_LINK][URL_TEXT]Chancel, L., Moshrif, R., Piketty, T., Xuereb, S. (2021). “Historical Inequality Series in WID.world: 2022 updates”[/URL_TEXT][/URL]" //NEED TO ADD LINK TO TECH NOTE WHEN IT IS ONLINE
 keep iso method2 source2
+
 tempfile technote
 save "`technote'"
 
 *Fiscal metadata
 use "$work_data/merge-longrun-all-output.dta", clear
+
 collapse (min) year, by(iso source)
 egen has_fiinc = total(strpos(source, "fiinc")), by(iso)
 keep if has_fiinc 

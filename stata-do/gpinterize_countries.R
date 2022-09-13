@@ -26,7 +26,7 @@ library(readxl)
 library(WriteXLS)
 
 
-user ="C:/Users/silas/Dropbox (Personal)/WID_LongRun/Integration" 
+user ="/Users/rowaidakhaled/Dropbox/Mac/Documents/GitHub/wid-world" 
 percentiles<-c(seq(0, 0.99, 0.01), seq(0.991, 0.999, 0.001), seq(0.9991, 0.9999, 0.0001), seq(0.99991, 0.99999, 0.00001))
 
 
@@ -34,13 +34,13 @@ types <- c("peradults/", "percapita/")
 
 
 for(t in types){
-t <- "percapita/"
-input = paste(user,"/Data/gpinter-",t,sep="")
+#t <- "percapita/"
+input = paste(user,"/work-data/gpinter-",t,sep="")
 file_names <- list.files(input)
 #file_names <- file_names[1000:1716]
 cyrs <- unique(substr(file_names,1,6))
 
-output = paste(user,"/Data/gpinter-output-",t,sep="")
+output = paste(user,"/work-data/gpinter-output-",t,sep="")
 for(cy in cyrs){
   print(paste("Country-Year:",cy,"  | Importing distributions ...",sep="")) 
     print(paste(input,cy,".dta",sep=""))

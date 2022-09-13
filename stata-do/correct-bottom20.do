@@ -11,7 +11,7 @@ global plafond 5
 global exception  AR BO BR BS BZ CL CO CR CU DO EC GT GY HN HT JM MX NI PA PE PY SR SV TT UY VE US
 
 
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/calibrate-dina-revised-output.dta", clear
 keep if widcode == "anninc992i"
 keep iso year value
 rename value anninc
@@ -23,12 +23,12 @@ save "`anninc'"
 // World countries 
 // -------------------------------------------------------------------------- //
 
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/calibrate-dina-revised-output.dta", clear
 
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if (substr(iso, 1, 1) == "O") & iso != "OM"
 drop if strpos(iso, "-")
-drop if substr(iso, 1, 1) == "X"
-drop if substr(iso, 1, 1) == "Q" & iso != "QA"
-drop if strpos(iso, "WO")
+drop if iso == "WO"
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
 
@@ -72,11 +72,11 @@ rename valuetptinc992j t
 gsort iso year p
 
 // Fix SG, missing s for p0p1 few years
-egen average = total(a*n/1e5), by(iso year)
-bys iso year : egen totshare = sum(s) if iso == "SG"
-replace s = 1-totshare if iso == "SG" & missing(s)
-replace a = (s*average)/(n/1e5) if missing(a) & iso == "SG"
-drop totshare average
+// egen average = total(a*n/1e5), by(iso year)
+// bys iso year : egen totshare = sum(s) if iso == "SG"
+// replace s = 1-totshare if iso == "SG" & missing(s)
+// replace a = (s*average)/(n/1e5) if missing(a) & iso == "SG"
+// drop totshare average
 
 drop if inrange(year, 1922, 1950) & iso == "IN"
 
@@ -308,7 +308,7 @@ save `all'
 // -------------------------------------------------------------------------- //
 // Merge the corrected with the rest
 // -------------------------------------------------------------------------- //
-use "$work_data/calibrate-dina-output.dta", clear
+use "$work_data/calibrate-dina-revised-output.dta", clear
 
 
 merge 1:1 iso year p widcode using "`all'", update replace nogen

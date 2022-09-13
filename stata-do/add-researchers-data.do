@@ -94,7 +94,7 @@ drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & 
 append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021"
 
 // US (Zucman 2020) - 
-append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022.dta"
+append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"

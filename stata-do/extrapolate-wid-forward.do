@@ -21,10 +21,10 @@ drop p currency
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if (substr(iso, 1, 1) == "O") & iso != "OM"
 drop if strpos(iso, "-")
-drop if substr(iso, 1, 1) == "X"
-drop if substr(iso, 1, 1) == "Q" & iso != "QA"
-drop if strpos(iso, "WO")
+drop if iso == "WO"
 
 
 tempfile aggregates
@@ -35,10 +35,10 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 use "$work_data/extrapolate-wid-1980-output.dta", clear
 
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
+drop if (substr(iso, 1, 1) == "O") & iso != "OM"
 drop if strpos(iso, "-")
-drop if substr(iso, 1, 1) == "X"
-drop if substr(iso, 1, 1) == "Q" & iso != "QA"
-drop if strpos(iso, "WO")
+drop if iso == "WO"
 
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")

@@ -12,7 +12,7 @@
 // -------------------------------------------------------------------------- //
 
 // France inequality 2017 (GGP2017)
-use "$wid_dir/Country-Updates/France/france-data/france-ggp2017.dta", clear
+use "$wid_dir/Country-Updates/France/2022-ggp/france-ggp2017.dta", clear
 
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
 // append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
