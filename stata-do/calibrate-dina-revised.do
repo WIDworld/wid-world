@@ -111,7 +111,7 @@ use "$work_data/extrapolate-pretax-income-output.dta", clear
 
 keep if inlist(widcode, "anninc992i")
 keep iso year value 
-rename value anninc
+rename value anninc992i
 
 tempfile anninc
 save "`anninc'"
