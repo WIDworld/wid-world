@@ -84,7 +84,8 @@ save "`meta'"
 // -----------------------------------------------------------------------------------------------------------------
 
 use iso year p widcode value author using "`researchers'", clear
-append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
+// append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
+append using "$work_data/add-populations-output.dta", generate(oldobs)
 
 // France 2017: drop specific widcodes
 drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///
@@ -110,8 +111,9 @@ save "$work_data/add-researchers-data-real-output.dta", replace
 // COMBINE NA AND DISTRIBUTIONAL METADATAS
 // ----------------------------------------------------------------------------------------------------------------
 
-use "$work_data/aggregate-regions-metadata-output.dta", clear
-drop if iso == "CN" & mi(source) & inlist(sixlet,"xlcusx","xlcyux")
+// use "$work_data/aggregate-regions-metadata-output.dta", clear
+use "$work_data/metadata-no-duplicates.dta", clear
+drop if iso == "CN" & mi(source) & inlist(sixlet, "xlcusx", "xlcyux")
 
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace 
 replace method = "" if method == " "

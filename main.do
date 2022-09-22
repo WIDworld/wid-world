@@ -240,14 +240,20 @@ do "$do_dir/add-populations.do"
 // Perform some additional computations
 // -------------------------------------------------------------------------- //
 
-// Aggregate by regions
-do "$do_dir/aggregate-macro-regions.do"
+// // Aggregate by regions
+// do "$do_dir/aggregate-macro-regions.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
 
+// Add wealth macro aggregates
+do "$do_dir/add-wealth-aggregates.do"
+
 // Add Wealth distribution 
 do "$do_dir/add-wealth-distribution.do"
+
+// Aggregate by regions
+do "$do_dir/aggregate-macro-regions.do"
 
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
