@@ -34,8 +34,8 @@ if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
 	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
 	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
 }
-if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
-	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
+if substr("`c(pwd)'",1,21)=="/Users/rowaidamoshrif"{
+	global wid_dir "/Users/rowaidamoshrif/Dropbox/WIL/W2ID"
 	global project_dir "/Users/rowaidamoshrif/Documents/GitHub/wid-world"
 }
 
@@ -140,19 +140,19 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 
 // Required ADO files
-/*
+/**/
 *update all
-ssc install kountry
-ssc install coefplot
-ssc install sxpose
-ssc install egenmore
-ssc install carryforward
-ssc install quandl
-ssc install renvars
-ssc install dropmiss
-ssc install gtools
-ssc install swapvals
-*/
+// ssc install kountry
+// ssc install coefplot
+// ssc install sxpose
+// ssc install egenmore
+// ssc install carryforward
+// ssc install quandl
+// ssc install renvars
+// ssc install dropmiss
+// ssc install gtools
+// ssc install swapvals
+/**/
 
 // You need to update Stata to the 14 version
 *version 14
