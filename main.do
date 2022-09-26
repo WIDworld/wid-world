@@ -270,7 +270,9 @@ do "$do_dir/distribute-national-income.do"
 // Extrapolate pre-tax national income shares with fiscal income when possible
 do "$do_dir/extrapolate-pretax-income.do"
 
-******
+****** 
+/*
+
 // // Extrapolate pre-tax national income shares with fiscal income when possible
 // do "$do_dir/extrapolate-pretax-income-revised.do"
 //
@@ -288,7 +290,7 @@ do "$do_dir/extrapolate-pretax-income.do"
 //
 // //Merge output of pretax extrapolation and longrun series with main data, update metadata
 // do "$do_dir/merge-fiscal-historical-main.do"
-
+*/
 ******
 // Calibrate distributed data on national accounts totals
 // do "$do_dir/calibrate-dina.do"
