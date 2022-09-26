@@ -228,6 +228,6 @@ gduplicates drop
 generate source = "WID.world (see individual countries for more details)"
 generate method = "WID.world aggregations of individual country data"
 
-append using "$work_data/metadata-no-duplicates.dta"
+append using "$work_data/add-wealth-distribution-metadata.dta"
 save "$work_data/aggregate-regions-metadata-output.dta", replace
 
