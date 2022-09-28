@@ -139,7 +139,7 @@ merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/September_2022/carbon-distribution-2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/agg-carbon-distribution-2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
 
