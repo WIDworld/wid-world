@@ -1,4 +1,5 @@
 use "$work_data/World-and-regional-aggregates-metadata.dta", clear
+use "$work_data/add-carbon-series-metadata.dta", clear
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 drop if iso == ""

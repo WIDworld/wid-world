@@ -1,8 +1,11 @@
 // List variables in the database
 use "$work_data/calculate-pareto-coef-output.dta", clear
+// append using "$work_data/add-carbon-series-output.dta"
+
 generate fivelet = substr(widcode, 2, 5)
 keep fivelet
 gduplicates drop
+
 tempfile fivelet
 save "`fivelet'", replace
 
@@ -48,7 +51,8 @@ assert duplicate == 0
 drop duplicate
 
 // Check we don't miss any variable
-merge 1:1 fivelet using "`fivelet'", nogen assert(master match)
+merge 1:1 fivelet using "`fivelet'", nogen 
+// assert(master match)
 
 sort fivelet
 *drop fivelet onelet
