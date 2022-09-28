@@ -321,7 +321,7 @@ do "$do_dir/calculate-pareto-coef.do"
 do "$do_dir/calculate-gini-coef.do"
 
 // Import carbon series (independent) - to be activated when updated!
-// do "$do_dir/add-carbon-series.do"
+do "$do_dir/add-carbon-series.do"
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
@@ -332,7 +332,7 @@ capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
 do "$do_dir/export-metadata-source-method.do"
-// do "$do_dir/export-metadata-other.do"
+do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations
 *do "$do_dir/create-flag-variables.do"

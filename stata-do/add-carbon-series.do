@@ -38,7 +38,7 @@ save `percapita'
 use "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta", clear
 drop if missing(year)
 append using "`percapita'"
-append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
+append using "$wid_dir/Country-Updates/Carbon/distribution/September_2022/carbon-distribution-2022.dta"
 append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/agg-carbon-distribution-2021.dta"
 keep iso year p widcode value
 
