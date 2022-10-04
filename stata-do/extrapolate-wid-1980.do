@@ -185,7 +185,7 @@ drop miss_a
 // -------------------------------------------------------------------------- //
 // Verification : Bracket Averages are increasing across percentiles + Sol.
 // -------------------------------------------------------------------------- //
-
+/*
 * 1 - bracket averages are not increasing
 gsort iso year p
 
@@ -254,7 +254,7 @@ by iso year: replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
 egen average = total(a*n/1e5), by(iso year)
 
 generate s = a*n/1e5/average
-
+*/
 assert inrange(s, 0, 1) if !inlist(p, 0, 1000)
 
 gsort iso year -p

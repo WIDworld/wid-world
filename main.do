@@ -7,7 +7,7 @@
 // -------------------------------------------------------------------------- //
 
 do "~/Documents/GitHub/wid-world/stata-do/setup.do"
-
+/*
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -51,7 +51,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -240,8 +240,6 @@ do "$do_dir/add-populations.do"
 // Perform some additional computations
 // -------------------------------------------------------------------------- //
 
-// // Aggregate by regions
-// do "$do_dir/aggregate-macro-regions.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"

@@ -409,10 +409,11 @@ drop i j
 
 // drop duplicates (variables starting with letter other than * in the raw file)
 quietly bysort path:  gen dup = cond(_N==1,0,_n)
+replace dup = 0 if path == "lpfghg" & !missing(comp)
 drop if dup>1
 drop dup
 
-replace name = "Personal footprint of other gases [beta]" if path == "lpfghg.lpfgho" & missing(name)
+replace name = "Personal carbon footprint - consumption part" if path == "lpfghg.lcfghg" & missing(name)
 
 append using "`tree'"
 save "`tree'", replace

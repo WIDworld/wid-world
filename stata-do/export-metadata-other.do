@@ -1,6 +1,6 @@
 // List variables in the database
 use "$work_data/calculate-pareto-coef-output.dta", clear
-// append using "$work_data/add-carbon-series-output.dta"
+append using "$work_data/add-carbon-series-output.dta"
 
 generate fivelet = substr(widcode, 2, 5)
 keep fivelet

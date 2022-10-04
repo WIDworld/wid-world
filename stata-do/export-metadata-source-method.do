@@ -58,49 +58,49 @@ replace data_imputation = "rescaling" if method == "Fiscal income rescaled to ma
 // Add interpolation/extrapolation in Africa
 // -------------------------------------------------------------------------- //
 
-// preserve
-//
-// 	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
-//
-// 	drop if construction == "Merge"
-// 	drop if construction == "Extrapolated"
-// 	drop if construction == "Interpolation"
-// 	drop if construction == "Imputed"
-// 	drop if construction == ""
-// 	drop construction
-//
-// 	*drop if inlist(iso, "ZA", "CI")
-//
-// 	sort iso year
-// 	by iso: generate j = _n
-// 	reshape wide year, i(iso) j(j)
-//
-// 	generate data_points = ""
-// 	foreach v of varlist year* {
-// 		replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
-// 		replace data_points = string(`v')                     if !missing(`v') & data_points == ""
-// 	}
-// 	egen min_year = rowmin(year*)
-// 	replace min_year = min(min_year, 1990)
-// 	drop year*
-// 	replace data_points = "[" + data_points + "]"
-// 	generate extrapolation = "[[1980 , $year]]"
-// 	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
-// 	drop min_year
-//
-// 	expand 2
-// 	sort iso
-// 	generate sixlet = ""
-// 	by iso: replace sixlet = "sptinc" if _n == 1
-// 	by iso: replace sixlet = "aptinc" if _n == 2
-//
-// 	tempfile africa_extra
-// 	save "`africa_extra'"
-//
-// restore
-//
-// merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
-replace extrapolation = "[[1980, $year]]" if strpos(sixlet, "ptinc") & data_quality == "0"
+preserve
+
+	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
+
+	drop if construction == "Merge"
+	drop if construction == "Extrapolated"
+	drop if construction == "Interpolation"
+	drop if construction == "Imputed"
+	drop if construction == ""
+	drop construction
+
+	*drop if inlist(iso, "ZA", "CI")
+
+	sort iso year
+	by iso: generate j = _n
+	reshape wide year, i(iso) j(j)
+
+	generate data_points = ""
+	foreach v of varlist year* {
+		replace data_points = data_points + ", " + string(`v') if !missing(`v') & data_points != ""
+		replace data_points = string(`v')                     if !missing(`v') & data_points == ""
+	}
+	egen min_year = rowmin(year*)
+	replace min_year = min(min_year, 1990)
+	drop year*
+	replace data_points = "[" + data_points + "]"
+	generate extrapolation = "[[1980 , $pastyear]]"
+	*generate extrapolation = "[[" + string(min_year) + ", $pastyear]]"
+	drop min_year
+
+	expand 2
+	sort iso
+	generate sixlet = ""
+	by iso: replace sixlet = "sptinc" if _n == 1
+	by iso: replace sixlet = "aptinc" if _n == 2
+
+	tempfile africa_extra
+	save "`africa_extra'"
+
+restore
+
+merge 1:1 iso sixlet using "`africa_extra'", nogen update replace
+replace extrapolation = "[[1980, $pastyear]]" if strpos(sixlet, "ptinc") & data_quality == "0"
 
 // -------------------------------------------------------------------------- //
 // Add population notes
@@ -237,7 +237,8 @@ replace Method = "Adults are individuals aged 15+. The series includes transfers
 // Correction for South Africa
 replace Method = "Fiscal income rescaled to match the macroeconomic aggregates." if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 replace data_imputation = "rescaling" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
- replace extrapolation = "[[1963, 2002], [2012, 2021]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
+// replace data_points = "[1993, 1996, 2000, 2005, 2008, 2010, 2014]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
+replace extrapolation = "[[1963, $pastyear]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 
 capture mkdir "$output_dir/$time/metadata"
 
