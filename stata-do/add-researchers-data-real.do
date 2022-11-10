@@ -37,11 +37,11 @@ append using `kr'
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
-append using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021.dta"
+append using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022.dta"
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER")
-append using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021.dta"
+append using "$wid_dir/Country-Updates/Latin_America/2022/September/LatinAmercia2022.dta"
 
 // // Gender - spllin992f
 drop if widcode == "spllin992f" /*& p == "p0"*/ & iso == "FR"
@@ -63,8 +63,8 @@ drop if iso == "FR" & missing(source) & strpos(sixlet, "ptinc")
 drop if iso == "FR" & strpos(sixlet, "pllin")
 duplicates drop
 // drop if missing(source) & missing(method)
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Europe/2021_08/Europe2021-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2021/July/LatinAmercia2021-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2022/September/LatinAmercia2022-metadata.dta", update replace nogen
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")

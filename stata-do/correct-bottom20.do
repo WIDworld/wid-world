@@ -170,7 +170,7 @@ replace a = a/average*anninc
 bys iso year (p) : replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if missing(t)
 bys iso year (p) : replace t = min(0, 2*a) if missing(t) 
 
-generate s = a*n/1e5/anninc 
+generate s = a*(n/1e5)/anninc 
 
 gsort iso year -p
 by iso year : generate ts = sum(s)

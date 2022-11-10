@@ -32,8 +32,9 @@ drop ahweal992i
 * Here we merge with the data corrected by Forbes (BBM + Correction)
 * with every wealth distribution updated we need to run the code here "~/Dropbox/WIL/WID_WealthForbes"
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-distributions-corrected.dta", update replace nogen
-
-replace n = n*1e5 if year>=1995
+merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
+ 
+replace n = n*1e5 if year>=1995 & !inrange(n, 1, 1000)
 keep iso year p n s a bracket_average bracket_share mhweal999i npopul992i threshold
 
 bys iso : egen year_common = min(year) if !missing(bracket_average) & !missing(a)
@@ -56,7 +57,7 @@ generate average = mhweal999i/npopul992i if !missing(mhweal999i)
 // bys iso year : replace threshold = min(0, 2*bracket_average) if iso == "VE" & missing(threshold)
 // drop average_VE
 * ------------- *
-bys iso : generate s_2  =  bracket_average*n/1e5/average  if !missing(bracket_average) 
+bys iso : generate s_2  =  bracket_average*n/1e5/average  if !missing(bracket_average) & !missing(average)
 
 // bys iso p : generate temp1 = s_2/s if year == 1998 & iso == "DE"
 // bys iso p : egen ratio_s_de = mode(temp1)
@@ -78,6 +79,8 @@ egen nb_gperc = count(bracket_share), by(iso year)
 bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
 assert round(total_s, 1) == 1 if !missing(total_s)
 drop total_s nb_gperc
+merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
+
 gsort iso year -p
 by iso year  : generate ts = sum(bracket_share) 
 by iso year  : generate ta = sum(bracket_average*n)/(1e5 - p) if !missing(bracket_average) 
@@ -211,7 +214,9 @@ if iso == "IN"
 * China
 replace source = source + ///
 `"[URL][URL_LINK]"' + `"http://wid.world/document/t-piketty-l-yang-and-g-zucman-capital-accumulation-private-property-and-inequality-in-china-1978-2015-2016/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015; "' + `"[/URL_TEXT][/URL]"' ///
+`"[URL_TEXT]"' + `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015; "' + `"[/URL_TEXT][/URL]"' + ///
+`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/2022-dina-regional-update-for-east-asia-world-inequality-lab-technical-note-2022-04/"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Updated by Sehyun, H., Zhexun, M. (2022), "2022 Regional DINA Update for Asia"; "' + `"[/URL_TEXT][/URL]"'  ///
 if iso == "CN" 
 
 * South Africa
@@ -285,6 +290,7 @@ if missing(source) & strpos(sixlet, "hweal")
 
 tempfile meta
 save `meta'
+
 
 use "$work_data/add-wealth-aggregates-metadata.dta", clear
 

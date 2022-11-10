@@ -71,6 +71,13 @@ foreach v of varlist cpi_* def_* {
 	replace `v' = . if ("`v'" != "def_arklems") & (iso == "AR") & inrange(year, 1994, 2012)
 }
 
+// For Russia: we adjust the deflator to eliminate the junks
+replace def_wid = round(def_wid, 0.000000000001)     if iso == "RU"
+replace def_wid = round(def_wid * 1.3, 0.0000000001) if year <= 1991 & iso == "RU"
+replace def_wid = def_wid * 1.225 					 if year == 1992 & iso == "RU"
+replace def_wid = def_wid * 1.15 					 if year == 1993 & iso == "RU"
+replace def_wid = def_wid * 1.075 					 if year == 1994 & iso == "RU"
+
 // Put everything in log scale and calculate inflation rate
 sort iso year
 foreach v of varlist cpi_* def_* {
@@ -338,172 +345,172 @@ drop id index_full
 // Combine and export notes
 preserve
 
-*tab index_source
+	*tab index_source
 
-replace index_source = "delta_cpi_gfd" ///
-	if (index_source == "delta_cpi_wid") ///
-	& (sourceicpixx999i == `""Global Financial Data""')
-	
-generate source = ""
+	replace index_source = "delta_cpi_gfd" ///
+		if (index_source == "delta_cpi_wid") ///
+		& (sourceicpixx999i == `""Global Financial Data""')
+		
+	generate source = ""
 
-replace source = `"[URL][URL_LINK]http://dx.doi.org/10.1017/S0022050712000630[/URL_LINK][URL_TEXT]Frankema "' ///
-	+ `"Ewout and van Waijenburg, Marlous. Structural Impediments to African Growth? "' ///
-	+ `"New Evidence from Real Wages in British Africa, 1880-1965. Journal of Economic "' ///
-	+ `"History. Vol. 72, No. 4 (December 2012).[/URL_TEXT][/URL]; "' if regexm(index_source, "_fw")
+	replace source = `"[URL][URL_LINK]http://dx.doi.org/10.1017/S0022050712000630[/URL_LINK][URL_TEXT]Frankema "' ///
+		+ `"Ewout and van Waijenburg, Marlous. Structural Impediments to African Growth? "' ///
+		+ `"New Evidence from Real Wages in British Africa, 1880-1965. Journal of Economic "' ///
+		+ `"History. Vol. 72, No. 4 (December 2012).[/URL_TEXT][/URL]; "' if regexm(index_source, "_fw")
 
-replace source = `"[URL][URL_LINK]https://www.globalfinancialdata.com/[/URL_LINK][URL_TEXT]Global Financial Data[/URL_TEXT][/URL]; "' ///
-	if regexm(index_source, "_gfd")
+	replace source = `"[URL][URL_LINK]https://www.globalfinancialdata.com/[/URL_LINK][URL_TEXT]Global Financial Data[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_gfd")
 
-replace source = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' ///
-	if regexm(index_source, "_wb")
+	replace source = `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_wb")
 
-replace source = `"[URL][URL_LINK]https://arklemsenglish.wordpress.com/gdp/[/URL_LINK][URL_TEXT]ARKLEMS[/URL_TEXT][/URL]; "' ///
-	if regexm(index_source, "_arklems")
+	replace source = `"[URL][URL_LINK]https://arklemsenglish.wordpress.com/gdp/[/URL_LINK][URL_TEXT]ARKLEMS[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_arklems")
 
-replace source = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' ///
-	+ `"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if regexm(index_source, "_un")
+	replace source = `"[URL][URL_LINK]http://unstats.un.org/unsd/snaama/Introduction.asp[/URL_LINK][URL_TEXT]United "' ///
+		+ `"Nations National Accounts Main Aggregates Database[/URL_TEXT][/URL]; "' if regexm(index_source, "_un")
 
-replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2017/01/weodata/index.aspx[/URL_LINK][URL_TEXT]IMF "' ///
-	+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
+	replace source = `"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/2017/01/weodata/index.aspx[/URL_LINK][URL_TEXT]IMF "' ///
+		+ `"World Economic Outlook (04/$year)[/URL_TEXT][/URL]; "' if regexm(index_source, "_weo")
 
-replace source = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddison_Wu_22_Feb_07.pdf[/URL_LINK][URL_TEXT]Maddison, "' ///
-	+ `"Angus and Wu, Harry. China’s Economic Performance: How Fast Has GDP Grown; How "' ///
-	+ `"Big is it Compared to the USA? (2007). Series updated by Prof. Harry Wu.[/URL_TEXT][/URL]; "' ///
-	if regexm(index_source, "_mw")
+	replace source = `"[URL][URL_LINK]http://www.ggdc.net/maddison/articles/China_Maddison_Wu_22_Feb_07.pdf[/URL_LINK][URL_TEXT]Maddison, "' ///
+		+ `"Angus and Wu, Harry. China’s Economic Performance: How Fast Has GDP Grown; How "' ///
+		+ `"Big is it Compared to the USA? (2007). Series updated by Prof. Harry Wu.[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_mw")
 
-replace source = `"[URL][URL_LINK]http://wid.world/document/t-piketty-l-yang-and-g-zucman-capital-accumulation-private-property-and-inequality-in-china-1978-2015-2016/[/URL_LINK][URL_TEXT]"' ///
-	+ `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). "' ///
-	+ `"Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015[/URL_TEXT][/URL]; "' ///
-	if regexm(index_source, "_pyz")
+	replace source = `"[URL][URL_LINK]http://wid.world/document/t-piketty-l-yang-and-g-zucman-capital-accumulation-private-property-and-inequality-in-china-1978-2015-2016/[/URL_LINK][URL_TEXT]"' ///
+		+ `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). "' ///
+		+ `"Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_pyz")
 
-replace source = sourceicpixx999i if (index_source == "delta_cpi_wid")
-replace source = sourceinyixx999i if (index_source == "delta_def_wid")
+	replace source = sourceicpixx999i if (index_source == "delta_cpi_wid")
+	replace source = sourceinyixx999i if (index_source == "delta_def_wid")
 
-tempfile meta
-save "`meta'"
+	tempfile meta
+	save "`meta'"
 
-keep iso source
-drop if source == ""
-duplicates drop
-sort iso source
-by iso: generate j = _n
-reshape wide source, i(iso) j(j)
-egen allsources = concat(source*)
-replace allsources = substr(allsources, 1, length(allsources) - 1)
-drop source*
-rename allsources source
+	keep iso source
+	drop if source == ""
+	duplicates drop
+	sort iso source
+	by iso: generate j = _n
+	reshape wide source, i(iso) j(j)
+	egen allsources = concat(source*)
+	replace allsources = substr(allsources, 1, length(allsources) - 1)
+	drop source*
+	rename allsources source
 
-tempfile sources
-save "`sources'"
+	tempfile sources
+	save "`sources'"
 
-use "`meta'", clear
+	use "`meta'", clear
 
-replace index_source = "price index provided by the researchers (see source)" ///
-	if inlist(index_source, "delta_cpi_wid", "delta_def_wid")
-replace index_source = "CPI for present day Ethiopia from the Wold Bank" ///
-	if index_source == "delta_cpi_wb_et"
-replace index_source = "GDP deflator for present day Ethiopia from the UN SNA" ///
-	if index_source == "delta_def_un_et"
-replace index_source = "GDP deflator for present day Ethiopia from the World Bank" ///
-	if index_source == "delta_def_wb_et"
-replace index_source = "GDP deflator for present day Ethiopia from the IMF World Economic Outlook" ///
-	if index_source == "delta_def_weo_et"
-replace index_source = "average inflation rate of Curaçao and Sint Marteen" ///
-	if index_source == "avg_cuw_sxm"
-replace index_source = "GDP deflator for the Netherland Antilles drom the UN SNA" ///
-	if index_source == "delta_def_un_xa"
-replace index_source = "average inflation rate of Kenya and Tanzania" ///
-	if index_source == "avg_ken_tza"
-replace index_source = "average inflation rate over 1954-1966" ///
-	if index_source == "avg_nga"
-replace index_source = "first inflation value backward carried backward" ///
-	if index_source == "carrybackward"
-replace index_source = "last inflation value carried forward" ///
-	if index_source == "carryforward"
-replace index_source = "price index from Frankema and Waijenburg (2012)" ///
-	if index_source == "delta_cpi_fw"
-replace index_source = "CPI from Global Financial Data" ///
-	if index_source == "delta_cpi_gfd"
-replace index_source = "CPI for Tanzania from Global Financial Data" ///
-	if index_source == "delta_cpi_gfd_tza"
-replace index_source = "CPI from the World Bank" ///
-	if index_source == "delta_cpi_wb"
-replace index_source = "CPI for Tanzania from the World Bank" ///
-	if index_source == "delta_cpi_wb_tza"
-*replace index_source = "see country report for details" ///
-*	if index_source == "delta_cpi_wid"
-replace index_source = "GDP deflator from the UN SNA" ///
-	if index_source == "delta_def_un"
-replace index_source = "GDP deflator for Sudan from the UN SNA" ///
-	if index_source == "delta_def_un_sdn"
-replace index_source = "GDP deflator for Tanzania from the UN SNA" ///
-	if index_source == "delta_def_un_tza"
-replace index_source = "GDP deflator from the World Bank" ///
-	if index_source == "delta_def_wb"
-replace index_source = "GDP deflator for Sudan from the World Bank" ///
-	if index_source == "delta_def_wb_sdn"
-replace index_source = "GDP deflator for Tanzania from the World Bank" ///
-	if index_source == "delta_def_wb_tza"
-replace index_source = "GDP deflator from the IMF World Economic Outlook" ///
-	if index_source == "delta_def_weo"
-replace index_source = "GDP deflator forecast from the IMF World Economic Outlook" ///
-	if index_source == "delta_def_weo_pred"
-replace index_source = "GDP deflator forecast from the IMF World Economic Outlook for Tanzania" ///
-	if index_source == "delta_def_weo_pred_tza"
-*replace index_source = "see country report for details" ///
-*	if index_source == "delta_def_wid"
-replace index_source = "interpolation assuming a constant inflation rate" ///
-	if index_source == "interpolation"
-replace index_source = "zero inflation assumed" ///
-	if index_source == "zero_infl"
-replace index_source = "GDP deflator from Maddison & Wu (2017)" ///
-	if index_source == "delta_def_mw"
-replace index_source = "GDP deflator from Piketty, Yang & Zucman (2016)" ///
-	if index_source == "delta_def_pyz"
-*replace index_source = "see country report for details" ///
-*	if index_source == "delta_cpi_wid_us"
-replace index_source = "GDP deflator provided by Filip Novokmet" ///
-	if index_source == "delta_def_east"
-replace index_source = "GDP deflator for the Czech Republic, provided by Filip Novokmet" ///
-	if index_source == "delta_def_east_cz"
-replace index_source = "GDP deflator for the Russian Federation, provided by Filip Novokmet" ///
-	if index_source == "delta_def_east_ru"
-replace index_source = "GDP deflator of the United States" ///
-	if index_source == "delta_def_wid_us"
-replace index_source = "index frozen at its 1990 value" ///
-	if index_source == "frozen"
-replace index_source = "implicit GDP deflator from ARKLEMS" ///
-	if index_source == "delta_def_arklems"
-replace index_source = "price index of Germany after 1991" ///
-	if regexm(index_source, "_de$")
-sort iso year
-by iso: generate categ = sum(index_source[_n - 1] != index_source)
-egen firstyear = min(year), by(iso categ)
-egen lastyear = max(year), by(iso categ)
+	replace index_source = "price index provided by the researchers (see source)" ///
+		if inlist(index_source, "delta_cpi_wid", "delta_def_wid")
+	replace index_source = "CPI for present day Ethiopia from the Wold Bank" ///
+		if index_source == "delta_cpi_wb_et"
+	replace index_source = "GDP deflator for present day Ethiopia from the UN SNA" ///
+		if index_source == "delta_def_un_et"
+	replace index_source = "GDP deflator for present day Ethiopia from the World Bank" ///
+		if index_source == "delta_def_wb_et"
+	replace index_source = "GDP deflator for present day Ethiopia from the IMF World Economic Outlook" ///
+		if index_source == "delta_def_weo_et"
+	replace index_source = "average inflation rate of Curaçao and Sint Marteen" ///
+		if index_source == "avg_cuw_sxm"
+	replace index_source = "GDP deflator for the Netherland Antilles drom the UN SNA" ///
+		if index_source == "delta_def_un_xa"
+	replace index_source = "average inflation rate of Kenya and Tanzania" ///
+		if index_source == "avg_ken_tza"
+	replace index_source = "average inflation rate over 1954-1966" ///
+		if index_source == "avg_nga"
+	replace index_source = "first inflation value backward carried backward" ///
+		if index_source == "carrybackward"
+	replace index_source = "last inflation value carried forward" ///
+		if index_source == "carryforward"
+	replace index_source = "price index from Frankema and Waijenburg (2012)" ///
+		if index_source == "delta_cpi_fw"
+	replace index_source = "CPI from Global Financial Data" ///
+		if index_source == "delta_cpi_gfd"
+	replace index_source = "CPI for Tanzania from Global Financial Data" ///
+		if index_source == "delta_cpi_gfd_tza"
+	replace index_source = "CPI from the World Bank" ///
+		if index_source == "delta_cpi_wb"
+	replace index_source = "CPI for Tanzania from the World Bank" ///
+		if index_source == "delta_cpi_wb_tza"
+	*replace index_source = "see country report for details" ///
+	*	if index_source == "delta_cpi_wid"
+	replace index_source = "GDP deflator from the UN SNA" ///
+		if index_source == "delta_def_un"
+	replace index_source = "GDP deflator for Sudan from the UN SNA" ///
+		if index_source == "delta_def_un_sdn"
+	replace index_source = "GDP deflator for Tanzania from the UN SNA" ///
+		if index_source == "delta_def_un_tza"
+	replace index_source = "GDP deflator from the World Bank" ///
+		if index_source == "delta_def_wb"
+	replace index_source = "GDP deflator for Sudan from the World Bank" ///
+		if index_source == "delta_def_wb_sdn"
+	replace index_source = "GDP deflator for Tanzania from the World Bank" ///
+		if index_source == "delta_def_wb_tza"
+	replace index_source = "GDP deflator from the IMF World Economic Outlook" ///
+		if index_source == "delta_def_weo"
+	replace index_source = "GDP deflator forecast from the IMF World Economic Outlook" ///
+		if index_source == "delta_def_weo_pred"
+	replace index_source = "GDP deflator forecast from the IMF World Economic Outlook for Tanzania" ///
+		if index_source == "delta_def_weo_pred_tza"
+	*replace index_source = "see country report for details" ///
+	*	if index_source == "delta_def_wid"
+	replace index_source = "interpolation assuming a constant inflation rate" ///
+		if index_source == "interpolation"
+	replace index_source = "zero inflation assumed" ///
+		if index_source == "zero_infl"
+	replace index_source = "GDP deflator from Maddison & Wu (2017)" ///
+		if index_source == "delta_def_mw"
+	replace index_source = "GDP deflator from Piketty, Yang & Zucman (2016)" ///
+		if index_source == "delta_def_pyz"
+	*replace index_source = "see country report for details" ///
+	*	if index_source == "delta_cpi_wid_us"
+	replace index_source = "GDP deflator provided by Filip Novokmet" ///
+		if index_source == "delta_def_east"
+	replace index_source = "GDP deflator for the Czech Republic, provided by Filip Novokmet" ///
+		if index_source == "delta_def_east_cz"
+	replace index_source = "GDP deflator for the Russian Federation, provided by Filip Novokmet" ///
+		if index_source == "delta_def_east_ru"
+	replace index_source = "GDP deflator of the United States" ///
+		if index_source == "delta_def_wid_us"
+	replace index_source = "index frozen at its 1990 value" ///
+		if index_source == "frozen"
+	replace index_source = "implicit GDP deflator from ARKLEMS" ///
+		if index_source == "delta_def_arklems"
+	replace index_source = "price index of Germany after 1991" ///
+		if regexm(index_source, "_de$")
+	sort iso year
+	by iso: generate categ = sum(index_source[_n - 1] != index_source)
+	egen firstyear = min(year), by(iso categ)
+	egen lastyear = max(year), by(iso categ)
 
-generate index_note = string(firstyear) + ": " + index_source + ";" ///
-	if (firstyear == lastyear) & (index < .)
-replace index_note = string(firstyear) + "-" + string(lastyear) + ///
-	": " + index_source + ";" if (index < .) & (firstyear != lastyear)
-generate note_group = string(firstyear) + string(lastyear)
-drop firstyear lastyear categ
+	generate index_note = string(firstyear) + ": " + index_source + ";" ///
+		if (firstyear == lastyear) & (index < .)
+	replace index_note = string(firstyear) + "-" + string(lastyear) + ///
+		": " + index_source + ";" if (index < .) & (firstyear != lastyear)
+	generate note_group = string(firstyear) + string(lastyear)
+	drop firstyear lastyear categ
 
-keep iso index_note note_group
-drop if index_note == ""
-duplicates drop
-egen j = group(iso note_group)
-drop note_group
-reshape wide index_note, i(iso) j(j)
-egen newnote = concat(index_note*), punct(" ")
-keep iso newnote 
-replace newnote = "We cumulate inflation rates from the following sources; " + substr(newnote, 1, length(newnote) - 1) + "."
-rename newnote method
-generate sixlet = "inyixx"
+	keep iso index_note note_group
+	drop if index_note == ""
+	duplicates drop
+	egen j = group(iso note_group)
+	drop note_group
+	reshape wide index_note, i(iso) j(j)
+	egen newnote = concat(index_note*), punct(" ")
+	keep iso newnote 
+	replace newnote = "We cumulate inflation rates from the following sources; " + substr(newnote, 1, length(newnote) - 1) + "."
+	rename newnote method
+	generate sixlet = "inyixx"
 
-merge 1:1 iso using "`sources'", nogenerate
+	merge 1:1 iso using "`sources'", nogenerate
 
-label data "Generated by calculate-price-index.do"
-save "$work_data/price-index-metadata.dta", replace
+	label data "Generated by calculate-price-index.do"
+	save "$work_data/price-index-metadata.dta", replace
 
 restore
 

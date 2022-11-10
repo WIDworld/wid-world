@@ -71,17 +71,17 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dt
 // Norway - fiinc series
 append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
 
-// Middle East (AAP2017 § Moshrif 2020 & BM2021) - ptinc series - YES
-append using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021.dta"
+// Middle East (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series - YES
+append using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-data.dta"
 
-// Asia (MCY 2020 & BM 2021) - many macro variables + fiinc + ptinc series - YES
-append using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021.dta"
+// Asia (MCY 2020 & BM 2021 & SZ 2022) - many macro variables + fiinc + ptinc series - YES
+append using "$wid_dir/Country-Updates/Asia/2022/September/Asia-full-2022.dta"
 
-// Russia (Neef 2021) -  ptinc series - YES
-append using "$wid_dir/Country-Updates/Russia/2021/November/Russia2021.dta"
+// Russia (Neef 2022) -  ptinc series - YES
+append using "$wid_dir/Country-Updates/Russia/2022/Russia2022.dta"
 
-// Africa (ccgm & Robillard 2021) - ptinc - YES
-append using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021.dta" // data_quality added in metadata do.file
+// Africa (ccgm & Robillard 2022) - ptinc - YES
+append using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
 
@@ -91,9 +91,9 @@ drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "m
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
 // Australia, New Zealand & Canada (Matt 2021) - ptinc & fiinc series
-append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021"
+append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021.dta"
 
-// US (Zucman 2020) - 
+// US ( BSZ 2022) - YES 
 append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series
@@ -107,12 +107,6 @@ append using "$wid_dir/Country-Updates/Georgia/2021_08/dina_georgia_8sep2021.dta
 
 // Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countries) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
-
-// // Carbon Macro (Chancel&Burq2021) - macro series
-// append using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon.dta"
-//
-// // Carbon Distribution (Chancel2021) - distribution series
-// append using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/carbon-distribution-2021.dta"
 
 
 compress, nocoalesce 
@@ -133,14 +127,11 @@ drop if sixlet=="npopul" & strpos(source,"chancel")>0
 duplicates drop iso sixlet, force
 
 order iso sixlet source method
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2021/July/Asia-full-2021-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2021/July/DINA_MiddleEast_Jul2021-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2021_08/africa-ptinc-Aug2021-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2020_10/AUCANZ_all_2020-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2022/September/Asia-full-2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
-// merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/macro/April_2021/carbon-metadata.dta", update replace nogen
-// merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/September_2022/carbon-distribution-2022-metadata.dta", update replace nogen
-// merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Carbon/distribution/July_2021/agg-carbon-distribution-2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
 
 duplicates drop

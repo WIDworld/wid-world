@@ -5,38 +5,19 @@
 clear all
 
 // Directory (Gethin / Blanchet / Myczkowski)
-if substr("`c(pwd)'",1,10)=="C:\Users\A"{
-	global wid_dir "C:/Users/Amory/Dropbox/W2ID"
-	global project_dir "C:/Users/Amory/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.4.1\bin\i386/R.exe"
-}
-if substr("`c(pwd)'",1,10)=="C:\WINDOWS" | strpos("`c(pwd)'","Gethin")>0{
-	global wid_dir "C:/Users/Amory Gethin/Dropbox/W2ID"
-	global project_dir "C:/Users/Amory Gethin/Documents/GitHub/wid-world"
-	global r_dir "C:\Program Files\R\R-3.5.1\bin/R.exe"
-}
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
 	global r_dir "/usr/local/bin/R"
 }
-if substr("`c(pwd)'",1,8)=="/Volumes"{
-	global wid_dir "/Volumes/Hard Drive/Users/Georges/Dropbox/W2ID"
-	global project_dir "/Volumes/Hard Drive/Users/Alix/Documents/GitHub/wid-world"
-	global r_dir "/usr/local/bin/R"
-}
-if substr("`c(pwd)'",1,10)=="/Users/ali"{
-	global wid_dir "/Users/alixmyczkowski/Dropbox/W2ID"
-	global project_dir "/Users/alixmyczkowski/Documents/GitHub/wid-world"
-	global r_dir "/usr/local/bin/R"
-}
-if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
-	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
-	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
-}
+// if substr("`c(pwd)'",1,20)=="/Users/rowaidakhaled"{
+// 	global wid_dir "/Users/rowaidakhaled/Dropbox/WIL/W2ID"
+// 	global project_dir "/Users/rowaidakhaled/Documents/GitHub/wid-world"
+// }
 if substr("`c(pwd)'",1,21)=="/Users/rowaidamoshrif"{
 	global wid_dir "/Users/rowaidamoshrif/Dropbox/WIL/W2ID"
 	global project_dir "/Users/rowaidamoshrif/Documents/GitHub/wid-world"
+	global r_dir "/usr/local/bin/R"
 }
 
 if substr("`c(pwd)'",1,20)=="/Users/silas"{

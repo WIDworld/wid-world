@@ -1,5 +1,6 @@
 use "$work_data/World-and-regional-aggregates-metadata.dta", clear
-use "$work_data/add-carbon-series-metadata.dta", clear
+// use "$work_data/add-carbon-series-metadata.dta", clear
+
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
 drop if iso == ""
@@ -61,7 +62,8 @@ replace data_imputation = "rescaling" if method == "Fiscal income rescaled to ma
 preserve
 
 	use "$input_data_dir/data-quality/wid-africa-construction.dta", clear
-
+	drop if iso == "EG"
+	
 	drop if construction == "Merge"
 	drop if construction == "Extrapolated"
 	drop if construction == "Interpolation"
@@ -219,7 +221,8 @@ replace Source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-an
 	if Source == "Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors."
 
 // Add Source for ZA 2020
-replace Source = "[URL_TEXT]Chatterjee, Czajka and Gethin (2020). Estimating the Distribution of Household Wealth in South Africa.[/URL_TEXT][/URL]" if Source == "" & Alpha2 == "ZA"	
+replace Source = "Chatterjee, Czajka and Gethin (2020). Estimating the Distribution of Household Wealth in South Africa." ///
+if Source == "" & Alpha2 == "ZA" & (TwoLet == "pt") & (ThreeLet == "inc")
 	
 // Remove duplicates
 collapse (firstnm) Method Source data_quality data_imputation data_points extrapolation, by(TwoLet ThreeLet Alpha2)

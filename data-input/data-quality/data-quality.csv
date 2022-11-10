@@ -1,4 +1,4 @@
-iso;quality
+﻿iso;quality
 AE;2
 AL;2
 AT;3
@@ -17,6 +17,7 @@ CN-RU;3
 CN-UR;3
 CY;2
 CZ;3
+DO;4
 DD;3
 DE;4
 DE-BD;3
@@ -37,7 +38,7 @@ GB;4
 GR;3
 HR;2
 HU;3
-IE;3
+HK;3
 IN;3
 IQ;2
 IR;2
@@ -235,9 +236,3 @@ KP;0
 MO;0
 ID;1
 PG;0
-GE;3
-HK;3
-AM ;1
-UA ;1
-BY;1
-AZ;1
