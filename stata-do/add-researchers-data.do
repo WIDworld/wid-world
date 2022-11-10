@@ -93,7 +93,7 @@ drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & 
 // Australia, New Zealand & Canada (Matt 2021) - ptinc & fiinc series
 append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021.dta"
 
-// US ( BSZ 2022) - YES 
+// US (PSZ + BSZ 2022) - YES 
 append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series

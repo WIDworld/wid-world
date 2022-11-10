@@ -4,7 +4,7 @@
 
 clear all
 
-// Directory (Gethin / Blanchet / Myczkowski)
+// Directory (Blanchet / Moshrif / Nievas)
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
@@ -121,7 +121,6 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 
 // Required ADO files
-/**/
 *update all
 // ssc install kountry
 // ssc install coefplot
@@ -133,7 +132,6 @@ global world_summary_market 1
 // ssc install dropmiss
 // ssc install gtools
 // ssc install swapvals
-/**/
 
 // You need to update Stata to the 14 version
 *version 14
