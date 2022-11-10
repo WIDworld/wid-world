@@ -4,7 +4,7 @@
 
 clear all
 
-// Directory (Blanchet / Moshrif / Nievas)
+// Directory (Gethin / Blanchet / Myczkowski)
 if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global wid_dir "/Users/thomasblanchet/Dropbox/W2ID"
 	global project_dir "~/GitHub/wid-world"
@@ -23,6 +23,12 @@ if substr("`c(pwd)'",1,21)=="/Users/rowaidamoshrif"{
 if substr("`c(pwd)'",1,20)=="/Users/silas"{
 	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
 }
+
+if substr("`c(pwd)'",1,13)=="C:\Users\gato"{
+	global wid_dir "C:/Users/gato/Dropbox/W2ID/"
+	global project_dir "C:/Users/gato/Documents/GitHub/wid-world/"
+}
+
 // WID folder directory
 *global wid_dir "/Users/thomasblanchet/Dropbox/W2ID" // Thomas Blanchet
 *global wid_dir "C:/Users/Amory/Dropbox/W2ID" // Amory Gethin
@@ -121,17 +127,21 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 
 // Required ADO files
+
+/*
 *update all
-// ssc install kountry
-// ssc install coefplot
-// ssc install sxpose
-// ssc install egenmore
-// ssc install carryforward
-// ssc install quandl
-// ssc install renvars
-// ssc install dropmiss
-// ssc install gtools
-// ssc install swapvals
+ ssc install kountry
+ ssc install coefplot
+ ssc install sxpose
+ ssc install egenmore
+ ssc install carryforward
+ ssc install quandl
+ *ssc install renvars
+ ssc install dropmiss
+ ssc install gtools
+ //ssc install swapvals
+/**/
+*/
 
 // You need to update Stata to the 14 version
 *version 14
@@ -139,7 +149,7 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 // Graphical theme
 // -------------------------------------------------------------------------- //
-
+/*
 set scheme s2color
 grstyle init
 grstyle color background white
@@ -173,3 +183,4 @@ grstyle color legend_line            background
 grstyle yesno legend_force_draw      yes
 
 grstyle margin axis_title          medsmall
+*/
