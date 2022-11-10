@@ -149,7 +149,7 @@ global world_summary_market 1
 // -------------------------------------------------------------------------- //
 // Graphical theme
 // -------------------------------------------------------------------------- //
-/*
+
 set scheme s2color
 grstyle init
 grstyle color background white
@@ -183,4 +183,3 @@ grstyle color legend_line            background
 grstyle yesno legend_force_draw      yes
 
 grstyle margin axis_title          medsmall
-*/
