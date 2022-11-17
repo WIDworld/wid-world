@@ -55,22 +55,22 @@ n_tables <- length(table_codes)
 for (i in 1:n_tables) {
     code <- table_codes[i]
     name <- table_names[i]
-
+    
     cat(glue("--> {name}\n\n"))
-
+    
     table <- tibble()
     for (year in 1946:2020) {
         cat(glue("* {year}..."))
-
+        
         url <- glue(paste0("http://data.un.org/Handlers/DownloadHandler.ashx?",
-            "DataFilter=group_code:{code};fiscal_year:{year}&",
-            "dataMartId=SNA",
-            "&Format=csv"
+                           "DataFilter=group_code:{code};fiscal_year:{year}&",
+                           "dataMartId=SNA",
+                           "&Format=csv"
         ))
         # Download the ZIP archive
-        zip_file <- tempfile()
+        zip_file <- tempfile(fileext = ".zip")
         repeat {
-            status <- tryCatch(download.file(url, zip_file, quiet = TRUE), error = function(e) {
+            status <- tryCatch(download.file(url, zip_file, quiet = TRUE, mode="wb"), error = function(e) {
                 return("error")
             })
             if (status != "error") {
@@ -80,31 +80,37 @@ for (i in 1:n_tables) {
         # Unzip it
         file_dir <- tempdir()
         file_name <- unzip(zip_file, exdir = file_dir)
-
+        
         # Read the file
         data <- invisible(suppressWarnings(read_csv(file_name,
-            col_types = cols(
-                "Value" = "d",
-                "Year" = "i",
-                "Base Year" = "i",
-                "Fiscal Year" = "i",
-                .default = "c"
-            )
+                                                    name_repair = "minimal",
+                                                    col_types = cols(
+                                                        "Value" = "d",
+                                                        "Year" = "i",
+                                                        "Base Year" = "i",
+                                                        "Fiscal Year" = "i",
+                                                        .default = "c"
+                                                    ),
         )))
-
+        # Find Unique Column Names
+        unique_names <- unique(colnames(data))
+        
+        # Keep Only Unique Column Names
+        data <- data[unique_names]
+        
         if (nrow(data) > 0) {
             # Find rows with footnotes
             data$is_footnote <- cumsum(data[, 1] == "footnote_SeqID")
-
+            
             footnotes <- data %>% filter(is_footnote == 1)
             footnotes <- footnotes[2:nrow(footnotes), 1:2]
             colnames(footnotes) <- c("footnote_id", "footnote")
-
+            
             # Remove footnotes in main table
             data %<>% filter(!is_footnote) %>% select(-is_footnote)
             # Merge to specific rows
             data_footnotes <- data %>% pull(`Value Footnotes`) %>% strsplit(split = ",", fixed = TRUE)
-
+            
             for (i in 1:nrow(data)) {
                 if (!is.na(data_footnotes[i])) {
                     j <- 1
@@ -117,11 +123,11 @@ for (i in 1:n_tables) {
                 }
             }
             data %<>% select(-starts_with("Value Footnotes"))
-
+            
             # Add the the rest
             table <- bind_rows(table, data)
         }
-
+        
         cat("DONE\n")
     }
     table <- clean_names(table, case = "snake")

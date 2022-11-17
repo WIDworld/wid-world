@@ -32,7 +32,7 @@ drop ahweal992i
 * Here we merge with the data corrected by Forbes (BBM + Correction)
 * with every wealth distribution updated we need to run the code here "~/Dropbox/WIL/WID_WealthForbes"
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-distributions-corrected.dta", update replace nogen
-merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
+merge 1:1 iso year p using "~/Dropbox/W2ID/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
  
 replace n = n*1e5 if year>=1995 & !inrange(n, 1, 1000)
 keep iso year p n s a bracket_average bracket_share mhweal999i npopul992i threshold
@@ -79,7 +79,7 @@ egen nb_gperc = count(bracket_share), by(iso year)
 bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
 assert round(total_s, 1) == 1 if !missing(total_s)
 drop total_s nb_gperc
-merge 1:1 iso year p using "~/Dropbox/WIL/W2ID/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
+merge 1:1 iso year p using "~/Dropbox/W2ID/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
 
 gsort iso year -p
 by iso year  : generate ts = sum(bracket_share) 
