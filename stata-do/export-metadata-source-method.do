@@ -1,5 +1,5 @@
 use "$work_data/World-and-regional-aggregates-metadata.dta", clear
-// use "$work_data/add-carbon-series-metadata.dta", clear
+use "$work_data/add-carbon-series-metadata.dta", clear
 
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
@@ -243,7 +243,8 @@ replace Method = "Fiscal income rescaled to match the macroeconomic aggregates."
 replace data_imputation = "rescaling" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 // replace data_points = "[1993, 1996, 2000, 2005, 2008, 2010, 2014]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
 replace extrapolation = "[[1963, $pastyear]]" if (Alpha2 == "ZA") & (TwoLet == "pt") & (ThreeLet == "inc")
-
+replace data_points = "[2006, 2008, 2010, 2012, 2014, 2016]" if data_points == "[2006,2008,2010,2012,2014,2016]"
+replace data_points = "" if data_points == "[1978-2015]"
 capture mkdir "$output_dir/$time/metadata"
 
 *replace Alpha2="KV" if Alpha2=="KS"
