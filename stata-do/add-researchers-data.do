@@ -90,8 +90,8 @@ append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
 drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
-// Australia, New Zealand & Canada (Matt 2021) - ptinc & fiinc series
-append using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021.dta"
+// Australia, New Zealand & Canada (Matt 2022) - ptinc & fiinc series
+append using "$wid_dir/Country-Updates/North_America/2022_10/AUCANZ_all_2022.dta"
 
 // US (PSZ + BSZ 2022) - YES 
 append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"

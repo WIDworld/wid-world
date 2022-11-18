@@ -18,6 +18,7 @@ save `mhweal'
 
 
 use "$wid_dir/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
 order iso year p 
 merge m:1 iso year using "`mhweal'", nogen keep(master match)
 replace a = . if missing(mhweal999i)
