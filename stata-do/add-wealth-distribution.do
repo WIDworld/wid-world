@@ -18,7 +18,6 @@ save `mhweal'
 
 
 use "$wid_dir/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
 order iso year p 
 merge m:1 iso year using "`mhweal'", nogen keep(master match)
 replace a = . if missing(mhweal999i)
@@ -33,8 +32,9 @@ drop ahweal992i
 * Here we merge with the data corrected by Forbes (BBM + Correction)
 * with every wealth distribution updated we need to run the code here "~/Dropbox/WIL/WID_WealthForbes"
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-distributions-corrected.dta", update replace nogen
-merge 1:1 iso year p using "~/Dropbox/W2ID/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
- 
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
+drop if iso == "NL" & year == 1993
+
 replace n = n*1e5 if year>=1995 & !inrange(n, 1, 1000)
 keep iso year p n s a bracket_average bracket_share mhweal999i npopul992i threshold
 
@@ -51,6 +51,12 @@ gsort iso year p
 // // Correct mhweal for VE 
 // replace mhweal999i = mhweal999i/1e5 if iso == "VE"
 generate average = mhweal999i/npopul992i if !missing(mhweal999i)
+
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
+replace bracket_average = a if iso == "NL" & missing(bracket_average)
+replace threshold = t if iso == "NL" & missing(threshold)
+drop t 
+
 //
 // bys iso year : egen average_VE = total(bracket_average*n/1e5)  if iso == "VE"
 // replace bracket_average = (bracket_average/average_VE)*average if iso == "VE"
@@ -80,7 +86,7 @@ egen nb_gperc = count(bracket_share), by(iso year)
 bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
 assert round(total_s, 1) == 1 if !missing(total_s)
 drop total_s nb_gperc
-merge 1:1 iso year p using "~/Dropbox/W2ID/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
 
 gsort iso year -p
 by iso year  : generate ts = sum(bracket_share) 
@@ -91,6 +97,9 @@ order iso year p bracket_share bracket_average ts ta bs ba
 gsort iso year p
 
 renvars bracket_average bracket_share threshold / a s t
+duplicates tag iso year p, gen(dup) 
+assert dup == 0 
+drop dup 
 // tw (line ts year if iso == "DE" & p == 90000) ///
 //    (line ts year if iso == "US" & p == 90000) ///
 //    (line ts year if iso == "FR" & p == 90000)

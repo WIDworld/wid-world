@@ -25,12 +25,12 @@ if substr("`c(pwd)'",1,20)=="/Users/silas"{
 }
 
 if substr("`c(pwd)'",1,13)=="C:\Users\gato"{
-	global wid_dir "C:/Users/gato/Dropbox/W2ID/"
+	global wid_dir "C:/Users/gato/Dropbox/WIL/W2ID/"
 	global project_dir "C:/Users/gato/Documents/GitHub/wid-world/"
 }
 
 if substr("`c(pwd)'",1,13)=="/Users/gaston"{
-	global wid_dir "/Users/gaston/Dropbox/W2ID/"
+	global wid_dir "/Users/gaston/Dropbox/WIL/W2ID/"
 	global project_dir "/Users/gaston/Documents/GitHub/wid-world/"
 }
 
@@ -77,6 +77,7 @@ global france_data       "$input_data_dir/france-data"
 global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
+global forbes_data 		 "$wid_dir/Country-Updates/Forbes/2022"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"
@@ -118,6 +119,10 @@ global pastyear 2021 // this year matches commands in gdp-vs-nni,
 global pastpastyear 2020 
 global pastpastpastyear 2019 // only for WPP, needs to be changed every 2 years 
 						 // (changes made April 2021)
+
+// Global years for updating Forbes data
+global forbes_year 2021
+global forbes_upd_year 2022						 
 						 
 // Global macros to switch on/off some parts of the code (1=on, 0=off)
 global plot_missing_nfi    0
