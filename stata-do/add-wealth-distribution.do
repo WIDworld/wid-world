@@ -1,7 +1,26 @@
+*****************************************
+*		What the dofile does			*
+*****************************************
 
 // Add historical wealth series with corrected forbes wealth series from 1995 onwards
 // Complete replace of the series we have!
 // to double check 2021 when aggregate HH wealth is updated in October 2022
+
+*****************************************
+*		How the dofile works			*
+*****************************************
+// "$work_data/add-wealth-aggregates-output.dta" adds the variables mhweal999i and npopul992i, which are used to calculate ahweal992i -> "a" variable
+// wealth-gperc-all.dta brings the variables p s ts a n 
+
+// new data included should come with variables iso year p n bracket_average average (average = mhweal999i/npopul992i) bracket_share threshold. 
+// new data should come in wide format: iso year variables (with the variables included in previous point)
+// If data included has this format then adding it after the last one (currently Hong Kong) will allow for all the calculations to happen
+
+// Poland 1923 data is added at the very end because it is already in the final format
+
+*****************************
+*	     I. Data			*
+*****************************
 
 // Add Macro Wealth aggregates
 use "$work_data/add-wealth-aggregates-output.dta", clear
@@ -14,80 +33,76 @@ drop if missing(mhweal999i)
 generate ahweal992i = mhweal999i/npopul992i if !missing(mhweal999i)
 
 tempfile mhweal
-save `mhweal'
+save `mhweal' 
 
-
-use "$wid_dir/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear
+// Calling wealth-gperc-all.dta
+use "$wid_dir/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear 
 order iso year p 
-merge m:1 iso year using "`mhweal'", nogen keep(master match)
-replace a = . if missing(mhweal999i)
-// bys iso   : egen last_year = lastnm(year)
-// tab iso last_year 
-// bys iso : egen first_year = first(year)
+//p s ts a n 
 
+// merging with Macro wealth aggregates
+merge m:1 iso year using "`mhweal'", nogen keep(master match)
+
+replace a = . if missing(mhweal999i)
 replace a = a*ahweal992i if !missing(ahweal992i) // a is relative
 order iso year p s a 
 drop ahweal992i 
 
-* Here we merge with the data corrected by Forbes (BBM + Correction)
-* with every wealth distribution updated we need to run the code here "~/Dropbox/WIL/WID_WealthForbes"
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-distributions-corrected.dta", update replace nogen
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen
-drop if iso == "NL" & year == 1993
+// Merging with the data corrected by Forbes (BBM + Correction)
+merge 1:1 iso year p using "$work_data/wealth-distributions-corrected.dta", update replace nogen
 
-replace n = n*1e5 if year>=1995 & !inrange(n, 1, 1000)
-keep iso year p n s a bracket_average bracket_share mhweal999i npopul992i threshold
+// Adding Chinese wealth data
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen 
 
-bys iso : egen year_common = min(year) if !missing(bracket_average) & !missing(a)
-gsort iso year p
-bys iso p : generate temp1 = bracket_average/a   if year == year_common
-bys iso p : egen ratio_a = mode(temp1)
-drop temp1 
-// US FR DK
-bys iso : replace bracket_average  = a*ratio_a   if !missing(a) & year<year_common & missing(bracket_average)
-drop  year_common ratio_a
-gsort iso year p
-* ------------- *
-// // Correct mhweal for VE 
-// replace mhweal999i = mhweal999i/1e5 if iso == "VE"
-generate average = mhweal999i/npopul992i if !missing(mhweal999i)
-
+// Adding Netherlands wealth data 
+drop if iso == "NL" & year == 1993 // Netherlands sent data with only 1993 overlapping. If data update arrives check if this is needed 
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
 replace bracket_average = a if iso == "NL" & missing(bracket_average)
 replace threshold = t if iso == "NL" & missing(threshold)
 drop t 
 
-//
-// bys iso year : egen average_VE = total(bracket_average*n/1e5)  if iso == "VE"
-// replace bracket_average = (bracket_average/average_VE)*average if iso == "VE"
-// bys iso year : replace threshold = ((bracket_average - bracket_average[_n - 1] )/2) + bracket_average[_n - 1] if iso == "VE"
-// bys iso year : replace threshold = min(0, 2*bracket_average) if iso == "VE" & missing(threshold)
-// drop average_VE
-* ------------- *
-bys iso : generate s_2  =  bracket_average*n/1e5/average  if !missing(bracket_average) & !missing(average)
+// Adding Hong Kong wealth data
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
 
-// bys iso p : generate temp1 = s_2/s if year == 1998 & iso == "DE"
-// bys iso p : egen ratio_s_de = mode(temp1)
-// drop temp1 
-// gsort iso year p
-//
-// replace s_2 = s*ratio_s_de if iso == "DE" & missing(s_2)
-// drop ratio_s_de
-//  br if iso == "DE" & p== 90000
-// tw (line s year, sort) (line s_2 year, sort)  if iso == "DE" & p == 90000
+*****************************
+*	 II. Computations		*
+*****************************
 
+keep iso year p n s a average bracket_average bracket_share mhweal999i npopul992i threshold
+
+replace n = n*1e5 if year >= 1995 & !inrange(n, 1, 1000)
+
+bys iso : egen year_common = min(year) if !missing(bracket_average) & !missing(a)
+gsort iso year p
+bys iso p : generate temp1 = bracket_average/a if year == year_common
+bys iso p : egen ratio_a = mode(temp1)
+drop temp1 
+
+// US FR DK
+bys iso : replace bracket_average = a*ratio_a if !missing(a) & year < year_common & missing(bracket_average)
+drop year_common ratio_a
+gsort iso year p
+
+// calculating average where it's missing from the data
+replace average = mhweal999i/npopul992i if !missing(mhweal999i) & missing(average)
+
+// modifying bracket_share
+bys iso : generate s_2 = bracket_average*n/1e5/average if !missing(bracket_average) & !missing(average)
 bys iso : generate miss_s = 1 if missing(s_2) & !missing(s)
 replace miss_s = 0 if missing(miss_s)
 replace s_2 = s if miss_s == 1
+replace s_2 = bracket_share if missing(s_2) // for instance for countries like HK that doesn't have average data but has bracket_share
 drop s a npopul992i bracket_share miss_s 
 rename s_2 bracket_share
 
+// checking if shares add up to 1
 egen nb_gperc = count(bracket_share), by(iso year)
 bys iso year : egen total_s = total(bracket_share) if nb_gperc == 127
 assert round(total_s, 1) == 1 if !missing(total_s)
+drop if nb_gperc > 127
 drop total_s nb_gperc
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
 
+// creating ts ta bs ba
 gsort iso year -p
 by iso year  : generate ts = sum(bracket_share) 
 by iso year  : generate ta = sum(bracket_average*n)/(1e5 - p) if !missing(bracket_average) 
@@ -100,6 +115,8 @@ renvars bracket_average bracket_share threshold / a s t
 duplicates tag iso year p, gen(dup) 
 assert dup == 0 
 drop dup 
+
+// test
 // tw (line ts year if iso == "DE" & p == 90000) ///
 //    (line ts year if iso == "US" & p == 90000) ///
 //    (line ts year if iso == "FR" & p == 90000)
@@ -107,11 +124,14 @@ drop dup
 tempfile all
 save `all'
 
-// Export 
+*****************************
+*	   III. Export			*
+*****************************
+
 keep year iso p a s t
 
 replace p = p/1000
-bys year iso  (p) : gen p2 = p[_n+1]
+bys year iso (p) : gen p2 = p[_n+1]
 replace p2 = 100 if p2 == .
 gen perc = "p"+string(p)+"p"+string(p2)
 drop p p2
@@ -124,65 +144,65 @@ rename perc p
 
 reshape long value, i(iso year p) j(widcode) string
 
-
+// top
 preserve
 	use `all', clear
-	keep year iso  p ts ta 
+	keep year iso p ts ta 
 	replace p = p/1000
 	gen perc = "p"+string(p)+"p100"
 	drop p
-	rename perc   p
+	rename perc p
 	rename ts shweal992j
 	rename ta ahweal992j
-	renvars shweal992j ahweal992j , prefix(value)
+	renvars shweal992j ahweal992j, prefix(value)
 	reshape long value, i(iso year p) j(widcode) string
 	
 	tempfile top
 	save `top'
 restore
+// bottom
 preserve
 	use `all', clear
 	keep year iso p bs ba
 	replace p = p/1000
 	gen perc = "p0p"+string(p)
 	drop p 
-	rename perc    p
+	rename perc p
 	rename bs shweal992j
 	rename ba ahweal992j
-	renvars shweal992j ahweal992j , prefix(value)
+	renvars shweal992j ahweal992j, prefix(value)
 	reshape long value, i(iso year p) j(widcode) string
 
 	tempfile bottom
 	save `bottom'	
 restore
-// preserve 
-// 	use `all', clear
-// 	keep year iso mhweal999i
-// 	duplicates drop 
-// 	generate p = "pall"
-// 	generate widcode = "mhweal999i"
-// 	rename mhweal999i value
-//	
-// 	tempfile aggregates
-// 	save `aggregates'
-// restore
+
 append using `top'
 append using `bottom'
-// append using `aggregates'
+
+// appending Polish 1923 data. Already in final format
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
-duplicates drop iso year p widcode, force // p0p1  p99.999p100 for a & s
+
+duplicates drop iso year p widcode value, force // p0p1  p99.999p100 for a & s
+so iso year p widcode value 
+quietly by iso year p widcode : gen dup = cond(_N==1,0,_n) // this is to drop duplicated observations in iso year p widcode. In order to be replicable it's better to keep the min value instead of duplicates drop, force. It is not the most efficient way to do it in terms of computational time but it allows for replicability
+drop if dup > 1
+duplicates tag iso year p widcode, gen(dup2)
+assert dup2 == 0
+drop dup* 
 
 compress
 tempfile final
 save `final'
 
-// IV. Metadata
-// use "`final'", clear
+*****************************
+*	   IV. Metadata			*
+*****************************
+
 generate sixlet = substr(widcode, 1, 6)
 ds year p widcode value , not
 keep `r(varlist)'
 duplicates drop iso sixlet, force
-
 
 * US
 generate source = ///
@@ -301,7 +321,6 @@ if missing(source) & strpos(sixlet, "hweal")
 tempfile meta
 save `meta'
 
-
 use "$work_data/add-wealth-aggregates-metadata.dta", clear
 
 drop if sixlet == "ohweal"
@@ -316,25 +335,48 @@ drop duplicate
 label data "Generated by add-wealth-distribution.do"
 save "$work_data/add-wealth-distribution-metadata.dta", replace
 
+*****************************
+*	V. Integrate with WID	*
+*****************************
 
-// V. Integrate with WID
 use "$work_data/add-wealth-aggregates-output.dta", clear
 
-drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j"/*, "mhweal999i"*/)
+drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j")
 append using "`final'"
-duplicates drop iso year p widcode, force // FR & DE-'s 
 drop if p == "p0p0"
+
 // Fill in currency
 bys iso : egen currency_2 = mode(currency)
 replace currency = currency_2 if inlist(substr(widcode, 1, 1), "a", "t", "m")
 replace currency = "" if !inlist(substr(widcode, 1, 1), "a", "t", "m")
 drop currency_2
 
+gduplicates drop 
+so iso year p widcode value 
+quietly by iso year p widcode : gen dup = cond(_N==1,0,_n) // this is to drop duplicated observations in iso year p widcode. In order to be replicable it's better to keep the min value instead of duplicates drop, force. It is not the most efficient way to do it in terms of computational time but it allows for replicability
+drop if dup > 1
+duplicates tag iso year p widcode, gen(dup2)
+assert dup2 == 0
+drop dup* 
+
 compress
-// tw (line value year if widcode == "shweal992j" & p == "p90p100" & iso == "DE", sort)
 label data "Generated by add-wealth-distribution.do"
 save "$work_data/add-wealth-distribution-output.dta", replace
 
+
+/* questions
+1. what's the pctile == 127 I should keep? nb_gperc in line 84? that variable varies per year, if I keep nb_gperc == 127 I lose some country-years
+2. What do variables ts ta bs ba literally mean? ts: topshare; bs: bottom share; ta: top average; ba: bottom average
+3. just to clarify: 
+	bracket = p ? YES 
+	bracket_average = average wealth within that bracket (p)? YES 
+	bracket_share = share of the bracket in total wealth ? YES 
+	what does n mean ? n = size of the bracket. 
+	it is p[n+1]-p. 
+	the size of p89p90 is 1 and the size of p99p99.1 is 0.1
+
+
+*TESTS
 
 /* 
 br if inlist(iso, "US", "FR", "DE", "GB")
