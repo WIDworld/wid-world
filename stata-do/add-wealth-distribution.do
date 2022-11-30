@@ -10,9 +10,9 @@
 *		How the dofile works			*
 *****************************************
 // "$work_data/add-wealth-aggregates-output.dta" adds the variables mhweal999i and npopul992i, which are used to calculate ahweal992i -> "a" variable
-// wealth-gperc-all.dta brings the variables p s ts a n 
+// "wealth-gperc-all.dta" brings the variables p s ts a n 
 
-// new data included should come with variables iso year p n bracket_average average (average = mhweal999i/npopul992i) bracket_share threshold. 
+// new data included should come with variables -> iso year p n bracket_average average (average = mhweal999i/npopul992i) bracket_share threshold. 
 // new data should come in wide format: iso year variables (with the variables included in previous point)
 // If data included has this format then adding it after the last one (currently Hong Kong) will allow for all the calculations to happen
 
