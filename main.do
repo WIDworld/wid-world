@@ -63,7 +63,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* 
+/* */
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -208,7 +208,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
- */
+/* */
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -244,13 +244,11 @@ do "$do_dir/add-populations.do"
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
 
-/*
-// Import forbes data
-do "$do_dir/import-forbes.do"
-
-// Correct forbes data
-do "$do_dir/correct-top-forbes.do"
-*/
+// // Import forbes data
+// do "$do_dir/import-forbes.do"
+//
+// // Correct forbes data
+// do "$do_dir/correct-top-forbes.do"
 
 // Add wealth macro aggregates
 do "$do_dir/add-wealth-aggregates.do"
@@ -278,7 +276,6 @@ do "$do_dir/extrapolate-pretax-income.do"
 
 ****** 
 /*
-
 // // Extrapolate pre-tax national income shares with fiscal income when possible
 // do "$do_dir/extrapolate-pretax-income-revised.do"
 //
