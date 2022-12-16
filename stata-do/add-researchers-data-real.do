@@ -91,7 +91,7 @@ append using "$work_data/add-populations-output.dta", generate(oldobs)
 drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///
 	   | inlist(widcode, "ahwequ992j", "ahwfie992j", "ahwfin992j", "ahwfix992j", "ahwhou992j") ///
 	   | inlist(widcode, "ahwnfa992j", "ahwpen992j", "bhweal992j", "ohweal992j", "shweal992j", "thweal992j") ///
-	   | substr(widcode, 2, 2) == "fi") ///
+	   | (substr(widcode, 2, 2) == "fi") & substr(widcode, 1, 1) != "m") ///
 	   & (iso == "FR") & (oldobs == 1)
 
 replace p = "pall" if p == "p0p100"

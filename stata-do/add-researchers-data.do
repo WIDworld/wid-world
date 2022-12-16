@@ -62,6 +62,12 @@ append using "$wid_dir/Country-Updates/Greece/2021_August/greece-fiinc-2021.dta"
 // Netherlands 2019 (Salverda2019) - fiinc series
 append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2019.dta"
 
+// Netherlands 2022 (Tousaint 2022) - nninc and inyixx series
+drop if widcode == "inyixx999i" & iso == "NL"
+append using "$wid_dir/Country-Updates/Netherlands/2022_11/netherlands-tousaint2022.dta"
+drop if iso == "NL" & year <= 1823 & inlist(widcode, "mnninc999i", "inyixx999i") // previous to 1823 they do not send any price index so it's pointless to keep the mnninc series
+replace p = "pall" if iso == "NL" & widcode == "mnninc999i"
+
 // French Colonies[Cameroon, Algeria, Tunisia, Vietnam] (ACP2020) - fiinc series
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"
 
@@ -148,11 +154,14 @@ save "`meta'"
 
 use "$work_data/calculate-average-over-output.dta", clear
 drop if inlist(iso, "NZ", "AU", "CA", "ID", "SG", "TW")
+drop if iso == "NL" & widcode == "inyixx999i"
+drop if iso == "NL" & widcode == "mnninc999i"
 drop if missing(value)
 
 generate oldobs = 1
 
 append using "`researchers'"
+replace currency = "EUR" if iso == "NL" & inlist(widcode, "inyixx999i", "mnninc999i")
 
 replace p = "pall" if p == "p0p100"
 replace oldobs = 0 if missing(oldobs)
