@@ -42,38 +42,87 @@ sort iso year
 save "$work_data/temp/tempfile.dta", replace
 drop if year>1980
 
-levelsof isoyear, local(isoyears)
+levelsof iso, local(iso)
+levelsof year, local(year)
 
-foreach type in "peradults" "percapita"{
-    local iter=0
-	if "`type'" == "percapita"{
-		use "$work_data/temp/tempfile.dta", clear
-		keep if longrun == 1
-		levelsof isoyear, local(isoyears)
-	}
-	foreach isoyr in `isoyears'{
-		disp "`isoyr'... `type'"
-		quietly{
-			local iso = substr("`isoyr'", 1, 2)
-			local year = substr("`isoyr'",3, 4)
-			use "$work_data/gpinter-output-`type'/`isoyr'.dta", clear
-			gen year = `year'
-			gen iso = "`iso'"
-			gen pnum = 100000*p
-			drop p
-			rename pnum p
-			rename top_avg topavg_`type'
-			rename bracketavg bracketavg_`type'
-			if `iter'==1 {
-				append using "$work_data/temp/gpinterized-`type'.dta"
-				save "$work_data/temp/gpinterized-`type'.dta", replace
+clear
+cap erase "$work_data/temp/gpinterized-peradults.dta"
+// peradults
+	foreach iso in `iso' {
+		foreach yr in `year' {
+		disp "`iso'`yr'... `type'"
+		quietly {
+			cap noi use "$work_data/gpinter-output-peradults/`iso'`yr'.dta", clear
+			cap gen year = `yr'
+			cap gen iso = "`iso'"
+			cap gen pnum = 100000*p
+			cap drop p
+			cap rename pnum p
+			cap rename top_avg topavg_peradults
+			cap rename bracketavg bracketavg_peradults
+			
+			cap append using "$work_data/temp/gpinterized-peradults.dta"
+			save "$work_data/temp/gpinterized-peradults.dta", replace
+			
+			clear
+			
 			}
-			save "$work_data/temp/gpinterized-`type'.dta", replace
-			local iter=1
-		}	
-	}
-	save "$work_data/gpinterized-`type'.dta", replace
+	
 }
+}
+
+u "$work_data/temp/gpinterized-peradults.dta", clear
+gduplicates drop 
+// testing everything is being imported
+tostring year, gen(yearstr)
+gen isoyear = iso + yearstr
+egen nrfiles = nvals(isoyear) 
+assert nrfiles == 1325 // there are 1325 files in the /gpinter-output-peradults/ folder
+drop isoyear yearstr nrfiles
+save "$work_data/gpinterized-peradults.dta", replace
+
+
+// percapita
+use "$work_data/temp/tempfile.dta", clear
+keep if longrun == 1
+levelsof iso, local(iso)
+levelsof year, local(year)
+
+clear
+cap erase "$work_data/temp/gpinterized-percapita.dta"
+	foreach iso in `iso' {
+		foreach yr in `year' {
+		disp "`iso'`yr'... `type'"
+		quietly {
+			cap noi use "$work_data/gpinter-output-percapita/`iso'`yr'.dta", clear
+			cap gen year = `yr'
+			cap gen iso = "`iso'"
+			cap gen pnum = 100000*p
+			cap drop p
+			cap rename pnum p
+			cap rename top_avg topavg_peradults
+			cap rename bracketavg bracketavg_peradults
+			
+			cap append using "$work_data/temp/gpinterized-percapita.dta"
+			save "$work_data/temp/gpinterized-percapita.dta", replace
+			
+			clear
+			
+			}
+	
+}
+}
+
+u "$work_data/temp/gpinterized-percapita.dta", clear
+gduplicates drop 
+// testing everything is being imported
+tostring year, gen(yearstr)
+gen isoyear = iso + yearstr
+egen nrfiles = nvals(isoyear) 
+assert nrfiles == 380 // there are 380 files in the /gpinter-output-percapita/ folder
+drop isoyear yearstr nrfiles
+save "$work_data/gpinterized-percapita.dta", replace
+
 
 ******************************
 * Import regions pre-1980 (created in R) *

@@ -12,11 +12,15 @@ reshape wide value, i(iso year) j(widcode) string
 
 merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
 
+// Netherlands
+merge 1:1 iso year using "$wid_dir/Country-Updates/Netherlands/2022_11/NL_WealthAggregates_WID_tomerge", update nogen
+
 foreach x in g h n p {
 	replace valuem`x'weal999i = `x'weal*valuemnninc999i if !missing(valuemnninc999i) & !missing(`x'weal)
 	drop `x'weal
 }
 drop valuemnninc999i
+
 reshape long
 drop if missing(value)
 generate p = "pall"
@@ -59,6 +63,12 @@ replace source = ///
 `"[URL][URL_LINK]"' + `"https://wid.world/document/communism-capitalism-private-versus-public-property-inequality-china-russia-wid-world-working-paper-2018-2/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Piketty, Thomas, Li Yang, and Gabriel Zucman (2019). “Capital accumulation, private property, and rising inequality in China, 1978–2015”"' + `"[/URL_TEXT][/URL]; "' ///
 if iso == "CN"
+
+* Netherlands
+replace source = source + ///
+`"[URL][URL_LINK]"' + `"https://wid.world/wp-content/uploads/2022/11/HouseholdWealth_20221011.pdf"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Toussaint, S. et al. (2022). Household Wealth and its Distribution in the Netherlands, 1854–2019, Working Paper; "' + `"[/URL_TEXT][/URL]"' ///
+if iso == "NL" 
 
 ** for those which are not imputed
 replace source = ///

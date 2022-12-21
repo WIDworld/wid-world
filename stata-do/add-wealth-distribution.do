@@ -123,6 +123,16 @@ merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/NL-wealth-ts-rm
 // tw (line ts year if iso == "DE" & p == 90000) ///
 //    (line ts year if iso == "US" & p == 90000) ///
 //    (line ts year if iso == "FR" & p == 90000)
+/*
+keep if p >= 99000 & iso == "NL"
+levelsof p, local(perc)
+dis "`perc'"
+
+foreach per of local perc {
+tw (line s year if p == `per', sort), xlabel(1900(10)2020)
+gr export "$nld/series2-top1swealth-`per'.png", replace
+}
+*/
 
 tempfile all
 save `all'
@@ -185,6 +195,11 @@ append using `bottom'
 
 // appending Polish 1923 data. Already in final format
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
+
+*just keep p99p100 for NLD before 1993
+drop if iso == "NL" & year <= 1993 & p != "p99p100"
+/// test
+/// tsline value if iso == "NL" & p == "p99p100" & widcode == "shweal992j", xlabel(1900(10)2020)
 
 duplicates drop iso year p widcode value, force // p0p1  p99.999p100 for a & s
 so iso year p widcode value 
@@ -278,7 +293,7 @@ if iso == "IT"
 
 * Netherlands
 replace source = source + ///
-`"[URL][URL_LINK]"' + `"http://congress-files.s3.amazonaws.com/2021-12/presentation_20211208.pdf"' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"https://wid.world/wp-content/uploads/2022/11/HouseholdWealth_20221011.pdf"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Toussaint, S. et al. (2022). Household Wealth and its Distribution in the Netherlands, 1854–2019, Working Paper; "' + `"[/URL_TEXT][/URL]"' ///
 if iso == "NL" 
 
