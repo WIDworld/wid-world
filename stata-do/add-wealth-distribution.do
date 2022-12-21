@@ -55,11 +55,11 @@ merge 1:1 iso year p using "$work_data/wealth-distributions-corrected.dta", upda
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen 
 
 // Adding Netherlands wealth data 
-drop if iso == "NL" & year == 1993 // Netherlands sent data with only 1993 overlapping. If data update arrives check if this is needed 
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
-replace bracket_average = a if iso == "NL" & missing(bracket_average)
-replace threshold = t if iso == "NL" & missing(threshold)
-drop t 
+// drop if iso == "NL" & year == 1993 // Netherlands sent data with only 1993 overlapping. If data update arrives check if this is needed 
+// merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
+// replace bracket_average = a if iso == "NL" & missing(bracket_average)
+// replace threshold = t if iso == "NL" & missing(threshold)
+// drop t 
 
 // Adding Hong Kong wealth data
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
@@ -115,6 +115,9 @@ renvars bracket_average bracket_share threshold / a s t
 duplicates tag iso year p, gen(dup) 
 assert dup == 0 
 drop dup 
+
+// Merge topshare wealth for NL prior 1995 - TEMPORARY
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/NL-wealth-ts-rm.dta", update replace nogen
 
 // test
 // tw (line ts year if iso == "DE" & p == 90000) ///

@@ -68,146 +68,146 @@ do "$do_dir/correct-widcodes.do"
 // Import external GDP data
 // -------------------------------------------------------------------------- //
 
-// Import World Bank metadata (for currencies & fiscal year type)
-do "$do_dir/import-wb-metadata.do"
-
-// Import the UN SNA summary tables
-do "$do_dir/import-un-sna-main-tables.do"
-
-// Import World Bank macro data
-do "$do_dir/import-wb-macro-data.do"
-
-// Import GDP from World Bank Global Economic Monitor
-do "$do_dir/import-wb-gem-gdp.do"
-
-// Import GDP from the IMF World Economic Outlook data
-do "$do_dir/import-imf-weo-gdp.do"
-
-// Import GDP from Maddison & Wu for China
-do "$do_dir/import-maddison-wu-china-gdp.do"
-
-// Import GDP from Maddison for East Germany
-do "$do_dir/import-maddison-east-germany-gdp.do"
-
-// Import the GDP data from Maddison
-do "$do_dir/import-maddison-gdp.do"
-
-// -------------------------------------------------------------------------- //
-// Import external price data
-// -------------------------------------------------------------------------- //
-
-// Import CPI from the World Bank
-do "$do_dir/import-wb-cpi.do"
-
-// Import GDP deflator from the World Bank
-do "$do_dir/import-wb-deflator.do"
-
-// Import GDP deflator from the World Bank Global Economic Monitor
-do "$do_dir/import-wb-gem-deflator.do"
-
-// Import GDP deflator from the UN
-do "$do_dir/import-un-deflator.do"
-
-// Import GDP deflator from the IMF World Economic Outlook
-do "$do_dir/import-imf-weo-deflator.do"
-
-// Import CPI from Global Financial Data
-do "$do_dir/import-gfd-cpi.do"
-
-// Import CPI from Frankema and Waijenburg (2012) (historical African data)
-do "$do_dir/import-fw-cpi.do"
-
-// Import deflator for China from Maddison & Wu
-do "$do_dir/import-maddison-wu-china-deflator.do"
-
-// Import deflator for Argentina from ARKLEMS
-do "$do_dir/import-arklems-deflator.do"
-
-// Import deflator for former socialist economies
-do "$do_dir/import-eastern-bloc-deflator.do"
-
-// -------------------------------------------------------------------------- //
-// Import external population data
-// -------------------------------------------------------------------------- //
-
-// Import the UN population data from the World Population Prospects
-do "$do_dir/import-un-populations.do"
-
-// Import the UN population data from the UN SNA (entire populations only,
-// but has data for some countries that is missing from the World Population
-// Prospects)
-do "$do_dir/import-un-sna-populations.do"
-
-// Calculate the population series
-do "$do_dir/calculate-populations.do"
-
-// -------------------------------------------------------------------------- //
-// Generate harmonized series for GDP and deflators
-// -------------------------------------------------------------------------- //
-
-// Price index
-do "$do_dir/calculate-price-index.do"
-
-// GDP
-do "$do_dir/calculate-gdp.do"
-do "$do_dir/retropolate-gdp.do"
-
-// -------------------------------------------------------------------------- //
-// Calculate PPPs & exchange rates
-// -------------------------------------------------------------------------- //
-
-// Import exchange rates from Open Exchange rates
-do "$do_dir/import-exchange-rate.do"
-
-// Import Purchasing Power Parities from the OECD
-do "$do_dir/import-ppp-oecd.do"
-
-// Import Purchasing Power Parities from the World Bank
-do "$do_dir/import-ppp-wb.do"
-
-// Combine and extrapolate PPPs
-do "$do_dir/calculate-ppp.do"
-
-// -------------------------------------------------------------------------- //
-// Generate data on the decomposition of income
-// -------------------------------------------------------------------------- //
-
-// Import data from UN SNA 1968 archives
-do "$do_dir/import-un-sna68.do"
-do "$do_dir/import-un-sna68-foreign-income.do"
-do "$do_dir/import-un-sna68-government.do"
-do "$do_dir/import-un-sna68-households-npish.do"
-do "$do_dir/import-un-sna68-corporations.do"
-do "$do_dir/combine-un-sna68.do"
-
-// Import data from UN SNA online
-do "$do_dir/import-un-sna-gdp.do"
-do "$do_dir/import-un-sna-national-income.do"
-do "$do_dir/import-un-sna-corporations.do"
-do "$do_dir/import-un-sna-households-npish.do"
-do "$do_dir/import-un-sna-government.do"
-do "$do_dir/combine-un-sna-online.do"
-
-// Import data from OECD
-do "$do_dir/import-oecd-data.do"
-
-// Import data from other sources
-do "$do_dir/import-imf-bop.do"
-do "$do_dir/import-income-researchers.do"
-do "$do_dir/reformat-wid-data.do"
-
-// Retropolate, combine, impute and calibrate series
-do "$do_dir/retropolate-combine-series.do"
-do "$do_dir/impute-confc.do"
-do "$do_dir/finalize-series.do"
-
-// Perform corrections for tax havens and reinvested earnings on portfolio investment
-do "$do_dir/estimate-tax-haven-income.do"
-do "$do_dir/estimate-reinvested-earnings-portfolio.do"
-do "$do_dir/adjust-series.do"
-
-// Combine decomposition with totals
-do "$do_dir/calculate-national-accounts.do"
+// // Import World Bank metadata (for currencies & fiscal year type)
+// do "$do_dir/import-wb-metadata.do"
+//
+// // Import the UN SNA summary tables
+// do "$do_dir/import-un-sna-main-tables.do"
+//
+// // Import World Bank macro data
+// do "$do_dir/import-wb-macro-data.do"
+//
+// // Import GDP from World Bank Global Economic Monitor
+// do "$do_dir/import-wb-gem-gdp.do"
+//
+// // Import GDP from the IMF World Economic Outlook data
+// do "$do_dir/import-imf-weo-gdp.do"
+//
+// // Import GDP from Maddison & Wu for China
+// do "$do_dir/import-maddison-wu-china-gdp.do"
+//
+// // Import GDP from Maddison for East Germany
+// do "$do_dir/import-maddison-east-germany-gdp.do"
+//
+// // Import the GDP data from Maddison
+// do "$do_dir/import-maddison-gdp.do"
+//
+// // -------------------------------------------------------------------------- //
+// // Import external price data
+// // -------------------------------------------------------------------------- //
+//
+// // Import CPI from the World Bank
+// do "$do_dir/import-wb-cpi.do"
+//
+// // Import GDP deflator from the World Bank
+// do "$do_dir/import-wb-deflator.do"
+//
+// // Import GDP deflator from the World Bank Global Economic Monitor
+// do "$do_dir/import-wb-gem-deflator.do"
+//
+// // Import GDP deflator from the UN
+// do "$do_dir/import-un-deflator.do"
+//
+// // Import GDP deflator from the IMF World Economic Outlook
+// do "$do_dir/import-imf-weo-deflator.do"
+//
+// // Import CPI from Global Financial Data
+// do "$do_dir/import-gfd-cpi.do"
+//
+// // Import CPI from Frankema and Waijenburg (2012) (historical African data)
+// do "$do_dir/import-fw-cpi.do"
+//
+// // Import deflator for China from Maddison & Wu
+// do "$do_dir/import-maddison-wu-china-deflator.do"
+//
+// // Import deflator for Argentina from ARKLEMS
+// do "$do_dir/import-arklems-deflator.do"
+//
+// // Import deflator for former socialist economies
+// do "$do_dir/import-eastern-bloc-deflator.do"
+//
+// // -------------------------------------------------------------------------- //
+// // Import external population data
+// // -------------------------------------------------------------------------- //
+//
+// // Import the UN population data from the World Population Prospects
+// do "$do_dir/import-un-populations.do"
+//
+// // Import the UN population data from the UN SNA (entire populations only,
+// // but has data for some countries that is missing from the World Population
+// // Prospects)
+// do "$do_dir/import-un-sna-populations.do"
+//
+// // Calculate the population series
+// do "$do_dir/calculate-populations.do"
+//
+// // -------------------------------------------------------------------------- //
+// // Generate harmonized series for GDP and deflators
+// // -------------------------------------------------------------------------- //
+//
+// // Price index
+// do "$do_dir/calculate-price-index.do"
+//
+// // GDP
+// do "$do_dir/calculate-gdp.do"
+// do "$do_dir/retropolate-gdp.do"
+//
+// // -------------------------------------------------------------------------- //
+// // Calculate PPPs & exchange rates
+// // -------------------------------------------------------------------------- //
+//
+// // Import exchange rates from Open Exchange rates
+// do "$do_dir/import-exchange-rate.do"
+//
+// // Import Purchasing Power Parities from the OECD
+// do "$do_dir/import-ppp-oecd.do"
+//
+// // Import Purchasing Power Parities from the World Bank
+// do "$do_dir/import-ppp-wb.do"
+//
+// // Combine and extrapolate PPPs
+// do "$do_dir/calculate-ppp.do"
+//
+// // -------------------------------------------------------------------------- //
+// // Generate data on the decomposition of income
+// // -------------------------------------------------------------------------- //
+//
+// // Import data from UN SNA 1968 archives
+// do "$do_dir/import-un-sna68.do"
+// do "$do_dir/import-un-sna68-foreign-income.do"
+// do "$do_dir/import-un-sna68-government.do"
+// do "$do_dir/import-un-sna68-households-npish.do"
+// do "$do_dir/import-un-sna68-corporations.do"
+// do "$do_dir/combine-un-sna68.do"
+//
+// // Import data from UN SNA online
+// do "$do_dir/import-un-sna-gdp.do"
+// do "$do_dir/import-un-sna-national-income.do"
+// do "$do_dir/import-un-sna-corporations.do"
+// do "$do_dir/import-un-sna-households-npish.do"
+// do "$do_dir/import-un-sna-government.do"
+// do "$do_dir/combine-un-sna-online.do"
+//
+// // Import data from OECD
+// do "$do_dir/import-oecd-data.do"
+//
+// // Import data from other sources
+// do "$do_dir/import-imf-bop.do"
+// do "$do_dir/import-income-researchers.do"
+// do "$do_dir/reformat-wid-data.do"
+//
+// // Retropolate, combine, impute and calibrate series
+// do "$do_dir/retropolate-combine-series.do"
+// do "$do_dir/impute-confc.do"
+// do "$do_dir/finalize-series.do"
+//
+// // Perform corrections for tax havens and reinvested earnings on portfolio investment
+// do "$do_dir/estimate-tax-haven-income.do"
+// do "$do_dir/estimate-reinvested-earnings-portfolio.do"
+// do "$do_dir/adjust-series.do"
+//
+// // Combine decomposition with totals
+// do "$do_dir/calculate-national-accounts.do"
 /* */
 
 // -------------------------------------------------------------------------- //
