@@ -65,8 +65,6 @@ append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2
 // Netherlands 2022 (Tousaint 2022) - nninc and inyixx series
 drop if widcode == "inyixx999i" & iso == "NL"
 append using "$wid_dir/Country-Updates/Netherlands/2022_11/netherlands-tousaint2022.dta"
-drop if iso == "NL" & year <= 1823 & inlist(widcode, "mnninc999i", "inyixx999i") // previous to 1823 they do not send any price index so it's pointless to keep the mnninc series
-replace p = "pall" if iso == "NL" & widcode == "mnninc999i"
 
 // French Colonies[Cameroon, Algeria, Tunisia, Vietnam] (ACP2020) - fiinc series
 append using "$wid_dir/Country-Updates/French_Colonies/french_colonies.dta"

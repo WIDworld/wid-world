@@ -74,6 +74,7 @@ global us_data           "$input_data_dir/us-data"
 global us_states_data    "$input_data_dir/us-states-data"
 global china_pyz_data    "$input_data_dir/china-pyz-data"
 global forbes_data 		 "$wid_dir/Country-Updates/Forbes/2022"
+global historical 		 "$wid_dir/Country-Updates/Historical_series/2022_December"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"

@@ -289,7 +289,7 @@ do "$do_dir/extrapolate-pretax-income.do"
 // do "$do_dir/gpinterize-all.do" // if any fiscal or pretax income shares before 1980 are changed, must re-run this file and gpinterize_countries.R and gpinterize_regions_pre1980.R
 //
 // // Import gpinterized files
-// do "$do_dir/import-gpinter.do" main issue
+// do "$do_dir/import-gpinter.do" 
 //
 // //Merge output of pretax extrapolation and longrun series with main data, update metadata
 // do "$do_dir/merge-fiscal-historical-main.do"
@@ -311,9 +311,9 @@ do "$do_dir/extrapolate-wid-forward.do"
 // Clean up percentiles, etc.
 do "$do_dir/clean-up.do"
 
-//Compute World and Regional Aggregates
+// Compute World and Regional Aggregates
 do "$do_dir/aggregate-distribution-regions.do"
-*after here add Silas dofiles
+
 // Compute Top10/Bottom50 ratio 
 do "$do_dir/calculate-top10bot50-ratio.do"
 
@@ -323,8 +323,12 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
+// Merge output of pretax extrapolation and longrun series with main data, update metadata
+// do "$do_dir/merge-fiscal-historical-main.do"
+
 // Import carbon series (independent) - to be activated when updated!
 do "$do_dir/add-carbon-series.do"
+
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //

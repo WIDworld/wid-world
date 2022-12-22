@@ -196,8 +196,6 @@ append using `bottom'
 // appending Polish 1923 data. Already in final format
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
 
-*just keep p99p100 for NLD before 1993
-drop if iso == "NL" & year <= 1993 & p != "p99p100"
 /// test
 /// tsline value if iso == "NL" & p == "p99p100" & widcode == "shweal992j", xlabel(1900(10)2020)
 
