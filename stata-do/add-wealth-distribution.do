@@ -117,7 +117,7 @@ assert dup == 0
 drop dup 
 
 // Merge topshare wealth for NL prior 1995 - TEMPORARY
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/NL-wealth-ts-rm.dta", update replace nogen
+merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_12/NL-wealth-ts-rm.dta", update replace nogen
 
 // test
 // tw (line ts year if iso == "DE" & p == 90000) ///

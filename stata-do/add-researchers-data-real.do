@@ -44,8 +44,8 @@ drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2022/September/LatinAmercia2022.dta"
 
 // // Gender - spllin992f
-drop if widcode == "spllin992f" /*& p == "p0"*/ & iso == "FR"
-append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
+// drop if widcode == "spllin992f" /*& p == "p0"*/ & iso == "FR"
+// append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
 
 compress, nocoalesce 
 
