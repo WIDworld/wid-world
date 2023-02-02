@@ -323,8 +323,8 @@ do "$do_dir/calculate-pareto-coef.do"
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
 
-// Merge output of pretax extrapolation and longrun series with main data, update metadata
-// do "$do_dir/merge-fiscal-historical-main.do"
+// Merge longrun series with main data, update metadata
+do "$do_dir/merge-historical-main.do"
 
 // Import carbon series (independent) - to be activated when updated!
 do "$do_dir/add-carbon-series.do"
