@@ -2,7 +2,7 @@
 // Recompute pre-tax and post-tax averages when there is full DINA data
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"
@@ -107,7 +107,7 @@ save "`rect'"
 // Rescale distributions to proper macro aggregates
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 
 keep if inlist(widcode, "anninc992i")
 keep iso year value 
@@ -323,7 +323,7 @@ save "`calibrated_widcodes'"
 // Put the data back
 // -------------------------------------------------------------------------- //
 
-use "$work_data/extrapolate-pretax-income-output.dta", clear
+use "$work_data/distribute-national-income-output.dta", clear
 
 // Remove calibrated data from the original
 merge n:1 iso year widcode using "`calibrated_widcodes'", nogenerate keep(master)

@@ -272,7 +272,7 @@ do "$do_dir/calculate-per-capita-series.do"
 do "$do_dir/distribute-national-income.do"
 
 // Extrapolate pre-tax national income shares with fiscal income when possible
-do "$do_dir/extrapolate-pretax-income.do"
+// do "$do_dir/extrapolate-pretax-income.do"
 
 ****** 
 /*

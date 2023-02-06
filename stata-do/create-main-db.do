@@ -48,9 +48,10 @@ foreach c of local widcode_list {
 */
 // Reshape the dataset (long)------------------------------------------------------ //
 
-use "$work_data/calculate-gini-coef-output.dta", clear
+use "$work_data/merge-historical-main.dta", clear
 
 drop if strpos(iso, "XQ")
+drop if iso == "OK"
 
 // Round up some variables
 replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
