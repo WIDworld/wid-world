@@ -103,7 +103,7 @@ drop if (substr(iso, 1, 1) == "O") & iso != "OM"
 drop if strpos(iso, "-")
 drop if iso == "WO"
 
-keep if inlist(widcode, "aptinc992j", "sptinc992j", "ahweal992j", "shweal992j")
+keep if inlist(widcode, "aptinc992j", "sptinc992j", "adiinc992j", "sdiinc992j", "ahweal992j", "shweal992j")
 
 // Parse percentiles
 generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
@@ -135,6 +135,8 @@ reshape wide value, i(iso year p) j(widcode) string
 
 rename valueaptinc992j ai
 rename valuesptinc992j si
+rename valueadiinc992j ad
+rename valuesdiinc992j sd
 rename valueahweal992j aw
 rename valueshweal992j sw
 
@@ -142,6 +144,7 @@ merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 rename anninc992i itot
 rename ahweal992i wtot
+generate dtot = itot
 
 drop if year<1980
 
@@ -154,7 +157,7 @@ rename xlceup999i PPP
 rename xlceux999i MER
 
 
-foreach z in i w {
+foreach z in i w d {
 
 foreach y in PPP MER {
 // 	local y PPP
@@ -162,7 +165,8 @@ foreach y in PPP MER {
 	foreach v of varlist a`z' `z'tot  {
 		gen `v'_`y' = `v'/`y'
 	}
-
+// }
+// }
 // all regions and world
 foreach x in /*QB QD QE*/ $all {
 	
@@ -203,6 +207,7 @@ use "`combined'", clear
 
 bys iso year p (aw): replace aw = aw[1]
 bys iso year p (ai): replace ai = ai[1]
+bys iso year p (ad): replace ad = ad[1]
 
 duplicates drop iso year p, force
 
@@ -222,7 +227,7 @@ drop n ahweal anninc average_*
 
 */
 
-reshape long a, i(iso year p) j(concept i w)
+reshape long a, i(iso year p) j(concept i w d)
 
 gen x = substr(iso, 4, 3)
 replace iso = substr(iso, 1, 2)
@@ -243,6 +248,7 @@ bys iso x concept year (p): replace a = . if a==0 & a[_n-1]==a
 sort iso x concept year p
 
 drop if concept == "w" & year<1995
+drop if concept == "d" & year<2018
 
 save "$work_data/regions_temp.dta", replace
 
@@ -282,7 +288,7 @@ gperc <- c(
 countries <- unique(data$iso) 
 regions = list()
 i <- 1
-for (concept in c("i","w")){
+for (concept in c("i","w","d")){
   for (iso in countries){
     for (x in c("MER","PPP")){
       region <- data[data$iso==iso & data$concept==concept & data$x==x & !is.na(data$a),] %>% group_by(year) %>% group_split() %>% map_dfr(~ {
@@ -338,6 +344,7 @@ preserve
 	rename value value_average
 	generate concept = "i" if widcode == "anninc992i"
 	replace concept = "w" if widcode == "ahweal992i"
+	replace concept = "d" if widcode == "anninc992i"
 	drop widcode p currency
 	
 	tempfile average
@@ -408,6 +415,7 @@ ren p2 p
 
 replace concept = "ptinc992j" if concept == "i"
 replace concept = "hweal992j" if concept == "w"
+replace concept = "diinc992j" if concept == "d"
 
 renvars t s a, prefix(value)
 reshape wide valuea valuet values, i(iso year p) j(concept) string
@@ -493,7 +501,7 @@ drop dup
 tempfile meta 
 save `meta'
 
-use "$work_data/extrapolate-pretax-income-metadata.dta", clear
+use "$work_data/distribute-national-income-metadata.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"

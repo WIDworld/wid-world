@@ -63,7 +63,7 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* */
+/* 
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -208,7 +208,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
-/* */
+ */
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -274,27 +274,6 @@ do "$do_dir/distribute-national-income.do"
 // Extrapolate pre-tax national income shares with fiscal income when possible
 // do "$do_dir/extrapolate-pretax-income.do"
 
-****** 
-/*
-// // Extrapolate pre-tax national income shares with fiscal income when possible
-// do "$do_dir/extrapolate-pretax-income-revised.do"
-//
-// // Generate  long-run estimates
-// do "$do_dir/generate-longrun-series.do"
-//
-// // Merge long-run estimates with extrapolated pre-tax estimates and manually fix GB, DE, ID, OA
-// do "$do_dir/merge-longrun.do"
-//
-// // Export all shares that need gpinterizing
-// do "$do_dir/gpinterize-all.do" // if any fiscal or pretax income shares before 1980 are changed, must re-run this file and gpinterize_countries.R and gpinterize_regions_pre1980.R
-//
-// // Import gpinterized files
-// do "$do_dir/import-gpinter.do" 
-//
-// //Merge output of pretax extrapolation and longrun series with main data, update metadata
-// do "$do_dir/merge-fiscal-historical-main.do"
-*/
-******
 // Calibrate distributed data on national accounts totals
 // do "$do_dir/calibrate-dina.do"
 do "$do_dir/calibrate-dina-revised.do"
@@ -327,7 +306,7 @@ do "$do_dir/calculate-gini-coef.do"
 do "$do_dir/merge-historical-main.do"
 
 // Import carbon series (independent) - to be activated when updated!
-do "$do_dir/add-carbon-series.do"
+// do "$do_dir/add-carbon-series.do"
 
 // -------------------------------------------------------------------------- //
 // Export the database
@@ -338,7 +317,7 @@ capture mkdir "$output_dir/$time"
 capture mkdir "$output_dir/$time/metadata"
 
 // Export the metadata
-// do "$do_dir/export-metadata-source-method.do"
+do "$do_dir/export-metadata-source-method.do"
 // do "$do_dir/export-metadata-other.do"
 
 // Create flag variables to indicate extrapolation/interpolations

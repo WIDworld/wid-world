@@ -1,5 +1,5 @@
 use "$work_data/World-and-regional-aggregates-metadata.dta", clear
-use "$work_data/add-carbon-series-metadata.dta", clear
+// use "$work_data/add-carbon-series-metadata.dta", clear
 
 drop if inlist(sixlet, "icpixx", "inyixx")
 duplicates drop iso sixlet, force
@@ -15,7 +15,7 @@ drop if iso == ""
 
 preserve
 	import delimited "$input_data_dir/data-quality/data-quality.csv", clear delim(";") stringcols(_all)
-	ren ïiso iso
+// 	ren ïiso iso
 	keep iso quality
 	gsort iso
 	tempfile temp
@@ -128,31 +128,6 @@ append using "$work_data/price-index-metadata.dta"
 drop if inlist(sixlet, "xlceup", "xlcusp", "xlcyup")
 append using "$work_data/ppp-metadata.dta"
 
-// -------------------------------------------------------------------------- //
-// Add national accounts notes
-// -------------------------------------------------------------------------- //
-
-/*
-generate newobs = 0
-append using "$work_data/na-metadata-no-duplicates.dta"
-replace newobs = 1 if (newobs >= .)
-duplicates tag iso sixlet, generate(duplicate)
-drop if duplicate & newobs
-drop duplicate newobs
-
-// Remove last semicolon from sources
-replace source = regexs(1) if regexm(source, "^(.*); *$")
-
-replace source = "WID.world computations using: " + source if (strtrim(source) != "") ///
-	& inlist(substr(sixlet, 2, 5), "gdpro", "nninc", "ndpro", "popul", "confc", "nnfin")
-replace source = "WID.world computations using: " + source if (strtrim(source) != "") ///
-	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
-	
-replace source = "WID.world computations" if (strtrim(source) == "") ///
-	& inlist(substr(sixlet, 2, 5), "gdpro", "nninc", "ndpro", "popul", "confc", "nnfin")
-replace source = "WID.world computations" if (strtrim(source) == "") ///
-	& inlist(substr(sixlet, 1, 3), "xlc", "iny")
-*/
 
 // -------------------------------------------------------------------------- //
 // Add data quality index note
@@ -175,20 +150,6 @@ preserve
 restore
 append using `temp'
 
-// Add note on Venezualian exchange rate correction for 2016
-/*
-preserve
-assert $pastyear == 2017
-drop if _n>1
-replace iso="VE"
-replace sixlet="xlcusx"
-replace method="We extend the 2010 official exchange rate to 2016 using US and Venezualian price indices"
-replace source="WID.world computations"
-tempfile VE_xrate
-save "`VE_xrate'"
-restore
-append using "`VE_xrate'"
-*/
 
 // Split the six-letter code
 generate OneLet = substr(sixlet, 1, 1)
@@ -215,15 +176,6 @@ drop sixlet
 rename iso Alpha2
 rename method Method
 rename source Source
-
-// Add hyperlink to Alvaredo & Atkinson source for ZA
-replace Source = `"[URL][URL_LINK]https://wid.world/document/alvaredo-facundo-and-atkinson-anthony-b-2011-colonial-rule-apartheid-and-natural-resources-top-incomes-in-south-africa-1903-2007-cepr-discussion-paper-8155/[/URL_LINK]"' + /// 
-	`"[URL_TEXT]Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors.[/URL_TEXT][/URL]"' ///
-	if Source == "Alvaredo, Facundo and Atkinson,  Anthony B. (2011). Colonial Rule, Apartheid and Natural Resources: Top Incomes in South Africa 1903-2007. CEPR Discussion Paper 8155. Series updated by the same authors."
-
-// Add Source for ZA 2020
-replace Source = "Chatterjee, Czajka and Gethin (2020). Estimating the Distribution of Household Wealth in South Africa." ///
-if Source == "" & Alpha2 == "ZA" & (TwoLet == "pt") & (ThreeLet == "inc")
 	
 // Remove duplicates
 collapse (firstnm) Method Source data_quality data_imputation data_points extrapolation, by(TwoLet ThreeLet Alpha2)
@@ -255,6 +207,35 @@ drop if Alpha2 == ""
 rename *, lower
 keep alpha2 twolet threelet method source data_quality imputation extrapolation data_points
 order alpha2 twolet threelet method source data_quality imputation extrapolation data_points
+
+// Historical Metadata
+replace extrapolation = "[[1820, 2000], [2020, 2021]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "CL", "CO", "BR", "MX")
+replace extrapolation = "[[1820, 1980], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "DE", "ES", "GB", "IT")
+replace extrapolation = "[[1820, 1920], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CA"
+replace extrapolation = "[[1820, 1900], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "FR"
+replace extrapolation = "[[1820, 1905], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "RU"
+replace extrapolation = "[[1820, 1910], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AU"
+replace extrapolation = "[[1820, 1920], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "NZ"
+replace extrapolation = "[[1820, 1934], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "SE"
+replace extrapolation = "[[1820, 1978], [2017, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CN"
+replace extrapolation = "[[1820, 1980], [2012, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ZA"
+replace extrapolation = "[[1820, 1980], [2015, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "IT"
+replace extrapolation = "[[1820, 1984], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ID"
+replace extrapolation = "[[1820, 1987], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "TR"
+replace extrapolation = "[[1820, 1988], [2011, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DZ"
+replace extrapolation = "[[1820, 1991], [2017, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "EG"
+replace extrapolation = "[[1820, 2000], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AR"
+replace extrapolation = "[[1820, 1910]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "US"
+replace extrapolation = "[[1820, 1980]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "JP"
+
+replace source = source + ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
+if (twolet == "pt") & (threelet == "inc") & strpos(extrapolation, "[1820,") 
+
+ replace source = source + ///
+`"[URL][URL_LINK]http://wordpress.wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
+if (inlist(alpha2, "OA", "OB", "OC", "OD", "OE", "OI") | inlist(alpha2, "OJ", "QE", "QF", "QL", "QM", "QP") | inlist(alpha2, "WO", "XF", "XL", "XN", "XR", "XS"))
+
 
 save "$work_data/metadata-final.dta", replace
 
