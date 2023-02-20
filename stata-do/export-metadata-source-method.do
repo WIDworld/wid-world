@@ -42,6 +42,7 @@ replace quality = "4" if inlist(iso, "QM-MER", "QX", "QX-MER") & inlist(fivelet,
 replace data_quality = quality if data_quality == ""
 replace data_quality = "" if quality == ""
 assert data_quality != "" if strpos(sixlet, "ptinc") & !(substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q" | substr(iso, 1, 1) == "O")
+replace data_quality = "3" if strpos(sixlet, "diinc") & missing(data_quality)
 assert data_quality != "" if strpos(sixlet, "diinc")
 assert data_quality != "" if strpos(sixlet, "cainc")
 drop quality 
