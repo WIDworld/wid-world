@@ -92,6 +92,9 @@ do "$do_dir/import-maddison-east-germany-gdp.do"
 // Import the GDP data from Maddison
 do "$do_dir/import-maddison-gdp.do"
 
+// Import the selected GDP from LaneMilesiFerreti and from CBS Netherlands
+do "$do_dir/import-lmfcbs-gdp.do"
+
 // -------------------------------------------------------------------------- //
 // Import external price data
 // -------------------------------------------------------------------------- //
@@ -125,6 +128,9 @@ do "$do_dir/import-arklems-deflator.do"
 
 // Import deflator for former socialist economies
 do "$do_dir/import-eastern-bloc-deflator.do"
+
+// Import CPI for Caribbean Netherlands
+do "$do_dir/import-cbs-cpi.do"
 
 // -------------------------------------------------------------------------- //
 // Import external population data
@@ -204,6 +210,7 @@ do "$do_dir/finalize-series.do"
 // Perform corrections for tax havens and reinvested earnings on portfolio investment
 do "$do_dir/estimate-tax-haven-income.do"
 do "$do_dir/estimate-reinvested-earnings-portfolio.do"
+do "$do_dir/estimate-missing-profits.do"
 do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals

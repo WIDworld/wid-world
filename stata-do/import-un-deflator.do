@@ -53,8 +53,8 @@ drop exch
 quietly levelsof def_un if (iso == "PS") & (year == 2010), local(level2010)
 replace def_un = 100*def_un/`level2010' if (iso == "PS")
 
-// Correction in North Korea
-replace def_un = 100*def_un if (year <= 2001) & (iso == "KP")
+// Correction in North Korea. 
+replace def_un = def_un/100 if (year <= 2001) & (iso == "KP")
 
 // Identify currencies ------------------------------------------------------ //
 currencycode currency, generate(currency_iso) iso2c(iso) from("un sna main")

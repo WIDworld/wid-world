@@ -79,6 +79,7 @@ generate value = value_wpp if (iso == "KP")
 
 // WPP data does not include Kosovo, which is part of Serbia. We use the
 // ratio Kosovo/Serbia in SNA to attribute Kosovo population subcategories.
+// Gaston: maybe this changed in new version, please check.
 preserve
 	keep if inlist(iso, "KS", "RS")
 	drop type parentcode
