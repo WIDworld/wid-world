@@ -210,12 +210,12 @@ do "$do_dir/finalize-series.do"
 // Perform corrections for tax havens and reinvested earnings on portfolio investment
 do "$do_dir/estimate-tax-haven-income.do"
 do "$do_dir/estimate-reinvested-earnings-portfolio.do"
-do "$do_dir/estimate-missing-profits.do"
+// do "$do_dir/estimate-missing-profits.do"
 do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
- */
+ 
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database

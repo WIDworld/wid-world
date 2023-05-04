@@ -15,7 +15,7 @@ drop if iso == ""
 
 preserve
 	import delimited "$input_data_dir/data-quality/data-quality.csv", clear delim(";") stringcols(_all)
-// 	ren ïiso iso
+cap ren ïiso iso
 	keep iso quality
 	gsort iso
 	tempfile temp

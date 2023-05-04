@@ -63,8 +63,8 @@ foreach v in mw wb un2 weo_noest {
 	drop refyear_`v'
 }
 // Special case for VE: 2014 is the last year where sources agree
-replace refyear = 2014 if iso == "VE"
-replace notelev = "wb" if iso == "VE"
+// replace refyear = 2014 if iso == "VE"
+// replace notelev = "wb" if iso == "VE"
 /*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	egen refyear_un1_`i' = lastnm(year) ///

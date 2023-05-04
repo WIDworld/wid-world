@@ -31,7 +31,7 @@ replace country = "Swaziland"             if country == "Eswatini"
 countrycode country, generate(iso) from("imf weo")
 drop country
 
-
+drop subjectnotes
 reshape long value, i(iso weosubjectcode) j(year)
 reshape wide value, i(iso year) j(weosubjectcode) string
 

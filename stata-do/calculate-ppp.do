@@ -4,7 +4,9 @@
 use "$work_data/ppp-oecd.dta", clear
 merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
-	
+		drop if iso == "VE"
+		append using "$work_data/imf-ven-pppex" 
+		replace currency = "VES" if iso == "VE"
 // For Lithuania and Latvia, OECD PPPs are expressed in their old currency
 /*
 replace ppp_oecd = ppp_oecd/3.4528 if iso == "LT"
@@ -14,11 +16,11 @@ replace ppp_oecd = ppp_oecd/0.702804 if iso == "LV"
 // Keep OECD in priority
 generate ppp = .
 generate ppp_src = ""
-foreach v of varlist ppp_oecd ppp_wb {
+foreach v of varlist ppp_oecd ppp_wb ppp_imf {
 	replace ppp_src = "`v'" if (ppp >= .) & (`v' < .)
 	replace ppp = `v' if (ppp >= .) & (`v' < .)
 }
-drop ppp_oecd ppp_wb
+drop ppp_oecd ppp_wb ppp_imf
 drop if ppp >= .
 
 replace ppp_src = ///
@@ -28,6 +30,10 @@ if (ppp_src == "ppp_wb")
 replace ppp_src = ///
 `"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "' ///
 if (ppp_src == "ppp_oecd")
+
+replace ppp_src = ///
+`"[URL][URL_LINK]http://www.imf.org/[/URL_LINK][URL_TEXT]IMF[/URL_TEXT][/URL]; "' ///
+if (ppp_src == "ppp_imf")
 
 generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(year) + ") using the evolution of the price index relative to the reference country"
 
@@ -143,10 +149,12 @@ save "`index'"
 // Fetch Eurozone GDP deflator from Eurostat
 import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
+cap renvars obs_value time_period / value time
 
 drop if na_item != "Gross domestic product at market prices"
 destring value, ignore(":") replace
 split time, parse("Q")
+replace time1 = subinstr(time1, "-", "", .)
 destring time1, generate(year)
 collapse (mean) value, by(year)
 keep if !missing(value)
@@ -167,7 +175,7 @@ save "`index_us'"
 use "`ppp'", clear
 
 generate refyear = year
-
+*drop if iso == "VE" & currency == "VEF"
 merge 1:1 iso year using "`index'", nogenerate update ///
 	assert(master using match match_update)
 merge n:1 year using "`index_us'", nogenerate
@@ -189,7 +197,7 @@ replace ppp = ppp*index/index_us*factor_refyear
 drop index index_us factor_refyear
 drop if missing(ppp)
 
-replace ppp = ppp/1e5 if iso == "VE"
+*replace ppp = ppp/1e5 if iso == "VE"
 
 preserve
 drop if ppp_method == "" & ppp_src == ""

@@ -25,8 +25,11 @@ merge 1:1 iso year using "$work_data/wb-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/wb-gem-deflator.dta", ///
 	nogenerate update assert(using master match)
+	replace currency = "USD" if iso == "ZW"
+	replace currency = "VES" if iso == "VE"
 merge 1:1 iso year using "$work_data/un-deflator.dta", ///
-	nogenerate update assert(using master match)
+	nogenerate update assert(using master match) 
+	replace currency = "ZWD" if iso == "ZW"
 merge 1:1 iso year using "$work_data/imf-deflator-weo.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/gfd-cpi.dta", ///
@@ -40,6 +43,7 @@ merge 1:1 iso year using "$work_data/eastern-bloc-deflator.dta", ///
 merge 1:1 iso year using "$work_data/arklems-deflator.dta", ///
 	nogenerate update assert(using master match)
 	
+	*replace currency = "VEF" if iso == "VE"
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
 assert ncu == 1 if (ncu < .)
@@ -70,6 +74,10 @@ foreach v of varlist cpi_* def_* {
 foreach v of varlist cpi_* def_* {
 	replace `v' = . if ("`v'" != "def_arklems") & (iso == "AR") & inrange(year, 1994, 2012)
 }
+
+// For Venezuela we keep UN
+replace cpi_wb =. if inrange(year, 1971, 2014) & iso == "VE"
+replace def_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 
 // For Russia: we adjust the deflator to eliminate the junks
 replace def_wid = round(def_wid, 0.000000000001)     if iso == "RU"

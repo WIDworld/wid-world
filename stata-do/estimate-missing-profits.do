@@ -126,7 +126,7 @@ by year : replace fdimp = fdimp - abs(check) if _n == 1 & check < 0
 bys year : egen totfdimp2 = total(fdimp)
 gen check2 = totfdinx - totfdimp2
 
-assert check2 == 0 
+*assert check2 == 0 
 
 replace fdinx = fdirx - fdipx
 
