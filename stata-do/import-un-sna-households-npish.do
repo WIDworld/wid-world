@@ -7,10 +7,10 @@
 use "$input_data_dir/un-sna/401.dta", clear
 
 *renvars countryorarea subgroup / country_or_area sub_group
-tostring series snasystem, replace
+// tostring series sna_system, replace
 
-ren subgroup sub_group
-ren countryorarea country_or_area
+// ren subgroup sub_group
+// ren countryorarea country_or_area
 merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
 replace value = value/current_gdp
 
