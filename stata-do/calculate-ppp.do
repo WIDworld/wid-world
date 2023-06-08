@@ -115,7 +115,7 @@ drop newobs
 tempfile ppp
 save "`ppp'", replace
 
-use "$work_data/gdp.dta", clear
+use "$work_data/gdp_yugosl.dta", clear
 keep iso year gdp
 keep if year == 1989
 keep if inlist(iso, "YU", "BA", "HR", "KS", "MK", "ME", "RS", "SI")

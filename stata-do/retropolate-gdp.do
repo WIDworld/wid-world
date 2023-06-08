@@ -82,7 +82,7 @@ drop if missing(gdp)
 /* */
 // Substrat the amount of GDP from country of origin
 preserve
-	use "$work_data/ppp.dta", clear
+	use "$work_data/ppp_SD_SS.dta", clear
 	keep if inlist(iso, "SD", "SS") 
 	keep if year == $pastyear
 	

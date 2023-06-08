@@ -53,6 +53,9 @@ egen currency2 = mode(currency), by(iso)
 drop currency
 rename currency2 currency
 
+// Brunei IMF weo projection is too high, using WB consulted from website WDI
+replace cpi_wb = 106.5 if iso == "BN" & year == 2022 & missing(cpi_wb)
+
 /*
 reshape long def_ cpi_, i(iso year) j(src) string
 keep if (cpi < .) | (def < .)
