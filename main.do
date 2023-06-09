@@ -167,15 +167,17 @@ do "$do_dir/import-ppp-oecd.do"
 // Import Purchasing Power Parities from the World Bank
 do "$do_dir/import-ppp-wb.do"
 
-// Combine and extrapolate PPPs
-do "$do_dir/calculate-ppp.do"
-
 // -------------------------------------------------------------------------- //
 // Generate harmonized series for GDP
 // -------------------------------------------------------------------------- //
 
 // GDP
 do "$do_dir/calculate-gdp.do"
+
+// Combine and extrapolate PPPs
+do "$do_dir/calculate-ppp.do"
+
+// Finalize GDP
 do "$do_dir/retropolate-gdp.do"
 
 // -------------------------------------------------------------------------- //
