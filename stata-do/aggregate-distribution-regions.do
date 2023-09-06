@@ -45,13 +45,14 @@ global OB  KP KR MN MO TW // NEW
 global OC  AD BE CH DD DK FI FO GI GR IE IM IS LI LU MC MT NL NO PT SM VA XI // NEW
 global OD  AG AI AN AR AW BB BO BS BZ CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI // NEW
 global OE  AE BH EH IL IQ IR JO KW LB LY MA OM PS QA SA SY TN YE 
+// global OH
 global OI  BN BT KH LA LK MM MV MY NP PH PK SG TH TL VN // NEW 
 global OJ  AO BF BI BJ BW CD CF CG CI CM CV DJ ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZM ZW ZZ // NEW
 
 global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CS CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER EH ES ET FI FJ FM FO FR GA GB GD GE GH GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KS KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SU SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS XI YE YU ZA ZM ZW ZZ
 
-global all  QB QD QE QF QJ QK QL QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ WO
-
+global all  QB QD QE QF QJ QK QL QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ WO 
+ 
 * R path depending on OS
 if "`c(os)'"=="MacOSX" | "`c(os)'"=="UNIX" {
     global Rpath "/usr/local/bin/R"
@@ -131,6 +132,8 @@ rename p_min p
 duplicates drop iso year p widcode, force
 sort iso year widcode p
 
+drop if iso == "VE" & strpos(widcode, "hweal992j") //// temporary!! until we resolve the issue with hyperinflation
+
 reshape wide value, i(iso year p) j(widcode) string
 
 rename valueaptinc992j ai
@@ -168,9 +171,9 @@ foreach y in PPP MER {
 // }
 // }
 // all regions and world
-foreach x in /*QB QD QE*/ $all {
+foreach x in  $all {
 	
-// 	local x QB QD QE
+//
 preserve
 
 	foreach q in $`x' {

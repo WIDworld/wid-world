@@ -11,13 +11,9 @@ if substr("`c(pwd)'",1,10)=="/Users/tho"{
 	global r_dir "/usr/local/bin/R"
 }
 if substr("`c(pwd)'",1,21)=="/Users/rowaidamoshrif"{
-	global wid_dir "/Users/rowaidamoshrif/Dropbox/WIL/W2ID"
+	global wid_dir "/Users/rowaidamoshrif/Library/CloudStorage/Dropbox/WIL/W2ID"
 	global project_dir "/Users/rowaidamoshrif/Documents/GitHub/wid-world"
 	global r_dir "/usr/local/bin/R"
-}
-
-if substr("`c(pwd)'",1,20)=="/Users/silas"{
-	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
 }
 
 if substr("`c(pwd)'",1,13)=="C:\Users\gato"{

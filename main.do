@@ -7,7 +7,7 @@
 // -------------------------------------------------------------------------- //
 
 do "~/Documents/GitHub/wid-world/stata-do/setup.do"
-/*
+// /*
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -344,7 +344,7 @@ do "$do_dir/create-main-db.do"
 // do "$do_dir/export-main-db.do"
 //
 // // Export the list of countries
-// do "$do_dir/export-countries.do"
+do "$do_dir/export-countries.do"
 //
 // // Make the variable tree
 // do "$do_dir/make-variable-tree.do"

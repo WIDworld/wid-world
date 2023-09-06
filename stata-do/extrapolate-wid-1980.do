@@ -13,6 +13,7 @@ save `combined', emptyok
 // -------------------------------------------------------------------------- //
 
 use "$work_data/correct-bottom20-output.dta", clear
+// use "$work_data/calibrate-dina-revised-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "pall"
@@ -34,6 +35,7 @@ save "`aggregates'"
 // World countries 
 // -------------------------------------------------------------------------- //
 use "$work_data/correct-bottom20-output.dta", clear
+// use "$work_data/calibrate-dina-revised-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"
@@ -255,6 +257,7 @@ egen average = total(a*n/1e5), by(iso year)
 
 generate s = a*n/1e5/average
 */
+
 assert inrange(s, 0, 1) if !inlist(p, 0, 1000)
 
 gsort iso year -p
@@ -359,6 +362,7 @@ save `all'
 // Add the extrapolation data
 
 use "$work_data/correct-bottom20-output.dta", clear
+// use "$work_data/calibrate-dina-revised-output.dta", clear
 
 merge 1:1 iso year p widcode using "`all'", update nogenerate
 
