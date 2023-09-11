@@ -204,6 +204,7 @@ do "$do_dir/reformat-wid-data.do"
 
 // Retropolate, combine, impute and calibrate series
 do "$do_dir/retropolate-combine-series.do"
+do "$do_dir/estimate-fki.do"
 do "$do_dir/impute-confc.do"
 do "$do_dir/finalize-series.do"
 

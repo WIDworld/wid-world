@@ -4,9 +4,23 @@ import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
 cap rename countryarea countryorarea
 rename gdpatcurrentpricesnationalcurren gdp
 cap ren unit currency
+drop if countryorarea == "Somalia"
 
 tempfile gdp
 save "`gdp'"
+
+*only for Somalia
+import delimited "$un_data/sna-main/gdp/gdp-current-$year.csv", ///
+	clear delimiter(",") encoding("utf8")
+keep if countryarea == "Somalia"
+
+cap rename countryarea countryorarea
+rename gdpatcurrentpricesnationalcurren gdp
+cap ren unit currency
+drop if year >= $pastyear
+
+append using "`gdp'"
+save "`gdp'", replace
 
 // GNI
 import delimited "$un_data/sna-main/gni/gni-current-$pastyear.csv", ///

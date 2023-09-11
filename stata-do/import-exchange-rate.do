@@ -124,10 +124,10 @@ forval i=1999/`lastyear'{
 	egen e`i'=mean(x)
 	drop x
 	replace value`i'=e`i' if  (inlist(countryname, "Germany", "Austria", "Belgium", "Spain", "Finland", "France") ///
-						     | inlist(countryname, "Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
-						     | inlist(countryname, "Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
-						     | inlist(countryname, "Latvia", "Lithuania")) ///
-						     & value`i'==.
+							 | inlist(countryname, "Ireland", "Italy", "Luxembourg", "Netherlands", "Portugal") ///
+							 | inlist(countryname, "Greece", "Slovenia", "Cyprus", "Malta", "Slovak Republic", "Estonia") ///
+							 | inlist(countryname, "Latvia", "Lithuania")) ///
+							 & value`i'==.
 }
 drop e*
 
@@ -228,6 +228,17 @@ replace p = "pall" if iso == "ZW"
 drop if _fillin & iso != "ZW"
 drop _fillin
 
+// Bonaire, Sint Eustatius and Saba series is in USD
+drop if iso == "BQ"
+expand 2 if (iso == "ZW"), generate(newobsBQ)
+replace iso = "BQ" if newobsBQ
+
+// Fixing Gibraltar
+drop if iso == "GI"
+expand 2 if (iso == "GG"), generate(newobsGI)
+replace iso = "GI" if newobsGI
+drop newobs*
+
 // Fix countries with missing values
 fillin iso year
 egen currency2 = mode(currency), by(iso)
@@ -240,6 +251,383 @@ drop value2 _fillin
 merge 1:1 iso currency year using "`merged'", update noreplace keepusing(lcu_to_usd) nogenerate
 replace valuexlcusx999i = lcu_to_usd if missing(valuexlcusx999i)
 drop lcu_to_usd
+
+//	Former Yugoslavia
+// We have 1990 ratio of GDP_USD from UN SNA, and applied that backward to former yugoslavan countries
+// We have gdp_lcu in real terms from Blanchet, Chancel & Gethin (2018)
+// We ued Yugoslavian price index for former countries, and get gdp_lcu in nominal terms
+// Will divide gdp_lcu in nominal terms/GDP_USD to get an estimate of the exchange rate
+preserve
+	u "$work_data/retropolate-gdp.dta", clear
+	merge 1:1 iso year using "$work_data/price-index.dta", nogen
+	gen yugosl = 1 if inlist(iso, "BA", "HR", "MK", "RS", "YU", "KS", "SI", "ME")
+	keep if yugosl == 1 & year >= 1970
+
+	foreach var in gdp {
+
+	gen `var'_idx = `var'*index
+}
+	merge 1:1 iso year using "$input_data_dir/currency-rates/gdp_usd_YUratio", nogen keep(3)
+	gen exrate_usd = gdp_idx/gdp_usd_YUratio
+	drop if iso == "YU"
+	keep iso year exrate_usd
+	tempfile exrateyu
+	sa `exrateyu', replace 
+restore 
+	
+	merge 1:1 iso year using `exrateyu'
+	drop if _m == 2
+	drop _m 
+	replace valuexlcusx999i = exrate_usd if missing(valuexlcusx999i) & !missing(exrate_usd)
+	drop exrate_usd 
+	
+	//	Former USSR. ONLY APPLIES TO GEORGIA. other countries using the evolution of USSR exrate below
+	// We have 1990 ratio of GDP_USD from UN SNA, and applied that backward to former USSR countries
+	// We have gdp_lcu in real terms from interpolating GDP 1990 to GDP 1973 from Madisson. Before 1973 comes by applying shares
+	// We ued USSR price index for former countries, and get gdp_lcu in nominal terms
+	// Will divide gdp_lcu in nominal terms/GDP_USD to get an estimate of the exchange rate
+preserve
+	u "$work_data/retropolate-gdp.dta", clear
+	merge 1:1 iso year using "$work_data/price-index.dta", nogen
+gen soviet = 1 if iso == "AM"
+replace soviet = 1 if inlist(iso, "AZ", "BY", "KG", "KZ", "TJ", "TM")
+replace soviet = 1 if inlist(iso, "UZ", "EE", "LT", "LV", "MD", "GE")
+replace soviet = 1 if iso == "RU" | iso == "UA" | iso == "SU"
+keep if soviet == 1 & year >= 1970
+
+	foreach var in gdp {
+
+	gen `var'_idx = `var'*index
+}
+	merge 1:1 iso year using "$input_data_dir/currency-rates/gdp_usd_SUratio", nogen keep(3)
+	gen exrate_usd = gdp_idx/gdp_usd_SUratio
+	drop if iso == "SU"
+	keep iso year exrate_usd
+	tempfile exratesu
+	sa `exratesu', replace 
+restore 
+
+merge 1:1 iso year using `exratesu'
+drop if _m == 2
+drop _m 
+replace valuexlcusx999i = exrate_usd if missing(valuexlcusx999i) & !missing(exrate_usd) & iso == "GE"
+drop exrate_usd 
+
+// Complete the missing exchange rates using UN SNA data
+preserve
+import delimited "$input_data_dir/currency-rates/currencies-UNSNA-$pastyear.csv", clear 
+
+ren (countryarea amaexchangerate imfbasedexchangerate) (country amaxrt imfxrt)
+
+gen soviet = 1 if country == "Armenia"
+replace soviet = 1 if country == "Azerbaijan"
+replace soviet = 1 if country == "Belarus"
+replace soviet = 1 if country == "Former USSR"
+replace soviet = 1 if country == "Georgia"
+replace soviet = 1 if country == "Kazakhstan"
+replace soviet = 1 if country == "Kyrgyzstan"
+replace soviet = 1 if country == "Republic of Moldova"
+replace soviet = 1 if country == "Russian Federation"
+replace soviet = 1 if country == "Tajikistan"
+replace soviet = 1 if country == "Turkmenistan"
+replace soviet = 1 if country == "Ukraine"
+replace soviet = 1 if country == "Uzbekistan"
+replace soviet = 0 if missing(soviet)
+
+gen yugosl = 1 if country == "Bosnia and Herzegovina"
+replace yugosl = 1 if country == "Croatia"
+replace yugosl = 1 if country == "Former Yugoslavia"
+replace yugosl = 1 if country == "Republic of North Macedonia"
+replace yugosl = 1 if country == "Serbia"
+replace yugosl = 0 if missing(yugosl)
+
+gen euro = 1 if inlist(country, "Estonia", "Kosovo", "Lithuania", "Latvia", "Slovenia", "Slovakia")
+replace euro = 0 if missing(euro)
+
+*extrapolating variation rates of main currency to the post-union currency
+encode country, gen(i)
+destring year, replace
+xtset i year
+destring imfxrt, replace force
+destring amaxrt, replace force
+
+// Soviet
+foreach xr in ama imf {
+xtset i year
+gen growth_`xr'_soviet = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former USSR"
+	bys year : egen aux`xr'soviet = max(growth_`xr'_soviet) 
+}
+/*
+	// using 1993 values for 1990, 1991 and 1992
+xtset i year
+foreach i in 1992 1991 1990 {
+	replace imfxrt = f.imfxrt if year == `i' & soviet == 1 & country != "Former USSR"
+}
+*/
+
+foreach xr in ama imf {
+
+gen aux1`xr' = `xr'xrt 
+gen aux2`xr' = aux1`xr'/(1+aux`xr'soviet) if year == 1990 & soviet == 1
+
+xtset i year
+forvalues i = 1989(-1)1970 { 
+	replace aux1`xr' = f.aux2`xr' if year == `i' & soviet == 1
+	replace aux2`xr' = aux1`xr'/(1+aux`xr'soviet) if year == `i' & soviet == 1
+}
+}
+
+foreach xr in ama imf {
+gen extrap_`xr'_soviet = 1 if missing(`xr'xrt) & soviet == 1
+replace extrap_`xr'_soviet = 0 if missing(extrap_`xr'_soviet)
+replace `xr'xrt = aux1`xr' if extrap_`xr'_soviet == 1
+}
+drop aux* growth*
+
+// Yugoslavia
+foreach xr in ama imf {
+xtset i year
+gen growth_`xr'_yug = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former Yugoslavia"
+	bys year : egen aux`xr'yug = max(growth_`xr'_yug) 
+}
+
+foreach xr in ama imf {
+
+gen aux1`xr' = `xr'xrt 
+gen aux2`xr' = aux1`xr'/(1+aux`xr'yug) if year == 1990 & yugosl == 1
+
+xtset i year
+forvalues i = 1989(-1)1970 { 
+	replace aux1`xr' = f.aux2`xr' if year == `i' & yugosl == 1
+	replace aux2`xr' = aux1`xr'/(1+aux`xr'yug) if year == `i' & yugosl == 1
+}
+}
+
+foreach xr in ama imf {
+gen extrap_`xr'_yugosl = 1 if missing(`xr'xrt) & yugosl == 1
+replace extrap_`xr'_yugosl = 0 if missing(extrap_`xr'_yugosl)
+replace `xr'xrt = aux1`xr' if extrap_`xr'_yugosl == 1
+}
+drop aux* growth*
+
+// Yemen 
+foreach xr in ama imf {
+xtset i year
+gen growth_`xr'_yem = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Yemen: Former Yemen Arab Republic"
+	bys year : egen aux`xr'yem = max(growth_`xr'_yem) 
+}
+
+foreach xr in ama imf {
+
+gen aux1`xr' = `xr'xrt 
+gen aux2`xr' = aux1`xr'/(1+aux`xr'yem) if year == 1989 & country == "Yemen"
+
+xtset i year
+forvalues i = 1988(-1)1970 { 
+	replace aux1`xr' = f.aux2`xr' if year == `i' & country == "Yemen"
+	replace aux2`xr' = aux1`xr'/(1+aux`xr'yem) if year == `i' & country == "Yemen"
+}
+}
+
+foreach xr in ama imf {
+gen extrap_`xr'_yem = 1 if missing(`xr'xrt) & country == "Yemen"
+replace extrap_`xr'_yem = 0 if missing(extrap_`xr'_yem)
+replace `xr'xrt = aux1`xr' if extrap_`xr'_yem == 1
+}
+drop aux* growth*
+
+
+// Euro before 1990 for some countries 
+foreach xr in ama imf {
+bys year : egen avg_`xr'xrt = mean(`xr'xrt) if unit == "Euro"
+xtset i year
+gen growth_`xr'_eu = (avg_`xr'xrt - l1.avg_`xr'xrt)/l1.avg_`xr'xrt if unit == "Euro"
+	bys year : egen aux`xr'eu = max(growth_`xr'_eu) 
+}
+
+foreach xr in ama imf {
+
+gen aux1`xr' = `xr'xrt 
+gen aux2`xr' = aux1`xr'/(1+aux`xr'eu) if year == 1990 & euro == 1
+
+xtset i year
+forvalues i = 1989(-1)1970 { 
+	replace aux1`xr' = f.aux2`xr' if year == `i' & euro == 1
+	replace aux2`xr' = aux1`xr'/(1+aux`xr'eu) if year == `i' & euro == 1
+}
+}
+
+foreach xr in ama imf {
+gen extrap_`xr'_eu = 1 if missing(`xr'xrt) & euro == 1
+replace extrap_`xr'_eu = 0 if missing(extrap_`xr'_eu)
+replace `xr'xrt = aux1`xr' if extrap_`xr'_eu == 1
+}
+drop aux* growth*
+
+// changing labels
+replace unit = "" if extrap_imf_soviet == 1 | extrap_imf_yugosl == 1 | extrap_imf_yem == 1 | extrap_imf_eu == 1
+gsort country -year 
+by country : carryforward unit if extrap_imf_soviet == 1 | extrap_imf_yugosl == 1 | extrap_imf_yem == 1 | extrap_imf_eu == 1, replace
+
+// generating iso2 variable
+ren country countryname
+kountry country, from(other) stuck
+ren _ISO3N_ iso3_n
+kountry iso3_n, from(iso3n) to(iso2c)
+ren _ISO2C_ country
+replace country = "CZ" if countryname == "Czechia"
+replace country = "CS" if countryname == "Former Czechoslovakia"
+replace country = "SS" if countryname == "Former Sudan"
+replace country = "YU" if countryname == "Former Yugoslavia"
+replace country = "MK" if countryname == "Republic of North Macedonia"
+*replace country = "YE" if countryname == "Yemen: Former Yemen Arab Republic"
+replace country = "SU" if countryname == "Former USSR"
+replace country = "KS" if countryname == "Kosovo"
+replace country = "CW" if countryname == "CuraÃ§ao"
+replace country = "SX" if countryname == "Sint Maarten (Dutch part)"
+replace country = "AN" if countryname == "Former Netherlands Antilles"
+
+tab countryname if missing(country)
+// Curacao and Sint Marteen using Former Netherlands Antilles
+drop if country == "CW" & year < 1994
+expand 2 if (country == "AN") & inrange(year, 1970, 1993), generate(newobsCW)
+replace country = "CW" if newobsCW
+drop if country == "SX" & year < 2000
+expand 2 if (country == "AN") & inrange(year, 1970, 1999), generate(newobsSX)
+replace country = "SX" if newobsSX
+drop newobs* 
+
+drop if missing(country) | unit == "..."
+drop if countryname == "Former Sudan" & year >= 1995
+drop if countryname == "South Sudan" & year < 1995
+drop if inlist(countryname, "Yemen: Former Yemen Arab Republic")
+ren country iso
+tempfile xrateunsna
+sa `xrateunsna', replace
+restore
+
+merge 1:1 iso year using `xrateunsna', keepusing(imfxrt amaxrt soviet yugosl)
+drop if _m == 2
+drop _m 
+gen flagexrate = 1 if missing(valuexlcusx999i)
+replace flagexrate = 0 if missing(flagexrate)
+
+	replace valuexlcusx999i = amaxrt if currency == "EUR" & year < 1999
+	replace valuexlcusx999i = amaxrt if year >= 1990 & year <= 1994 & soviet == 1
+	replace valuexlcusx999i = amaxrt if iso == "UZ"	
+	replace valuexlcusx999i = amaxrt if iso == "GW"	
+	replace valuexlcusx999i = amaxrt if yugosl == 1 & year >= 1990
+	replace valuexlcusx999i = amaxrt if year > 1994 & year <= 2001 & iso == "TM" // Turkmenistan's exchange rate is preferred from UN SNA than from WB WDI
+	replace valuexlcusx999i = amaxrt if iso == "CD" & !missing(amaxrt) // if we use the imfxrt Congo gets and incredible jump in gdp_usd in 2000s
+	replace valuexlcusx999i = amaxrt if iso == "GN" & !missing(amaxrt) // we need to use ama because if not there is a disparity pre and post 1986
+	replace valuexlcusx999i = imfxrt if iso == "IQ" & !missing(imfxrt) & year < 1991 // we need to use ama because of inconsistency pre 2003. We are comparing with WB whenever cases are critical
+	*replace valuexlcusx999i = amaxrt if iso == "IQ" & !missing(amaxrt) & year >= 1991 // we need to use ama because of inconsistency pre 2003
+	replace valuexlcusx999i = amaxrt if iso == "IR" & !missing(amaxrt) & year >= 1987 // 1990 is problematic if not
+	replace valuexlcusx999i = amaxrt if iso == "MM" & !missing(amaxrt) // evolution does not coincide with WB if not
+	replace valuexlcusx999i = amaxrt if iso == "NI" & !missing(amaxrt) // evolution does not coincide with WB if not. problematic year 1987: 0.00000014 from WB gdp_lcu/gdp_usd. we have the same gdp_lcu and the same exrate but values didn't aligned. apparently WB sometimes don't use the exrate they publish
+	replace valuexlcusx999i = amaxrt if iso == "PL"  // evolution does not coincide with WB if not
+	replace valuexlcusx999i = amaxrt if iso == "SO" & year == 2021 // huge peak in 2021 if not
+	replace valuexlcusx999i = amaxrt if iso == "SR" // crazy peak if not
+	replace valuexlcusx999i = imfxrt if iso == "SS" & !missing(imfxrt)
+	replace valuexlcusx999i = amaxrt if iso == "SY" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "UG" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "YE" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "KP" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "AF" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "BG" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "ER" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "GH" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "KH" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "LA" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "LB" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "MN" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "RO" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "VN" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "TJ" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "CW" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "SX" & !missing(amaxrt)
+	replace valuexlcusx999i = amaxrt if iso == "ER" & !missing(amaxrt) & inrange(year, 1990, 1992) 
+	replace valuexlcusx999i = amaxrt if iso == "SD" & !missing(amaxrt) & year >= 2020
+	// from the ratio of gdp_lcu/gdp_usd from WB WDI to fix latest years for Zimbabwe
+	replace valuexlcusx999i = 1.2534 if iso == "ZW" & year == 2017
+	replace valuexlcusx999i = 2.0381 if iso == "ZW" & year == 2018
+	replace valuexlcusx999i = 9.7184 if iso == "ZW" & year == 2019
+	replace valuexlcusx999i = 64.1011 if iso == "ZW" & year == 2020
+	replace valuexlcusx999i = 112.4356 if iso == "ZW" & year == 2021
+	// from the ratio of gdp_lcu/gdp_usd from WB WDI to fix problematic years for Georgia. gdp_usd WB is calculated using their growth rate before 1990
+	/*
+	replace valuexlcusx999i = 0.000001323856 if iso == "GE" & year == 1975
+	replace valuexlcusx999i = 0.000001327758 if iso == "GE" & year == 1976
+	replace valuexlcusx999i = 0.00000134685 if iso == "GE" & year == 1977
+	replace valuexlcusx999i = 0.00000135122 if iso == "GE" & year == 1978
+	replace valuexlcusx999i = 0.00000138821 if iso == "GE" & year == 1979
+	replace valuexlcusx999i = 0.00000140190 if iso == "GE" & year == 1980
+	replace valuexlcusx999i = 0.00000144960 if iso == "GE" & year == 1981
+	replace valuexlcusx999i = 0.00000150204 if iso == "GE" & year == 1982
+	replace valuexlcusx999i = 0.00000146224 if iso == "GE" & year == 1983
+	replace valuexlcusx999i = 0.00000147103 if iso == "GE" & year == 1984
+	replace valuexlcusx999i = 0.00000140176 if iso == "GE" & year == 1985
+	replace valuexlcusx999i = 0.00000149385 if iso == "GE" & year == 1986
+	replace valuexlcusx999i = 0.00000152877 if iso == "GE" & year == 1987
+	replace valuexlcusx999i = 0.00000148910 if iso == "GE" & year == 1988
+	*/
+	
+replace valuexlcusx999i = amaxrt if missing(valuexlcusx999i)
+gen auxcsk = valuexlcusx999i if iso == "CS"
+bys year : egen maxauxcsk = max(auxcsk)
+replace valuexlcusx999i = maxauxcsk if iso == "CZ" & missing(valuexlcusx999i)
+drop imfxrt amaxrt flagexrate auxcsk maxauxcsk soviet yugosl
+
+/*
+// replacing problematic Iraq data <= 2003 from WB WDI data
+preserve
+	import excel "$input_data_dir/currency-rates/exrate_IQ_USD_WDI", clear firstrow cellrange(A3)
+	gen n = _n 
+	foreach var in A B C D {
+		replace `var' = subinstr(`var', " ", "", .) if _n == 1
+	}
+	
+	ds A B C D n, not
+	foreach var in `r(varlist)' {
+		replace `var' = "v" + `var' if _n == 1
+	}
+	drop n
+	renvars , map(word(@[1], 1))
+	keep if CountryName == "Iraq"
+	reshape long v, i(CountryName) j(year) string
+	ren (v) (xrate_iq_usd) 
+	gen iso = "IQ"
+	keep iso year xrate_iq_usd
+	destring year, replace
+	destring xrate_iq_usd, replace
+	keep if year >= 1970
+tempfile xrateiqus
+sa `xrateiqus', replace
+restore
+merge 1:1 iso year using `xrateiqus'
+drop if _m == 2
+drop _m 
+replace valuexlcusx999i = xrate_iq_usd if iso == "IQ" & year < 2003
+drop xrate_iq_usd 
+*/
+
+// Taiwan from FRED
+preserve
+	import excel "$input_data_dir/currency-rates/exrate_TWD_USD", clear firstrow sheet("Annual")
+	gen year = year(DATE)
+	ren FXRATETWA618NUPN xrate_twd_usd
+	keep year xrate_twd_usd
+	gen iso = "TW"
+tempfile xratetwdusd
+sa `xratetwdusd', replace
+restore
+
+merge 1:1 iso year using `xratetwdusd'
+drop if _m == 2
+drop _m 
+replace valuexlcusx999i = xrate_twd_usd if missing(valuexlcusx999i)
+drop xrate_twd_usd 
+
 drop if missing(valuexlcusx999i)
 
 preserve
@@ -270,9 +658,11 @@ replace valuexlcyux999i = valuexlcusx999i/CNYUSD
 
 drop EURUSD CNYUSD
 
+replace currency = "Zimbabwe special case" if iso == "ZW" & year >= 2017
+
 replace valuexlceux999i = round(valuexlceux999i) if currency == "EUR"
 
-assert valuexlceux999i == 1 if currency == "EUR"
+assert valuexlceux999i == 1 if currency == "EUR" & year > 1999
 assert valuexlcyux999i == 1 if currency == "CNY"
 assert valuexlcusx999i == 1 if currency == "USD"
 
@@ -281,9 +671,71 @@ drop if mi(value)
 sort iso widcode year
 
 // Drop Iraq before 2003 (problematic data)
-drop if iso == "IQ" & year < 2003
+// Gaston: I've replaced it with WDI data for year <= 2003 in line
+// drop if iso == "IQ" & year < 2003
 
 label data "Generated by import-exchange-rates.do"
 save "$work_data/exchange-rates.dta", replace
+
+	keep if widcode == "xlcusx999i"
+	ren value exrate_usd
+save "$work_data/USS-exchange-rates.dta", replace
+
+
+/*
+*checking GDP in USD
+u "$work_data/exchange-rates.dta", clear
+keep if widcode == "xlcusx999i"
+ren value exrate_usd
+
+merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
+merge 1:1 iso year using "$work_data/price-index.dta", nogen
+
+kountry iso, from(iso2c)
+rename NAMES_STD country
+replace country = "Serbia" if iso == "RS"
+replace country = "United Arab Emirates" if iso == "AE"
+replace country = "Curaçao" if iso == "CW"
+replace country = "Sint Maarten (Dutch part)" if iso == "SX"
+replace country = "Kosovo" if iso == "KS"
+replace country = "Soviet Union" if iso == "SU"
+replace country = "Yugoslavia" if iso == "YU"
+replace country = "Bonaire, Saint Eustatius and Saba" if iso == "BQ"
+replace country = "Guernsey" if iso == "GG"
+replace country = "Jersey" if iso == "JE"
+replace country = "Isle of Man" if iso == "IM"
+
+
+foreach var in gdp {
+
+gen `var'_idx = `var'*index
+	gen `var'_usd = `var'_idx/exrate_usd
+}
+
+gen corecountry = .
+foreach c of global corecountries {
+	replace corecountry = 1 if iso == "`c'"
+}
+keep if corecountry == 1 & year >= 1970
+
+keep if inlist(iso, "JE", "GG", "GI", "QA", "BQ", "IM")
+gen long obsno = _n
+
+levelsof iso, local(ctries)
+foreach c of local ctries {
+     su obs if iso == "`c'", meanonly 
+     local country = country[r(min)]
+     tsline gdp_usd if iso == "`c'" & year >= 1970, title("`country'") ytitle("") xtitle("") legend(off) xlabel(1970(5)2022)
+     graph export "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/new/`c'.pdf", replace 
+}
+
+
+}
+}
+}
+
+inlist(iso, "AZ", "AM", "BY", "KG", "KZ")
+inlist(iso, "TJ", "MD", "TM", "UA", "UZ")
+inlist(iso, "EE", "LT", "LV", "RU")
 
 

@@ -537,7 +537,7 @@ enforce (comnx = comrx - compx) ///
 		/// Structure of gov spending
 		(congo = gpsgo + defgo + polgo + ecogo + envgo + hougo + heago + recgo + edugo + sopgo + othgo) ///
 		/// Labor + capital income decomposition
-		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc cfcgo fkpin comhn nmxhn) replace
+		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx confc cfcgo fkpin comhn nmxhn) replace force
 	
 keep iso year toreplace confc cfc* ccs* ccm*
 

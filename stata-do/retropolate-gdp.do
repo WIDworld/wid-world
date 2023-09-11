@@ -16,6 +16,24 @@ use "$work_data/gdp.dta", clear
 
 greshape wide gdp currency level_src level_year growth_src, i(year) j(iso) string
 
+// Yugoslavia: shares applied to BA, HR, ME, MK, RS and SI. KS later applied to RS
+foreach iso in BA HR ME MK RS SI {
+	gen ratio`iso'_YU = gdp`iso'/gdpYU if year == 1980
+	egen x2 = mode(ratio`iso'_YU) 
+	replace gdp`iso' = gdpYU*x2 if missing(gdp`iso') & year >= 1970
+	drop ratio`iso'_YU x2
+	
+}
+
+// Czechoslovakia
+foreach iso in CZ SK {
+	gen ratio`iso'_CS= gdp`iso'/gdpCS if year == 1980
+	egen x2 = mode(ratio`iso'_CS) 
+	replace gdp`iso' = gdpCS*x2 if missing(gdp`iso') & year >= 1970
+	drop ratio`iso'_CS x2
+	
+}
+
 foreach var in gdp {
 	
 	// Eriteria 1993 with Ethiopia
@@ -48,23 +66,58 @@ foreach var in gdp {
 	replace `var'ZZ = `var'TZ*x2 if missing(`var'ZZ)
 	drop ratioZZ_TZ x2
 
+	// Isle of Man and United Kingdom
+	gen ratioIM_GB = `var'IM/`var'GB if year == 1984
+	egen x2 = mode(ratioIM_GB) 
+	replace `var'IM = `var'GB*x2 if missing(`var'IM) & year >= 1970
+	drop ratioIM_GB x2
+
+	// Guernsey and United Kingdom
+	gen ratioGG_GB = `var'GG/`var'GB if year == 1991
+	egen x2 = mode(ratioGG_GB) 
+	replace `var'GG = `var'GB*x2 if missing(`var'GG) & year >= 1970
+	drop ratioGG_GB x2
+
+	// Jersey and United Kingdom
+	gen ratioJE_GB = `var'JE/`var'GB if year == 1998
+	egen x2 = mode(ratioJE_GB) 
+	replace `var'JE = `var'GB*x2 if missing(`var'JE) & year >= 1970
+	drop ratioJE_GB x2
+
+	// Gibraltar and United Kingdom
+	gen ratioGI_GB = `var'GI/`var'GB if year == 1997
+	egen x2 = mode(ratioGI_GB) 
+	replace `var'GI = `var'GB*x2 if missing(`var'GI) & year >= 1970
+	drop ratioGI_GB x2
+	
 tempfile `var'
 append using `combined'
 save `combined', replace
 }
-use `combined', clear
-duplicates drop year, force
-		
+
 	// Ex-soviet countriees , there is a year of GDP in 1973 we interpolate up to that year
 foreach iso in AM AZ BY KG KZ TJ TM UZ EE LT LV MD {
 	ipolate gdp`iso' year , gen(x)
 	replace gdp`iso' = x if missing(gdp`iso') 
 	drop x
+
+	// From 1973 to 1970 we will use share of URSS GDP
+	gen ratio`iso'_SU = gdp`iso'/gdpSU if year == 1973
+	egen x2 = mode(ratio`iso'_SU) 
+	replace gdp`iso' = gdpSU*x2 if missing(gdp`iso') & year >= 1970
+	drop ratio`iso'_SU x2
 }
+	// For TM the datapoint from Madison in 1973 is the same that the value from the WB in 1987, so the interpolation gives the same value for 14 years.
+	// Solution: use the share from Soviet Union in 1987 and compute backwards
+	gen ratioTM_SU = gdpTM/gdpSU if year == 1987	
+	egen x2 = mode(ratioTM_SU) 
+	replace gdpTM = gdpSU*x2 if year >= 1970 & year < 1987
+	drop ratioTM_SU x2
 
-
+*use `combined', clear
+duplicates drop year, force
+		
 greshape long gdp currency level_src level_year growth_src, i(year) j(iso) string
-
 
 foreach var in currency level_src level_year growth_src{
 	egen `var'2 = mode(`var'), by(iso)
@@ -81,6 +134,7 @@ drop if missing(gdp)
 
 /* */
 // Substrat the amount of GDP from country of origin
+// We do not do this for Yugoslavia nor the Soviet Union nor Czechoslovakia because they are special cases
 preserve
 	use "$work_data/ppp.dta", clear
 	keep if inlist(iso, "SD", "SS") 
@@ -118,6 +172,7 @@ preserve
 	gen valueET_ER = valueER/valueET
 	gen valueRS_KS = valueKS/valueRS
 	gen valueID_TL = valueTL/valueID
+	*gen valueNL_BQ = valueBQ/valueNL
 *	drop valueKS-valueTL
 	drop valueER-valueTL
 		
@@ -147,6 +202,7 @@ preserve
 	replace value_originID = value_originTL
 	replace value_originSD = value_originSS
 	replace value_originTZ = value_originZZ
+	*replace value_originNL = value_originBQ  Statistics Netherlands confirmed that Bonaire is not included in their calculation of GDP
 	reshape long
 	
 	tempfile double
@@ -159,6 +215,7 @@ replace gdp = gdp-value_origin if iso == "SD" & year < 2012
 replace gdp = gdp-value_origin if iso == "ET" & year < 1993
 replace gdp = gdp-value_origin if iso == "RS" & year < 1990
 replace gdp = gdp-value_origin if iso == "ID" & year < 1990
+*replace gdp = gdp-value_origin if iso == "NL" & year >= 2010
 *replace gdp = gdp-value_origin if iso == "TZ" & year < 1990
 
 drop value* exchange 

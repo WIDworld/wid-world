@@ -1,4 +1,4 @@
-import delimited "$un_data/populations/sna/unsd_snaAma-$pastyear.csv", ///
+import delimited "$un_data/populations/sna/unsd_snaAma-2022.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
 cap drop unit

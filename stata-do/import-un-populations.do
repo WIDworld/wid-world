@@ -5,49 +5,31 @@
 
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_totalpopulation_bothsexes.xlsx", ///
+import excel "$un_data/populations/wpp/WPP2022_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
-// Correct column names
-foreach v of varlist h-bz {
-	local year: var label `v'
-	if ("`year'" == "") {
-		drop `v'
-	}
-	else {
-		rename `v' value`year'
-	}
-}
+keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_totalpopulation_bothsexes.xlsx", ///
-		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
-	// Correct column names
-	foreach v of varlist h-bz {
-		local year: var label `v'
-		if ("`year'" == "") {
-			drop `v'
-		}
-		else {
-			rename `v' value`year'
-		}
-	}
-
-	keep regionsubregioncountryorar notes countrycode type parentcode value2021	
-	
+import excel "$un_data/populations/wpp/WPP2022_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
+		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
+keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
+keep if year == $pastyear
 	tempfile $pastyear
 	save `$pastyear'
 restore	
 
-merge 1:1 regionsubregioncountryorar notes countrycode type parentcode using `$pastyear', nogen
+append using `$pastyear'
 
 // Identify countries
-countrycode regionsubregioncountryorar, generate(iso) from("wpp")
-drop variant regionsubregioncountryorar notes countrycode
-
-reshape long value, i(iso) j(year)
-destring value, replace
+ren iso2alphacode iso
+ren totalpopulationasof1july value
+// Kosovo
+replace iso = "KS" if iso == "XK"
+drop if missing(iso)
+ 
+destring value, replace force
 drop if value >= .
 replace value = 1e3*value
 
@@ -59,11 +41,11 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
-foreach v of varlist i-ac {
+foreach v of varlist l-af {
 	destring `v', replace ignore("…")
 
 	local age: var label `v'
@@ -78,10 +60,10 @@ foreach v of varlist i-ac {
 }
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_1_ANNUAL_POPULATION_BY_AGE_BOTH_SEXES.xlsx", ///
-			cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
-	foreach v of varlist i-ac {
+foreach v of varlist l-af {
 		destring `v', replace ignore("…")
 
 		local age: var label `v'
@@ -95,7 +77,7 @@ preserve
 		}
 	}
 
-	keep if referencedateasof1july == $pastyear	
+	keep if year == $pastyear	
 	
 	tempfile age_$pastyear
 	save `age_$pastyear'
@@ -104,8 +86,11 @@ restore
 append using `age_$pastyear'
 
 // Identify countries
-countrycode regionsubregioncountryorar, generate(iso) from("wpp")
-drop variant regionsubregioncountryorar notes countrycode
+ren iso2alphacode iso
+// Kosovo
+replace iso = "KS" if iso == "XK"
+drop variant regionsubregioncountryorar notes
+destring value*, replace force
 
 // Calculate value for 80+ when we only have the detail
 generate value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100 
@@ -119,7 +104,7 @@ generate value60 = value60_64 + value65_69 + value70_74 + value75_79 + value80
 generate value20_64 = value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64
 generate value65 = value65_69 + value70_74 + value75_79 + value80
 
-rename referencedateasof1july year
+cap rename referencedateasof1july year
 duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
@@ -132,11 +117,11 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
-foreach v of varlist i-ac {
+foreach v of varlist l-af {
 	destring `v', replace ignore("…")
 
 	local age: var label `v'
@@ -152,10 +137,10 @@ foreach v of varlist i-ac {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_2_ANNUAL_POPULATION_BY_AGE_MALE.xlsx", ///
-		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
-	foreach v of varlist i-ac {
+	foreach v of varlist l-af {
 		destring `v', replace ignore("…")
 
 		local age: var label `v'
@@ -169,7 +154,7 @@ preserve
 		}
 	}
 
-	keep if referencedateasof1july == $pastyear	
+	keep if year == $pastyear	
 	
 	tempfile male_$pastyear
 	save `male_$pastyear'
@@ -178,8 +163,11 @@ restore
 append using `male_$pastyear'
 
 // Identify countries
-countrycode regionsubregioncountryorar, generate(iso) from("wpp")
-drop variant regionsubregioncountryorar notes countrycode
+ren iso2alphacode iso
+// Kosovo
+replace iso = "KS" if iso == "XK"
+drop variant regionsubregioncountryorar notes
+destring value*, replace force
 
 // Calculate value for 80+ when we only have the detail
 gen value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100
@@ -204,7 +192,7 @@ generate value90_99 = value90_94 + value95_99
 // Generate entire men population
 generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
-rename referencedateasof1july year
+cap rename referencedateasof1july year
 duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
@@ -216,11 +204,11 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
-foreach v of varlist i-ac {
+foreach v of varlist l-af {
 	destring `v', replace ignore("…")
 
 	local age: var label `v'
@@ -236,10 +224,10 @@ foreach v of varlist i-ac {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx", ///
-		cellrange(B17) sheet("MEDIUM VARIANT") firstrow case(lower) clear
+import excel "$un_data/populations/wpp/WPP2022_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
-	foreach v of varlist i-ac {
+	foreach v of varlist l-af {
 		destring `v', replace ignore("…")
 
 		local age: var label `v'
@@ -253,7 +241,7 @@ import excel "$un_data/populations/wpp/WPP${pastpastpastyear}_POP_F15_3_ANNUAL_P
 		}
 	}
 
-	keep if referencedateasof1july == $pastyear	
+	keep if year == $pastyear	
 	
 	tempfile female_$pastyear
 	save `female_$pastyear'
@@ -261,9 +249,17 @@ restore
 
 append using `female_$pastyear'
 
+/*
 // Identify countries
 countrycode regionsubregioncountryorar, generate(iso) from("wpp")
 drop variant regionsubregioncountryorar notes countrycode
+*/
+// Identify countries
+ren iso2alphacode iso
+// Kosovo
+replace iso = "KS" if iso == "XK"
+drop variant regionsubregioncountryorar notes
+destring value*, replace force
 
 // Calculate value for 80+ when we only have the detail
 gen value80 = value80_84 + value85_89 + value90_94 + value95_99 + value100
@@ -288,7 +284,7 @@ generate value90_99 = value90_94 + value95_99
 // Generate entire women population
 generate valueall = value0_4 + value5_9 + value10_14 + value15_19 + value20_24 + value25_29 + value30_34 + value35_39 + value40_44 + value45_49 + value50_54 + value55_59 + value60_64 + value65_69 + value70_74 + value75_79 + value80
 
-rename referencedateasof1july year
+cap rename referencedateasof1july year
 duplicates drop iso year, force
 reshape long value, i(iso year) j(age) string
 drop if value >= .
@@ -297,6 +293,9 @@ generate sex = "women"
 
 append using "`unpop'"
 save "`unpop'", replace
+
+drop locationcode iso3alphacode sdmxcode regionsubregioncountryorar notes
+drop if missing(iso)
 
 label data "Generated by import-un-populations.do"
 save "$work_data/un-population.dta", replace

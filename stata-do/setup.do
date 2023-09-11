@@ -82,6 +82,7 @@ global currency_codes "$input_data_dir/currency-codes"
 
 // Directory with intermediairy data files (not synced to GitHub)
 global work_data "$project_dir/work-data"
+global work_datacore "$project_dir/work-data/corecountries"
 
 // Directory with reports from the programs
 global report_output "$wid_dir/WIDGraphsTables"

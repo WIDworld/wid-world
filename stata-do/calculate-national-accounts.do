@@ -13,7 +13,7 @@ save "`gdp'"
 
 use "$work_data/sna-series-adjusted.dta", clear
 
-drop gdpro series_*
+drop gdpro series_* gdp *_gdp
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp currency)
 

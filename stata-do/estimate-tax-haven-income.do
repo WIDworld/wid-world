@@ -6,67 +6,27 @@
 // Get estimate of GPD in current USD
 // -------------------------------------------------------------------------- //
 
-import excel "$input_data_dir/un-data/sna-main/gni-gdp-bop/GDPcurrent-USD-countries.xlsx", cellrange(A3) firstrow clear case(lower)
+u "$work_data/exchange-rates.dta", clear
+keep if widcode == "xlcusx999i"
+ren value exrate_usd
 
-keep if indicatorname == "Gross Domestic Product (GDP)"
-drop indicatorname
+merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
+merge 1:1 iso year using "$work_data/price-index.dta", nogen
+merge 1:1 iso year using "$work_data/sna-series-finalized.dta", nogenerate keep(match) keepusing(ptfnx ptfrx ptfpx)
 
-ds countryid country, not
-local varlist = r(varlist)
-local year = 1970
-foreach v of local varlist {
-	rename `v' gdp`year'
-	local year = `year' + 1
+foreach v in ptfnx ptfrx ptfpx {
+	replace `v' = `v'*gdp
 }
 
-greshape long gdp, i(countryid) j(year)
+foreach var in gdp ptfnx ptfrx ptfpx {
+gen `var'_idx = `var'*index
+	gen `var'_usd = `var'_idx/exrate_usd
+}
 
-kountry countryid, from(iso3n) to(iso2c)
-rename _ISO2C_ iso
-replace iso = "CW" if country == "Curaçao"
-replace iso = "CS" if country == "Czechoslovakia (Former)"
-replace iso = "ET" if country == "Ethiopia (Former)"
-replace iso = "KS" if country == "Kosovo"
-replace iso = "RU" if country == "Russian Federation"
-replace iso = "RS" if country == "Serbia"
-replace iso = "SX" if country == "Sint Maarten (Dutch part)"
-replace iso = "SD" if country == "Sudan"
-replace iso = "TZ" if country == "U.R. of Tanzania: Mainland"
-replace iso = "YA" if country == "Yemen Arab Republic (Former)"
-replace iso = "YD" if country == "Yemen Democratic (Former)"
-replace iso = "ZZ" if country == "Zanzibar"
-replace iso = "YU" if country == "Yugoslavia (Former)"
-replace iso = "SU" if country == "USSR (Former)"
-assert iso != ""
-drop if country == "Ethiopia" & year <= 1993
-drop if country == "Sudan (Former)" & year >= 2008
-
-keep iso year gdp
-drop if missing(gdp)
-
-tempfile gdp
-save "`gdp'"
-
-// -------------------------------------------------------------------------- //
-// Redistribute missing income
-// -------------------------------------------------------------------------- //
-
-use "$work_data/imf-usd.dta", clear
-
-collapse (sum) ptfnx, by(year)
-
-replace ptfnx = . if year < 1980 
-drop if year < 1970
-replace ptfnx = 0 if year == 1970
-
-ipolate ptfnx year, gen(i)
-replace ptfnx = i
-drop i
-
-// Remove last year for which information is too incomplete
-sort year
-replace ptfnx = ptfnx[_N - 1] if _n == _N
-replace ptfnx = min(ptfnx, 0) // Unnecessary, but you never know
+// Tax Haven dummy from EU Tax Observatory. Hines & Rice (1994). Missing profit of Nations Tørsløv, Wier & Zucman (2018)
+// adding corecountry dummy and Tax Haven dummy
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+keep if corecountry == 1
 
 preserve
 	// Import share of assets in tax havens by country
@@ -83,7 +43,7 @@ preserve
 	replace iso = "BO" if A == "Bolivia (Plurinational State of)"
 	replace iso = "CV" if A == "Cabo Verde"
 	replace iso = "CI" if A == "Côte d'Ivoire"
-	replace iso = "MK" if A == "Macedonia (the former Yugoslav Republic)"
+	replace iso = "MK" if A == "Macedonia (the former Yugoslav Republic of)"
 	replace iso = "TW" if A == "Taiwan, Province of China[a]"
 	replace iso = "GB" if A == "United Kingdom of Great Britain and Northern Ireland"
 	replace iso = "VE" if A == "Venezuela (Bolivarian Republic of)"
@@ -96,20 +56,85 @@ preserve
 	save "`havens'", replace
 restore
 
-cross using "`havens'"
-replace share_havens = 0 if missing(share_havens)
-generate ptfhr = -ptfnx*share_havens
+merge m:1 iso using "`havens'"
+tab iso if TH == 1 & _m == 3 // BE, IE, NL 
+drop if _m == 2 
+drop _m 
+
+// countries for which we don't have tax havens data nor are classified as tax havens will be assigned regional average
+// to not overestimate these countries wealth in tax havens, we will use offshorewealth/GDP in 2007 (the year AJZ calculated the shares)
+preserve 
+	keep if year == 2007
+	egen totptfrx_usd = total(ptfrx_usd)
+	egen totptfpx_usd = total(ptfpx_usd)
+	gen  totptfnx_usd = totptfrx_usd - totptfpx_usd
+	gen ptfhr = -totptfnx_usd*share_havens
+	replace ptfhr = ptfhr/gdp_usd
+
+	tab iso if share_havens == . & TH == 0
+	foreach level in undet un {
+		kountry iso, from(iso2c) geo(`level')
+
+	replace GEO = "Western Asia" 	if iso == "AE" & "`level'" == "undet"
+	replace GEO = "Caribbean" 		if iso == "CW" & "`level'" == "undet"
+	replace GEO = "Caribbean"		if iso == "SX" & "`level'" == "undet"
+	replace GEO = "Caribbean" 		if iso == "BQ" & "`level'" == "undet"
+	replace GEO = "Southern Europe" if iso == "KS" & "`level'" == "undet"
+	replace GEO = "Southern Europe" if iso == "ME" & "`level'" == "undet"
+	replace GEO = "Eastern Asia" 	if iso == "TW" & "`level'" == "undet"
+	replace GEO = "Northern Europe" if iso == "GG" & "`level'" == "undet"
+	replace GEO = "Northern Europe" if iso == "JE" & "`level'" == "undet"
+	replace GEO = "Northern Europe" if iso == "IM" & "`level'" == "undet"
+
+	replace GEO = "Asia" if inlist(iso, "AE", "TW") & "`level'" == "un"
+	replace GEO = "Americas" if inlist(iso, "CW", "SX", "BQ") & "`level'" == "un"
+	replace GEO = "Europe" if inlist(iso, "KS", "ME", "GG", "JE", "IM") & "`level'" == "un"
+	ren GEO geo`level'
+	drop NAMES_STD 
+	}
+	bys geoundet : egen avgptfhr = mean(ptfhr) 
+	replace ptfhr = avgptfhr if missing(ptfhr) & TH == 0
+	assert !missing(ptfhr) if TH == 0
+
+	replace ptfhr = ptfhr*gdp_usd
+	egen totptfhr = total(ptfhr)
+	gen share_havens2 = ptfhr/totptfhr
+	// rescaling share to add up to 1
+	egen totsh = total(share_havens2)
+	gen share_havens3 = share_havens2/totsh
+	egen totsh2 = total(share_havens3)
+	assert totsh2 == 1 
+	
+	keep iso share_havens3 
+	
+	tempfile allhavens
+	save "`allhavens'", replace
+restore
+
+merge m:1 iso using "`allhavens'", nogen
 drop share_havens
+ren share_havens3 share_havens 
+replace share_havens = 0 if missing(share_havens)
 
-merge n:1 iso year using "`gdp'", keep(match) nogenerate
-replace ptfhr = ptfhr/gdp
+// -------------------------------------------------------------------------- //
+// Redistribute missing income
+// -------------------------------------------------------------------------- //
+bys year : egen totptfrx_usd = total(ptfrx_usd)
+bys year : egen totptfpx_usd = total(ptfpx_usd)
+gen totptfnx_usd = totptfrx_usd - totptfpx_usd
+gen ptfhr = -totptfnx_usd*share_havens
+bys year : egen totptfhr = total(ptfhr)
+gen check = totptfnx_usd + totptfhr
+// allocating the difference to the top share
+gsort year -share_havens 
+by year : replace ptfhr = ptfhr + abs(check) if _n == 1 & check < 0
+by year : replace ptfhr = ptfhr - abs(check) if _n == 1 & check > 0
+bys year : egen totptfhr2 = total(ptfhr)
+gen check2 = totptfnx_usd + totptfhr2
 
-keep year iso ptfhr
+assert check2 == 0 
 
-keep if inrange(year, 1970, $pastyear - 1)
-expand 2 if year == $pastyear - 1, gen(new)
-replace year = $pastyear if new
-drop new
-sort iso year
+replace ptfhr = ptfhr/gdp_usd
+keep iso year ptfhr 
 
 save "$work_data/income-tax-havens.dta", replace

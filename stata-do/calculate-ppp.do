@@ -167,6 +167,7 @@ save "`index_us'"
 use "`ppp'", clear
 
 generate refyear = year
+drop if iso == "PS" & currency == "ILS"
 
 merge 1:1 iso year using "`index'", nogenerate update ///
 	assert(master using match match_update)
