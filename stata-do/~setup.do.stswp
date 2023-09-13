@@ -115,7 +115,7 @@ global pastyear 2022 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 global pastpastyear 2021 
-global pastpastpastyear 2020 // only for WPP, needs to be changed every 2 years 
+global pastpastpastyear 2019 // only for WPP, needs to be changed every 2 years 
 						 // (changes made April 2021)
 
 // Global years for updating Forbes data
