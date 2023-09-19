@@ -1,4 +1,4 @@
-import excel "$wb_data/metadata/wb-metadata-2020.xlsx", ///
+import excel "$wb_data/metadata/wb-metadata-$pastyear.xlsx", ///
 	sheet("Country - Metadata") clear firstrow case(lower)
 	
 rename currencyunit currency
@@ -24,6 +24,8 @@ replace countryname = "Sao Tome and Principe" if (countryname == "São Tomé and
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland" if countryname == "Eswatini"
 replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
+replace countryname = "Czechia" if countryname == "Czech Republic" 
+replace countryname = "Turkiye" if countryname == "Turkey" 
 
 replace currency = "swaziland lilangeni" if currency == "Swazi lilangeni"
 

@@ -1,6 +1,6 @@
 // Import historical data gpinterized
 
-use "$historical/gpinterize/merge-gpinterized", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
 
 keep if name == "historical_sptinc992j"
 expand 2, gen(exp)
@@ -62,7 +62,7 @@ save `historical'
 
 // Regions
 // per capita
-use "$historical/regions-percapita", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/regions-percapita", clear
 
 gen widcode = "sptinc999j"
 ren (top_share_percapita brackets_percapita bracketavg_percapita) (ts s a)
@@ -116,7 +116,7 @@ tempfile percapita
 save `percapita'
 
 // per adults
-use "$historical/regions-peradults", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/regions-peradults", clear
 
 gen widcode = "sptinc992j"
 ren (top_share_peradults brackets_peradults bracketavg_peradults) (ts s a)
@@ -170,7 +170,7 @@ tempfile peradults
 save `peradults'
 
 // World
-use "$historical/WO", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/WO", clear
 
 ren (top_share bottom_share bracket_share bracket_average y) (ts bs s a year)
 keep ts bs s a p year
@@ -252,7 +252,7 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
-drop if iso == "OH"
+drop if iso == "OH" // other North America & Oceania
 
 duplicates drop iso year widcode p, force
 
@@ -262,7 +262,7 @@ save "$work_data/merge-historical-main.dta", replace
 
 // testing
 /*
-use "$historical/gpinterize/merge-gpinterized", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
 keep if name == "historical_sptinc992j"
 levelsof iso, local(ctry)
 
@@ -274,7 +274,7 @@ foreach c of local ctry {
 line value year if iso == "`c'" & p == "`perc'", sort ///
    title("`c'"-`perc'-sptinc992j) 
    
-gr export "$historical/temp/gr`c'`perc'.pdf", replace
+gr export "$wid_dir/Country-Updates/Historical_series/2022_December/temp/gr`c'`perc'.pdf", replace
 	}
 }
 
@@ -285,7 +285,7 @@ gr export "$historical/temp/gr`c'`perc'.pdf", replace
 // -------------------------------------------------------------------------- //
 
 *Long-run metadata
-use "$historical/merge-longrun-all-output.dta", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/merge-longrun-all-output.dta", clear
 
 collapse (min) year, by(iso source)
 replace iso="QM" if iso=="OK"
@@ -302,7 +302,7 @@ tempfile longrun
 save "`longrun'"
 
 *Imputed metadata
-use "$historical/merge-longrun-all-output.dta", clear
+use "$wid_dir/Country-Updates/Historical_series/2022_December/merge-longrun-all-output.dta", clear
 
 collapse (min) year, by(iso source)
 keep if source == "historical inequality technical note"

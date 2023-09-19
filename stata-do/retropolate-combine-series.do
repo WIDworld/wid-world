@@ -13,26 +13,32 @@ drop footnote*
 drop gdpro
 
 // Correct aberrant values
-replace confc = . if confc <= 0
-replace confc = (.0572331473231 + .0691586434841)/2 /// Use neighboring years because of aberrant value
-	if iso == "AE" & inlist(series, 1, 10) & year == 1974
-replace confc = . if iso == "LS" & series > 1
-replace confc = . if iso == "LS" & inrange(year, 1966, 1971)
-replace confc = . if iso == "ID" & year == 1961
-replace confc = . if iso == "BI" & series < 100
-replace confc = confc*2.6 if iso == "BZ" & year <= 1999
-*replace confc = . if iso == "CL" & year <= 1962
-replace confc = . if iso == "FJ" & inrange(year, 1973, 1976)
-replace confc = . if iso == "MD" & series < 10000
-replace confc = . if iso == "MG" & series < 10000
-replace confc = . if iso == "NI" & year == 1979
-replace confc = . if iso == "PL" & year < 1995
-replace confc = . if iso == "SD" & inrange(year, 2009, 2010)
-replace confc = . if iso == "UZ" & year != 1990
-replace nnfin = . if iso == "SV" & series == 1
-replace confc = . if iso == "GY" & year >= 1985
+	// confc
+	replace confc = . if confc <= 0
+	replace confc = (.0572331473231 + .0691586434841)/2 /// Use neighboring years because of aberrant value
+		if iso == "AE" & inlist(series, 1, 10) & year == 1974
+	replace confc = . if iso == "LS" & series > 1
+	replace confc = . if iso == "LS" & inrange(year, 1966, 1971)
+	replace confc = . if iso == "ID" & year == 1961
+	replace confc = . if iso == "BI" & series < 100
+	replace confc = confc*2.6 if iso == "BZ" & year <= 1999
+	*replace confc = . if iso == "CL" & year <= 1962
+	replace confc = . if iso == "FJ" & inrange(year, 1973, 1976)
+	replace confc = . if iso == "MD" & series < 10000
+	replace confc = . if iso == "MG" & series < 10000
+	replace confc = . if iso == "NI" & year == 1979
+	replace confc = . if iso == "PL" & year < 1995
+	replace confc = . if iso == "SD" & inrange(year, 2009, 2010)
+	replace confc = . if iso == "UZ" & year != 1990
+	replace confc = . if iso == "GY" & year >= 1985
+	replace confc = . if iso == "BD" & year == 2019
 drop if iso == "BF" & series == 10
 
+replace nnfin = . if iso == "SV" & series == 1
+// dropping for now nfin for San Marino
+foreach var in finpx finrx compx comrx pinpx pinrx fsubx ftaxx taxnx flcin pinnx comnx flcir flcip nnfin {
+	replace `var' = . if iso == "SM"
+}
 *br iso series year cfc?? confc if iso == "MX"
 *br iso year series cfcgo prggo prigo confc if iso == "IT"
 *br iso year series cfc?? confc if cfcgo >= confc & !missing(cfcgo) & !missing(confc)
@@ -259,5 +265,15 @@ foreach v of varlist *go {
 	replace `v' = . if inlist(iso, "TZ", "NA") & year < 2008
 	replace `v' = . if inlist(iso, "NA")
 }
+
+// Luxembourg has some issues
+replace savig = saghn + segco + saggo if iso == "LU"
+replace savin = savhn + secco + savgo if iso == "LU"
+
+// Bangladesh last year 
+encode iso, gen(i)
+xtset i year 
+replace confc = l.confc if iso == "BD" & year == 2019
+drop i 
 
 save "$work_data/sna-combined.dta", replace

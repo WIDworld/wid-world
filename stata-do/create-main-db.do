@@ -3,7 +3,7 @@
 
 use "$work_data/merge-historical-main.dta", clear
 
-drop if strpos(iso, "XQ")
+drop if inlist(iso, "XQ") // , "BL"
 drop if iso == "OK"
 
 // Round up some variables
@@ -27,4 +27,16 @@ rename p   perc
 order Alpha2 year perc widcode
 export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 
-etime
+// etime
+
+
+keep if inlist(Alpha2, "AR", "AU", "BR", "CA", "CL", "CN") | ///
+		inlist(Alpha2, "CO", "DE", "DZ", "EG", "ES", "FR") | ///
+		inlist(Alpha2, "GB", "ID", "IN", "IT", "JP", "MX") | ///
+		inlist(Alpha2, "NZ", "OA", "OB", "OC", "OD", "OE") | ///
+		inlist(Alpha2, "OI", "OJ", "QE", "QF", "QL", "QM") | ///
+		inlist(Alpha2, "QP", "RU", "SE", "TR", "US", "WO") | /// 
+		inlist(Alpha2, "XF", "XL", "XN", "XR", "XS", "ZA")
+
+
+export delim "$output_dir/$time/wid-data-historical-$time.csv", delimiter(";") replace

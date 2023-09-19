@@ -6,8 +6,8 @@
 // from valued-added tables to use as a fall back
 use "$input_data_dir/un-sna/401.dta", clear
 
-*renvars countryorarea subgroup / country_or_area sub_group
-tostring series sna_system, replace
+cap renvars countryorarea subgroup / country_or_area sub_group
+cap tostring series snasystem, replace
 
 merge n:1 country_or_area year series currency using "$work_data/un-sna-current-gdp.dta", keep(match) nogenerate
 replace value = value/current_gdp

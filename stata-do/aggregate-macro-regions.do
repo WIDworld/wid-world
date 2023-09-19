@@ -73,9 +73,10 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | widcode == "mnweal999i" ///
 	   | widcode == "mpweal999i" ///
 	   | widcode == "mgweal999i" ///
-	   | widcode == "mhweal999i" 
+	   | widcode == "mhweal999i" ///
+	   | inlist(widcode, "mnnfin", "mfinrx", "mfinpx", "mcomnx", "mpinnx", "mnwnxa", "mnwgxa", "mnwgxd") ///
+	   | inlist(widcode, "mcomhn", "mfkpin")
 	   
-	
 drop if year < 1950
 drop currency
 reshape wide value, i(iso year p) j(widcode) string

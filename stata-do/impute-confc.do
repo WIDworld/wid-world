@@ -241,6 +241,12 @@ keep iso year confc series_confc
 
 keep if !missing(confc)
 
+// fixing North Korea
+replace confc = . if iso == "KP" & inlist(year, 2002, 2003)
+sort iso year
+by iso : ipolate confc year if iso == "KP", gen(xconfc)
+replace confc = xconfc if missing(confc) & iso == "KP" 
+
 save "$work_data/confc-imputed.dta", replace
 
 // -------------------------------------------------------------------------- //

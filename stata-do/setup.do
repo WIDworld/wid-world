@@ -20,14 +20,14 @@ if substr("`c(pwd)'",1,20)=="/Users/silas"{
 	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
 }
 
-if substr("`c(pwd)'",1,13)=="C:\Users\gato"{
-	global wid_dir "C:/Users/gato/Dropbox/WIL/W2ID/"
-	global project_dir "C:/Users/gato/Documents/GitHub/wid-world/"
+if substr("`c(pwd)'",1,13)=="/Users/sehyun"{
+	global wid_dir "/Users/sehyun/Dropbox/WIL/W2ID/"
+	global project_dir "/Users/sehyun/Documents/GitHub/wid-world/"
 }
 
-if substr("`c(pwd)'",1,13)=="/Users/gaston"{
-	global wid_dir "/Users/gaston/Dropbox/WIL/W2ID/"
-	global project_dir "/Users/gaston/Documents/GitHub/wid-world/"
+if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas"{
+	global wid_dir "C:/Users/g.nievas/Dropbox/WIL/W2ID/"
+	global project_dir "C:/Users/g.nievas/Documents/GitHub/wid-world/"
 }
 
 
@@ -82,6 +82,7 @@ global currency_codes "$input_data_dir/currency-codes"
 
 // Directory with intermediairy data files (not synced to GitHub)
 global work_data "$project_dir/work-data"
+global work_datacore "$project_dir/work-data/corecountries"
 
 // Directory with reports from the programs
 global report_output "$wid_dir/WIDGraphsTables"
@@ -109,12 +110,12 @@ local time_string = subinstr("`time_string'", " ", "_", .)
 global time "`time_string'"
 
 // Store current and past years and to update WEO source and commands
-global year 2022 
-global pastyear 2021 // this year matches commands in gdp-vs-nni,
+global year 2023 
+global pastyear 2022 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
-global pastpastyear 2020 
-global pastpastpastyear 2019 // only for WPP, needs to be changed every 2 years 
+global pastpastyear 2021 
+global pastpastpastyear 2020 // only for WPP, needs to be changed every 2 years 
 						 // (changes made April 2021)
 
 // Global years for updating Forbes data
@@ -129,6 +130,11 @@ global export_with_labels  0
 
 // World summary table in market exchange rate (1) or PPP (0)
 global world_summary_market 1
+
+// List of core countries
+global corecountries `" "AD"	"AE"	"AF"	"AG"	"AI"	"AL"	"AM"	"AO"	"AR"	"AT"	"AU"	"AW"	"AZ"	"BA"	"BB"	"BD"	"BE"	"BF"	"BG"	"BH"	"BI"	"BJ"	"BM"	"BN"	"BO"	"BR"	"BS"	"BT"	"BQ"	"BW"	"BY"	"BZ"	"CA"	"CD"	"CF"	"CG"	"CH"	"CI"	"CL"	"CM"	"CN"	"CO"	"CR"	"CU"	"CV"	"CW"	"CY"	"CZ"	"DE"	"DJ"	"DK"	"DM"	"DO"	"DZ"	"EC"	"EE"	"EG"	"ER"	"ES"	"ET"	"FI"	"FJ"	"FM"	"FR"	"GA"	"GB"	"GD"	"GE"	"GG"	"GH"	"GI"	"GL"	"GM"	"GN"	"GQ"	"GR"	"GT"	"GW"	"GY"	"HK"	"HN"	"HR"	"HT"	"HU"	"ID"	"IE"	"IL"	"IM"	"IN"	"IQ"	"IR"	"IS"	"IT"	"JE"	"JM"	"JO"	"JP"	"KE"	"KG"	"KH"	"KI"	"KM"	"KN"	"KP"	"KR"	"KS"	"KW"	"KY"	"KZ"	"LA"	"LB"	"LC"	"LI"	"LK"	"LR"	"LS"	"LT"	"LU"	"LV"	"LY"	"MA"	"MC"	"MD"	"ME"	"MG"	"MH"	"MK"	"ML"	"MM"	"MN"	"MO"	"MR"	"MS"	"MT"	"MU"	"MV"	"MW"	"MX"	"MY"	"MZ"	"NA"	"NC"	"NE"	"NG"	"NI"	"NL"	"NO"	"NP"	"NR"	"NZ"	"OM"	"PA"	"PE"	"PF"	"PG"	"PH"	"PK"	"PL"	"PR"	"PS"	"PT"	"PW"	"PY"	"QA"	"RO"	"RS"	"RU"	"RW"	"SA"	"SB"	"SC"	"SD"	"SE"	"SG"	"SI"	"SK"	"SL"	"SM"	"SN"	"SO"	"SR"	"SS"	"ST"	"SV"	"SX"	"SY"	"SZ"	"TC"	"TD"	"TG"	"TH"	"TJ"	"TL"	"TM"	"TN"	"TO"	"TR"	"TT"	"TV""'
+global corecountries  `" $corecountries "TW"	"TZ"	"UA"	"UG"	"US"	"UY" 	"UZ"	"VC"	"VE"	"VG"	"VN"	"VU"	"WS"	"YE"	"ZA"	"ZM"	"ZW""'
+dis $corecountries
 
 // -------------------------------------------------------------------------- //
 // Update Stata and install specific commands
