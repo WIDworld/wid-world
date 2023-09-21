@@ -20,9 +20,9 @@ if substr("`c(pwd)'",1,20)=="/Users/silas"{
 	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
 }
 
-if substr("`c(pwd)'",1,13)=="/Users/sehyun"{
-	global wid_dir "/Users/sehyun/Dropbox/WIL/W2ID/"
-	global project_dir "/Users/sehyun/Documents/GitHub/wid-world/"
+if substr("`c(pwd)'",1,13)=="C:\Users\gato"{
+	global wid_dir "C:/Users/gato/Dropbox/WIL/W2ID/"
+	global project_dir "C:/Users/gato/Documents/GitHub/wid-world/"
 }
 
 if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas"{
@@ -115,7 +115,7 @@ global pastyear 2022 // this year matches commands in gdp-vs-nni,
 					 // import-exchange-rates, aggregate-regions, impute-cfc,
 					 // and other do-files
 global pastpastyear 2021 
-global pastpastpastyear 2020 // only for WPP, needs to be changed every 2 years 
+global pastpastpastyear 2019 // only for WPP, needs to be changed every 2 years 
 						 // (changes made April 2021)
 
 // Global years for updating Forbes data

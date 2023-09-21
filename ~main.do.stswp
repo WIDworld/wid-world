@@ -51,7 +51,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
-
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -311,9 +311,6 @@ do "$do_dir/calculate-pareto-coef.do"
 
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
-
-// Merge historical aggregates to WID
-do "$do_dir/merge-historical-aggregates.do"
 
 // Merge longrun series with main data, update metadata
 do "$do_dir/merge-historical-main.do"
