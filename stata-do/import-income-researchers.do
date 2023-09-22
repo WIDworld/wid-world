@@ -8,7 +8,7 @@ foreach country in AUS FRA GER ITA JAP UK USA {
 		import excel "$wid_dir/Country-Updates/WID_updates/2019-08 Capital shares Bauluz/CapitalSharesWID_v3.xlsx", sheet("`country'") clear
 		keep if _n>4
 		drop L
-		dropmiss
+		dropmiss, force 
 		renvars, map(strtoname(@[1]))
 		drop in 1
 		ren WID_code year
