@@ -43,7 +43,7 @@ rename mnsavi999i savin
 rename mnsgro999i savig
 rename mnvatp999i ptxgo
 drop *999i
-dropmiss confc-ptxgo, obs
+dropmiss confc-ptxgo, obs force
 
 // Ensure consistency
 generate gdpro = 1
