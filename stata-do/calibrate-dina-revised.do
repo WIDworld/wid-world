@@ -50,7 +50,7 @@ generate age     = substr(widcode, 7, 3)
 generate pop     = substr(widcode, 10, 1)
 
 drop if iso == "QD-MER"
-*drop if iso == "CZ"
+// drop if iso == "CZ"
 drop if missing(value)
 bys iso year widcode: egen num = nvals(p)
 keep if num >= 120 // A few complete distributions lack a few percentiles

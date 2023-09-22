@@ -1,3 +1,5 @@
+
+
 // Import historical data gpinterized
 
 use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
@@ -237,7 +239,7 @@ tempfile completehistorical
 save `completehistorical'
 
 // Merging into the database
-u "$work_data/calculate-gini-coef-output.dta", clear
+use "$work_data/merge-historical-aggregates.dta", clear
 merge 1:m iso year widcode p using `completehistorical', update nogen
 
 *Return to WID region codes
