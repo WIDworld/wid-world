@@ -9,7 +9,7 @@ library(glue)
 library(haven)
 library(janitor)
 
-setwd("C:/Users/g.nievas/Documents/GitHub/wid-world/data-input/un-sna")
+setwd("C:/Users/sehyun/Documents/GitHub/wid-world/data-input/un-sna")
 
 # List of table names on the UN website
 table_names <- c(
