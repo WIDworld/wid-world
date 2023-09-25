@@ -4,9 +4,9 @@
 
 // Prepare the historcal macro
 use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-aggregates.dta", clear
-// renvars popsize992 popsize999 / npopul992i npopul999i
-// renvars average992 average999 / anninc992i anninc999i
-generate total999 = average999*popsize999
+renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
+renvars average992 average999 / anninc992i_hist anninc999i_hist
+generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
 
 replace iso = "QE" if iso == "WC"
 replace iso = "XR" if iso == "WA"
@@ -19,8 +19,28 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
+keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
+		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
+		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
+		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
+		inlist(iso, "OI", "ZA", "OJ") 
+		
+generate XR = 1 if inlist(iso, "RU", "OA")
+generate QL = 1 if inlist(iso, "CN", "JP", "OB")
+generate QE = 1 if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "OK")
+generate XL = 1 if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
+generate XN = 1 if inlist(iso, "DZ", "EG", "TR", "OE")
+generate QP = 1 if inlist(iso, "CA", "US")
+generate QF = 1 if inlist(iso, "AU", "NZ", "OH")
+generate XS = 1 if inlist(iso, "IN", "ID", "OI")
+generate XF = 1 if inlist(iso, "ZA", "OJ") 
+
+
 tempfile hist_agg
 save `hist_agg'
+
+
 
 // combine with WID and 
 use "$work_data/calculate-gini-coef-output.dta", clear
@@ -39,12 +59,16 @@ reshape wide value, i(iso year) j(widcode) string
 renvars value*, pred(5)
 
 merge 1:1 iso year using "`hist_agg'"
-gsort iso year
-replace anninc992i = average992 if missing(anninc992i) & !missing(average992) & year<1950
-replace anninc999i = average999 if missing(anninc999i) & !missing(average999) & year<1950
-replace npopul992i = popsize992 if missing(npopul992i) & !missing(popsize992) & year<1950
-replace npopul999i = popsize999 if missing(npopul999i) & !missing(popsize999) & year<1950
-replace mnninc999i = total999   if missing(mnninc999i) & !missing(total999)   & year<1950
+gsort iso _merge year 
+// bys iso _merge (year) : generate first_year = _n if _merge == 3
+//
+// generate ratio = 
+
+replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<1950
+replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<1950
+replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<1950
+replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<1950
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<1950
 
 keep iso year anninc992i anninc999i mnninc999i npopul992i npopul999i 
 renvars anninc992i anninc999i mnninc999i npopul992i npopul999i, pref("value")
@@ -60,7 +84,7 @@ merge 1:1 iso year p widcode using "`full'", nogen
 save "$work_data/merge-historical-aggregates.dta", replace
 
 
-/*
+/**/
 
 tw (line value year if iso == "FR" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "US" & p == "p0p100" & widcode == "anninc999i", sort)
@@ -71,6 +95,14 @@ tw (line value year if iso == "IT" & p == "p0p100" & widcode == "anninc999i", so
 tw (line value year if iso == "AR" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "ID" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "IN" & p == "p0p100" & widcode == "anninc999i", sort)
+tw (line value year if iso == "DZ" & p == "p0p100" & widcode == "anninc999i", sort)
+tw (line value year if iso == "EG" & p == "p0p100" & widcode == "anninc999i", sort)
+
+tw (line value year if iso == "EG" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "FR" & p == "p0p100" & widcode == "npopul999i", sort)
+
+tw (line value year if iso == "US" & p == "p0p100" & widcode == "npopul999i", sort)
+
 
 
 tw (line value year if iso == "IN" & p == "p0p100" & widcode == "npopul999i", sort)
@@ -78,6 +110,8 @@ tw (line value year if iso == "ID" & p == "p0p100" & widcode == "npopul999i", so
 tw (line value year if iso == "FR" & p == "p0p100" & widcode == "npopul999i", sort)
 tw (line value year if iso == "GB" & p == "p0p100" & widcode == "npopul999i", sort)
 tw (line value year if iso == "OA" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "JP" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "CN" & p == "p0p100" & widcode == "npopul999i", sort)
 
 tw (connected anninc992i year, sort) if iso == "AR"
 tw (connected anninc992i year, sort) if iso == "BR"
