@@ -51,6 +51,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
+*/
 
 // -------------------------------------------------------------------------- //
 // Add data from researchers
