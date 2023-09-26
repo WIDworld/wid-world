@@ -1,7 +1,7 @@
 
 
 // Import historical data gpinterized
-
+** Countries and Other regions distributiosn (we duplicate from per-adult to get per-capita) - 33 main territories and 8 or 9 other regions
 use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
 
 keep if name == "historical_sptinc992j"
