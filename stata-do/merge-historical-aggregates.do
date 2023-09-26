@@ -25,21 +25,62 @@ keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
 		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
 		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
 		inlist(iso, "OI", "ZA", "OJ") 
-		
-generate XR = 1 if inlist(iso, "RU", "OA")
-generate QL = 1 if inlist(iso, "CN", "JP", "OB")
-generate QE = 1 if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "OK")
-generate XL = 1 if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
-generate XN = 1 if inlist(iso, "DZ", "EG", "TR", "OE")
-generate QP = 1 if inlist(iso, "CA", "US")
-generate QF = 1 if inlist(iso, "AU", "NZ", "OH")
-generate XS = 1 if inlist(iso, "IN", "ID", "OI")
-generate XF = 1 if inlist(iso, "ZA", "OJ") 
+
+tempfile country_hist_agg
+save "`country_hist_agg'"
+
+** Regions
+use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.dta", clear
+renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
+renvars average992 average999 / anninc992i_hist anninc999i_hist
+generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
+keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
+		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
+		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
+		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
+		inlist(iso, "OI", "ZA", "OJ") 
+
+generate region = ""
+replace region = "XR" if inlist(iso, "RU", "OA")
+replace region = "QL" if inlist(iso, "CN", "JP", "OB")
+replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "OK")
+replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
+replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
+replace region = "QP" if inlist(iso, "CA", "US")
+replace region = "QF" if inlist(iso, "AU", "NZ", "OH")
+replace region = "XS" if inlist(iso, "IN", "ID", "OI")
+replace region = "XF" if inlist(iso, "ZA", "OJ") 
+
+collapse (sum) mnninc999i_hist npopul992i_hist npopul999i_hist, by(region year)
+generate anninc992i_hist = mnninc999i_hist/npopul992i_hist
+generate anninc999i_hist = mnninc999i_hist/npopul999i_hist
+rename region iso
+
+tempfile regions_hist_agg
+save "`regions_hist_agg'"
 
 
-tempfile hist_agg
-save `hist_agg'
+** World
+use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.dta", clear
 
+renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
+renvars average992 average999 / anninc992i_hist anninc999i_hist
+generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
+keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
+		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
+		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
+		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
+		inlist(iso, "OI", "ZA", "OJ") 
+
+collapse (sum) mnninc999i_hist npopul992i_hist npopul999i_hist, by(year)
+generate iso = "WO"
+generate anninc992i_hist = mnninc999i_hist/npopul992i_hist
+generate anninc999i_hist = mnninc999i_hist/npopul999i_hist
+
+tempfile world_hist_agg
+save "`world_hist_agg'"
 
 
 // combine with WID and 
@@ -58,8 +99,11 @@ keep if inlist(iso, "AR", "AU", "BR", "CA", "CL", "CN") | ///
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, pred(5)
 
-merge 1:1 iso year using "`hist_agg'"
-gsort iso _merge year 
+merge 1:1 iso year using "`country_hist_agg'", nogen
+merge 1:1 iso year using "`regions_hist_agg'", nogen
+merge 1:1 iso year using "`world_hist_agg'"  , nogen
+
+gsort iso year 
 // bys iso _merge (year) : generate first_year = _n if _merge == 3
 //
 // generate ratio = 
@@ -84,7 +128,7 @@ merge 1:1 iso year p widcode using "`full'", nogen
 save "$work_data/merge-historical-aggregates.dta", replace
 
 
-/**/
+/*
 
 tw (line value year if iso == "FR" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "US" & p == "p0p100" & widcode == "anninc999i", sort)
@@ -97,6 +141,9 @@ tw (line value year if iso == "ID" & p == "p0p100" & widcode == "anninc999i", so
 tw (line value year if iso == "IN" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "DZ" & p == "p0p100" & widcode == "anninc999i", sort)
 tw (line value year if iso == "EG" & p == "p0p100" & widcode == "anninc999i", sort)
+tw (line value year if iso == "QE" & p == "p0p100" & widcode == "anninc999i", sort)
+tw (line value year if iso == "QP" & p == "p0p100" & widcode == "anninc999i", sort)
+tw (line value year if iso == "XF" & p == "p0p100" & widcode == "anninc999i", sort)
 
 tw (line value year if iso == "EG" & p == "p0p100" & widcode == "npopul999i", sort)
 tw (line value year if iso == "FR" & p == "p0p100" & widcode == "npopul999i", sort)
@@ -112,6 +159,9 @@ tw (line value year if iso == "GB" & p == "p0p100" & widcode == "npopul999i", so
 tw (line value year if iso == "OA" & p == "p0p100" & widcode == "npopul999i", sort)
 tw (line value year if iso == "JP" & p == "p0p100" & widcode == "npopul999i", sort)
 tw (line value year if iso == "CN" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "QE" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "QP" & p == "p0p100" & widcode == "npopul999i", sort)
+tw (line value year if iso == "XF" & p == "p0p100" & widcode == "npopul999i", sort)
 
 tw (connected anninc992i year, sort) if iso == "AR"
 tw (connected anninc992i year, sort) if iso == "BR"
