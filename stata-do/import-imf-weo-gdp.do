@@ -1,7 +1,8 @@
 import delimited "$imf_data/world-economic-outlook/WEO-$pastyear.csv", ///
 	clear delimiter(";") varnames(1) encoding("utf8")
 
-dropmiss, obs force
+cap dropmiss, obs force
+cap dropmiss, obs
 
 foreach v of varlist v* {
 	local year: var label `v'

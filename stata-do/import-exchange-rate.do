@@ -109,7 +109,8 @@ import delimited "$wb_data/exchange-rates/API_PA.NUS.FCRF_DS2_en_csv_v2_$pastyea
 clear encoding("utf8") rowrange(3) varnames(4) delim(",")
 
 // Rename year variables
-dropmiss, force
+cap dropmiss, force
+cap dropmiss
 foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'

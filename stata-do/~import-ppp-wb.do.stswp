@@ -14,7 +14,7 @@ replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland"      if countryname == "Eswatini"
 replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
 // replace countryname = "Turkey" if countryname == "Turkiye"
-// replace countryname = "Czech Republic" if countryname == "Czechia"
+/replace countryname = "Czech Republic" if countryname == "Czechia"
 
 countrycode countryname, generate(iso) from("wb")
 
