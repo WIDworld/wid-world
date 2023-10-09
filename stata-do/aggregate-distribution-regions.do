@@ -253,6 +253,8 @@ sort iso x concept year p
 drop if concept == "w" & year<1995
 drop if concept == "d" & year<2018
 
+drop if iso == "OD"
+
 save "$work_data/regions_temp.dta", replace
 
 
