@@ -254,7 +254,7 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
-drop if iso == "OH" // other North America & Oceania
+// drop if iso == "OH" // other North America & Oceania
 
 duplicates drop iso year widcode p, force
 
