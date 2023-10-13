@@ -21,7 +21,7 @@ replace iso = "QM" if iso == "OK"
 
 keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
 		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
 		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
 		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
 		inlist(iso, "OI", "ZA", "OJ") 
@@ -31,12 +31,16 @@ save "`country_hist_agg'"
 
 ** Regions
 use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.dta", clear
+
 renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
 renvars average992 average999 / anninc992i_hist anninc999i_hist
 generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
+
+replace iso = "QM" if iso == "OK"
+
 keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
 		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
 		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
 		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
 		inlist(iso, "OI", "ZA", "OJ") 
@@ -44,7 +48,7 @@ keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
 generate region = ""
 replace region = "XR" if inlist(iso, "RU", "OA")
 replace region = "QL" if inlist(iso, "CN", "JP", "OB")
-replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "OK")
+replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")
 replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
 replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
 replace region = "QP" if inlist(iso, "CA", "US")
@@ -67,9 +71,12 @@ use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.d
 renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
 renvars average992 average999 / anninc992i_hist anninc999i_hist
 generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
+
+replace iso = "QM" if iso == "OK"
+
 keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
 		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "OK", "AR", "BR", "CL", "CO", "MX") | ///
+		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
 		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
 		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
 		inlist(iso, "OI", "ZA", "OJ") 
@@ -83,7 +90,7 @@ tempfile world_hist_agg
 save "`world_hist_agg'"
 
 
-// combine with WID and 
+// combine with WID and historcal
 use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop currency p

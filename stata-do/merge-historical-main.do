@@ -59,6 +59,9 @@ replace value = bs if !missing(bs)
 keep iso year widcode p value
 gduplicates drop 
 
+replace iso = "QM" if iso == "OK"
+
+
 tempfile historical
 save `historical'
 
@@ -235,6 +238,8 @@ append using `world'
 
 duplicates drop iso year widcode p, force
 
+drop if iso == "OH" // other North America & Oceania
+
 tempfile completehistorical
 save `completehistorical'
 
@@ -254,7 +259,6 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
-drop if iso == "OH" // other North America & Oceania
 
 duplicates drop iso year widcode p, force
 
@@ -309,7 +313,7 @@ use "$wid_dir/Country-Updates/Historical_series/2022_December/merge-longrun-all-
 collapse (min) year, by(iso source)
 keep if source == "historical inequality technical note"
 generate method2 = string(year) + " based on methodology described in source"
-gen source2 = "[URL][URL_LINK]TO BE ADDED[/URL_LINK][URL_TEXT]Chancel, L., Moshrif, R., Piketty, T., Xuereb, S. (2021). “Historical Inequality Series in WID.world: 2022 updates”[/URL_TEXT][/URL]" //NEED TO ADD LINK TO TECH NOTE WHEN IT IS ONLINE
+gen source2 = "[URL][URL_LINK]https://wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT]Chancel, L., Moshrif, R., Piketty, T., Xuereb, S. (2021). “Historical Inequality Series in WID.world: 2022 updates”[/URL_TEXT][/URL]" //NEED TO ADD LINK TO TECH NOTE WHEN IT IS ONLINE
 keep iso method2 source2
 
 tempfile technote
