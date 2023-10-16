@@ -49,6 +49,7 @@ generate region = ""
 replace region = "XR" if inlist(iso, "RU", "OA")
 replace region = "QL" if inlist(iso, "CN", "JP", "OB")
 replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")
+replace region = "QX" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")
 replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
 replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
 replace region = "QP" if inlist(iso, "CA", "US")
