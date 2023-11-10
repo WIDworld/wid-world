@@ -79,7 +79,7 @@ append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
 append using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-data.dta"
 
 // Asia (MCY 2020 & BM 2021 & SZ 2022) - many macro variables + fiinc + ptinc series - YES
-append using "$wid_dir/Country-Updates/Asia/2022/September/Asia-full-2022.dta"
+append using "$wid_dir/Country-Updates/Asia/2023_10/Asia-full-2023.dta"
 
 // Russia (Neef 2022) -  ptinc series - YES
 append using "$wid_dir/Country-Updates/Russia/2022/Russia2022.dta"
@@ -95,7 +95,7 @@ drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "m
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
 // Australia, New Zealand & Canada (Matt 2022) - ptinc & fiinc series
-append using "$wid_dir/Country-Updates/North_America/2022_10/AUCANZ_all_2022.dta"
+append using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023.dta"
 
 // US (PSZ + BSZ 2022) - YES 
 append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"

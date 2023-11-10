@@ -25,6 +25,11 @@ reshape long
 drop if missing(value)
 generate p = "pall"
 
+****** to be revised 9/11/2023
+drop if iso == "VE"
+******
+
+
 tempfile macro_weal
 save "`macro_weal'"
 

@@ -51,7 +51,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
-*/
+/**/
 
 // -------------------------------------------------------------------------- //
 // Add data from researchers
@@ -64,7 +64,11 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
+<<<<<<< Updated upstream
 /* */
+=======
+// /*
+>>>>>>> Stashed changes
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -219,7 +223,11 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
+<<<<<<< Updated upstream
 /* */
+=======
+*/
+>>>>>>> Stashed changes
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database

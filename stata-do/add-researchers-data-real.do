@@ -37,11 +37,11 @@ append using `kr'
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
-append using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022.dta"
+append using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023.dta"
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER")
-append using "$wid_dir/Country-Updates/Latin_America/2022/September/LatinAmercia2022.dta"
+append using "$wid_dir/Country-Updates/Latin_America/2023_10/LatinAmercia2023.dta"
 
 // // Gender - spllin992f
 // drop if widcode == "spllin992f" /*& p == "p0"*/ & iso == "FR"
