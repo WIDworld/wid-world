@@ -3,7 +3,6 @@
 // -----------------------------------------------------------------------------
 // IMPORT ALL FILES
 // -----------------------------------------------------------------------------
-etime, start
 // Ivory Coast 2017 (Czajka2017 + update 2020) - fiinc & ptinc series - YES 
 use "$wid_dir/Country-Updates/Ivory_Coast/2022/ivory_coast_2022.dta", clear
 
@@ -136,7 +135,7 @@ order iso sixlet source method
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2022/September/Asia-full-2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2021_11/AUCANZ_all_2021-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/posttax/02_2023/posttax-feb2023-metadata.dta", update replace nogen

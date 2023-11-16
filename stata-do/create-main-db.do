@@ -27,8 +27,10 @@ rename p   perc
 order Alpha2 year perc widcode
 export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 
-// etime
+keep if strpos(widcode, "ptinc")
+export delim "$output_dir/$time/wid-data-$time-ptinc.csv", delimiter(";") replace
 
+/*
 
 keep if inlist(Alpha2, "AR", "AU", "BR", "CA", "CL", "CN") | ///
 		inlist(Alpha2, "CO", "DE", "DZ", "EG", "ES", "FR") | ///

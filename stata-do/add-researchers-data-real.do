@@ -63,8 +63,8 @@ drop if iso == "FR" & missing(source) & strpos(sixlet, "ptinc")
 drop if iso == "FR" & strpos(sixlet, "pllin")
 duplicates drop
 // drop if missing(source) & missing(method)
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2022/September/LatinAmercia2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2023_10/LatinAmercia2023-metadata.dta", update replace nogen
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")

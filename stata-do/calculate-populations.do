@@ -368,7 +368,7 @@ foreach v of varlist resc_* {
 }
 
 keep iso year resc_* minyear maxyear haswid newobs growth_src_npopul999i
-
+generate resc_npopul996i = resc_npopul996f+resc_npopul996m
 // Reshape back to long format
 reshape long resc_, i(iso year) j(widcode) string
 rename resc_ value

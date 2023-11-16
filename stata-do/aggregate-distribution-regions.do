@@ -257,12 +257,14 @@ sort iso x concept year p
 
 drop if concept == "w" & year<1995
 drop if concept == "d" & year<2018
+drop if concept == "d" & inlist(iso, "OA", "OB", "OC", "OE", "OI", "OJ", "QB") 
+// drop if concept == "d" & x == "MER"
 
 drop if iso == "OD"
 
 save "$work_data/regions_temp.dta", replace
 
-
+*,"d"
 *** gpinter those regions ***
 /*
 if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas" {
@@ -369,7 +371,7 @@ gperc <- c(
 countries <- unique(data$iso) 
 regions = list()
 i <- 1
-for (concept in c("i","w","d")){
+for (concept in c("i","w")){
   for (iso in countries){
 	for (x in c("MER","PPP")){
 	  region <- data[data$iso==iso & data$concept==concept & data$x==x & !is.na(data$a),] %>% group_by(year) %>% group_split() %>% map_dfr(~ {
