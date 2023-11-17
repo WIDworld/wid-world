@@ -37,7 +37,7 @@ append using `kr'
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
-append using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023.dta"
+append using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022.dta"
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER")
