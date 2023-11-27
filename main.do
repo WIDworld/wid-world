@@ -5,6 +5,7 @@
 //
 // See README.md file for more information.
 // -------------------------------------------------------------------------- //
+etime, start
 
 do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 /**/
@@ -51,7 +52,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
-*/
+/**/
 
 // -------------------------------------------------------------------------- //
 // Add data from researchers
@@ -65,6 +66,7 @@ do "$do_dir/add-researchers-data.do"
 do "$do_dir/correct-widcodes.do"
 
 /* */
+/*
 // -------------------------------------------------------------------------- //
 // Import external GDP data
 // -------------------------------------------------------------------------- //
@@ -220,6 +222,7 @@ do "$do_dir/adjust-series.do"
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
 /* */
+*/
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
@@ -250,7 +253,6 @@ do "$do_dir/add-populations.do"
 // -------------------------------------------------------------------------- //
 // Perform some additional computations
 // -------------------------------------------------------------------------- //
-
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
@@ -342,6 +344,9 @@ do "$do_dir/export-metadata-source-method.do"
 
 // Export the main database
 do "$do_dir/create-main-db.do"
+
+etime
+
 // do "$do_dir/export-main-db.do"
 //
 // // Export the list of countries

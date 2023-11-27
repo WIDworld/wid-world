@@ -85,7 +85,11 @@ expand 2 if year == max & max == 2019, gen(new)
 replace year = year + 1 if new == 1
 drop new
 
-expand 2 if year == 2020, gen(new)
+expand 2 if year == max & max == 2020, gen(new)
+replace year = year + 1 if new == 1
+drop new
+
+expand 2 if year == max & max == 2021, gen(new)
 replace year = year + 1 if new == 1
 drop new
 	
@@ -108,7 +112,7 @@ gsort iso year p
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 drop if missing(a) & year<1980
 
-levelsof iso  if inlist(max, 2019, 2020) , local(group1) // extrap, no -ve aptinc
+levelsof iso if inlist(max, 2019, 2020, 2021) , local(group1) // extrap, no -ve aptinc
 
 gen keep = 0
 	foreach q in `group1' {
@@ -123,7 +127,7 @@ bys iso year : replace n = n[_n-1] if p == 99999
 bys iso year : generate x = s if year == max
 bys iso p : egen x2 = mode(x)
 sort iso p year 
-replace s = x2 if missing(s) & inlist(max, 2019, 2020) 
+replace s = x2 if missing(s) & inlist(max, 2019, 2020, 2021) 
 *& year == $year /* & /* !inlist(iso, "JP", "KR") */ */
 drop x*  
 
@@ -131,7 +135,7 @@ sort iso p year
 
 // recompute average and bracket averages
 *drop if missing(a) /* & year == 2020 */
-generate miss_a = 1 if missing(a) & inlist(max, 2019, 2020) 
+generate miss_a = 1 if missing(a) & inlist(max, 2019, 2020, 2021) 
 *& year == $year
 replace miss_a = 0 if missing(miss_a)
 
@@ -139,7 +143,7 @@ egen average = total(a*n/1e5), by(iso year)
 
 replace a = a/average*anninc992i
 
-replace a = (s/n*1e5)*anninc992i if missing(a) & inlist(max, 2019, 2020) 
+replace a = (s/n*1e5)*anninc992i if missing(a) & inlist(max, 2019, 2020, 2021) 
 *& year == $year
 drop if missing(a) // this is only for JP & KR between 1980-89
 

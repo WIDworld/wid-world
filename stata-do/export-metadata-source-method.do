@@ -210,24 +210,25 @@ keep alpha2 twolet threelet method source data_quality imputation extrapolation 
 order alpha2 twolet threelet method source data_quality imputation extrapolation data_points
 
 // Historical Metadata
-replace extrapolation = "[[1820, 2000], [2020, 2021]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "CL", "CO", "BR", "MX")
-replace extrapolation = "[[1820, 1980], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "DE", "ES", "GB", "IT")
-replace extrapolation = "[[1820, 1920], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CA"
-replace extrapolation = "[[1820, 1900], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "FR"
-replace extrapolation = "[[1820, 1905], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "RU"
-replace extrapolation = "[[1820, 1910], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AU"
-replace extrapolation = "[[1820, 1920], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "NZ"
-replace extrapolation = "[[1820, 1934], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "SE"
-replace extrapolation = "[[1820, 1978], [2017, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CN"
-replace extrapolation = "[[1820, 1980], [2012, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ZA"
-replace extrapolation = "[[1820, 1980], [2015, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "IT"
-replace extrapolation = "[[1820, 1984], [2018, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ID"
-replace extrapolation = "[[1820, 1987], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "TR"
-replace extrapolation = "[[1820, 1988], [2011, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DZ"
-replace extrapolation = "[[1820, 1991], [2017, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "EG"
-replace extrapolation = "[[1820, 2000], [2019, 2021]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AR"
+replace extrapolation = "[[1820, 2000], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "CL", "CO", "BR", "MX")
+replace extrapolation = "[[1820, 1980], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "ES", "GB")
+replace extrapolation = "[[1820, 1980], [2020, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DE"
+replace extrapolation = "[[1820, 1920], [2020, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CA"
+replace extrapolation = "[[1820, 1900], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "FR"
+replace extrapolation = "[[1820, 1905], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "RU"
+replace extrapolation = "[[1820, 1910], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AU"
+replace extrapolation = "[[1820, 1920], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "NZ"
+replace extrapolation = "[[1820, 1934], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "SE"
+replace extrapolation = "[[1820, 1978], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CN"
+replace extrapolation = "[[1820, 1980], [2012, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ZA"
+replace extrapolation = "[[1820, 1980], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "IT"
+replace extrapolation = "[[1820, 1984], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ID"
+replace extrapolation = "[[1820, 1987], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "TR"
+replace extrapolation = "[[1820, 1988], [2011, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DZ"
+replace extrapolation = "[[1820, 1991], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "EG"
+replace extrapolation = "[[1820, 2000], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AR"
+replace extrapolation = "[[1820, 1980], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "JP"
 replace extrapolation = "[[1820, 1910]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "US"
-replace extrapolation = "[[1820, 1980]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "JP"
 
 replace source = source + ///
 `"[URL][URL_LINK]http://wordpress.wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
