@@ -13,6 +13,7 @@
 
 // France inequality 2017 (GGP2017)
 use "$wid_dir/Country-Updates/France/2022-ggp/france-ggp2017.dta", clear
+// drop if iso == "FR"  & strpos(widcode, "ptinc992j") // Temporarily !!! 20/11/23
 
 // World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
 // append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
@@ -37,7 +38,9 @@ append using `kr'
 // -----------------------------------------------------------------------------
 
 // Europe (East & West) Countries and Aggregates
-append using "$wid_dir/Country-Updates/Europe/2022_10/Europe2022.dta"
+append using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023.dta"
+// drop if iso == "FR" & year>= 1980 & strpos(widcode, "ptinc992j") // Temporarily !!! 20/11/23
+// append using "$wid_dir/Country-Updates/Europe/2023_10/wid-world-data-france.dta" // Temporarily !!! 20/11/23
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER")

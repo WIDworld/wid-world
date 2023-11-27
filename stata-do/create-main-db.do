@@ -27,18 +27,19 @@ rename p   perc
 order Alpha2 year perc widcode
 export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 
-keep if strpos(widcode, "ptinc")
-export delim "$output_dir/$time/wid-data-$time-ptinc.csv", delimiter(";") replace
+// keep if strpos(widcode, "ptinc")
+// export delim "$output_dir/$time/wid-data-$time-ptinc.csv", delimiter(";") replace
 
-/*
+/**/
 
-keep if inlist(Alpha2, "AR", "AU", "BR", "CA", "CL", "CN") | ///
-		inlist(Alpha2, "CO", "DE", "DZ", "EG", "ES", "FR") | ///
-		inlist(Alpha2, "GB", "ID", "IN", "IT", "JP", "MX") | ///
-		inlist(Alpha2, "NZ", "OA", "OB", "OC", "OD", "OE") | ///
-		inlist(Alpha2, "OI", "OJ", "QE", "QF", "QL", "QM") | ///
-		inlist(Alpha2, "QP", "RU", "SE", "TR", "US", "WO") | /// 
+
+keep if inlist(Alpha2, "RU", "OA", "CN", "JP", "OB", "DE") | /// 
+		inlist(Alpha2, "ES", "FR", "GB", "IT", "SE", "OC") | /// 
+		inlist(Alpha2, "WO", "AR", "BR", "CL", "CO", "MX") | /// 
+		inlist(Alpha2, "OD", "DZ", "EG", "TR", "OE", "CA") | /// 
+		inlist(Alpha2, "US", "AU", "NZ", "OH", "IN", "ID") | /// 
+		inlist(Alpha2, "OI", "ZA", "OJ", "QM", "WO")  | /// 
 		inlist(Alpha2, "XF", "XL", "XN", "XR", "XS", "ZA", "QX")
-
-
+		
+		
 export delim "$output_dir/$time/wid-data-historical-$time.csv", delimiter(";") replace

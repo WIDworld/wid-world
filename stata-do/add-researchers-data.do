@@ -74,16 +74,16 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dt
 // Norway - fiinc series
 append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
 
-// Middle East (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series - YES
+// Middle East (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series - 
 append using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-data.dta"
 
-// Asia (MCY 2020 & BM 2021 & SZ 2022) - many macro variables + fiinc + ptinc series - YES
+// Asia (MCY 2020 & BM 2021 & SZ 2022 & SZ 2023) - many macro variables + fiinc + ptinc series - YES
 append using "$wid_dir/Country-Updates/Asia/2023_10/Asia-full-2023.dta"
 
-// Russia (Neef 2022) -  ptinc series - YES
+// Russia (Neef 2022) -  ptinc series - 
 append using "$wid_dir/Country-Updates/Russia/2022/Russia2022.dta"
 
-// Africa (ccgm & Robillard 2022) - ptinc - YES
+// Africa (ccgm & Robillard 2022) - ptinc - 
 append using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022.dta" // data_quality added in metadata do.file
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
@@ -93,11 +93,11 @@ append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
 drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
 
-// Australia, New Zealand & Canada (Matt 2022) - ptinc & fiinc series
+// Australia, New Zealand & Canada (Matt 2022 & Matt 2023) - ptinc & fiinc series - YES
 append using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023.dta"
 
-// US (PSZ + BSZ 2022) - YES 
-append using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022sept.dta"
+// US (PSZ + BSZ 2022 + BSZ 2023) - YES
+append using "$wid_dir/Country-Updates/US/2023/US_2023_all.dta"
 
 // South Africa 2020 (ccg2020) - wealth distribution series
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"

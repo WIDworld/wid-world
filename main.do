@@ -254,7 +254,6 @@ do "$do_dir/add-populations.do"
 // Perform some additional computations
 // -------------------------------------------------------------------------- //
 
-
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
 
