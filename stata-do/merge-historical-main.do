@@ -238,7 +238,7 @@ append using `world'
 
 duplicates drop iso year widcode p, force
 
-drop if iso == "OH" // other North America & Oceania
+// drop if iso == "OH" // other North America & Oceania
 
 tempfile completehistorical
 save `completehistorical'

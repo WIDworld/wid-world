@@ -122,6 +122,20 @@ replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992
 replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<1950
 replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<1950
 
+// for Russia
+replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<=1960 & iso == "RU"
+replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<=1960 & iso == "RU"
+replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<=1960 & iso == "RU"
+replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<=1960 & iso == "RU"
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<=1960 & iso == "RU"
+
+// for OH
+replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & iso == "OH"
+replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & iso == "OH"
+replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & iso == "OH"
+replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & iso == "OH"
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & iso == "OH"
+
 keep iso year anninc992i anninc999i mnninc999i npopul992i npopul999i 
 renvars anninc992i anninc999i mnninc999i npopul992i npopul999i, pref("value")
 generate p = "p0p100"

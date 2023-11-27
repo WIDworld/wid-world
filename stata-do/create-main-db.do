@@ -33,7 +33,7 @@ export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 keep if inlist(Alpha2, "AR", "AU", "BR", "CA", "CL", "CN") | ///
 		inlist(Alpha2, "CO", "DE", "DZ", "EG", "ES", "FR") | ///
 		inlist(Alpha2, "GB", "ID", "IN", "IT", "JP", "MX") | ///
-		inlist(Alpha2, "NZ", "OA", "OB", "OC", "OD", "OE") | ///
+		inlist(Alpha2, "NZ", "OA", "OB", "OC", "OD", "OE", "OH") | ///
 		inlist(Alpha2, "OI", "OJ", "QE", "QF", "QL", "QM") | ///
 		inlist(Alpha2, "QP", "RU", "SE", "TR", "US", "WO") | /// 
 		inlist(Alpha2, "XF", "XL", "XN", "XR", "XS", "ZA", "QX")
