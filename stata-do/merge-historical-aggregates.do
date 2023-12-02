@@ -1,6 +1,6 @@
 
 
-
+** QM is OK other easterm europe
 
 // Prepare the historcal macro
 use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-aggregates.dta", clear
@@ -19,102 +19,89 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
-keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
-		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
-		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
-		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
-		inlist(iso, "OI", "ZA", "OJ") 
+keep if inlist(iso, "RU", "OA")  | ///
+	    inlist(iso, "CN", "JP", "OB")  | ///
+	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
+	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")  | ///
+	    inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
+	    inlist(iso, "DZ", "EG", "TR", "OE")  | ///
+	    inlist(iso, "CA", "US")  | ///
+	    inlist(iso, "AU", "NZ", "OH")  | ///
+	    inlist(iso, "IN", "ID", "OI")  | ///
+	    inlist(iso, "ZA", "OJ")  
 
 tempfile country_hist_agg
 save "`country_hist_agg'"
-
-** Regions
-use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.dta", clear
-
-renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
-renvars average992 average999 / anninc992i_hist anninc999i_hist
-generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
-
-replace iso = "QM" if iso == "OK"
-
-keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
-		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
-		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
-		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
-		inlist(iso, "OI", "ZA", "OJ") 
-
-generate region = ""
-replace region = "XR" if inlist(iso, "RU", "OA")
-replace region = "QL" if inlist(iso, "CN", "JP", "OB")
-replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")
-replace region = "QX" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")
-replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
-replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
-replace region = "QP" if inlist(iso, "CA", "US")
-replace region = "QF" if inlist(iso, "AU", "NZ", "OH")
-replace region = "XS" if inlist(iso, "IN", "ID", "OI")
-replace region = "XF" if inlist(iso, "ZA", "OJ") 
-
-collapse (sum) mnninc999i_hist npopul992i_hist npopul999i_hist, by(region year)
-generate anninc992i_hist = mnninc999i_hist/npopul992i_hist
-generate anninc999i_hist = mnninc999i_hist/npopul999i_hist
-rename region iso
-
-tempfile regions_hist_agg
-save "`regions_hist_agg'"
-
-
-** World
-use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-agg-eur.dta", clear
-
-renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
-renvars average992 average999 / anninc992i_hist anninc999i_hist
-generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
-
-replace iso = "QM" if iso == "OK"
-
-keep if inlist(iso, "RU", "OA", "CN", "JP", "OB", "DE") | ///
-		inlist(iso, "ES", "FR", "GB", "IT", "SE", "OC") | ///
-		inlist(iso, "QM", "AR", "BR", "CL", "CO", "MX") | ///
-		inlist(iso, "OD", "DZ", "EG", "TR", "OE", "CA") | ///
-		inlist(iso, "US", "AU", "NZ", "OH", "IN", "ID") | ///
-		inlist(iso, "OI", "ZA", "OJ") 
-
-collapse (sum) mnninc999i_hist npopul992i_hist npopul999i_hist, by(year)
-generate iso = "WO"
-generate anninc992i_hist = mnninc999i_hist/npopul992i_hist
-generate anninc999i_hist = mnninc999i_hist/npopul999i_hist
-
-tempfile world_hist_agg
-save "`world_hist_agg'"
-
 
 // combine with WID and historcal
 use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop currency p
 keep if inlist(widcode, "npopul992i", "npopul999i", "anninc992i", "anninc999i", "mnninc999i")
-keep if inlist(iso, "AR", "AU", "BR", "CA", "CL", "CN") | ///
-		inlist(iso, "CO", "DE", "DZ", "EG", "ES", "FR") | ///
-		inlist(iso, "GB", "ID", "IN", "IT", "JP", "MX") | ///
-		inlist(iso, "NZ", "OA", "OB", "OC", "OD", "OE") | ///
-		inlist(iso, "OI", "OJ", "QE", "QF", "QL", "QM") | ///
-		inlist(iso, "QP", "RU", "SE", "TR", "US", "WO") | /// 
-		inlist(iso, "XF", "XL", "XN", "XR", "XS", "ZA")
+keep if inlist(iso, "RU", "OA")  | ///
+	    inlist(iso, "CN", "JP", "OB")  | ///
+	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
+	    inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
+	    inlist(iso, "DZ", "EG", "TR", "OE")  | ///
+	    inlist(iso, "CA", "US")  | ///
+	    inlist(iso, "AU", "NZ", "OH")  | ///
+	    inlist(iso, "IN", "ID", "OI")  | ///
+	    inlist(iso, "ZA", "OJ")  
 
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, pred(5)
 
 merge 1:1 iso year using "`country_hist_agg'", nogen
-merge 1:1 iso year using "`regions_hist_agg'", nogen
-merge 1:1 iso year using "`world_hist_agg'"  , nogen
 
 gsort iso year 
-// bys iso _merge (year) : generate first_year = _n if _merge == 3
-//
-// generate ratio = 
+
+** Specific 1950 ratio to correct CP populations pre-1950
+* OH
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "OH" & year == 1960
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "OH" & year == 1960
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OH" & year == 1960
+
+bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "OH" 
+bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "OH" 
+bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "OH" 
+replace ratio_pop992 = 1 if year<=1900 & iso == "OH" 
+replace ratio_pop999 = 1 if year<=1900 & iso == "OH" 
+replace ratio_mnninc = 1 if year<=1900 & iso == "OH" 
+drop t_pop992 t_pop999 t_mnninc
+
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OH" & year<=1960
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OH" & year<=1960
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OH" & year<=1960
+drop ratio_pop992 ratio_pop999 ratio_mnninc
+
+replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OH" & year<=1960
+replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OH" & year<=1960
+
+*OA
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "OA" & year == 1980
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "OA" & year == 1980
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OA" & year == 1980
+
+bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "OA" 
+bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "OA" 
+bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "OA" 
+// replace ratio_pop992 = 1 if year<=1900 & iso == "OA" 
+// replace ratio_pop999 = 1 if year<=1900 & iso == "OA" 
+drop t_pop992 t_pop999 t_mnninc
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OA" & year<=1980
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OA" & year<=1980
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" & year<=1980
+drop ratio_pop992 ratio_pop999 ratio_mnninc
+
+replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OA" & year<=1980
+replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OA" & year<=1980
+
+**
+replace npopul999i = . if iso == "RU" & year<=1920
+foreach x in anninc992i anninc999i npopul992i npopul999i mnninc999i {
+	replace `x' = . if year <1980 & inlist(iso, "OA", "QM")
+
+}
 
 replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<1950
 replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<1950
@@ -129,23 +116,126 @@ replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992
 replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<=1960 & iso == "RU"
 replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<=1960 & iso == "RU"
 
+// for OA (other central asia)
+replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<=1980 & iso == "OA"
+replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<=1980 & iso == "OA"
+replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<=1980 & iso == "OA"
+replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<=1980 & iso == "OA"
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<=1980 & iso == "OA"
+
+// for QM (Other Eastern Europe, Eastern Europe)
+replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<1980 & iso == "QM"
+replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<1980 & iso == "QM"
+replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<1980 & iso == "QM"
+replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & year<1980 & iso == "QM"
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<1980 & iso == "QM"
+
 // for OH
 replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & iso == "OH"
 replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & iso == "OH"
+replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & iso == "OH"
 replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & iso == "OH"
 replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & iso == "OH"
-replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & iso == "OH"
 
-keep iso year anninc992i anninc999i mnninc999i npopul992i npopul999i 
+
+keep iso year mnninc999i npopul992i npopul999i 
+renvars mnninc999i npopul992i npopul999i, postf("_")
+reshape wide mnninc999i_ npopul992i_ npopul999i_ ,  i(year) j(iso) string
+tsset year
+local var npopul992i_AR npopul999i_AR npopul992i_AU npopul999i_AU npopul992i_BR npopul999i_BR npopul992i_CA npopul999i_CA npopul992i_CL npopul999i_CL npopul992i_CN npopul999i_CN npopul992i_CO npopul999i_CO npopul992i_DE npopul999i_DE npopul992i_DZ npopul999i_DZ npopul992i_EG npopul999i_EG npopul992i_ES npopul999i_ES npopul992i_FR npopul999i_FR npopul992i_GB npopul999i_GB npopul992i_ID npopul999i_ID npopul992i_IN npopul999i_IN npopul992i_IT npopul999i_IT npopul992i_JP npopul999i_JP npopul992i_MX npopul999i_MX npopul992i_NZ npopul999i_NZ npopul992i_OA npopul999i_OA npopul992i_OB npopul999i_OB npopul992i_OC npopul999i_OC npopul992i_OD npopul999i_OD npopul992i_OE npopul999i_OE npopul992i_OH npopul999i_OH npopul992i_OI npopul999i_OI npopul992i_OJ npopul999i_OJ npopul992i_QM npopul999i_QM npopul992i_RU npopul999i_RU npopul992i_SE npopul999i_SE npopul992i_TR npopul999i_TR npopul992i_US npopul999i_US npopul992i_ZA npopul999i_ZA mnninc999i_AR mnninc999i_AU mnninc999i_BR mnninc999i_CA mnninc999i_CL mnninc999i_CN mnninc999i_CO mnninc999i_DE mnninc999i_DZ mnninc999i_EG mnninc999i_ES mnninc999i_FR mnninc999i_GB mnninc999i_ID mnninc999i_IN mnninc999i_IT mnninc999i_JP mnninc999i_MX mnninc999i_NZ mnninc999i_OA mnninc999i_OB mnninc999i_OC mnninc999i_OD mnninc999i_OE mnninc999i_OH mnninc999i_OI mnninc999i_OJ mnninc999i_QM mnninc999i_RU mnninc999i_SE mnninc999i_TR mnninc999i_US mnninc999i_ZA
+foreach l in `var' {
+	ipolate `l' year, generate(`l'_2)
+	replace `l'_2 = round(`l'_2, 1)
+	replace `l' = `l'_2 if missing(`l') & !missing(`l'_2) & year>=1900
+	drop `l'_2
+}
+reshape long 
+renvars mnninc999i_ npopul992i_ npopul999i_, postd(1)
+generate anninc992i = mnninc999i/npopul992i
+generate anninc999i = mnninc999i/npopul999i
+
+egen mcount = rowmiss(mnninc999i npopul992i npopul999i anninc992i anninc999i)
+drop if mcount
+drop mcount
+keep if (inlist(year, 1820, 1850, 1880) | year>=1900)
+
+tempfile country_hist_agg_2
+save "`country_hist_agg_2'" 
+
+** Aggregate to Regions (from 33 territories to regions)
+preserve
+	use if widcode == "xlceup999i" & year == 2022 using "$work_data/calculate-gini-coef-output.dta", clear
+	keep if inlist(iso, "RU", "OA")  | ///
+			inlist(iso, "CN", "JP", "OB")  | ///
+			inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
+			inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
+			inlist(iso, "DZ", "EG", "TR", "OE")  | ///
+			inlist(iso, "CA", "US")  | ///
+			inlist(iso, "AU", "NZ", "OH")  | ///
+			inlist(iso, "IN", "ID", "OI")  | ///
+			inlist(iso, "ZA", "OJ")  
+
+	drop year p widcode currency 
+	rename value ppp2022
+
+	tempfile ppp2022
+	save `ppp2022'
+restore
+merge m:1 iso using "`ppp2022'", nogen 
+replace mnninc999i = mnninc999i/ppp2022
+
+tempfile country_hist_agg_ppp
+save "`country_hist_agg_ppp'" 
+
+
+generate region = ""
+replace region = "XR" if inlist(iso, "RU", "OA")
+replace region = "QL" if inlist(iso, "CN", "JP", "OB")
+replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")
+replace region = "QX" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")
+replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
+replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
+replace region = "QP" if inlist(iso, "CA", "US")
+replace region = "QF" if inlist(iso, "AU", "NZ", "OH")
+replace region = "XS" if inlist(iso, "IN", "ID", "OI")
+replace region = "XF" if inlist(iso, "ZA", "OJ") 
+
+collapse (sum) mnninc999i npopul992i npopul999i, by(region year)
+
+keep if (inlist(year, 1820, 1850, 1880) | year>=1900)
+generate anninc992i = mnninc999i/npopul992i
+generate anninc999i = mnninc999i/npopul999i
+rename region iso
+
+tempfile regions_hist_agg
+save "`regions_hist_agg'"
+	
+** World
+use "`country_hist_agg_ppp'", clear
+collapse (sum) mnninc999i npopul992i npopul999i, by( year)
+
+keep if (inlist(year, 1820, 1850, 1880) | year>=1900)
+generate iso = "WO"
+generate anninc992i = mnninc999i/npopul992i
+generate anninc999i = mnninc999i/npopul999i
+
+tempfile world_hist_agg
+save "`world_hist_agg'"
+
+use "`country_hist_agg_2'", clear
+merge 1:1 iso year using "`regions_hist_agg'", nogen
+merge 1:1 iso year using "`world_hist_agg'"  , nogen
+
 renvars anninc992i anninc999i mnninc999i npopul992i npopul999i, pref("value")
 generate p = "p0p100"
 reshape long value, i(iso year p) j(widcode) string
- 
+
+
 tempfile full
 save `full'
 
 use "$work_data/calculate-gini-coef-output.dta", clear
-merge 1:1 iso year p widcode using "`full'", nogen
+merge 1:1 iso year p widcode using "`full'", nogen update replace
 
 save "$work_data/merge-historical-aggregates.dta", replace
 
