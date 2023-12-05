@@ -322,6 +322,9 @@ do "$do_dir/merge-historical-aggregates.do"
 // Merge longrun series with main data, update metadata
 do "$do_dir/merge-historical-main.do"
 
+// Homogeneize all pre-tax and wealth series 
+do "$do_dir/homogenize-all-distributions.do"
+
 // Import carbon series (independent) - to be activated when updated!
 // do "$do_dir/add-carbon-series.do"
 
