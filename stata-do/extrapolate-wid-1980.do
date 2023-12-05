@@ -13,7 +13,6 @@ save `combined', emptyok
 // -------------------------------------------------------------------------- //
 
 use "$work_data/correct-bottom20-output.dta", clear
-// use "$work_data/calibrate-dina-revised-output.dta", clear
 
 keep if inlist(widcode, "anninc992i", "npopul992i", "npopul999i", "inyixx999i", "xlceup999i", "xlceux999i")
 keep if p == "pall"
@@ -35,7 +34,6 @@ save "`aggregates'"
 // World countries 
 // -------------------------------------------------------------------------- //
 use "$work_data/correct-bottom20-output.dta", clear
-// use "$work_data/calibrate-dina-revised-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"

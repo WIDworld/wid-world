@@ -3,6 +3,17 @@
 // Import historical data gpinterized
 ** Countries and Other regions distributiosn (we duplicate from per-adult to get per-capita) - 33 main territories and 8 or 9 other regions
 use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
+replace iso = "QM" if iso == "OK"
+
+keep if inlist(iso, "RU", "OA")  | ///
+	    inlist(iso, "CN", "JP", "OB")  | ///
+	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
+	    inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
+	    inlist(iso, "DZ", "EG", "TR", "OE")  | ///
+	    inlist(iso, "CA", "US")  | ///
+	    inlist(iso, "AU", "NZ", "OH")  | ///
+	    inlist(iso, "IN", "ID", "OI")  | ///
+	    inlist(iso, "ZA", "OJ")  
 
 keep if name == "historical_sptinc992j"
 expand 2, gen(exp)
@@ -76,7 +87,7 @@ drop popsize_percapita average_percapita
 
 tempfile all
 save `all'
-
+keep iso year widcode p s a
 replace p = p/1000
 bys year iso widcode (p) : gen p2 = p[_n+1]
 replace p2 = 100 if p2 == .
@@ -92,6 +103,7 @@ preserve
 	gen perc = "p"+string(p)+"p100"
 	drop p
 	rename perc p
+	
 	tempfile top
 	save `top'
 restore
@@ -103,6 +115,7 @@ preserve
 	gen perc = "p0p"+string(p)
 	drop p 
 	rename perc p
+	
 	tempfile bottom
 	save `bottom'	
 restore
@@ -189,7 +202,7 @@ drop exp
 
 tempfile all
 save `all'
-
+keep year widcode p s a
 bys year widcode (p) : gen p2 = p[_n+1]
 replace p2 = 100 if p2 == .
 gen perc = "p"+string(p)+"p"+string(p2)
@@ -246,6 +259,7 @@ save `completehistorical'
 // Merging into the database
 use "$work_data/merge-historical-aggregates.dta", clear
 merge 1:m iso year widcode p using `completehistorical', update nogen
+merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Historical_series/2023_December/0H_OD_CL_ptinc_post1980.dta", nogen
 
 *Return to WID region codes
 replace iso = "QE" if iso == "WC"

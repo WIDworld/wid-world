@@ -6,6 +6,8 @@
 use "$wid_dir/Country-Updates/Historical_series/2022_December/long-run-aggregates.dta", clear
 renvars popsize992 popsize999 / npopul992i_hist npopul999i_hist
 renvars average992 average999 / anninc992i_hist anninc999i_hist
+
+replace anninc999i_hist = anninc999i_hist*2 if inlist(iso, "OA", "RU") & year == 1920
 generate mnninc999i_hist = anninc999i_hist*npopul999i_hist
 
 replace iso = "QE" if iso == "WC"
@@ -33,7 +35,7 @@ keep if inlist(iso, "RU", "OA")  | ///
 tempfile country_hist_agg
 save "`country_hist_agg'"
 
-// combine with WID and historcal
+** combine with WID 
 use "$work_data/calculate-gini-coef-output.dta", clear
 
 drop currency p
@@ -91,10 +93,10 @@ drop t_pop992 t_pop999 t_mnninc
 replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OA" & year<=1980
 replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OA" & year<=1980
 replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" & year<=1980
-drop ratio_pop992 ratio_pop999 ratio_mnninc
 
-replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OA" & year<=1980
-replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OA" & year<=1980
+replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OH" & year<=1960
+replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OH" & year<=1960
+drop ratio_pop992 ratio_pop999 ratio_mnninc
 
 **
 replace npopul999i = . if iso == "RU" & year<=1920
@@ -183,6 +185,7 @@ preserve
 restore
 merge m:1 iso using "`ppp2022'", nogen 
 replace mnninc999i = mnninc999i/ppp2022
+gsort iso year 
 
 tempfile country_hist_agg_ppp
 save "`country_hist_agg_ppp'" 
@@ -222,6 +225,7 @@ generate anninc999i = mnninc999i/npopul999i
 tempfile world_hist_agg
 save "`world_hist_agg'"
 
+**** Finish and merge with the overall database
 use "`country_hist_agg_2'", clear
 merge 1:1 iso year using "`regions_hist_agg'", nogen
 merge 1:1 iso year using "`world_hist_agg'"  , nogen
