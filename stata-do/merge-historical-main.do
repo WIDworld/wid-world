@@ -87,6 +87,7 @@ drop popsize_percapita average_percapita
 
 tempfile all
 save `all'
+
 keep iso year widcode p s a
 replace p = p/1000
 bys year iso widcode (p) : gen p2 = p[_n+1]
@@ -144,6 +145,7 @@ drop popsize_peradults average_peradults
 tempfile all
 save `all'
 
+keep iso year widcode p s a
 replace p = p/1000
 bys year iso widcode (p) : gen p2 = p[_n+1]
 replace p2 = 100 if p2 == .

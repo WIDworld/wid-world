@@ -266,9 +266,9 @@ keep iso year p widcode value
 rename iso Alpha2
 rename p   perc
 order Alpha2 year perc widcode
-// capture mkdir "$output_dir/$time"
+capture mkdir "$output_dir/$time"
 
-export delim "$output_dir/$time/wid-data-$time-historical-macro.csv", delimiter(";") replace
+export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 */
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
