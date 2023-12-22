@@ -8,7 +8,7 @@
 etime, start
 
 do "~/Documents/GitHub/wid-world/stata-do/setup.do"
-/**/
+/*
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
@@ -52,7 +52,7 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
 // do "$do_dir/calculate-average-over.do"
-/**/
+*/
 
 // -------------------------------------------------------------------------- //
 // Add data from researchers
@@ -257,12 +257,6 @@ do "$do_dir/add-populations.do"
 
 // Add researchers data which are in real value
 do "$do_dir/add-researchers-data-real.do"
-
-// // Import forbes data
-// do "$do_dir/import-forbes.do"
-//
-// // Correct forbes data
-// do "$do_dir/correct-top-forbes.do"
 
 // Add wealth macro aggregates
 do "$do_dir/add-wealth-aggregates.do"

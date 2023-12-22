@@ -35,22 +35,13 @@ generate ahweal992i = mhweal999i/npopul992i if !missing(mhweal999i)
 tempfile mhweal
 save `mhweal' 
 
-// Calling wealth-gperc-all.dta
-use "$wid_dir/Country-Updates/Wealth/2022_May/wealth-gperc-all.dta", clear 
-order iso year p 
-//p s ts a n 
 
-// merging with Macro wealth aggregates
-merge m:1 iso year using "`mhweal'", nogen keep(master match)
-
-replace a = . if missing(mhweal999i)
-replace a = a*ahweal992i if !missing(ahweal992i) // a is relative
-order iso year p s a 
-drop ahweal992i 
 
 // Merging with the data corrected by Forbes (BBM + Correction)
-merge 1:1 iso year p using "$work_data/wealth-distributions-corrected.dta", update replace nogen
+use "$wid_dir/Country-Updates/Wealth/2023_December/wealth-distributions-corrected.dta", clear
 
+
+/*
 // Adding Chinese wealth data
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen 
 
@@ -110,29 +101,16 @@ bys iso year : generate bs = 1 - ts if !missing(ts)
 bys iso year : generate ba = (bracket_share/(1-p/100000))*average if !missing(bracket_average)
 order iso year p bracket_share bracket_average ts ta bs ba 
 gsort iso year p
-
-renvars bracket_average bracket_share threshold / a s t
+*/
+renvars bracket_average bracket_share threshold top_share bottom_share bottom_average top_average / a s t ts bs ba ta
+keep iso year p a s t ts bs ba ta
 duplicates tag iso year p, gen(dup) 
 assert dup == 0 
 drop dup 
 
 // Merge topshare wealth for NL prior 1995 - TEMPORARY
-merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_12/NL-wealth-ts-rm.dta", update replace nogen
+** merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_12/NL-wealth-ts-rm.dta", update replace nogen
 
-// test
-// tw (line ts year if iso == "DE" & p == 90000) ///
-//    (line ts year if iso == "US" & p == 90000) ///
-//    (line ts year if iso == "FR" & p == 90000)
-/*
-keep if p >= 99000 & iso == "NL"
-levelsof p, local(perc)
-dis "`perc'"
-
-foreach per of local perc {
-tw (line s year if p == `per', sort), xlabel(1900(10)2020)
-gr export "$nld/series2-top1swealth-`per'.png", replace
-}
-*/
 
 tempfile all
 save `all'
@@ -208,7 +186,7 @@ assert dup2 == 0
 drop dup* 
 
 ****** to be revised 9/11/2023
-drop if iso == "VE"
+// drop if iso == "VE"
 ******
 
 
@@ -362,7 +340,7 @@ save "$work_data/add-wealth-distribution-metadata.dta", replace
 
 use "$work_data/add-wealth-aggregates-output.dta", clear
 
-drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j")
+drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j") & year>=1995
 append using "`final'"
 drop if p == "p0p0"
 

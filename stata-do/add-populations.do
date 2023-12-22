@@ -41,8 +41,8 @@ keep if substr(widcode,1,6) == "npopul"
 drop currency
 reshape wide value, i(iso year p) j(widcode) string
 
-* 996i
-generate valuenpopul996i = valuenpopul996m+valuenpopul996f
+// * 996i
+// generate valuenpopul996i = valuenpopul996m+valuenpopul996f
 *recompute children with right 999i and 992i
 replace valuenpopul991i = valuenpopul999i - valuenpopul992i
 

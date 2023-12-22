@@ -6,18 +6,21 @@
 
 use "$work_data/add-researchers-data-real-output.dta", clear
 
-keep if inlist(widcode, "mnweal999i", "mhweal999i", "mpweal999i", "mgweal999i", "mnninc999i")
+keep if inlist(widcode, /* "mnweal999i", "mhweal999i", "mpweal999i", "mgweal999i",*/ "mnninc999i")
 drop p currency 
 reshape wide value, i(iso year) j(widcode) string
 
-merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
+// merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
 
+merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
 // Netherlands
-merge 1:1 iso year using "$wid_dir/Country-Updates/Netherlands/2022_11/NL_WealthAggregates_WID_tomerge", update nogen
+// merge 1:1 iso year using "$wid_dir/Country-Updates/Netherlands/2022_11/NL_WealthAggregates_WID_tomerge", update nogen
 
-foreach x in g h n p {
-	replace valuem`x'weal999i = `x'weal*valuemnninc999i if !missing(valuemnninc999i) & !missing(`x'weal)
-	drop `x'weal
+ds iso year valuemnninc999i, not
+
+foreach x in `r(varlist)' {
+	generate valuem`x'999i = `x'*valuemnninc999i if !missing(valuemnninc999i) & !missing(`x')
+	rename `x' valuew`x'999i
 }
 drop valuemnninc999i
 
@@ -25,10 +28,11 @@ reshape long
 drop if missing(value)
 generate p = "pall"
 
-****** to be revised 9/11/2023
-drop if iso == "VE"
-******
 
+****** to be revised 9/11/2023
+// drop if iso == "VE"
+******
+levelsof widcode, local(wealth_var)
 
 tempfile macro_weal
 save "`macro_weal'"
@@ -81,13 +85,15 @@ source + ///
 `"[URL][URL_LINK]"' + `"https://wid.world/document/2020-wealth-aggregate-series-world-inequality-lab-technical-note-2020-14/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Updated by Bauluz, L. and Brassac, P. (2020). “2020 Wealth Aggregates series”"' + `"[/URL_TEXT][/URL]; "' + ///
 `"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/estimation-of-global-wealth-aggregates-in-wid-world-world-inequality-lab-technical-note-2021-13/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Updated by Bauluz, L., Blanchet, T., Martínez, I. Z. and Sodano, A. (2021). “Estimation of Global Wealth Aggregates in WID.world”[/URL_TEXT][/URL]; "' ///
+`"[URL_TEXT]"' + `"Updated by Bauluz, L., Blanchet, T., Martínez, I. Z. and Sodano, A. (2021). “Estimation of Global Wealth Aggregates in WID.world”[/URL_TEXT][/URL]; "' + ///
+`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/estimation-of-global-wealth-aggregates-in-wid-world-wid-world-technical-note-2023-10/"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Updated by Bauluz, L., Blanchet, T., Brassac, P., Martínez, I. Z. and Sodano, A. (2023). "Estimation of Global Wealth Aggregates in WID.world: Methodology"[/URL_TEXT][/URL]; "' ///
 if !missing(source)
 
 ** for those which are imputed
 replace source = ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-world-inequality-lab-technical-note-2021-16/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Bajard, F., Chancel, L., Moshrif, R., Piketty, T. (2021). “Global Wealth Inequality on WID.world: Estimates and Imputations”"' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-wid-world-technical-note-2023-11/"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Chancel, L., Piketty, T. (2023). “Global Wealth Inequality on WID.world: Estimates and Imputations”"' + `"[/URL_TEXT][/URL]"' ///
 if missing(source)
 
 tempfile meta
@@ -101,8 +107,9 @@ save "$work_data/add-wealth-aggregates-metadata.dta", replace
 
 // Save data & Export
 use "$work_data/add-researchers-data-real-output.dta", clear
-
-drop if inlist(widcode, "mnweal999i", "mhweal999i", "mpweal999i", "mgweal999i")
+foreach l in `wealth_var' {
+	drop if widcode == "`l'"
+}
 
 append using "`macro_weal'"
 
