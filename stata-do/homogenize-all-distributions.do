@@ -5,7 +5,8 @@ clear all
 // Get the aggregates
 // -------------------------------------------------------------------------- //
 
-use "$work_data/merge-historical-main.dta", clear
+// use "$work_data/merge-historical-main.dta", clear
+use "$work_data/clean-up-output.dta", clear
 drop if strpos(iso, "-")
 keep if inlist(widcode, "ahweal992i", "anninc992i")
 keep if p == "p0p100"
@@ -21,7 +22,10 @@ save "`aggregates'"
 // Get the distributions
 // -------------------------------------------------------------------------- //
 
-use "$work_data/merge-historical-main.dta", clear
+// use "$work_data/merge-historical-main.dta", clear
+use "$work_data/clean-up-output.dta", clear
+use "$work_data/extrapolate-wid-forward-output.dta", clear
+
 // merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/posttax/posttax_october23.dta", nogen
 drop if strpos(iso, "-")
 
