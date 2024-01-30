@@ -3,7 +3,7 @@ import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2_$pastyear.csv", ///
 
 // Rename year variables
 cap dropmiss
-cap dropmiss, force
+cap dropmiss
 foreach v of varlist v*{
 	local year: variable label `v'
 	rename `v' value`year'

@@ -18,7 +18,7 @@ append using "`wb_macro_data'"
 
 // Rename year variables
 cap dropmiss
-cap dropmiss, force
+cap dropmiss
 foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'

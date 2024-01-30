@@ -185,7 +185,7 @@ gen checkfdirx = 1 if round(fdirx) == round(pinrx) & !missing(fdirx) & !missing(
 gen checkptfpx = 1 if round(ptfpx) == round(pinpx) & !missing(ptfpx) & !missing(pinpx)
 gen checkfdipx = 1 if round(fdipx) == round(pinpx) & !missing(fdipx) & !missing(pinpx)
 
-merge 1:1 iso year using "/Users/gaston/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN.dta", nogen
+merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN.dta", nogen
 encode iso, gen(i)
 xtset i year 
 
