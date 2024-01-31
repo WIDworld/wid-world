@@ -25,8 +25,11 @@ merge 1:1 iso year using "$work_data/wb-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/wb-gem-deflator.dta", ///
 	nogenerate update assert(using master match)
+	replace currency = "USD" if iso == "ZW"
+	replace currency = "VES" if iso == "VE"
 merge 1:1 iso year using "$work_data/un-deflator.dta", ///
-	nogenerate update assert(using master match)
+	nogenerate update assert(using master match) 
+	replace currency = "ZWD" if iso == "ZW"
 merge 1:1 iso year using "$work_data/imf-deflator-weo.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/gfd-cpi.dta", ///
@@ -53,6 +56,9 @@ egen currency2 = mode(currency), by(iso)
 drop currency
 rename currency2 currency
 
+// Brunei IMF weo projection is too high, using WB consulted from website WDI
+replace cpi_wb = 106.5 if iso == "BN" & year == 2022 & missing(cpi_wb)
+
 /*
 reshape long def_ cpi_, i(iso year) j(src) string
 keep if (cpi < .) | (def < .)
@@ -74,6 +80,10 @@ foreach v of varlist cpi_* def_* {
 foreach v of varlist cpi_* def_* {
 	replace `v' = . if ("`v'" != "def_arklems") & (iso == "AR") & inrange(year, 1994, 2012)
 }
+
+// For Venezuela we keep UN
+replace cpi_wb =. if inrange(year, 1971, 2014) & iso == "VE"
+replace def_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 
 // For Russia: we adjust the deflator to eliminate the junks
 replace def_wid = round(def_wid, 0.000000000001)     if iso == "RU"

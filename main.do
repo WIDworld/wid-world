@@ -148,19 +148,11 @@ do "$do_dir/import-un-sna-populations.do"
 do "$do_dir/calculate-populations.do"
 
 // -------------------------------------------------------------------------- //
-// Generate harmonized series for GDP and deflators
+// Calculate PPPs & exchange rates and deflators
 // -------------------------------------------------------------------------- //
 
 // Price index
 do "$do_dir/calculate-price-index.do"
-
-// GDP
-do "$do_dir/calculate-gdp.do"
-do "$do_dir/retropolate-gdp.do"
-
-// -------------------------------------------------------------------------- //
-// Calculate PPPs & exchange rates
-// -------------------------------------------------------------------------- //
 
 // Import exchange rates from Open Exchange rates
 do "$do_dir/import-exchange-rate.do"
@@ -173,6 +165,16 @@ do "$do_dir/import-ppp-wb.do"
 
 // Combine and extrapolate PPPs
 do "$do_dir/calculate-ppp.do"
+
+// -------------------------------------------------------------------------- //
+// Generate harmonized series for GDP
+// -------------------------------------------------------------------------- //
+
+// GDP
+do "$do_dir/calculate-gdp.do"
+
+// Finalize GDP
+do "$do_dir/retropolate-gdp.do"
 
 // -------------------------------------------------------------------------- //
 // Generate data on the decomposition of income

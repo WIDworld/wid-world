@@ -30,8 +30,8 @@ merge 1:1 iso year using "$input_data_dir/taxhavens-data/GDP-selected_countries.
 replace gdp_lcu_un2 = . if iso == "YU" & year > 1990
 replace gdp_usd_un2 = . if iso == "YU" & year > 1990
 
-// correcting UN data for USSR
-replace gdp_lcu_un2 = 1000*gdp_lcu_un2 if iso == "SU"
+// correcting UN data for USSR. This is not needed, USSR data is in Russian Rubles (1:1000)
+*replace gdp_lcu_un2 = 1000*gdp_lcu_un2 if iso == "SU"
 
 // Palestine we use the USD as UN SNA and WB
 replace gdp_lcu_un2 = gdp_usd_un2 if iso == "PS"
@@ -78,8 +78,8 @@ replace refyear = refyear_un2 if iso == "SO"
 drop refyear_* 
 		
 // Special case for VE: 2014 is the last year where sources agree
-replace refyear = 2014 if iso == "VE"
-replace notelev = "wb" if iso == "VE"
+// replace refyear = 2014 if iso == "VE"
+// replace notelev = "wb" if iso == "VE"
 /*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	egen refyear_un1_`i' = lastnm(year) ///
@@ -240,6 +240,11 @@ replace growth_src = "Lane and Milesi-Ferretti (2022)" if (growth_src == "growth
 replace growth_src = "Statistics Netherlands" if (growth_src == "growth_cbs")
 replace growth_src = "Statistics Netherlands. Extrapolated using AN growth rate" if (growth_src == "growth_cbs") & year <= 2009
 
+// South Sudan projection in WEO is too high
+so iso year
+replace growth = growth[_n - 1] if iso == "SS" & year == 2021
+replace growth_src = "Last year growth rate from UN SNA main tables" if iso == "SS" & year == 2021
+
 /*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 	replace growth_src = "the UN SNA detailed tables (series `i')" ///
@@ -250,7 +255,7 @@ foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {
 // As a last resort: extrapoalte from previous years
 fillin iso year
 sort iso year
-by iso: carryforward growth if (year >= 2009), cfindic(cf) gen(growth_cf)
+by iso: carryforward growth if (year >= 2010), cfindic(cf) gen(growth_cf)
 replace growth_src = "the value for the previous year" if cf & year < $pastyear
 replace growth = growth_cf if cf & year < $pastyear
 drop if _fillin & !cf & year < $pastyear 

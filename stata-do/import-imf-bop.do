@@ -125,7 +125,7 @@ save "`gdp'"
 // Import IMF BOP
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_04-11-2023 16-09-30-85.csv", clear encoding(utf8)
+import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_01-31-2024 15-49-55-97.csv", clear encoding(utf8)
 
 kountry countrycode, from(imfn) to(iso2c)
 

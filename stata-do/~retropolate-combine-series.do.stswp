@@ -31,6 +31,7 @@ replace confc = . if iso == "SD" & inrange(year, 2009, 2010)
 replace confc = . if iso == "UZ" & year != 1990
 replace nnfin = . if iso == "SV" & series == 1
 replace confc = . if iso == "GY" & year >= 1985
+replace confc = . if iso == "BD" & year == 2019
 drop if iso == "BF" & series == 10
 
 *br iso series year cfc?? confc if iso == "MX"

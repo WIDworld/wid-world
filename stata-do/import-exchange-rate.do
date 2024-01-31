@@ -175,7 +175,7 @@ drop if currency == "EUR"    & iso == "LT" 			   & year<2015
 drop if inlist(iso, "SY") & (year<$pastyear)
 
 // Replace exchange rate by 1 for El Salvadore and Liberia and Zimbabwe (series in dollars)
-replace value = 1 if inlist(iso, "SV", "LR", "ZW", "EC")
+replace value = 1 if inlist(iso, "SV", "LR", "EC") // "ZW",  
 
 append using "`xrate'"
 
@@ -201,38 +201,43 @@ replace value = 76.278096344699490 if iso == "NG" & year == 1996 & widcode == "x
 replace value = 78.775837490581820 if iso == "NG" & year == 1997 & widcode == "xlcusx999i"
 replace value = 82.580278068470160 if iso == "NG" & year == 1998 & widcode == "xlcusx999i"
 
-// VE: extrapolation using inflation rates after 2013
-drop if iso == "VE" & year > 2013
-expand ($pastyear - 2013 + 1) if iso == "VE" & year == 2013, gen(new)
-replace year = year + sum(new) if new
-drop new
-// Data from UN using forward PARE
-replace value = 8.33788105128762        if iso == "VE" & year == 2014
-replace value = 23.3403675155159        if iso == "VE" & year == 2015
-replace value = 97.3585006918627        if iso == "VE" & year == 2016
-replace value = 810.275758571322        if iso == "VE" & year == 2017
-replace value = 1335795.4237622         if iso == "VE" & year == 2018
-replace value = 278752277.045022        if iso == "VE" & year == 2019
-replace value = 6762275397.72307        if iso == "VE" & year == 2020
-replace value = 6762275397.72307*54.998 if iso == "VE" & year == 2021 // à vérifier
+// VE: data for Bolivar digital from UN 
+preserve
+	import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate-$pastyear.csv", clear
+	keep if countryarea == "Venezuela (Bolivarian Republic of)"
+	destring year amaexchangerate, replace
+	keep year amaexchangerate
+	rename amaexchangerate value
+	gen iso = "VE"
+	gen currency = "VES"
+	gen widcode = "xlcusx999i"
+	tempfile ves
+	sa `ves'
+restore
+drop if iso == "VE"
+append using `ves'
 
-replace value = value/1e5 if iso == "VE"
 // Introduction of the new Ouguiya in 2018
 replace currency = "MRU" if currency == "MRO"
 
 reshape wide value, i(iso year p currency) j(widcode) string
 
+/*
 fillin iso year
 replace currency = "USD" if iso == "ZW"
 replace valuexlcusx999i = 1 if iso == "ZW"
 replace p = "pall" if iso == "ZW"
 drop if _fillin & iso != "ZW"
 drop _fillin
+*/
 
 // Bonaire, Sint Eustatius and Saba series is in USD
 drop if iso == "BQ"
 expand 2 if (iso == "ZW"), generate(newobsBQ)
 replace iso = "BQ" if newobsBQ
+replace currency = "USD" if iso == "BQ"
+replace valuexlcusx999i = 1 if iso == "BQ"
+replace p = "pall" if iso == "BQ"
 
 // Fixing Gibraltar
 drop if iso == "GI"
@@ -527,9 +532,9 @@ replace flagexrate = 0 if missing(flagexrate)
 	replace valuexlcusx999i = amaxrt if iso == "MM" & !missing(amaxrt) // evolution does not coincide with WB if not
 	replace valuexlcusx999i = amaxrt if iso == "NI" & !missing(amaxrt) // evolution does not coincide with WB if not. problematic year 1987: 0.00000014 from WB gdp_lcu/gdp_usd. we have the same gdp_lcu and the same exrate but values didn't aligned. apparently WB sometimes don't use the exrate they publish
 	replace valuexlcusx999i = amaxrt if iso == "PL"  // evolution does not coincide with WB if not
-	replace valuexlcusx999i = amaxrt if iso == "SO" & year == 2021 // huge peak in 2021 if not
+	replace valuexlcusx999i = amaxrt if iso == "SO" // & year == 2021 // huge peak in 2021 if not
 	replace valuexlcusx999i = amaxrt if iso == "SR" // crazy peak if not
-	replace valuexlcusx999i = imfxrt if iso == "SS" & !missing(imfxrt)
+	replace valuexlcusx999i = amaxrt if iso == "SS" & !missing(amaxrt)
 	replace valuexlcusx999i = amaxrt if iso == "SY" & !missing(amaxrt)
 	replace valuexlcusx999i = amaxrt if iso == "UG" & !missing(amaxrt)
 	replace valuexlcusx999i = amaxrt if iso == "YE" & !missing(amaxrt)
@@ -550,11 +555,11 @@ replace flagexrate = 0 if missing(flagexrate)
 	replace valuexlcusx999i = amaxrt if iso == "ER" & !missing(amaxrt) & inrange(year, 1990, 1992) 
 	replace valuexlcusx999i = amaxrt if iso == "SD" & !missing(amaxrt) & year >= 2020
 	// from the ratio of gdp_lcu/gdp_usd from WB WDI to fix latest years for Zimbabwe
-	replace valuexlcusx999i = 1.2534 if iso == "ZW" & year == 2017
-	replace valuexlcusx999i = 2.0381 if iso == "ZW" & year == 2018
-	replace valuexlcusx999i = 9.7184 if iso == "ZW" & year == 2019
-	replace valuexlcusx999i = 64.1011 if iso == "ZW" & year == 2020
-	replace valuexlcusx999i = 112.4356 if iso == "ZW" & year == 2021
+	*replace valuexlcusx999i = 1.2534 if iso == "ZW" & year == 2017
+	*replace valuexlcusx999i = 2.0381 if iso == "ZW" & year == 2018
+	*replace valuexlcusx999i = 9.7184 if iso == "ZW" & year == 2019
+	*replace valuexlcusx999i = 64.1011 if iso == "ZW" & year == 2020
+	*replace valuexlcusx999i = 112.4356 if iso == "ZW" & year == 2021
 	// from the ratio of gdp_lcu/gdp_usd from WB WDI to fix problematic years for Georgia. gdp_usd WB is calculated using their growth rate before 1990
 	/*
 	replace valuexlcusx999i = 0.000001323856 if iso == "GE" & year == 1975
@@ -659,7 +664,7 @@ replace valuexlcyux999i = valuexlcusx999i/CNYUSD
 
 drop EURUSD CNYUSD
 
-replace currency = "Zimbabwe special case" if iso == "ZW" & year >= 2017
+*replace currency = "Zimbabwe special case" if iso == "ZW" & year >= 2017
 
 replace valuexlceux999i = round(valuexlceux999i) if currency == "EUR"
 

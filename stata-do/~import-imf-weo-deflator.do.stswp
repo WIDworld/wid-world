@@ -1,9 +1,8 @@
-import delimited "$imf_data/world-economic-outlook/WEO-$pastpastyear.csv", ///
+import delimited "$imf_data/world-economic-outlook/WEO-$pastyear.csv", ///
 	clear delimiter(";") varnames(1) encoding("utf8")
 
-cap dropmiss, obs 
-cap dropmiss, force
-
+cap dropmiss, obs force
+cap dropmiss, obs
 foreach v of varlist v* {
 	local year: var label `v'
 	if ("`year'" == "") {
@@ -21,18 +20,22 @@ drop iso weocountrycode subjectdescriptor units ///
 
 
 replace country = "Côte d'Ivoire" if country == "C�te d'Ivoire"
+replace country = "Côte d'Ivoire" if country == "CÙte d'Ivoire"
+
+
 replace country = "São Tomé and Príncipe" if country == "S�o Tom� and Pr�ncipe"
 replace country = "Côte d'Ivoire"         if country == "Cte d'Ivoire"
+replace country = "São Tomé and Príncipe" if country == "S„o TomÈ and PrÌncipe"
 replace country = "São Tomé and Príncipe" if country == "So Tom and Prncipe"
 replace country = "Côte d'Ivoire"         if country == "C�te d'Ivoire"
 replace country = "São Tomé and Príncipe" if country == "S�o Tom� and Pr�ncipe"
 replace country = "Swaziland"             if country == "Eswatini"
-
+replace country = "Turkey"             	  if country == "T¸rkiye"
 
 countrycode country, generate(iso) from("imf weo")
 drop country
 
-
+drop subjectnotes
 reshape long value, i(iso weosubjectcode) j(year)
 reshape wide value, i(iso year) j(weosubjectcode) string
 

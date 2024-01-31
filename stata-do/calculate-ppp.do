@@ -4,6 +4,9 @@
 use "$work_data/ppp-oecd.dta", clear
 merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
+		drop if iso == "VE"
+		append using "$work_data/imf-ven-pppex" 
+		replace currency = "VES" if iso == "VE"
 	
 // For Lithuania and Latvia, OECD PPPs are expressed in their old currency
 /*
@@ -143,10 +146,12 @@ save "`index'"
 // Fetch Eurozone GDP deflator from Eurostat
 import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
+cap renvars obs_value time_period / value time
 
 drop if na_item != "Gross domestic product at market prices"
 destring value, ignore(":") replace
 split time, parse("Q")
+replace time1 = subinstr(time1, "-", "", .)
 destring time1, generate(year)
 collapse (mean) value, by(year)
 keep if !missing(value)
@@ -190,7 +195,7 @@ replace ppp = ppp*index/index_us*factor_refyear
 drop index index_us factor_refyear
 drop if missing(ppp)
 
-replace ppp = ppp/1e5 if iso == "VE"
+*replace ppp = ppp/1e5 if iso == "VE"
 
 preserve
 drop if ppp_method == "" & ppp_src == ""
