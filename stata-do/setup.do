@@ -20,9 +20,9 @@ if substr("`c(pwd)'",1,20)=="/Users/silas"{
 	global project_dir "C:/Users/silas/Documents/GitHub/wid-world/"
 }
 
-if substr("`c(pwd)'",1,13)=="/Users/sehyun"{
-	global wid_dir "/Users/sehyun/Dropbox/WIL/W2ID/"
-	global project_dir "/Users/sehyun/Documents/GitHub/wid-world/"
+if substr("`c(pwd)'",1,15)=="C:\Users\s.hong"{
+	global wid_dir "C:/Users/s.hong/Dropbox/WIL/W2ID/"
+	global project_dir "C:/Users/s.hong/Documents/GitHub/wid-world/"
 }
 
 if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas"{
