@@ -90,6 +90,7 @@ bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "OA"
 // replace ratio_pop992 = 1 if year<=1900 & iso == "OA" 
 // replace ratio_pop999 = 1 if year<=1900 & iso == "OA" 
 drop t_pop992 t_pop999 t_mnninc
+
 replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OA" & year<=1980
 replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OA" & year<=1980
 replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" & year<=1980
@@ -97,6 +98,22 @@ replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" 
 replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OH" & year<=1960
 replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OH" & year<=1960
 drop ratio_pop992 ratio_pop999 ratio_mnninc
+
+*QM
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "QM" & year == 1990
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "QM" & year == 1990
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "QM" & year == 1990
+
+bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "QM" 
+bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "QM" 
+bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "QM" 
+drop t_pop992 t_pop999 t_mnninc
+
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "QM" & year<=1990
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "QM" & year<=1990
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "QM" & year<=1990
+drop ratio_pop992 ratio_pop999 ratio_mnninc
+
 
 **
 replace npopul999i = . if iso == "RU" & year<=1920
@@ -195,7 +212,6 @@ generate region = ""
 replace region = "XR" if inlist(iso, "RU", "OA")
 replace region = "QL" if inlist(iso, "CN", "JP", "OB")
 replace region = "QE" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")
-replace region = "QX" if inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")
 replace region = "XL" if inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD") 
 replace region = "XN" if inlist(iso, "DZ", "EG", "TR", "OE")
 replace region = "QP" if inlist(iso, "CA", "US")

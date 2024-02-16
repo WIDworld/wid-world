@@ -6,6 +6,10 @@ clear all
 // -------------------------------------------------------------------------- //
 
 use "$work_data/merge-historical-main.dta", clear
+// merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/Wealth/historical_wealth.dta", nogen
+//
+// replace widcode = "ahweal992i" if widcode == "ahweal992j" & p == "p0p100"
+// drop if value == 0 & widcode == "ahweal992i" & p == "p0p100"
 drop if strpos(iso, "-")
 keep if inlist(widcode, "ahweal992i", "anninc992i")
 keep if p == "p0p100"
@@ -22,6 +26,7 @@ save "`aggregates'"
 // -------------------------------------------------------------------------- //
 
 use "$work_data/merge-historical-main.dta", clear
+merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/Wealth/historical_wealth.dta", nogen
 // merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/posttax/posttax_october23.dta", nogen
 drop if strpos(iso, "-")
 
@@ -77,12 +82,12 @@ merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 ** Fill in the missing values and produce top a s and bottom a s
 egen average = total(a*n/1e5) if !missing(a), by(iso year widcode)
+replace average = . if average == 0
+replace a = a/average*anninc992i if !missing(a) & inlist(widcode, "ptinc992j") & !missing(anninc992i)
+replace a = (s/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "ptinc992j") & !missing(anninc992i)
 
-replace a = a/average*anninc992i if !missing(a) & inlist(widcode, "ptinc992j")
-replace a = (s/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "ptinc992j")
-
-replace a = a/average*ahweal992i if !missing(a) & inlist(widcode, "hweal992j")
-replace a = (s/n*1e5)*ahweal992i if missing(a)  & inlist(widcode, "hweal992j")
+replace a = a/average*ahweal992i if !missing(a) & inlist(widcode, "hweal992j") & !missing(ahweal992i)
+replace a = (s/n*1e5)*ahweal992i if missing(a)  & inlist(widcode, "hweal992j") & !missing(ahweal992i)
 
 sort iso year widcode p
 by iso year widcode: replace t = (a[_n - 1] + a)/2 if missing(t)
@@ -91,9 +96,12 @@ by iso year widcode: replace t = min(0, 2*a)       if missing(t) & p == 0
 
 gsort iso year widcode -p
 by iso year widcode: generate ts = sum(s)
-by iso year widcode: generate ta = sum(a*n)/(1e5 - p)
+by iso year widcode: generate ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i) & inlist(widcode, "ptinc992j")
+by iso year widcode: replace  ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i) | !missing(average) ) & inlist(widcode, "hweal992j")
 by iso year widcode: generate bs = 1-ts
-by iso year widcode: generate ba = (bs/(1-p/1e5))*anninc992i
+by iso year widcode: generate ba = (bs/(1-p/1e5))*anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
+by iso year widcode: replace  ba = (bs/(1-p/1e5))*ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
+by iso year widcode: replace  ba = (bs/(1-p/1e5))*average    if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
@@ -177,7 +185,7 @@ save "`full_pretax_wealth'"
 
 use `final', clear
 
-replace a = a*n/1e5
+replace a = a*n/1e5 if !missing(a)
 gsort iso year widcode p
 
 generate decile = 1 if inrange(p, 0, 9000)
@@ -221,7 +229,7 @@ save "`decile_pretax_wealth'"
 
 use `final', clear
 
-replace a = a*n/1e5
+replace a = a*n/1e5 if !missing(a)
 generate mid40 = inrange(p, 50000, 89000)
 drop if mid40 == 0
 collapse (sum) s  a (min) t p , by(iso year widcode mid40)
@@ -253,6 +261,13 @@ use "`full_pretax_wealth'", clear
 merge 1:1 iso year p widcode using "`decile_pretax_wealth'", nogen
 merge 1:1 iso year p widcode using "`mid40_pretax_wealth'", nogen
  
+tempfile full
+save "`full'"
+
+use "$work_data/merge-historical-main.dta", clear
+keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j", "ahweal992j", "shweal992j", "thweal992j")
+merge 1:1 iso year widcode p using "`full'", nogen update replace
+
 save "$work_data/full-distributions-pretax-wealth.dta", replace
 /**/
  *** Export csv
@@ -269,7 +284,7 @@ order Alpha2 year perc widcode
 capture mkdir "$output_dir/$time"
 
 export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
-*/
+/**/
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 

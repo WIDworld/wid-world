@@ -157,7 +157,7 @@ generate m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p
 
 replace a = m3 if !missing(m3)
 
-append using "`exception'"
+// append using "`exception'"
 
 merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 

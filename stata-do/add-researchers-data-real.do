@@ -13,15 +13,10 @@
 
 // France inequality 2017 (GGP2017)
 use "$wid_dir/Country-Updates/France/2022-ggp/france-ggp2017.dta", clear
-// drop if iso == "FR"  & strpos(widcode, "ptinc992j") // Temporarily !!! 20/11/23
-
-// World and World Regions 2018 (ChancelGethin2018 from World Inequality Report)
-// append using "$wid_dir/Country-Updates/World/2018/January/world-chancelgethin2018.dta"
-// drop if inlist(iso,"QE","QE-MER")
 
 // Germany and subregions
 append using "$wid_dir/Country-Updates/Germany/2018/May/bartels2018.dta"
-drop if iso == "DE"
+// drop if iso == "DE"
 
 // Korea 2018 (Kim2018), only gdp and nni (rest is in current LCU)
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-constant.dta"
@@ -39,16 +34,11 @@ append using `kr'
 
 // Europe (East & West) Countries and Aggregates
 append using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023.dta"
-// drop if iso == "FR" & year>= 1980 & strpos(widcode, "ptinc992j") // Temporarily !!! 20/11/23
-// append using "$wid_dir/Country-Updates/Europe/2023_10/wid-world-data-france.dta" // Temporarily !!! 20/11/23
 
 // Latin America Aggregates and countries with regional averages
 drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2023_10/LatinAmercia2023.dta"
 
-// // Gender - spllin992f
-// drop if widcode == "spllin992f" /*& p == "p0"*/ & iso == "FR"
-// append using "$wid_dir/Country-Updates/Gender/2021_Sept/gender2021.dta"
 
 compress, nocoalesce 
 

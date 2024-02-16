@@ -1,10 +1,12 @@
 // -------------------------------------------------------------------------- //
 // World countries 
 // -------------------------------------------------------------------------- //
-use "$work_data/merge-fiscal-historical-output", clear
+use "$work_data/merge-historical-main", clear
 *keep if widcode == "aptinc992j"
 *keep if year < 1980
 *keep if (substr(iso, 1, 1) == "O") & year < 1980
+
+replace iso = "OK" if iso == "QM"
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA" 
 drop if (substr(iso, 1, 1) == "O") & iso != "OM" & year >= 1980 
@@ -308,11 +310,12 @@ renvars avgmid40 avgbot50 avgtop10 avgbot10 top10bot50 top1bot50 top10bot10 frac
 keep  year avgbot50nobetween avgmid40nobetween avgtop10nobetween  avgbot10nobetween top10bot50nobetween top10bot10nobetween fracincwtop1nobetween fracincwbot50nobetween fracincwtop10nobetween fracincwbot10nobetween  fracincwmid40nobetween
 joinby year using `b'
 
+keep if inlist(year, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005) | inlist(year, 2010, 2015, 2020, 2022)
 
-graph twoway  (mspline top10bot50nobetween y if year >= 1970, lwidth(medthick) bands(50))  (mspline top10bot50nowithin y if year >= 1970, lwidth(medthick) bands(50)), ///
-	xlabel(1970(5)2020, grid gstyle(dot)) ///
+graph twoway  (mspline top10bot50nobetween y if year >= 1980, lwidth(medthick) bands(50))  (mspline top10bot50nowithin y if year >= 1980, lwidth(medthick) bands(50)), ///
+	xlabel(1980(5)2020, grid gstyle(dot)) ///
 	ylabel(5 10 15 20, grid gstyle(dot)) ///
-	title("Global income inequality, 1970-2022", color(black)) ///
+	title("Global income inequality, 1980-2022", color(black)) ///
 	subtitle("Between vs. within country inequality" "", color(black)) ///
 	ysize(14) xsize(20) ///
 	ytitle("Ratio of top 10% avg. income" "to bottom 50% avg. income", size(medsmall)) ///
@@ -320,7 +323,81 @@ graph twoway  (mspline top10bot50nobetween y if year >= 1970, lwidth(medthick) b
 	graphregion(color(white)) bgcolor(white)   ///
 	xtitle("") ///
 	xscale(titlegap(*12)) yscale(titlegap(*12))
-
+graph export "C:\Users\g.nievas\Dropbox\gaston\betweenwithin_iequality_19802022.pdf", replace
 	
 		text(6 1980 "{bf:1970}: Assuming no inequality {bf:between}" "countries, global top 10% avg. income" "is 9x above bot. 50% avg. income", margin(small) color(black) size(2.5) box fcolor(white) bcolor(black)) ///
 	text(6 2010 "{bf:2021}: Assuming no inequality {bf:within}" "countries, global top 10% avg. income" "is 9x above bot. 50% avg. income", margin(small) color(black) size(2.5) box fcolor(white) bcolor(black)) ///
+
+// -------------------------------------------------------------------------- //
+// Average national income 
+// -------------------------------------------------------------------------- //
+use "$work_data/merge-historical-main", clear
+keep if year == $pastyear 
+
+replace iso = "OK" if iso == "QM"
+drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA" 
+drop if (substr(iso, 1, 1) == "O") & iso != "OM"
+drop if strpos(iso, "-")
+drop if iso == "WO"
+
+keep if inlist(widcode, "anninc999i", "xlceup999i", "xlcusp999i", "mgdpro999i", "mnninc999i", "npopul999i")
+
+// PPP EUR exchange rate
+preserve
+	keep if inlist(widcode, "xlceup999i")
+	keep if year == $pastyear 
+	keep iso value 
+	ren value xlceup 
+	tempfile pppxrate
+	sa `pppxrate'
+restore 
+
+preserve
+	keep if inlist(widcode, "xlcusp999i")
+	keep if year == $pastyear 
+	keep iso value 
+	ren value xlcusp 
+	tempfile xlcusp
+	sa `xlcusp'
+restore 
+
+keep if inlist(widcode, "anninc999i", "mgdpro999i", "mnninc999i", "npopul999i") 
+reshape wide value, i(iso year p) j(widcode) string
+renvars value*, predrop(5)
+
+merge 1:1 iso using `pppxrate'
+drop if _m == 2 
+drop _m  
+merge 1:1 iso using `xlcusp'
+drop if _m == 2 
+drop _m  
+
+drop if iso == "KP"
+
+// variables in euros
+gen gdpro_eur = mgdpro999i/xlceup if !missing(xlceup)
+gen anninc_eur = anninc999i/xlceup if !missing(xlceup)
+gen mnninc_eur = mnninc999i/xlceup if !missing(xlceup)
+
+gsort -anninc_eur	
+
+merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keepusing(region5) keep(1 3)
+
+replace region5 = "Latin America" 	if iso == "BQ"
+replace region5 = "Europe" 			if iso == "KS"
+replace region5 = "Europe" 			if iso == "GG"
+replace region5 = "Europe" 			if iso == "JE"
+ren region5 region 
+replace region = "China" if iso == "CN"
+
+bys region : egen wgtavganninc_eur = mean(anninc_eur)
+bys region : egen totmnninc_eur = total(mnninc_eur)
+bys region : egen totpopul = total(npopul999i)
+gen smplavganninc_eur = totmnninc_eur/totpopul
+
+US 44023.63
+Europe 29510.13
+JP 26911.17
+CN 14901.27
+LAC 10772.06
+Sub Saharan Africa 2751.669
