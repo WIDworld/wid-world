@@ -54,7 +54,7 @@ global WO  AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ 
 global all  OC
 
 *QB QD QE QF QJ QK QL QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ WO 
- 
+/* We replace the R with interpolation codes
 * R path depending on OS
 if "`c(os)'"=="MacOSX" | "`c(os)'"=="UNIX" {
     global Rpath "/usr/local/bin/R"
@@ -67,6 +67,7 @@ else {  // windows, change version number if necerssary
 if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas"{
     global Rpath "C:/Program Files/R/R-4.3.1/bin/R.exe"
 }
+*/
 
 // ******************************************* //
 
@@ -214,7 +215,6 @@ restore
 }
 
 use "`combined'", clear
-
 bys iso year p (aw): replace aw = aw[1]
 bys iso year p (ai): replace ai = ai[1]
 bys iso year p (ad): replace ad = ad[1]
@@ -242,7 +242,6 @@ reshape long a, i(iso year p) j(concept i w d)
 gen x = substr(iso, 4, 3)
 replace iso = substr(iso, 1, 2)
 
-
 bys iso year concept x (p): gen test = a==a[_n-1] & _n!=1
 bys iso year concept x (p): drop if test
 drop test 
@@ -252,18 +251,14 @@ replace p = 0 if p == minp
 drop minp
 
 replace a = 0 if a == . & p == 0 & concept != "w"
-bys iso year concept x (p): replace a = a[_n+1]-1 if a==. & a[_n+1]<0 & p==0 & concept=="w"
-bys iso x concept year (p): replace a = . if a==0 & a[_n-1]==a
+bys concept x iso year(p): replace a = a[_n+1]-1 if a==. & a[_n+1]<0 & p==0 & concept=="w"
+bys concept x iso year (p): replace a = . if a==0 & a[_n-1]==a
 
-sort iso x concept year p
-
-drop if concept == "w" & year<1995
-drop if concept == "d" & year<2018
-drop if concept == "d" & inlist(iso, "OA", "OB", "OC", "OE", "OI", "OJ", "QB") 
-// drop if concept == "d" & x == "MER"
+sort concept x iso year
 
 drop if iso == "OD"
 
+/*
 save "$work_data/regions_temp.dta", replace
 
 *,"d"
@@ -409,8 +404,9 @@ write_dta(regions, "~/Documents/GitHub/wid-world/work-data/regions_temp2.dta")
 
 
 END_OF_R
+*/
 
-	
+/*	
 /**/
 use "$work_data/regions_temp2.dta", clear
 replace iso = iso+"-"+upper(x) if x=="MER"
@@ -512,6 +508,95 @@ drop if (p == "p0p50" | p == "p50p90") & substr(widcode,1,1) == "t"
 
 drop if year == . | value == .
 *drop p4
+tempfile final
+save `final'
+*/
+
+// Rectangularize
+fillin concept iso x year p 
+drop _fillin
+sort iso year concept x p
+drop if concept == "w" & year<1995
+
+// Fill in missing values
+bys concept x iso year (p): ipolate a p, gen(y)
+replace a = y
+drop y
+
+gen n=1000 
+replace n=100 if p > 98000
+replace n=10 if p>99800
+replace n=1 if p>99980
+
+egen average = total(a*n/1e5), by(iso year concept x)
+
+bys concept x iso year (p) : generate t = ((a - a[_n - 1] )/2) + a[_n - 1] 
+bys concept x iso year (p) : replace t = min(0, 2*a) if missing(t) 
+
+generate s = a*n/1e5/average 
+
+gsort concept x iso year -p
+bys concept x iso year  : generate ts = sum(s)
+bys concept x iso year  : generate ta = sum(a*n)/(1e5 - p)
+bys concept x iso year  : generate bs = 1-ts
+
+gsort concept x iso year  p
+by concept x iso year  : generate ba = bs*average/(0.5) if p == 50000
+
+// Export
+bys concept x iso year (p): gen p2 = "p"+string(p/1000)+"p"+string(p[_n+1]/1000)
+
+expand 2, gen(new)
+replace p2 = "p"+string(p/1000)+"p100" if new == 1
+
+expand 2 if p == 50000 & new == 0, gen(new2)
+replace p2 = "p0p50" if new2 == 1
+gen bot50 = p2 == "p0p50"
+
+expand 2 if p == 90000 & new == 0, gen(new3)
+replace p2 = "p50p90" if new3 == 1
+
+
+	* top shares
+	replace a = ta if new == 1
+	replace s = ts if new == 1
+	
+	* bottom 50
+	replace a = ba if new2 == 1
+	replace s = bs if new2 == 1
+	
+	bys iso  year (bot50): gen bot50s = s[_N]
+	bys iso  year (bot50): gen bot50a = a[_N]
+	
+	* middle 40
+	replace s = bs-bot50s if new3 == 1
+	replace a = s*1e5*average/n/40 if new3 == 1
+
+	* get right thresholds for p0p50 & p50p90
+	bys iso year (p2): replace t = t[_n-1] if new2 == 1 | new3 == 1
+
+
+drop if p2 == "p99.999p."
+
+keep t s a year iso p2 concept x
+ren p2 p
+
+replace concept = "ptinc992j" if concept == "i"
+replace concept = "hweal992j" if concept == "w"
+replace concept = "diinc992j" if concept == "d"
+
+renvars t s a, prefix(value)
+reshape wide valuea valuet values, i(iso year p x) j(concept) string
+reshape long value, i(iso year p x) j(widcode) string
+
+drop if (p == "p0p50" | p == "p50p90") & substr(widcode,1,1) == "t"
+
+drop if year == . | value == .
+*drop p4
+
+replace iso = iso+"-"+upper(x) if x=="MER"
+drop x
+
 tempfile final
 save `final'
 
