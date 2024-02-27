@@ -4,7 +4,7 @@ tempfile popul
 save "`popul'"
 
 use "$work_data/add-national-accounts-output.dta", clear
-
+drop if substr(widcode,1,6) == "npopul" & iso == "DE" 
 generate newobs = 0
 append using "`popul'"
 replace newobs = 1 if (newobs >= .)
@@ -28,6 +28,7 @@ duplicates tag iso widcode p year, generate(duplicate)
 drop if duplicate & newobs
 drop duplicate newobs
 
+replace value = . if iso == "DE" & inrange(year, 1937, 1944) & substr(widcode,1,6) == "npopul"
 // Harmonize subcategories with 999i and 992i aggregates
 
 preserve 

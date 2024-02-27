@@ -39,23 +39,22 @@ inlist(widcode, "wpwnfa999i", "wpwodk999i", "wpwoff999i", "wpwpen999i") | ///
 inlist(widcode, "ahweal992j", "shweal992j", "thweal992j", "bhweal992j", "ghweal992j")
 
 
-replace widcode = "mcwfix999i" if widcode == "mcwfiw999i"
-replace widcode = "wcwfix999i" if widcode == "wcwfiw999i"
+// replace widcode = "mcwfix999i" if widcode == "mcwfiw999i"
+// replace widcode = "wcwfix999i" if widcode == "wcwfiw999i"
+//
+// replace widcode = "mgwfix999i" if widcode == "mgwfiw999i"
+// replace widcode = "wgwfix999i" if widcode == "wgwfiw999i"
+//
+// replace widcode = "mpwfix999i" if widcode == "mpwfiw999i"
+// replace widcode = "wpwfix999i" if widcode == "wpwfiw999i"
+//
+// replace widcode = "mhwfix999i" if widcode == "mhwfiw999i"
+// replace widcode = "whwfix999i" if widcode == "whwfiw999i"
+//
+// replace widcode = "miwfix999i" if widcode == "miwfiw999i"
+// replace widcode = "wiwfix999i" if widcode == "wiwfiw999i"
 
-replace widcode = "mgwfix999i" if widcode == "mgwfiw999i"
-replace widcode = "wgwfix999i" if widcode == "wgwfiw999i"
 
-replace widcode = "mpwfix999i" if widcode == "mpwfiw999i"
-replace widcode = "wpwfix999i" if widcode == "wpwfiw999i"
-
-replace widcode = "mhwfix999i" if widcode == "mhwfiw999i"
-replace widcode = "whwfix999i" if widcode == "whwfiw999i"
-
-replace widcode = "miwfix999i" if widcode == "miwfiw999i"
-replace widcode = "wiwfix999i" if widcode == "wiwfiw999i"
-
-replace widcode = "mgwdeb999i" if widcode == "mgwdec999i"
-replace widcode = "wgwdeb999i" if widcode == "wgwdec999i"
 
 replace iso = "KS" if iso == "KV"
 

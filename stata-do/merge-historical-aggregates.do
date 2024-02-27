@@ -31,7 +31,9 @@ keep if inlist(iso, "RU", "OA")  | ///
 	    inlist(iso, "AU", "NZ", "OH")  | ///
 	    inlist(iso, "IN", "ID", "OI")  | ///
 	    inlist(iso, "ZA", "OJ")  
-
+replace npopul992i_hist = . if iso == "DE" & year == 1940
+replace npopul999i_hist = . if iso == "DE" & year == 1940
+		
 tempfile country_hist_agg
 save "`country_hist_agg'"
 

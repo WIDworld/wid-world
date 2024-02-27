@@ -107,6 +107,7 @@ save "$work_data/add-wealth-aggregates-metadata.dta", replace
 
 // Save data & Export
 use "$work_data/add-researchers-data-real-output.dta", clear
+replace widcode = subinstr(widcode, "fix", "fiw", .) 
 foreach l in `wealth_var' {
 	drop if widcode == "`l'"
 }

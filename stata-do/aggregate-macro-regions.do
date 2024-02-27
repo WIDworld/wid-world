@@ -66,7 +66,7 @@ save "`pppexc'"
 use "$work_data/add-wealth-distribution-output.dta", clear
 
 keep if p == "pall"
-keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///
+keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
 	   | widcode == "mnninc999i" ///
 	   | widcode == "mndpro999i" ///
 	   | widcode == "mgdpro999i" ///
@@ -74,9 +74,10 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | widcode == "mpweal999i" ///
 	   | widcode == "mgweal999i" ///
 	   | widcode == "mhweal999i" ///
-	   | inlist(widcode, "mnnfin", "mfinrx", "mfinpx", "mcomnx", "mpinnx", "mnwnxa", "mnwgxa", "mnwgxd") ///
-	   | inlist(widcode, "mcomhn", "mfkpin")
+	   | inlist(substr(widcode, 1, 6), "mnnfin", "mfinrx", "mfinpx", "mcomnx", "mpinnx", "mnwnxa", "mnwgxa", "mnwgxd") ///
+	   | inlist(substr(widcode, 1, 6), "mcomhn", "mfkpin")
 	   
+//       | (substr(widcode, 1, 1) == "m")	   
 drop if year < 1950
 drop currency
 reshape wide value, i(iso year p) j(widcode) string
@@ -91,8 +92,9 @@ foreach v in `r(varlist)' {
 		generate `v'_`l' = `v'/`l' 
 	}
 }
-
-drop mgdpro999i-mpweal999i pppeur-exccny
+//  
+// mccmhn999i-mtprgo999i
+drop mcomhn999i-mpweal999i pppeur-exccny
 // drop if inlist(iso, "HR", "SI", "RS", "MK", "BA", "ME", "KS") & (year <= 1990)
 drop if (iso == "YU") & (year > 1990)
 

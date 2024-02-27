@@ -111,8 +111,8 @@ append using "$wid_dir/Country-Updates/Georgia/2021_08/dina_georgia_8sep2021.dta
 // Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countries) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
-// Post-tax series (Durrer, Fisher-Post, Gethin 2023) // Awaited better data in the fall 2023
-append using "$wid_dir/Country-Updates/posttax/02_2023/posttax-feb2023.dta"
+// Post-tax series (Fisher-Post & Gethin 2023) 
+append using "$wid_dir/Country-Updates/posttax/11_2023/dfg2023-global-posttax-2023-11-22.dta"
 
 compress, nocoalesce 
 
