@@ -103,6 +103,7 @@ foreach var in fdirx fdipx {
 	bys year : egen tot`var' = total(`var')
 }
 gen totfdinx = totfdirx - totfdipx 
+assert totfdinx > 0 
 
 // -------------------------------------------------------------------------- //
 // Redistribute missing income

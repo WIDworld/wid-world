@@ -36,6 +36,10 @@ replace gdp_usd_un2 = . if iso == "YU" & year > 1990
 // Palestine we use the USD as UN SNA and WB
 replace gdp_lcu_un2 = gdp_usd_un2 if iso == "PS"
 
+// drop UN gdp for ZW so that the level is WB
+replace gdp_lcu_un2 = . if iso == "ZW" & year == $pastyear
+replace gdp_usd_un2 = . if iso == "ZW" & year == $pastyear
+
 // Calculate the GDP
 
 // Drop Iraq before 1968 because of holes in the data: better to have
@@ -201,6 +205,19 @@ foreach var in reflev refyear gdp_usd_un2 gdp_lcu_un2 {
 replace growth_cbs =. if iso == "AN"
 replace growth_un2 =. if iso == "BQ"
 drop newobsBQ 
+*then CW
+sort iso year
+	by iso: replace growth_cbs = log(gdp_usd_un2[_n + 1]) - log(gdp_usd_un2) if iso == "CW"
+expand 2 if (iso == "CW") & year < 2012 & year > 2008, generate(newobsBQ)
+replace iso = "BQ" if newobsBQ
+
+foreach var in reflev refyear gdp_usd_un2 gdp_lcu_un2 {
+	replace `var' =. if newobsBQ
+}
+replace growth_cbs =. if iso == "CW"
+replace growth_un2 =. if iso == "BQ"
+drop newobsBQ 
+
 
 /*
 foreach i of numlist 1000 600 500 400 300 200 100 50 40 30 20 10 {

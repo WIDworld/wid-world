@@ -2,67 +2,6 @@
 // Import foreign income data from the IMF, including an estimate
 // for missing income from tax havens
 // -------------------------------------------------------------------------- //
-		// -------------------------------------------------------------------------- //
-		// 					Correct FDI income by missing profits
-		// 
-		// -------------------------------------------------------------------------- //
-
-		// Import income corrections from Torslov, Wier and Zucman (2022) and Wier and Zucman (2022)
-		import excel "$input_data_dir/twz-2022-data/WZ2022.xlsb.xlsx.xls", sheet("TableB10") cellrange(D10:T218) clear
-		ren (D E F G K N O P Q T) (countrycode countryname paid_official_oecd paid_official_imf paid_added1 paid_added2 paid_added3_final received_official_oecd received_official_imf received_added)
-
-		kountry countrycode, from(iso3c) to(iso2c)
-		rename _ISO2C_ iso
-		replace iso = "TV" if countryname == "Tuvalu"
-		replace iso = "CW" if countryname == "Curacao"
-		replace iso = "KS" if countryname == "Kosovo, Republic of"
-		replace iso = "RS" if countryname == "Serbia"
-		replace iso = "SX" if countryname == "Sint Maarten"
-		replace iso = "SS" if countryname == "South Sudan"
-		replace iso = "TC" if countryname == "Turks and Caicos Islands"
-		replace iso = "PS" if countryname == "West Bank and Gaza"
-		replace iso = "VG" if countryname == "British Virgin Islands"
-		replace iso = "IM" if countryname == "Isle of man"
-		replace iso = "SZ" if countryname == "Swaziland"
-		replace iso = "BQ" if countryname == "Bonaire"
-		replace iso = "GG" if countryname == "Guernsey"
-		replace iso = "JE" if countryname == "Jersey"	
-		drop if missing(iso)
-		drop if countryname == "Equatorial Guinea"
-		drop if inlist(iso, "GD", "BZ") & missing(received_added)
-
-		replace paid_official_imf = paid_official_oecd if (paid_official_imf == 0 | missing(paid_official_imf)) & !missing(paid_official_oecd)
-		replace received_official_imf = received_official_oecd if (received_official_imf == 0 | missing(received_official_imf)) & !missing(received_official_oecd)
-		drop paid_official_oecd received_official_oecd
-
-		*gen ratio_add_p = (paid_added1 + paid_added2)/paid_official_imf
-		*gen ratio_add_r = received_added/received_official_imf
-
-		merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
-		keep if corecountry == 1 
-		
-		egen total_received_official = total(received_official_imf)
-		gen share_unreported_received = received_added/total_received_official
-		egen total_received_added = total(received_added)
-		gen share_unreported_received_added = received_added/total_received_added
-
-		egen tot_paid_added = rowtotal(paid_added1 paid_added2 paid_added3_final), missing
-		egen total_added = total(tot_paid_added) 
-		gen share_unreported_paid = tot_paid_added/total_added
-
-		egen check = total(share_unreported_paid)
-		assert check == 1 
-
-		egen check2 = total(share_unreported_received_added)
-		assert check2 == 1 
-
-		keep iso share_unreported_paid share_unreported_received share_unreported_received_added
-		foreach v in share_unreported_paid share_unreported_received share_unreported_received_added {
-			replace `v' = 0 if missing(`v')
-		}
-
-		tempfile mprofits
-		sa `mprofits', replace
 
 // -------------------------------------------------------------------------- //
 // Get estimate of GPD in current USD
@@ -140,6 +79,7 @@ replace iso = "SX" if countryname == "Sint Maarten, Kingdom of the Netherlands"
 replace iso = "SS" if countryname == "South Sudan, Rep. of"
 replace iso = "TC" if countryname == "Turks and Caicos Islands"
 replace iso = "PS" if countryname == "West Bank and Gaza"
+replace iso = "AD" if countryname == "Andorra, Principality of"
 drop if missing(iso)
 
 generate widcode = ""
@@ -154,6 +94,10 @@ replace widcode = "fdirx"     if indicatorcode == "BXIPID_BP6_USD"
 replace widcode = "fdipx"     if indicatorcode == "BMIPID_BP6_USD"
 replace widcode = "ptfrx"     if indicatorcode == "BXIPIP_BP6_USD"
 replace widcode = "ptfpx"     if indicatorcode == "BMIPIP_BP6_USD"
+replace widcode = "ptfrx_eq"  if indicatorcode == "BXIPIPE_BP6_USD"
+replace widcode = "ptfpx_eq"  if indicatorcode == "BMIPIPE_BP6_USD"
+replace widcode = "ptfrx_deb" if indicatorcode == "BXIPIPI_BP6_USD"
+replace widcode = "ptfpx_deb" if indicatorcode == "BMIPIPI_BP6_USD"
 replace widcode = "ptfrx_oth" if indicatorcode == "BXIPIO_BP6_USD"
 replace widcode = "ptfpx_oth" if indicatorcode == "BMIPIO_BP6_USD"
 replace widcode = "ptfrx_res" if indicatorcode == "BXIPIR_BP6_USD"
@@ -168,7 +112,9 @@ renvars value*, predrop(5)
 
 replace ptfrx = ptfrx + cond(missing(ptfrx_oth), 0, ptfrx_oth) + cond(missing(ptfrx_res), 0, ptfrx_res)
 replace ptfpx = ptfpx + cond(missing(ptfpx_oth), 0, ptfpx_oth)
-drop ptfrx_oth ptfrx_res ptfpx_oth
+replace ptfrx_deb = ptfrx_deb + cond(missing(ptfrx_oth), 0, ptfrx_oth)
+replace ptfpx_deb = ptfpx_deb + cond(missing(ptfpx_oth), 0, ptfpx_oth)
+drop ptfrx_oth ptfpx_oth
 
 // completing
 replace ptfrx = pinrx - fdirx if (missing(ptfrx) | ptfrx == 0) & (!missing(pinrx) & pinrx !=0) & (!missing(fdirx) & fdirx !=0) & (fdirx < pinrx)
@@ -176,16 +122,47 @@ replace ptfpx = pinpx - fdipx if (missing(ptfpx) | ptfpx == 0) & (!missing(pinpx
 replace fdirx = pinrx - ptfrx if (missing(fdirx) | fdirx == 0) & (!missing(pinrx) & pinrx !=0) & (!missing(ptfrx) & ptfrx !=0) & (ptfrx < pinrx) 
 replace fdipx = pinpx - ptfpx if (missing(fdipx) | fdipx == 0) & (!missing(pinpx) & pinpx !=0) & (!missing(ptfpx) & ptfpx !=0) & (ptfpx < pinpx) 
 
-foreach v in fdipx fdirx ptfpx ptfrx { 
+// for portfolio components
+// received
+replace ptfrx_eq = ptfrx - ptfrx_deb - ptfrx_res if (missing(ptfrx_eq) | ptfrx_eq == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_deb) & ptfrx_deb !=0) & (!missing(ptfrx_res) & ptfrx_res !=0) & ((ptfrx_deb + ptfrx_res) < ptfrx) 
+replace ptfrx_deb = ptfrx - ptfrx_eq - ptfrx_res if (missing(ptfrx_deb) | ptfrx_deb == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_eq) & ptfrx_eq !=0) & (!missing(ptfrx_res) & ptfrx_res !=0) & ((ptfrx_eq + ptfrx_res) < ptfrx) 
+replace ptfrx_res = ptfrx - ptfrx_deb - ptfrx_eq if (missing(ptfrx_res) | ptfrx_res == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_deb) & ptfrx_deb !=0) & (!missing(ptfrx_eq) & ptfrx_eq !=0) & ((ptfrx_deb + ptfrx_eq) < ptfrx) 
+
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+	replace `v' = 0 if (`v' == 0 | abs(`v') < 1)
+}
+
+egen ptfrx_comp = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res)
+replace ptfrx_comp = ptfrx - ptfrx_comp
+// allocating to deb and eq and reserves will be done below
+replace ptfrx_deb = ptfrx_comp if mi(ptfrx_deb) & ptfrx_comp > 0 & !mi(ptfrx_eq)
+replace ptfrx_eq = ptfrx_comp if mi(ptfrx_eq) & ptfrx_comp > 0 & !mi(ptfrx_deb)
+drop ptfrx_comp
+
+// paid
+replace ptfpx_eq = ptfpx - ptfpx_deb if (missing(ptfpx_eq) | ptfpx_eq == 0) & (!missing(ptfpx) & ptfpx !=0) & (!missing(ptfpx_deb) & ptfpx_deb !=0) & (ptfrx_deb < ptfpx) 
+replace ptfpx_deb = ptfpx - ptfpx_eq if (missing(ptfpx_deb) | ptfpx_deb == 0) & (!missing(ptfpx) & ptfpx !=0) & (!missing(ptfpx_eq) & ptfpx_eq !=0) & (ptfpx_eq < ptfpx) 
+
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 	replace `v' = 0 if (`v' == 0 | abs(`v') < 4e-6)
 }
 
+
+// whenever total income paid/received for one type of asset equals total foreign capital income paid/received and that country reports assets/liabilities of that type 
+// we assume that there is misreporting in the IMF and we separate total capital income based on the share of the asset class in total assets 
 gen checkptfrx = 1 if round(ptfrx) == round(pinrx) & !missing(ptfrx) & !missing(pinrx)
 gen checkfdirx = 1 if round(fdirx) == round(pinrx) & !missing(fdirx) & !missing(pinrx)
 gen checkptfpx = 1 if round(ptfpx) == round(pinpx) & !missing(ptfpx) & !missing(pinpx)
 gen checkfdipx = 1 if round(fdipx) == round(pinpx) & !missing(fdipx) & !missing(pinpx)
 
-merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN.dta", nogen
+gen checkptfrx_eq = 1 if round(ptfrx_eq) == round(ptfrx) & !missing(ptfrx_eq) & !missing(ptfrx)
+gen checkptfrx_deb = 1 if round(ptfrx_deb) == round(ptfrx) & !missing(ptfrx_deb) & !missing(ptfrx)
+gen checkptfrx_res = 1 if round(ptfrx_res) == round(ptfrx) & !missing(ptfrx_res) & !missing(ptfrx)
+
+gen checkptfpx_eq = 1 if round(ptfpx_eq) == round(ptfpx) & !missing(ptfpx_eq) & !missing(ptfpx)
+gen checkptfpx_deb = 1 if round(ptfpx_deb) == round(ptfpx) & !missing(ptfpx_deb) & !missing(ptfpx)
+
+merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN_new.dta", nogen
 encode iso, gen(i)
 xtset i year 
 
@@ -208,73 +185,111 @@ replace fdirx = pinrx - ptfrx if checkfdirx == 1
 replace ptfpx = pinpx - fdipx if checkptfpx == 1
 replace fdipx = pinpx - ptfpx if checkfdipx == 1
 
-drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa ptfxd fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd
+// for portfolio components
+foreach x in a d {
+gen share_ptfx`x'_deb = ptfx`x'_deb/(ptfx`x' - ptfx`x'_fin) // financial derivatives do not accrue income as per IMF BOP manual 6
+gen share_ptfx`x'_eq = ptfx`x'_eq/(ptfx`x' - ptfx`x'_fin)
+}
+gen share_ptfxa_res = ptfxa_res/(ptfxa - ptfxa_fin)
 
-foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx {
+replace ptfrx_eq = 0 if share_ptfxa_eq == 0 | mi(share_ptfxa_eq)
+replace ptfrx_deb = 0 if share_ptfxa_deb == 0 | mi(share_ptfxa_deb)
+replace ptfrx_res = 0 if share_ptfxa_res == 0 | mi(ptfrx_res)
+replace ptfpx_eq = 0 if share_ptfxd_eq == 0 | mi(share_ptfxd_eq)
+replace ptfpx_deb = 0 if share_ptfxd_deb == 0 | mi(share_ptfxd_deb)
+
+foreach x in ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	gen miss`x' = 1 if mi(`x')
+	replace miss`x' = 1 if `x' == 0 
+	replace miss`x' = 0 if mi(miss`x')
+}
+
+// received
+replace ptfrx_eq = ptfrx*l.share_ptfxa_eq if missing(ptfrx_eq) | ptfrx_eq == 0
+replace ptfrx_deb = ptfrx*l.share_ptfxa_deb if missing(ptfrx_deb) | ptfrx_deb == 0
+// since many years reserves are not reported, we substract them from debt
+replace ptfrx_res = ptfrx*l.share_ptfxa_res if missing(ptfrx_res) | ptfrx_res == 0
+replace ptfrx_deb = ptfrx_deb - ptfrx_res if missptfrx_res == 1 & missptfrx_deb == 0 & !mi(ptfrx_deb) & !mi(ptfrx_res) & ptfrx_deb > ptfrx_res 
+replace ptfrx_eq = ptfrx_eq - ptfrx_res if missptfrx_res == 1 & missptfrx_eq == 0 & !mi(ptfrx_eq) & !mi(ptfrx_res) & ptfrx_deb < ptfrx_res & ptfrx_eq > ptfrx_res
+
+replace ptfrx_eq = ptfrx*l.share_ptfxa_eq if missing(ptfrx_eq) | ptfrx_eq == 0 & year == 1970
+replace ptfrx_deb = ptfrx*l.share_ptfxa_deb if missing(ptfrx_deb) | ptfrx_deb == 0 & year == 1970
+replace ptfrx_res = ptfrx*l.share_ptfxa_res if missing(ptfrx_res) | ptfrx_res == 0 & year == 1970
+
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `var' = `var'/ratio
+}
+
+// replacing proportionally
+replace ptfrx_eq = ptfrx_eq - ptfrx_deb*(ptfrx_eq/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 0 & missptfrx_deb == 1 & ratio > 1
+replace ptfrx_res = ptfrx_res - ptfrx_deb*(ptfrx_res/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 0 & missptfrx_deb == 1 & ratio > 1
+
+replace ptfrx_deb = ptfrx_deb - ptfrx_eq*(ptfrx_deb/ptfrx) if missptfrx_eq == 1 & missptfrx_res == 0 & missptfrx_deb == 0 & ratio > 1
+replace ptfrx_res = ptfrx_res - ptfrx_eq*(ptfrx_res/ptfrx) if missptfrx_eq == 1 & missptfrx_res == 0 & missptfrx_deb == 0 & ratio > 1
+
+replace ptfrx_deb = ptfrx_deb - ptfrx_res*(ptfrx_deb/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 1 & missptfrx_deb == 0 & ratio > 1
+replace ptfrx_eq = ptfrx_eq - ptfrx_res*(ptfrx_eq/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 1 & missptfrx_deb == 0 & ratio > 1
+
+drop check ratio 
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+replace ptfrx_eq = ptfrx - (ptfrx_deb + ptfrx_res) if checkptfrx_eq == 1 & ratio > 1
+replace ptfrx_deb = ptfrx - (ptfrx_eq + ptfrx_res) if checkptfrx_deb == 1 & ratio > 1
+replace ptfrx_res = ptfrx - (ptfrx_eq + ptfrx_deb) if checkptfrx_res == 1 & ratio > 1
+
+drop check ratio 
+// now adjust 
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `var' = `var'/ratio
+}
+drop check ratio 
+
+// paid
+replace ptfpx_eq = ptfpx*l.share_ptfxd_eq if missing(ptfpx_eq) | ptfpx_eq == 0 
+replace ptfpx_deb = ptfpx*l.share_ptfxd_deb if missing(ptfpx_deb) | ptfpx_deb == 0 
+
+replace ptfpx_eq = ptfpx - ptfpx_deb if checkptfpx_eq == 1
+replace ptfpx_deb = ptfpx - ptfpx_eq if checkptfpx_deb == 1
+
+replace ptfpx_eq = ptfpx*l.share_ptfxd_eq if missing(ptfpx_eq) | ptfpx_eq == 0 & year == 1970
+replace ptfpx_deb = ptfpx*l.share_ptfxd_deb if missing(ptfpx_deb) | ptfpx_deb == 0 & year == 1970
+
+// now adjust 
+gen check = ptfpx_deb + ptfpx_eq 
+order check, after(ptfpx)
+gen ratio = check/ptfpx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfpx_deb ptfpx_eq {
+	replace `var' = `var'/ratio
+}
+drop check ratio 
+
+drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa ptfxd fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd share* check* ptfxd* ptfxa*
+
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	gen flagimf`v' = 1 if missing(`v')
 	replace flagimf`v' = 0 if missing(flagimf`v')
 }
 
-// // flagging first year where both variables have data
-// gen nonmissr = fdirx + ptfrx + pinrx
-// gen nonmissp = fdipx + ptfpx + pinpx
-// bys iso : egen minyearr = min(year) if nonmissr > 0 & !missing(nonmissr) 
-// bys iso : egen minyearp = min(year) if nonmissp > 0 & !missing(nonmissp) 
-
-// foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx {
-// 	gen flagimf`v' = 1 if missing(`v')
-// 	replace flagimf`v' = 0 if missing(flagimf`v')
-// }
-// // shares
-// foreach x in r p {
-// gen share_fdi`x' = fdi`x'x/pin`x'x if nonmiss`x' > 0 & !missing(nonmiss`x')
-// gen share_ptf`x' = ptf`x'x/pin`x'x if nonmiss`x' > 0 & !missing(nonmiss`x')
-// so iso year
-// by iso : carryforward share_fdi`x', replace
-// by iso : carryforward share_ptf`x', replace
-// gsort iso -year
-// by iso : carryforward share_fdi`x', replace
-// by iso : carryforward share_ptf`x', replace
-// }
-// so iso year
-
-// replace share_fdir = . if iso == "TT" & year <= minyearr
-// replace share_ptfr = . if iso == "TT" & year <= minyearr
-// gen aux_fdir = fdirx/pinrx if year == minyearr + 1 & iso == "TT"
-// gen aux_ptfr = ptfrx/pinrx if year == minyearr + 1 & iso == "TT"
-// egen share2_fdir = mode(aux_fdir) if iso == "TT"
-// egen share2_ptfr = mode(aux_ptfr) if iso == "TT"
-// replace share_fdir = share2_fdir if iso == "TT" & missing(share_fdir)
-// replace share_ptfr = share2_ptfr if iso == "TT" & missing(share_ptfr)
-// drop share2* 
-
-// replace share_fdip = . if iso == "HT" & year >= 1996
-// replace share_ptfp = . if iso == "HT" & year >= 1996
-// replace share_fdip = . if iso == "TD" & year >= 1992
-// replace share_ptfp = . if iso == "TD" & year >= 1992
-// so iso year 
-// carryforward share_fdip if inlist(iso, "HT", "TD"), replace
-// carryforward share_ptfp if inlist(iso, "HT", "TD"), replace
-
-// // we assume that whenever one of the components is missing but pinrx is present, the country is misreporting (will be checked later with EWN)
-// foreach x in r p {
-// replace fdi`x'x = share_fdi`x'*pin`x'x  if !missing(share_fdi`x')
-// replace ptf`x'x = share_ptf`x'*pin`x'x  if !missing(share_ptf`x')
-// }
-
-// 	// correcting by missing profits
-// 	merge m:1 iso using `mprofits', nogen keepusing(share_unreported_received)
-// 	foreach v in share_unreported_received {
-// 		replace `v' = 0 if missing(`v')
-// 	}
-// 		bys year : egen tot_fdirx = total(fdirx)
-// 		replace tot_fdirx =. if tot_fdirx == 0
-// 		gen aux = tot_fdirx*share_unreported_received
-// 		replace fdirx = fdirx + aux if !missing(aux)
-// 		replace fdirx = aux if missing(fdirx) & aux != 0 & !missing(aux)
-// 		drop aux tot_fdirx
-
-		merge 1:1 iso year using "`gdp'", nogenerate
+merge 1:1 iso year using "`gdp'", nogenerate
 merge 1:1 iso year using "$work_data/imf-weo-gdpusd.dta", ///
        nogenerate update assert(using master match) keepusing(gdp*)
 merge 1:1 iso year using "`gdpwid'", ///
@@ -297,25 +312,44 @@ merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen ke
 
 // computing for Curaçao and Sint Maarten based on Netherland Antilles GDP
 merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
-foreach v in fdipx fdirx ptfpx ptfrx { 
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 bys year : gen aux`v' = `v' if iso == "AN"
 bys year : egen `v'AN = mode(aux`v')
 }
-foreach v in fdipx fdirx ptfpx ptfrx { 
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 	foreach c in CW SX {
 		replace `v' = `v'AN*ratio`c'_ANlcu if iso == "`c'" & missing(`v')
 	}
 }	
 drop aux* ratio* *AN
 
-foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx {
+foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	replace `v' = `v'*gdp_wid
 }
 
+// ensuring consistency
+egen auxptfrx = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res), missing
+gen ratio = auxptfrx/ptfrx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
+replace ptfrx = auxptfrx if !missing(auxptfrx)
+
+egen auxptfpx = rowtotal(ptfpx_eq ptfpx_deb), missing
+gen ratio = auxptfpx/ptfpx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
+replace ptfpx = auxptfpx if !missing(auxptfpx)
+
 egen auxpinrx = rowtotal(fdirx ptfrx), missing
+gen ratio2 = auxpinrx/pinrx 
+replace ratio2 = 0 if mi(ratio2)
+drop ratio2 
 replace pinrx = auxpinrx if !missing(auxpinrx)
 
 egen auxpinpx = rowtotal(fdipx ptfpx), missing
+gen ratio = auxpinpx/pinpx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
 replace pinpx = auxpinpx if !missing(auxpinpx)
 
 egen flcir = rowtotal(pinrx comrx), missing
@@ -361,12 +395,14 @@ enforce (comnx = comrx - compx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
 		(pinnx = fdinx + ptfnx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
 		(pinpx = fdipx + ptfpx) ///
 		(pinrx = fdirx + ptfrx) ///
 		(fdinx = fdirx - fdipx) ///
 		(ptfnx = ptfrx - ptfpx), fixed(nnfin) prefix(new) force
 
-foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx pinpx pinrx ptfpx ptfrx flcir flcip {
+foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx pinpx pinrx ptfpx ptfrx flcir flcip ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	replace `v' = new`v' if new`v' >= 0		
 	replace `v' = new`v' if new`v' < 0 & `v' < 0 & !missing(`v')		
 	replace `v' = 0 if missing(`v') & !missing(new`v')
@@ -384,425 +420,12 @@ enforce (comnx = comrx - compx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
 		(pinnx = fdinx + ptfnx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
 		(pinpx = fdipx + ptfpx) ///
 		(pinrx = fdirx + ptfrx) ///
 		(fdinx = fdirx - fdipx) ///
-		(ptfnx = ptfrx - ptfpx), fixed(fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx) replace force
+		(ptfnx = ptfrx - ptfpx), fixed(fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb) replace force
 	
 drop gdp_usd_weo gdp_wid corecountry TH		
 save "$work_data/imf-foreign-income.dta", replace
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-gfhdfghgdf
-// using regional growth rates instead of carrying last value
-foreach level in undet un {
-	kountry iso, from(iso2c) geo(`level')
-
-replace GEO = "Western Asia" 	if iso == "AE" & "`level'" == "undet"
-replace GEO = "Caribbean" 		if iso == "CW" & "`level'" == "undet"
-replace GEO = "Caribbean"		if iso == "SX" & "`level'" == "undet"
-replace GEO = "Caribbean" 		if iso == "BQ" & "`level'" == "undet"
-replace GEO = "Southern Europe" if iso == "KS" & "`level'" == "undet"
-replace GEO = "Southern Europe" if iso == "ME" & "`level'" == "undet"
-replace GEO = "Eastern Asia" 	if iso == "TW" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "GG" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "JE" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "IM" & "`level'" == "undet"
-
-replace GEO = "Asia" if inlist(iso, "AE", "TW") & "`level'" == "un"
-replace GEO = "Americas" if inlist(iso, "CW", "SX", "BQ") & "`level'" == "un"
-replace GEO = "Europe" if inlist(iso, "KS", "ME", "GG", "JE", "IM") & "`level'" == "un"
-ren GEO geo`level'
-drop NAMES_STD 
-}
-gen soviet = 1 if inlist(iso, "AZ", "AM", "BY", "KG", "KZ", "GE") ///
-				| inlist(iso, "TJ", "MD", "TM", "UA", "UZ") ///
-				| inlist(iso, "EE", "LT", "LV", "RU", "SU")
-
-gen yugosl = 1 if inlist(iso, "BA", "HR", "MK", "RS") ///
-				| inlist(iso, "KS", "ME", "SI", "YU")
-
-gen other = 1 if inlist(iso, "ER", "EH", "CS", "CZ", "SK", "SD", "SS", "TL") ///
-			   | inlist(iso, "ID", "SX", "CW", "AN", "YE", "ZW", "IQ", "TW")
-
-// interpolating foreign capital income variables
-// not interpolating for the countries where we never have data
-foreach v in fdipx fdirx ptfpx ptfrx { 
-	replace `v' =. if `v' == 0
-	bys iso : egen tot`v' = total(abs(`v')), missing
-	gen flagcountry`v' = 1 if tot`v' == .
-	replace flagcountry`v' = 0 if missing(flagcountry`v')
-	drop tot`v'
-}
-
-so iso year
-foreach v in fdipx fdirx ptfpx ptfrx { 
-	by iso : ipolate `v' year if corecountry == 1 & flagcountry`v' == 0, gen(x`v') 
-	replace `v' = x`v' if missing(`v') 
-	drop x`v'
-}
-
-encode iso, gen(i)
-foreach v in fdipx fdirx ptfpx ptfrx { 
-xtset i year
-gen auxgr`v' = (`v' - l.`v')/l.`v'
-	foreach level in undet un {
-bys geo`level' year : egen gr`level'`v' = mean(auxgr`v') if corecountry == 1 & TH == 0
-	}
-xtset i year
-gen gr`v' = grundet`v'
-replace gr`v' = grun`v' if missing(gr`v')
-replace gr`v' = grun`v' if (soviet == 1 | yugosl == 1 | other == 1 | geoun == "Oceania" | geoundet == "Eastern Europe" | geoundet == "South-Eastern Asia" | geoundet == "Eastern Asia" | geoundet == "Middle Africa" | geoundet == "Western Africa") // | geoundet == "Southern Europe"
-replace gr`v' = grundet`v' if abs(gr`v') > abs(grundet`v') & (inlist(iso, "AZ", "IQ", "YE"))
-replace gr`v' = grun`v' if abs(gr`v') > abs(grun`v') & inlist(iso, "PS")
-replace gr`v' = grun`v' if inlist(iso, "NA", "KW")
-cap replace grfdipx = grunfdipx if inlist(iso, "BT")
-cap replace grptfpx = grunptfpx if inlist(iso, "BT")
-
-replace gr`v' = l.gr`v' if (gr`v' < -1 | gr`v' > 20) // it's artificially creating negative or 0 profits
-replace gr`v' = l.gr`v' if gr`v' > 1 & geoun == "Oceania" & year < 1985  // too little observations creating lots of noise
-*replace gr`v' = l.gr`v' if gr`v' > 2 & geoun == "Africa"  // too little observations creating lots of noise
-
-gen aux1`v' = `v' 
-gen aux2`v' = f.`v'/(1+f.gr`v')
-
-	forvalues i = 2016(-1)1969 { 
-	replace aux1`v' = aux2`v' if year == `i'+1 & missing(aux1`v') & corecountry == 1
-	replace aux2`v' = f.aux1`v'/(1+f.gr`v') if year == `i' & corecountry == 1
-	}
-	gen flagorig`v' = 1 if !missing(`v')
-replace `v' = aux1`v' if missing(`v') & corecountry == 1 & flagcountry`v' == 0 & TH == 0
-}
-	// still problematic countries
-	
-	foreach v in fdipx fdirx ptfpx ptfrx { 
-	replace `v' = . if inlist(iso, "TT") & year <= 1975 & flagorig`v' != 1 
-	replace `v' = . if geoundet == "Eastern Africa" & year <= 1975 & flagorig`v' != 1 
-	so iso year
-	by iso: carryforward `v' if inlist(iso, "TT"), replace cfindic(carriedforward`v')
-
-		replace `v' = 0 if missing(`v') & year == 1970 & (inlist(iso, "TT") | geoundet == "Eastern Africa")
-		by iso : ipolate `v' year if (inlist(iso, "TT") | geoundet == "Eastern Africa"), gen(x`v') 
-		replace `v' = x`v' if missing(`v') 
-		drop x`v'
-		replace `v' = . if `v' == 0 & year == 1970 & (inlist(iso, "TT") | geoundet == "Eastern Africa")
-}
-	drop carriedforward* aux* gr* 
-	
-	// only liabilities the issue
-	foreach v in fdipx ptfpx { 
-	replace `v' = . if iso == "ER" & inrange(year, 1987, 1995) & flagorig`v' != 1 
-	replace `v' = . if (inlist(iso, "CM", "GA", "TD", "DZ", "LS", "SZ", "NP") | inlist(iso, "GM", "NG", "SL", "SN")) & year <= 1975 & flagorig`v' != 1 
-	replace `v' = . if iso == "BT" & year <= 1985 & flagorig`v' != 1 
-	so iso year
-	by iso: carryforward `v' if inlist(iso, "ER"), replace cfindic(carriedforward`v')
-		replace `v' = 0 if missing(`v') & year == 1970 & (inlist(iso, "CM", "GA", "TD", "DZ", "LS", "SZ", "NP", "BT") | inlist(iso, "GM", "NG", "SL", "SN")) 
-		by iso : ipolate `v' year if (inlist(iso, "CM", "GA", "TD", "DZ", "LS", "SZ", "NP", "BT") | inlist(iso, "GM", "NG", "SL", "SN")) , gen(x`v') 
-		replace `v' = x`v' if missing(`v') 
-		drop x`v'
-		replace `v' = . if `v' == 0 & year == 1970 & (inlist(iso, "CM", "GA", "TD", "DZ", "LS", "SZ", "NP", "BT") | inlist(iso, "GM", "NG", "SL", "SN"))
-	}
-	drop carriedforward* //aux* gr* 
-
-// Carry last value as last resort\
-foreach v in fdipx fdirx ptfpx ptfrx { 
-	replace `v' = . if geoundet == "Northern Africa" & year == 1970 & flagorig`v' != 1 
-	replace `v' = . if inlist(iso, "PT", "GR", "BW") & year <= 1975 & flagorig`v' != 1 
-so iso year
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 0, replace cfindic(carriedforward`v')
-
-gsort iso -year 
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 0, replace cfindic(carriedforward2`v')
-}
-drop carriedforward* 
-
-foreach v in fdipx ptfpx { 
-	replace `v' = . if inlist(iso, "NE") & year <= 1975 & flagorig`v' != 1 
-so iso year
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 0, replace cfindic(carriedforward`v')
-
-gsort iso -year 
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 0, replace cfindic(carriedforward2`v')
-}
-drop carriedforward* 
-
-// Also flagging countries with always zero
-foreach v in fdipx fdirx ptfpx ptfrx { 
-	bys iso : egen tot`v' = total(abs(`v')), missing
-	gen flagcountry2`v' = 1 if tot`v' == 0
-	replace flagcountry2`v' = 0 if missing(flagcountry2`v')
-	drop tot`v'
-}
-
-// Completing with regional average for countries with missing values or zeros
-foreach v in fdipx fdirx ptfpx ptfrx { 
-bys geoundet year : egen avg`v' = mean(`v') if corecountry == 1 & TH == 0
-bys geoun year : egen avgun`v' = mean(`v') if corecountry == 1 & TH == 0
-replace `v' = avg`v' if corecountry == 1 & (flagcountry`v' == 1 | flagcountry2`v' == 1) & TH == 0
-replace `v' = avg`v' if inlist(iso, "BF", "CI", "GN", "GW") & flagorig`v' != 1 
-replace `v' = avgun`v' if inlist(iso, "FJ", "PG") & flagorig`v' != 1 
-cap replace fdirx = avgunfdirx if iso == "NR" & flagorigfdirx != 1 
-cap replace ptfrx = avgunptfrx if iso == "NR" & flagorigptfrx != 1 
-replace `v' = avgun`v' if avgun`v' < avg`v' & corecountry == 1 & (flagcountry`v' == 1 | flagcountry2`v' == 1) & TH == 0 & (geoundet == "Middle Africa" | geoundet == "South-Eastern Asia" | geoundet == "Southern Africa" | inlist(iso, "AE", "YE"))
-}
-drop avg* 
-
-// Same procedure for TH. Instead of regional average TH average
-// Not doing it for fdipx because is the whole missingprofit argument
-*replace TH = 0 if inlist(iso, "BE", "IE", "NL")
-// Carry last value
-*replace TH = 0 if inlist(iso, "BE", "IE", "NL")
-foreach v in fdirx ptfpx ptfrx { 
-xtset i year
-gen auxgr`v' = (`v' - l.`v')/l.`v'
-
-bys year : egen gr`v' = mean(auxgr`v') if corecountry == 1 & TH == 1
-
-xtset i year
-replace gr`v' = l.gr`v' if (gr`v' < -1 | gr`v' > 20) // it's artificially creating negative or 0 profits
-gen aux1`v' = `v' 
-gen aux2`v' = f.`v'/(1+f.gr`v')
-
-	forvalues i = 2021(-1)1969 { 
-	replace aux1`v' = aux2`v' if year == `i'+1 & missing(aux1`v') & corecountry == 1
-	replace aux2`v' = f.aux1`v'/(1+f.gr`v') if year == `i' & corecountry == 1
-	}
-}
-/*
-foreach v in fdirx ptfpx { 
-replace `v' = aux1`v' if missing(`v') & corecountry == 1 & flagcountry`v' == 0 & TH == 1
-}
-*/
-foreach v in fdirx ptfpx ptfrx { 
-replace `v' = aux1`v' if missing(`v') & corecountry == 1 & flagcountry`v' == 0 & TH == 1 & year > 1976 // only BB and NL have data before 1976
-}
-drop aux* gr* 
-
-// Carry last value as last resort\
-foreach v in fdirx ptfpx ptfrx { 
-so iso year
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 1, replace cfindic(carriedforward`v')
-}
-drop carriedforward*
-
-so iso year
-foreach v in fdirx ptfpx ptfrx { 
-	replace `v' = 0 if missing(`v') & year == 1970 & TH == 1
-	by iso : ipolate `v' year if corecountry == 1 & flagcountry`v' == 0, gen(x`v') 
-	replace `v' = x`v' if missing(`v') 
-	drop x`v'
-	replace `v' = . if `v' == 0 & year == 1970 & TH == 1
-}
-
-// Carry last value as last resort\
-foreach v in fdirx ptfpx ptfrx { 
-so iso year
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 1, replace cfindic(carriedforward`v')
-
-gsort iso -year 
-by iso: carryforward `v' if corecountry == 1 & flagcountry`v' == 0 & TH == 1, replace cfindic(carriedforward2`v')
-}
-drop carriedforward* 
-
-// Completing with TH average
-foreach v in fdirx ptfpx ptfrx { 
-bys year : egen avg`v' = mean(`v') if corecountry == 1 & TH == 1
-replace `v' = avg`v' if corecountry == 1 & (flagcountry`v' == 1 | flagcountry2`v' == 1) & TH == 1
-}
-
-replace fdipx = 0 if TH == 1 & missing(fdipx)
-drop corecountry geo* TH flag* gdp avg* 
-
-// bringing WID gdp series
-merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keepusing(gdp) keep(master matched)
-merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
-merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
-
-gen gdp_idx = gdp*index
-	replace gdp = gdp_idx/exrate_usd
-drop share_unreported_received gdp_usd_weo exrate_usd index currency gdp_idx
-// back to USD
-/*
-ds iso year gdp, not
-local varlist = r(varlist)
-foreach v of local varlist {
-	replace `v' = `v'*gdp
-}
-*/
-
-foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx {
-	replace `v' = `v'*gdp
-}
-
-egen auxpinrx = rowtotal(fdirx ptfrx)
-replace pinrx = auxpinrx if !missing(auxpinrx)
-
-egen auxpinpx = rowtotal(fdipx ptfpx)
-replace pinpx = auxpinpx if !missing(auxpinpx)
-
-egen flcir = rowtotal(pinrx comrx)
-egen auxfinrx = rowtotal(flcir fsubx) 
-replace finrx = auxfinrx if !missing(auxfinrx)
-
-egen flcip = rowtotal(pinpx compx)
-egen auxfinpx = rowtotal(flcip ftaxx) 
-replace finpx = auxfinpx if !missing(auxfinpx)
-
-generate flcin = flcir - flcip
-generate pinnx = pinrx - pinpx
-generate comnx = comrx - compx
-generate fdinx = fdirx - fdipx
-generate ptfnx = ptfrx - ptfpx
-generate taxnx = fsubx - ftaxx
-
-gen auxnnfin = finrx - finpx 
-replace nnfin = auxnnfin if !missing(auxnnfin)
-drop aux* 
-drop if missing(year)
-
-// Save USD version (for redistributing missing incomes later)
-save "$work_data/imf-usd.dta", replace
-
-ds iso year gdp, not
-local varlist = r(varlist)
-foreach v of local varlist {
-	replace `v' = `v'/gdp
-}
-drop gdp
-generate series = 6000
-
-// Foreign income
-enforce (comnx = comrx - compx) ///
-		(pinnx = pinrx - pinpx) ///
-		(flcin = flcir - flcip) ///
-		(taxnx = fsubx - ftaxx) ///
-		(nnfin = finrx - finpx) ///
-		(finrx = comrx + pinrx + fsubx) ///
-		(finpx = compx + pinpx + ftaxx) ///
-		(nnfin = flcin + taxnx) ///
-		(flcir = comrx + pinrx) ///
-		(flcip = compx + pinpx) ///
-		(pinnx = fdinx + ptfnx) ///
-		(pinpx = fdipx + ptfpx) ///
-		(pinrx = fdirx + ptfrx) ///
-		(fdinx = fdirx - fdipx) ///
-		(ptfnx = ptfrx - ptfpx), fixed(nnfin) prefix(new) force
-
-foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx pinpx pinrx ptfpx ptfrx flcir flcip {
-	replace `v' = new`v' if new`v' >= 0		
-	replace `v' = new`v' if new`v' < 0 & `v' < 0 & !missing(`v')		
-	replace `v' = 0 if missing(`v') & !missing(new`v')
-}
-drop new*
-
-enforce (comnx = comrx - compx) ///
-		(pinnx = pinrx - pinpx) ///
-		(flcin = flcir - flcip) ///
-		(taxnx = fsubx - ftaxx) ///
-		(nnfin = finrx - finpx) ///
-		(finrx = comrx + pinrx + fsubx) ///
-		(finpx = compx + pinpx + ftaxx) ///
-		(nnfin = flcin + taxnx) ///
-		(flcir = comrx + pinrx) ///
-		(flcip = compx + pinpx) ///
-		(pinnx = fdinx + ptfnx) ///
-		(pinpx = fdipx + ptfpx) ///
-		(pinrx = fdirx + ptfrx) ///
-		(fdinx = fdirx - fdipx) ///
-		(ptfnx = ptfrx - ptfpx), fixed(fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx) replace force
-
-save "$work_data/imf-foreign-income.dta", replace
-
-/* testing
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry country TH) 
-keep if corecountry == 1
-
-kountry iso, from(iso2c) geo(undet)
-ren GEO geoundet 
-drop NAMES_STD
-kountry iso, from(iso2c) geo(un)
-
-replace geoundet = "Western Asia" 	if iso == "AE"
-replace geoundet = "Caribbean" 		if iso == "CW"
-replace geoundet = "Caribbean"		if iso == "SX"
-replace geoundet = "Caribbean" 		if iso == "BQ"
-replace geoundet = "Southern Europe" if iso == "KS"
-replace geoundet = "Southern Europe" if iso == "ME"
-replace geoundet = "Eastern Asia" 	if iso == "TW"
-replace geoundet = "Northern Europe" if iso == "GG"
-replace geoundet = "Northern Europe" if iso == "JE"
-replace geoundet = "Northern Europe" if iso == "IM"
-
-encode geoundet, gen(id_geoundet)
-replace country = country + " TH" if TH == 1 
-
-// FDI income
-gen long obsno = _n
-levelsof id_geoundet, local(geo)
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/"
-foreach v in fdirx fdipx {
-foreach i of local geo {
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/"
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/`v'/"
-	qui levelsof iso if id_geoundet == `i', local(ctries)
-foreach c of local ctries {
-     su obs if iso == "`c'", meanonly 
-     local country = country[r(min)]
-     tsline `v' if iso == "`c'" & year >= 1970, lwidth(medthick) title("`country'") ytitle("") xtitle("") legend(off) xlabel(1970(5)2022)
-	 graph save "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/`v'/`c'.gph", replace 
-     graph export "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/`v'/`c'.pdf", replace 
-}
-local ra : dir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/`v'/" files "*.gph"
-local newra : list sort ra
-
-     su obs if id_geoundet == `i', meanonly 
-     local region = geoundet[r(min)]
-cd "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'/`v'/"
-gr combine `newra', subtitle("`v', `region'") graphregion(fcolor(white)) scale(0.8) iscale(*.6)
-gr export "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/FDIincome/reg`i'-`v'-combined.pdf", replace
-}
-
-}
-
-// portfolio income
-levelsof id_geoundet, local(geo)
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/"
-foreach v in ptfrx ptfpx {
-foreach i of local geo {
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/"
-cap	mkdir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/`v'/"
-	qui levelsof iso if id_geoundet == `i', local(ctries)
-foreach c of local ctries {
-     su obs if iso == "`c'", meanonly 
-     local country = country[r(min)]
-     tsline `v' if iso == "`c'" & year >= 1970, lwidth(medthick) title("`country'") ytitle("") xtitle("") legend(off) xlabel(1970(5)2022)
-	 graph save "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/`v'/`c'.gph", replace 
-     graph export "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/`v'/`c'.pdf", replace 
-}
-local ra : dir "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/`v'/" files "*.gph"
-local newra : list sort ra
-
-     su obs if id_geoundet == `i', meanonly 
-     local region = geoundet[r(min)]
-cd "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'/`v'/"
-gr combine `newra', subtitle("`v', `region'") graphregion(fcolor(white)) scale(0.8) iscale(*.6)
-gr export "/Users/gaston/Dropbox/WIL/W2ID/Temp/temporary/ptfxincome/reg`i'-`v'-combined.pdf", replace
-}
-
-}

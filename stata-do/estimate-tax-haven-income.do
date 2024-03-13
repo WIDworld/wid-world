@@ -30,9 +30,9 @@ keep if corecountry == 1
 
 preserve
 	// Import share of assets in tax havens by country
-	import excel "$input_data_dir/ajz-2017-data/AJZ2017bData.xlsx", sheet("T.A3") cellrange(A6:R156) clear
+	import excel "$input_data_dir/ajz-2017-data/AJZ2017bData.xlsx", sheet("T.A3") cellrange(A6:D156) clear
 
-	keep A R // R share of offshore wealth as GDP
+	keep A D
 	kountry A, from(other) stuck
 	rename _ISO3N_ iso3n
 	kountry iso3n, from(iso3n) to(iso2c)
@@ -43,14 +43,13 @@ preserve
 	replace iso = "BO" if A == "Bolivia (Plurinational State of)"
 	replace iso = "CV" if A == "Cabo Verde"
 	replace iso = "CI" if A == "Côte d'Ivoire"
-	replace iso = "MK" if A == "Macedonia (the former Yugoslav Republic of)"
+	replace iso = "MK" if A == "Macedonia (the former Yugoslav Republic)"
 	replace iso = "TW" if A == "Taiwan, Province of China[a]"
 	replace iso = "GB" if A == "United Kingdom of Great Britain and Northern Ireland"
 	replace iso = "VE" if A == "Venezuela (Bolivarian Republic of)"
 
-	keep iso R
-	rename R ptfhr
-	replace ptfhr = 0.544528489 if iso == "RU" // based on the upper bound of Russia's figure. same paper Russia (NEO)
+	keep iso D
+	rename D share_havens
 	drop if missing(iso)
 
 	tempfile havens
@@ -69,8 +68,8 @@ preserve
 	egen totptfrx_usd = total(ptfrx_usd)
 	egen totptfpx_usd = total(ptfpx_usd)
 	gen  totptfnx_usd = totptfrx_usd - totptfpx_usd
-	*gen ptfhr = -totptfnx_usd*share_havens
-	*replace ptfhr = ptfhr/gdp_usd
+	gen ptfhr = -totptfnx_usd*share_havens
+	replace ptfhr = ptfhr/gdp_usd
 
 	tab iso if ptfhr == . & TH == 0
 	foreach level in undet un {
@@ -99,22 +98,22 @@ preserve
 
 	replace ptfhr = ptfhr*gdp_usd
 	egen totptfhr = total(ptfhr)
-	gen share_havens = ptfhr/totptfhr
+	gen share_havens2 = ptfhr/totptfhr
 	// rescaling share to add up to 1
-	egen totsh = total(share_havens)
-	gen share_havens2 = share_havens/totsh
-	egen totsh2 = total(share_havens2)
+	egen totsh = total(share_havens2)
+	gen share_havens3 = share_havens2/totsh
+	egen totsh2 = total(share_havens3)
 	assert totsh2 == 1 
 	
-	keep iso share_havens2 
-	ren share_havens2 share_havens
+	keep iso share_havens3 
+	ren share_havens3 share_havens
 	
 	tempfile allhavens
 	save "`allhavens'", replace
 restore
 
+drop share_havens
 merge m:1 iso using "`allhavens'", nogen
-drop ptfhr
 replace share_havens = 0 if missing(share_havens)
 
 // -------------------------------------------------------------------------- //

@@ -106,8 +106,9 @@ replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 // -------------------------------------------------------------------------- //
 // Completing foreign income variables
 // -------------------------------------------------------------------------- //
-// sa "$work_data/temp", replace
-u "$work_data/temp", clear
+sa "$work_data/temp", replace
+asd FROM HERE
+u "$work_data/temp", clear 
 
 replace pinrx =. if iso == "PT" & year <= 1974
 replace pinpx =. if iso == "PT" & year <= 1974
@@ -126,7 +127,7 @@ foreach v in pinrx pinpx nnfin pinnx flcir flcip finrx finpx flcin {
 	drop tot`v'
 }
 
-foreach v in fdipx fdirx ptfpx ptfrx  { 
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 // 	replace `v' =. if `v' == 0
 	bys iso : egen tot`v' = total(abs(`v')), missing
 	gen flagcountry`v' = 1 if tot`v' == .
@@ -135,13 +136,13 @@ foreach v in fdipx fdirx ptfpx ptfrx  {
 }
 
 // 6 levels of completing the data
-foreach v in fdipx fdirx ptfpx ptfrx pinrx pinpx {
+foreach v in fdipx fdirx ptfpx ptfrx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	gen flag`v' = 1 if missing(`v')
 	replace flag`v' = 0 if missing(flag`v')
 }
 
 so iso year
-foreach v in fdipx fdirx ptfpx ptfrx pinrx pinpx nnfin pinnx flcir flcip finrx finpx flcin { 
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb pinrx pinpx nnfin pinnx flcir flcip finrx finpx flcin { 
 so iso year
 	by iso : ipolate `v' year if flagcountry`v' == 0, gen(x`v') 
 	replace `v' = x`v' if missing(`v') 
@@ -195,6 +196,7 @@ replace pin`x'x = share_pin`x'*fin`x'x  if missing(pin`x'x)
 }
 drop minyear* maxyear* aux* share* nonmiss*
 
+replace pinnx = pinrx - pinpx if missing(pinnx)
 
 // 2nd: pinnx as a share of nnfin 
 // flagging first year where both variables have data
@@ -210,55 +212,11 @@ replace share_pinnx = abs(share_pinnx) if ((nnfin > 0 & share_pinnx < 0) | (nnfi
 replace pinnx = share_pinnx*nnfin if missing(pinnx)
 drop share* nonmiss
 
-
 // 3rd: pinnx = pinrx - pinpx 
 replace pinrx = pinnx + pinpx if (missing(pinrx) | pinrx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinpx) & pinpx !=0)
 replace pinpx = pinrx - pinnx if (missing(pinpx) | pinpx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinrx) & pinrx !=0)
 
-/*
-// 4th: pinrx and pinpx as a share of pinnx
-gen nonmiss = abs(pinnx) + abs(pinrx) + abs(pinpx)
-
-foreach x in r p {
-bys iso : gen share_pin`x' = pin`x'x/pinnx if abs(nonmiss) > 0 & !missing(nonmiss)
-so iso year
-by iso : carryforward share_pin`x', replace
-gsort iso -year
-by iso : carryforward share_pin`x', replace
-}
-
-// to make sure that signs hold consistent. 30 and 10 observations are affected
-swapval share_pinr share_pinp if (pinnx > 0 & (share_pinr < 0 & share_pinp < 0)) | (pinnx < 0 & (share_pinr > 0 & share_pinp > 0))
-
-foreach x in r p {
-replace pin`x'x = abs(share_pin`x'*pinnx) if missing(pin`x'x)
-}
-drop share* nonmiss
-*/
-// // 5th: fdi and ptf as share of pin
-// gen nonmissr = fdirx + ptfrx + pinrx
-// gen nonmissp = fdipx + ptfpx + pinpx
-// bys iso : egen minyearr = min(year) if nonmissr > 0 & !missing(nonmissr) 
-// bys iso : egen minyearp = min(year) if nonmissp > 0 & !missing(nonmissp) 
-
-// // shares
-// foreach x in r p {
-// gen share_fdi`x' = fdi`x'x/pin`x'x if nonmiss`x' > 0 & !missing(nonmiss`x')
-// gen share_ptf`x' = ptf`x'x/pin`x'x if nonmiss`x' > 0 & !missing(nonmiss`x')
-// so iso year
-// by iso : carryforward share_fdi`x', replace
-// by iso : carryforward share_ptf`x', replace
-// gsort iso -year
-// by iso : carryforward share_fdi`x', replace
-// by iso : carryforward share_ptf`x', replace
-// }
-// so iso year
-// foreach x in r p {
-// replace fdi`x'x = share_fdi`x'*pin`x'x  if missing(fdi`x'x)
-// replace ptf`x'x = share_ptf`x'*pin`x'x  if missing(ptf`x'x)
-// }
-// drop minyear* share* nonmiss*
-
+// 4th fdirx and ptfrx as a share of asset class
 merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN.dta", nogen
 encode iso, gen(i)
 xtset i year 
@@ -292,7 +250,8 @@ replace fdipx = pinpx - ptfpx if checkfdipx == 1
 
 drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa ptfxd fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd share*
 
-// 6th: we use regional shares to get ptf and fdi incomes
+// 5th: we use regional shares to get ptf and fdi incomes
+// for Cuba but not completely satisfied
 foreach level in undet un {
 	kountry iso, from(iso2c) geo(`level')
 
@@ -323,39 +282,6 @@ gen yugosl = 1 if inlist(iso, "BA", "HR", "MK", "RS") ///
 gen other = 1 if inlist(iso, "ER", "EH", "CS", "CZ", "SK", "SD", "SS", "TL") ///
 			   | inlist(iso, "ID", "SX", "CW", "AN", "YE", "ZW", "IQ", "TW")
 
-// *non haven corecountries
-// // 1st: pinrx/pinpx as a share of flcir/flcip or finrx/finpx
-// *flcir/flcip
-// // shares
-// foreach x in r p {
-// gen share_pin`x' = pin`x'x/flci`x'
-// 	foreach level in undet un {
-// bys geo`level' year : egen sh`level'_pin`x' = mean(share_pin`x') if corecountry == 1 & TH == 0
-// 	}
-// gen sh_pin`x' = shundet_pin`x'
-// replace sh_pin`x' = shun_pin`x' if missing(sh_pin`x')
-// }
-
-// foreach x in r p {
-// replace pin`x'x = sh_pin`x'*flci`x' if missing(pin`x'x) & iso != "CU"
-// }
-// drop sh*
-
-// *finrx/finpx
-// // shares
-// foreach x in r p {
-// gen share_pin`x' = pin`x'x/fin`x'x
-// 	foreach level in undet un {
-// bys geo`level' year : egen sh`level'_pin`x' = mean(share_pin`x') if corecountry == 1 & TH == 0
-// 	}
-// gen sh_pin`x' = shundet_pin`x'
-// replace sh_pin`x' = shun_pin`x' if missing(sh_pin`x')
-// }
-
-// foreach x in r p {
-// replace pin`x'x = sh_pin`x'*fin`x'x if missing(pin`x'x) & iso != "CU"
-// }
-// drop sh*
 
 // pinnx/nnfin
 gen share_pinnx = pinnx/nnfin
@@ -407,74 +333,14 @@ replace `v' = pinpx*sh_`v' if missing(`v') & iso == "CU"
 }
 drop sh*
 
-*haven corecountries
-// 1st: pinrx/pinpx as a share of flcir/flcip or finrx/finpx
-*flcir/flcip
-// shares
-// foreach x in r p {
-// gen share_pin`x' = pin`x'x/flci`x'
-// bys year : egen sh_pin`x' = mean(share_pin`x') if corecountry == 1 & TH == 1
-// }
-
-// foreach x in r p {
-// replace pin`x'x = sh_pin`x'*flci`x' if missing(pin`x'x) 
-// }
-// drop sh*
-
-// *finrx/finpx
-// // shares
-// foreach x in r p {
-// gen share_pin`x' = pin`x'x/fin`x'x
-// bys year : egen sh_pin`x' = mean(share_pin`x') if corecountry == 1 & TH == 1
-// }
-
-// foreach x in r p {
-// replace pin`x'x = sh_pin`x'*fin`x'x if missing(pin`x'x) 
-// }
-// drop sh*
-
-// /*
-// gen share_pinnx = pinnx/nnfin
-// bys year : egen sh_pinnx = mean(share_pinnx) if corecountry == 1 & TH == 1
-// // to make sure that signs hold consistent
-// replace sh_pinnx = abs(sh_pinnx) if ((nnfin > 0 & sh_pinnx < 0) | (nnfin < 0 & sh_pinnx > 0)) & missing(pinnx) & !missing(nnfin) // (0 real changes made)
-// replace pinnx = nnfin*sh_pinnx if missing(pinnx)
-// drop sh*
-
-// gen share_pinrx = pinrx/pinnx
-// gen share_pinpx = pinpx/pinnx
-// bys year : egen sh_pinrx = mean(share_pinrx) if corecountry == 1 & TH == 1
-// bys year : egen sh_pinpx = mean(share_pinpx) if corecountry == 1 & TH == 1
-// // to make sure that signs hold consistent. 12 values affected
-// swapval sh_pinrx sh_pinpx if (pinnx > 0 & (sh_pinrx < 0 & sh_pinpx < 0)) | (pinnx < 0 & (sh_pinrx > 0 & sh_pinpx > 0))
-// replace pinrx = abs(pinnx*sh_pinrx) if missing(pinrx)
-// replace pinpx = abs(pinnx*sh_pinpx) if missing(pinpx)
-// drop sh*
-// */
-
-// gen share_fdirx = fdirx/pinrx
-// gen share_fdipx = fdipx/pinpx
-// gen share_ptfrx = ptfrx/pinrx
-// gen share_ptfpx = ptfpx/pinpx
-// bys year : egen sh_fdirx = mean(share_fdirx) if corecountry == 1 & TH == 1
-// bys year : egen sh_fdipx = mean(share_fdipx) if corecountry == 1 & TH == 1
-// bys year : egen sh_ptfrx = mean(share_ptfrx) if corecountry == 1 & TH == 1
-// bys year : egen sh_ptfpx = mean(share_ptfpx) if corecountry == 1 & TH == 1
-// foreach v in fdirx ptfrx {
-// replace `v' = pinrx*sh_`v' if missing(`v')
-// }
-// foreach v in fdipx ptfpx {
-// replace `v' = pinpx*sh_`v' if missing(`v')
-// }
-// drop sh* 
-
 drop corecountry TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx geoundet geoun soviet yugosl other
 
 // -------------------------------------------------------------------------- //
 // Perform re-calibration
 // -------------------------------------------------------------------------- //
 generate gdpro = 1
-		
+
+
 // Foreign income
 enforce (comnx = comrx - compx) ///
 		(pinnx = pinrx - pinpx) ///
@@ -486,6 +352,12 @@ enforce (comnx = comrx - compx) ///
 		(nnfin = flcin + taxnx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
+		(pinpx = fdipx + ptfpx) ///
+		(pinrx = fdirx + ptfrx) ///
+		(fdinx = fdirx - fdipx) ///
+		(ptfnx = ptfrx - ptfpx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
 		(fsubx = fpsub + fosub) ///
 		(ftaxx = fptax + fotax) ///
 		(taxnx = prtxn + optxn) ///
@@ -631,13 +503,21 @@ enforce (comnx = comrx - compx) ///
 		/// Labor + capital income decomposition
 		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc fkpin comhn nmxhn) replace
 
+
 // Some early government sector data too problematic to do anything
 foreach v of varlist *go {
 	replace `v' = . if inlist(iso, "TZ", "NA") & year < 2008
 	replace `v' = . if inlist(iso, "NA")
 }
 
+
 // fixing some discrepancies caused by enforce
+egen auxptfrx = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res), missing
+replace ptfrx = auxptfrx if !missing(auxptfrx)
+
+egen auxptfpx = rowtotal(ptfpx_eq ptfpx_deb), missing
+replace ptfpx = auxptfpx if !missing(auxptfpx)
+
 egen auxpinrx = rowtotal(fdirx ptfrx)
 replace pinrx = auxpinrx if !missing(auxpinrx)
 
