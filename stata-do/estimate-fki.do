@@ -403,16 +403,23 @@ preserve
 // 	bys iso : egen maxyearUN`var' = max(year) if !missing(`var') & `var'_flag == 1
 // }
 
+foreach v in pinrx pinpx {
+// AE gets SA rates of return later 
+replace orig`v' = . if iso == "AE"
+	replace flag`v' =. if mi(orig`v')
+}
+
 gen r_a_flag = flagpinrx
 gen r_d_flag = flagpinpx 
 gen r_a_imfflag = flagimfpinrx
 gen r_d_imfflag = flagimfpinpx 
+ 
 
-foreach var in r_a r_d {
-	bys iso : egen minyearIMF`var' = min(year) if !missing(`var') & `var'_imfflag == 0
-	bys iso : egen maxyearIMF`var' = max(year) if !missing(`var') & `var'_imfflag == 0
-	bys iso : egen minyearUN`var' = min(year) if !missing(`var') & `var'_imfflag == 1 & `var'_flag == 0 & `var' != 0 
-	bys iso : egen maxyearUN`var' = max(year) if !missing(`var') & `var'_imfflag == 1 & `var'_flag == 0 & `var' != 0
+foreach var in pinrx pinpx {
+	bys iso : egen minyearIMF`var' = min(year) if !missing(orig`var') & flagimf`var' == 0
+	bys iso : egen maxyearIMF`var' = max(year) if !missing(orig`var') & flagimf`var' == 0
+	bys iso : egen minyearUN`var' = min(year) if !missing(orig`var') & flagimf`var' == 1 & flag`var' == 0 & orig`var' != 0 
+	bys iso : egen maxyearUN`var' = max(year) if !missing(orig`var') & flagimf`var' == 1 & flag`var' == 0 & orig`var' != 0
 }
 
 foreach var in nwgxa nwgxd {
@@ -424,7 +431,7 @@ ds iso countryname year, not
 local varlist = r(varlist)
 collapse (mean) `varlist', by(iso countryname)
 
-gl corevar = `""r_a" "r_d""'
+gl corevar = `""pinrx" "pinpx""'
 
 foreach var of global corevar {
 		tostring minyearIMF`var', replace force
