@@ -11,9 +11,8 @@ foreach v of varlist v*{
 	}
 }
 
-cap dropmiss, force
 cap dropmiss
-
+cap dropmiss, force
 drop indicatorname indicatorcode
 
 reshape long year, i(countryname countrycode) j(j)

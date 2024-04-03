@@ -42,6 +42,10 @@ merge 1:1 iso year using "$work_data/eastern-bloc-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/arklems-deflator.dta", ///
 	nogenerate update assert(using master match)
+merge 1:1 iso year using "$work_data/cbs-cpi.dta", ///
+	nogenerate update assert(using master match)
+
+replace currency = "USD" if iso == "PS"	
 	
 	*replace currency = "VEF" if iso == "VE"
 // Sanity check: one currency by country
@@ -105,7 +109,7 @@ drop estimatesstartafter
 generate delta_index = .
 generate index_source = ""
 foreach v of varlist delta_def_arklems delta_def_mw delta_def_east delta_def_wid delta_cpi_wid delta_def_wb delta_def_un  ///
-	delta_def_weo /*delta_def_gem*/ delta_cpi_wb delta_cpi_gfd delta_cpi_fw delta_def_weo_pred {
+	delta_def_weo /*delta_def_gem*/ delta_cpi_wb delta_cpi_gfd delta_cpi_fw delta_def_weo_pred delta_cpi_cbs {
 
 	replace index_source = "`v'" if (delta_index >= .) & (`v' < .)
 	replace delta_index = `v' if (delta_index >= .) & (`v' < .)
@@ -119,7 +123,7 @@ drop if (delta_index >= .) & (year != firstyear)
 
 // Add source for the first year
 foreach v of varlist def_arklems def_mw def_east def_wid cpi_wid def_wb def_un def_weo /*def_gem*/ cpi_wb ///
-	cpi_gfd cpi_fw {
+	cpi_gfd cpi_fw cpi_cbs {
 
 	replace index_source = "delta_`v'" if (year == firstyear) & (`v' < .) & (index_source == "")
 }
@@ -198,6 +202,18 @@ foreach v of varlist def_* cpi_* {
 }
 drop newobs
 
+/*
+// Bonaire, Sint Eustatius, and Saba will use Aruba, as Curacao and Sint Maarten use below.
+expand 2 if (iso == "AW"), generate(newobs)
+replace iso = "BQ" if newobs
+replace currency = "USD" if newobs
+replace index_source = index_source + "_xa" if newobs
+foreach v of varlist def_* cpi_* {
+	replace `v' = . if newobs
+}
+drop newobs
+*/
+
 // For the US Virgin Islands, use the US deflator to fill the missing
 // data: both indices are basically identical whe they overlap
 expand 2 if (iso == "US") & (year >= 1970), generate(newobs)
@@ -247,6 +263,154 @@ foreach v of varlist def_* cpi_* {
 }
 drop newobs
 
+// Making sure core countries are complete from 1970 onwards
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry)
+replace currency = "GBP" if inlist(iso, "GG", "GI", "JE")
+replace currency = "USD" if inlist(iso, "BQ")
+
+// Since deltas are inflation rates we can simply copy the deltas
+// Soviet Union
+gen aux_rus = delta_index if iso == "RU" 
+bys year : egen index_rus = max(aux_rus)
+gen aux_rus_src = index_source if iso == "RU" 
+bys year : egen index_source_rus = mode(aux_rus_src)
+replace index_rus = . if year == 1970
+
+*replace delta_index =. if iso == "GE" & year <= 1991 & year >= 1970
+
+replace index_source = index_source_rus + "_ru" if inlist(iso, "AZ", "AM", "BY", "KG", "KZ") & year <= 1991 & missing(delta_index)
+replace index_source = index_source_rus + "_ru" if inlist(iso, "TJ", "MD", "TM", "UA", "UZ") & year <= 1991 & missing(delta_index)	
+*replace index_source = index_source_rus + "_ru" if inlist(iso, "GE") & year <= 1991 & missing(delta_index)	
+	replace delta_index = index_rus if inlist(iso, "AZ", "AM", "BY", "KG", "KZ") & year <= 1991 & missing(delta_index)
+	replace delta_index = index_rus if inlist(iso, "TJ", "MD", "TM", "UA", "UZ") & year <= 1991 & missing(delta_index)
+	*replace delta_index = index_rus if inlist(iso, "GE") & year <= 1991 & missing(delta_index)
+
+drop aux_rus index_rus aux_rus_src index_source_rus
+
+// Estonia, Lithuania and Latvia currency is euros
+// For price index we are going to use average of russia and the EU
+bys year : egen aux_ee = mean(delta_index) if inlist(iso, "AT", "BE", "CY", "DE", "ES") ///
+								| inlist(iso, "FI", "FR", "GR", "IE", "IT") ///
+								| inlist(iso, "LU", "MT", "NL", "PT") ///
+								| inlist(iso, "SM", "RU")
+bys year : egen index_ee = max(aux_ee)
+
+replace index_ee = . if year == 1970
+replace index_source = "Average Russia and EU" if inlist(iso, "EE", "LT", "LV") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_ee if inlist(iso, "EE", "LT", "LV") & year <= 1990 & missing(delta_index)
+drop aux_ee index_ee
+		
+// Yugoslavia/Serbia
+gen aux_yug = delta_index if iso == "YU" 
+bys year : egen index_yug = max(aux_yug)
+gen aux_yug_src = index_source if iso == "YU" 
+bys year : egen index_source_yug = mode(aux_yug_src)
+replace index_yug = . if year == 1970
+
+replace index_source = index_source_yug + "_yu" if inlist(iso, "BA", "HR", "MK", "RS") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_yug if inlist(iso, "BA", "HR", "MK", "RS") & year <= 1990 & missing(delta_index)
+	
+// Kosovo, Montenegro and Slovenia currency is euros
+// For price index we are going to use average of yugoslavia and the EU
+replace delta_index =. if iso == "SI" & year <= 1990
+bys year : egen aux_ks = mean(delta_index) if inlist(iso, "AT", "BE", "CY", "DE", "ES") ///
+								| inlist(iso, "FI", "FR", "GR", "IE", "IT") ///
+								| inlist(iso, "LU", "MT", "NL", "PT") ///
+								| inlist(iso, "SM", "YU")								
+bys year : egen index_ks = max(aux_ks)
+replace index_ks = . if year == 1970
+replace index_source = "Average Yugoslavia and EU" if inlist(iso, "KS", "ME", "SI") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_ks if inlist(iso, "KS", "ME", "SI") & year <= 1990 & missing(delta_index)
+drop aux_yug index_yug aux_yug_src index_source_yug aux_ks index_ks
+// Slovenia currency is euros
+/*
+bys year : egen aux_si = mean(delta_index) if inlist(iso, "AT", "BE", "CY", "DE", "ES") ///
+								| inlist(iso, "FI", "FR", "GR", "IE", "IT") ///
+								| inlist(iso, "LU", "MT", "NL", "PT") ///
+								| inlist(iso, "SM")
+bys year : egen index_si = max(aux_si)
+replace index_si = . if year == 1970
+replace index_source = "Average EU" if inlist(iso, "SI") & year <= 1990
+	replace delta_index = index_si if inlist(iso, "SI") & year <= 1990 
+drop aux_yug index_yug aux_yug_src index_source_yug aux_ks index_ks aux_si index_si
+*/
+
+// Eritrea/Ethiopia 
+gen aux_er = delta_index if iso == "ET" 
+bys year : egen index_er = max(aux_er)
+gen aux_er_src = index_source if iso == "ET" 
+bys year : egen index_source_er = mode(aux_er_src)
+
+replace index_er = . if year == 1970
+replace index_source = index_source_er + "_et" if inlist(iso, "ER") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_er if inlist(iso, "ER") & year <= 1990 & missing(delta_index)
+drop aux_er index_er aux_er_src index_source_er
+
+/*
+Netherlands 
+CW
+SX
+*/
+
+// Czechoslovakia
+gen aux_cs = delta_index if iso == "CS" 
+bys year : egen index_cs = max(aux_cs)
+gen aux_csk_src = index_source if iso == "CS" 
+bys year : egen index_source_csk = mode(aux_csk_src)
+
+replace index_cs = . if year == 1970
+replace index_source = index_source_csk + "_cs" if inlist(iso, "CZ", "SK" ) & year <= 1993 & missing(delta_index)
+	replace delta_index = index_cs if inlist(iso, "CZ", "SK" ) & year <= 1993 & missing(delta_index)
+drop aux_cs index_cs aux_csk_src index_source_csk
+
+// South Sudan
+gen aux_sd = delta_index if iso == "SD" 
+bys year : egen index_sd = max(aux_sd)
+gen aux_sd_src = index_source if iso == "SD" 
+bys year : egen index_source_sd = mode(aux_sd_src)
+
+replace index_sd = . if year == 1970
+replace index_source = index_source_sd + "_sd" if inlist(iso, "SS") & year <= 2008 & missing(delta_index)
+	replace delta_index = index_sd if inlist(iso, "SS") & year <= 2008 & missing(delta_index)
+drop aux_sd index_sd aux_sd_src index_source_sd
+
+// Timor Leste with Indonesia
+gen aux_id = delta_index if iso == "ID" 
+bys year : egen index_id = max(aux_id)
+gen aux_id_src = index_source if iso == "ID" 
+bys year : egen index_source_id = mode(aux_id_src)
+
+replace index_id = . if year == 1970
+replace index_source = index_source_id + "_id" if inlist(iso, "TL") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_id if inlist(iso, "TL") & year <= 1990 & missing(delta_index)
+drop aux_id index_id aux_id_src index_source_id
+
+// Curaçao and Sint Maarten will use Aruba's price index
+gen aux_aw = delta_index if iso == "AW" 
+bys year : egen index_aw = max(aux_aw)
+gen aux_aw_src = index_source if iso == "AW" 
+bys year : egen index_source_aw = mode(aux_aw_src)
+
+replace index_aw = . if year == 1970
+replace index_source = index_source_aw + "_aw" if inlist(iso, "CW", "SX" ) & year <= 2005 & missing(delta_index)
+	replace delta_index = index_aw if inlist(iso, "CW", "SX" ) & year <= 2005 & missing(delta_index)
+	
+// Bonaire, Sint Eustatius, and Saba will use Aruba
+replace index_source = index_source_aw + "_aw" if inlist(iso, "BQ") & year <= 2014 & missing(delta_index)
+	replace delta_index = index_aw if inlist(iso, "BQ") & year <= 2014 & missing(delta_index)
+drop aux_aw index_aw aux_aw_src index_source_aw
+
+// Isle of Man will use United Kingdom's price index
+gen aux_gb = delta_index if iso == "GB" 
+bys year : egen index_gb = max(aux_gb)
+gen aux_gb_src = index_source if iso == "GB" 
+bys year : egen index_source_gb = mode(aux_gb_src)
+
+replace index_gb = . if year == 1970
+replace index_source = index_source_gb + "_gb" if inlist(iso, "IM", "GG", "JE", "GI") & year >= 1970 & missing(delta_index)
+	replace delta_index = index_gb if inlist(iso, "IM", "GG", "JE", "GI") & year >= 1970 & missing(delta_index)
+drop aux_gb index_gb aux_gb_src index_source_gb
+
 // Fill the panel with respect to the last values
 sort iso year
 encode2 iso
@@ -254,7 +418,7 @@ xtset iso year
 tsfill, full
 gsort iso -year
 by iso: generate a = sum(delta_index < .)
-drop if (a > 0) & (delta_index >= .) & (year != firstyear)
+drop if (a > 0) & (delta_index >= .) & (year != firstyear) & (corecountry != 1)
 drop a
 decode2 iso
 // Carry last inflation value forward as a last resort solution
@@ -543,3 +707,4 @@ order iso year index currency
 
 label data "Generated by calculate-price-index.do"
 save "$work_data/price-index.dta", replace
+

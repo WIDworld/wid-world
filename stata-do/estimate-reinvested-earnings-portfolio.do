@@ -6,42 +6,28 @@
 // Get estimate of GPD in current USD
 // -------------------------------------------------------------------------- //
 
-import excel "$input_data_dir/un-data/sna-main/gni-gdp-bop/GDPcurrent-USD-countries.xlsx", cellrange(A3) firstrow clear case(lower)
+u "$work_data/exchange-rates.dta", clear
+keep if widcode == "xlcusx999i"
+ren value exrate_usd
 
-keep if indicatorname == "Gross Domestic Product (GDP)"
-drop indicatorname
+merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
+merge 1:1 iso year using "$work_data/price-index.dta", nogen
+merge 1:1 iso year using "$work_data/sna-series-finalized.dta", nogenerate keep(match) keepusing(ptfnx ptfrx ptfpx)
 
-ds countryid country, not
-local varlist = r(varlist)
-local year = 1970
-foreach v of local varlist {
-	rename `v' gdp`year'
-	local year = `year' + 1
+foreach v in ptfnx ptfrx ptfpx {
+	replace `v' = `v'*gdp
 }
 
-greshape long gdp, i(countryid) j(year)
+foreach var in gdp ptfnx ptfrx ptfpx {
+gen `var'_idx = `var'*index
+	gen `var'_usd = `var'_idx/exrate_usd
+}
 
-kountry countryid, from(iso3n) to(iso2c)
-rename _ISO2C_ iso
-replace iso = "CW" if country == "Curaçao"
-replace iso = "CS" if country == "Czechoslovakia (Former)"
-replace iso = "ET" if country == "Ethiopia (Former)"
-replace iso = "KS" if country == "Kosovo"
-replace iso = "RU" if country == "Russian Federation"
-replace iso = "RS" if country == "Serbia"
-replace iso = "SX" if country == "Sint Maarten (Dutch part)"
-replace iso = "SD" if country == "Sudan"
-replace iso = "TZ" if country == "U.R. of Tanzania: Mainland"
-replace iso = "YA" if country == "Yemen Arab Republic (Former)"
-replace iso = "YD" if country == "Yemen Democratic (Former)"
-replace iso = "ZZ" if country == "Zanzibar"
-replace iso = "YU" if country == "Yugoslavia (Former)"
-replace iso = "SU" if country == "USSR (Former)"
-assert iso != ""
-drop if country == "Ethiopia" & year <= 1993
-drop if country == "Sudan (Former)" & year >= 2008
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+keep if corecountry == 1
 
-keep iso year gdp
+keep iso year gdp_usd
+ren gdp_usd gdp
 drop if missing(gdp)
 
 tempfile gdp
@@ -194,6 +180,23 @@ merge 1:1 iso year using "`gdp'", nogenerate update
 fillin iso year
 drop _fillin
 
+// There is data for Netherlands Antilles until 2009
+// Curacao and Sint Maarten will be calculated based on GDP shares
+merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
+foreach v in ptf_asset ptf_liabi fdi_asset fdi_liabi { 
+bys year : gen aux`v' = `v' if iso == "AN"
+bys year : egen `v'AN = mode(aux`v')
+}
+foreach v in ptf_asset ptf_liabi fdi_asset fdi_liabi { 
+	foreach c in CW SX {
+		replace `v' = `v'AN*ratio`c'_ANlcu if iso == "`c'" & missing(`v')
+	}
+}	
+drop aux* *AN *ANlcu
+
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+keep if corecountry == 1
+
 sort iso year
 
 // Extrapolate portfolio position based on GDP
@@ -304,10 +307,27 @@ save "`share_foreign'"
 // -------------------------------------------------------------------------- //
 
 use "$work_data/sna-series-finalized.dta", clear
-
+cap drop _m 
 keep if year >= 1970 & year <= ($pastyear - 1)
 fillin iso year
 drop _fillin
+
+// There is data for Netherlands Antilles until 2009
+// Curacao and Sint Maarten will be calculated based on GDP shares
+merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
+foreach v in secco { 
+bys year : gen aux`v' = `v' if iso == "AN"
+bys year : egen `v'AN = mode(aux`v')
+}
+foreach v in secco { 
+	foreach c in CW SX {
+		replace `v' = `v'AN*ratio`c'_ANlcu if iso == "`c'" & missing(`v')
+	}
+}	
+drop aux* *AN *ANlcu
+
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+keep if corecountry == 1
 
 // Extrapolate the value of net corporate savings
 gsort iso -year
@@ -469,7 +489,7 @@ forvalue i = 1/2 {
 	replace iso`i' = "other" if _merge != 3
 	drop _merge
 }
-*drop if iso1 == "other" | iso2 == "other"
+drop if iso1 == "other" | iso2 == "other"
 generate nmiss = !missing(value)
 collapse (sum) value nmiss, by(iso1 iso2 year)
 replace value = . if nmiss == 0
@@ -516,6 +536,22 @@ by iso1 iso2: carryforward value, replace
 
 keep iso1 iso2 year value
 rename iso1 iso
+
+//added by gaston. rescaling value so shares add up to 1
+bys year iso : egen check = total(value)
+replace value = value/check 
+gen add = 1 - check 
+gsort iso year -value 
+by iso year : gen value2 = value + add if _n == 1
+replace value = value2 if add != 0 & add != 1 & !missing(value2)
+bys year iso : egen check2 = total(value)
+gen add2 = 1 - check2
+gsort iso year -value 
+by iso year : gen value3 = value + add2 if _n == 1
+replace value = value3 if add != 0 & add != 1 & !missing(value3)
+
+replace value = 0 if year == 1970
+
 merge n:1 iso year using "`share_foreign'", nogenerate keep(master match)
 
 replace foreign_secco = value*foreign_secco
@@ -530,20 +566,48 @@ merge 1:1 iso year using "`gdp'", nogenerate
 
 generate ptfrr = foreign_secco/gdp
 replace ptfrr = 0 if missing(ptfrr)
-drop foreign_secco
+*drop foreign_secco
+ren foreign_secco foreign_secco_r
 
 merge 1:1 iso year using "`share_foreign'", nogenerate
+replace ptfrp = 0 if year == 1970
+replace foreign_secco = 0 if year == 1970
+
+// reallocating some minor imbalances
+bys year : egen totfs_r = total(foreign_secco_r)
+bys year : egen totfs_p = total(foreign_secco)
+gen dif = totfs_r - totfs_p
+gsort year -foreign_secco_r
+by year : replace foreign_secco_r = foreign_secco_r + abs(dif) if _n == 1 & dif < 0
+gsort year -foreign_secco
+by year : replace foreign_secco = foreign_secco + abs(dif) if _n == 1 & dif > 0
+
+// change later
+sort iso year
+by iso: carryforward foreign_secco_r foreign_secco, replace
+
+bys year : egen totfs_r2 = total(foreign_secco_r)
+bys year : egen totfs_p2 = total(foreign_secco)
+//assert totfs_r2 == totfs_p2
+
+replace ptfrr = foreign_secco_r/gdp
+replace ptfrr = 0 if year == 1970
+
+replace ptfrp = foreign_secco/gdp
+replace ptfrp = 0 if year == 1970
 
 keep iso year ptfrr ptfrp
+
 generate ptfrn = ptfrr - ptfrp
 
 keep if year >= 1970
 
-expand 2 if year == ($pastyear - 1), gen(new)
-replace year = $pastyear if new
-drop new
+// expand 2 if year == ($pastyear - 1), gen(new)
+// replace year = $pastyear if new
+// drop new
 
 sort iso year
+drop if missing(ptfrn)
 
 save "$work_data/reinvested-earnings-portfolio.dta", replace
 

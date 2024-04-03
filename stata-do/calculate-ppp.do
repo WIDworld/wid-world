@@ -7,6 +7,7 @@ merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 		drop if iso == "VE"
 		append using "$work_data/imf-ven-pppex" 
 		replace currency = "VES" if iso == "VE"
+	
 // For Lithuania and Latvia, OECD PPPs are expressed in their old currency
 /*
 replace ppp_oecd = ppp_oecd/3.4528 if iso == "LT"
@@ -16,11 +17,11 @@ replace ppp_oecd = ppp_oecd/0.702804 if iso == "LV"
 // Keep OECD in priority
 generate ppp = .
 generate ppp_src = ""
-foreach v of varlist ppp_oecd ppp_wb ppp_imf {
+foreach v of varlist ppp_oecd ppp_wb {
 	replace ppp_src = "`v'" if (ppp >= .) & (`v' < .)
 	replace ppp = `v' if (ppp >= .) & (`v' < .)
 }
-drop ppp_oecd ppp_wb ppp_imf
+drop ppp_oecd ppp_wb
 drop if ppp >= .
 
 replace ppp_src = ///
@@ -30,10 +31,6 @@ if (ppp_src == "ppp_wb")
 replace ppp_src = ///
 `"[URL][URL_LINK]http://stats.oecd.org/Index.aspx?DataSetCode=PPP2011[/URL_LINK][URL_TEXT]OECD[/URL_TEXT][/URL]; "' ///
 if (ppp_src == "ppp_oecd")
-
-replace ppp_src = ///
-`"[URL][URL_LINK]http://www.imf.org/[/URL_LINK][URL_TEXT]IMF[/URL_TEXT][/URL]; "' ///
-if (ppp_src == "ppp_imf")
 
 generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(year) + ") using the evolution of the price index relative to the reference country"
 
@@ -115,7 +112,7 @@ drop newobs
 tempfile ppp
 save "`ppp'", replace
 
-use "$work_data/gdp_yugosl.dta", clear
+use "$work_data/gdp.dta", clear
 keep iso year gdp
 keep if year == 1989
 keep if inlist(iso, "YU", "BA", "HR", "KS", "MK", "ME", "RS", "SI")
@@ -175,7 +172,8 @@ save "`index_us'"
 use "`ppp'", clear
 
 generate refyear = year
-*drop if iso == "VE" & currency == "VEF"
+drop if iso == "PS" & currency == "ILS"
+
 merge 1:1 iso year using "`index'", nogenerate update ///
 	assert(master using match match_update)
 merge n:1 year using "`index_us'", nogenerate

@@ -19,11 +19,11 @@ keep countryname currency fiscalyearend
 // Some discrepancies between the country names in the data and the metadata files
 replace countryname = "Cote d'Ivoire" if (countryname == "Côte d'Ivoire")
 replace countryname = "Curacao" if (countryname == "Curaçao")
-replace countryname = "Korea, Dem. People’s Rep." if (countryname == "Korea, Dem. People's Rep.")
+replace countryname = "Korea, Dem. People's Rep." if (countryname == "Korea, Dem. People's Rep.")
 replace countryname = "Sao Tome and Principe" if (countryname == "São Tomé and Principe")
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland" if countryname == "Eswatini"
-replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
+replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People's Rep."
 replace countryname = "Czechia" if countryname == "Czech Republic" 
 replace countryname = "Turkiye" if countryname == "Turkey" 
 
