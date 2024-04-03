@@ -40,6 +40,8 @@ restore
 
 keep if substr(widcode,1,6) == "npopul"
 drop currency
+compress
+
 reshape wide value, i(iso year p) j(widcode) string
 
 // * 996i

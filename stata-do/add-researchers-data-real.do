@@ -39,6 +39,8 @@ append using "$wid_dir/Country-Updates/Europe/2023_10/Europe2023.dta"
 drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2023_10/LatinAmercia2023.dta"
 
+// Post-tax series (Fisher-Post & Gethin 2023) 
+append using "$wid_dir/Country-Updates/posttax/03_2024/global-posttax-032024.dta"
 
 compress, nocoalesce 
 
@@ -61,6 +63,8 @@ merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2023_10/Latin
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/posttax/03_2024/posttax-mar2024-metadata.dta", update replace nogen
+
 duplicates drop
 
 

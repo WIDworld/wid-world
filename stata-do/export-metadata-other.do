@@ -1,5 +1,5 @@
 // List variables in the database
-use "$work_data/calculate-pareto-coef-output.dta", clear
+use "$work_data/merge-historical-main.dta", clear
 append using "$work_data/add-carbon-series-output.dta"
 
 generate fivelet = substr(widcode, 2, 5)
@@ -57,7 +57,7 @@ merge 1:1 fivelet using "`fivelet'", nogen
 sort fivelet
 *drop fivelet onelet
 compress
-
+** dropping some 
 duplicates tag twolet threelet, generate(duplicate)
 assert duplicate == 0
 drop duplicate

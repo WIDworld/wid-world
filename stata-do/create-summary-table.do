@@ -13,6 +13,7 @@ renvars iso p / alpha2 perc
 dropmiss, force
 
 ds alpha2 year perc, not
+
 global variables `r(varlist)'
 
 ************************************************ CREATION DU TABLEAU RECAPITULATIF *******************************************************************

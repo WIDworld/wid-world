@@ -208,7 +208,8 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" & iso == "CA" & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
-	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) // No overall income available, just shares
+	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) & ///
+	!(fivelet == "cainc" & inlist(iso, "FR", "DD") & year <= 1990) // No overall income available, just shares
 
 //
 tab iso year if changes == 0  & ///

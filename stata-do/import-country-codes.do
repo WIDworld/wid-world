@@ -2,7 +2,7 @@
 // Export countries and region codes
 // -------------------------------------------------------------------------- //
 
-import excel "$country_codes/country-codes-new.xlsx", clear firstrow
+import excel "$country_codes/country-codes-core.xlsx", clear firstrow
 
 keep if shortname != ""
 rename code iso

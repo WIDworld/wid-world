@@ -21,7 +21,7 @@ drop if strpos(iso, "-MER")
 drop if substr(iso, 1, 1) == "X"
 drop if substr(iso, 1, 1) == "Q" & iso != "QA"
 drop if substr(iso, 1, 1) == "O" & iso != "OM"
-drop if inlist(iso, "WO", "Al", "SW")
+drop if inlist(iso, "WO", "Al", "SW", "KV")
 
 // Regions (PPP)
 append using "$work_data/import-region-codes-output.dta"
@@ -32,7 +32,7 @@ append using "$work_data/import-region-codes-mer-output.dta"
 *replace shortname = subinstr(shortname, "Russia and Ukraine", "Russia and Others", 1)
 
 
-drop matchname region4 region5
+drop matchname region4 region5 corecountry TH
 rename iso Alpha2
 rename titlename TitleName
 rename shortname ShortName
@@ -51,7 +51,6 @@ assert region2 != "" if !(inrange(Alpha2, "QB", "QZ") | Alpha2 == "WO"  | inrang
 			          | inrange(Alpha2, "XA", "XF") | inrange(Alpha2, "XL", "XS")) ///
 					  & !inlist(substr(Alpha2, 1, 3), "US-", "CN-", "DE-") & (substr(Alpha2,3,.) != "-MER")
 
-drop if Alpha2 == "KV"
 sort Alpha2
 
 export delimited "$output_dir/$time/metadata/country-codes.csv", delimit(";") replace

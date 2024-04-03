@@ -111,8 +111,6 @@ append using "$wid_dir/Country-Updates/Georgia/2021_08/dina_georgia_8sep2021.dta
 // Wealth Aggregates (Bauluz & Brassac 2020 + update 2021 for all countries) - wealth macro series 
 append using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021.dta"
 
-// Post-tax series (Fisher-Post & Gethin 2023) 
-append using "$wid_dir/Country-Updates/posttax/11_2023/dfg2023-global-posttax-2023-11-22.dta"
 
 compress, nocoalesce 
 
@@ -138,7 +136,6 @@ merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/posttax/02_2023/posttax-feb2023-metadata.dta", update replace nogen
 
 duplicates drop
 

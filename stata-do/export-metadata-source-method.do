@@ -162,10 +162,14 @@ replace method = strtrim(method)
 replace source = strtrim(source)
 
 // Fix China exchange rate source
-replace source = "" if (iso=="CN" & sixlet=="xlcusx" & source=="WID.world computations")
-qui count if (iso=="CN" & sixlet=="xlcusx")
+replace source = "" if (iso == "CN" & sixlet == "xlcusx" & source == "WID.world computations")
+qui count if (iso == "CN" & sixlet == "xlcusx")
 // assert r(N)==1
 
+// Fix duplicates for transaprency index
+drop if sixlet == "iquali" & missing(source)
+
+// Check for duplicates
 duplicates tag iso OneLet TwoLet ThreeLet, generate(duplicate)
 assert duplicate == 0
 drop duplicate
