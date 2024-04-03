@@ -1,24 +1,24 @@
 // Import all files
-import delimited "$wb_data/gdp-current-lcu/API_NY.GDP.MKTP.CN_DS2_en_csv_v2_$pastyear.csv", ///
+import delimited "$wb_data/gdp-current-lcu/API_NY.GDP.MKTP.CN_DS2_en_csv_v2_$year.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 tempfile wb_macro_data
 save "`wb_macro_data'"
 
-import delimited "$wb_data/gdp-current-usd/API_NY.GDP.MKTP.CD_DS2_en_csv_v2_$pastyear.csv", ///
+import delimited "$wb_data/gdp-current-usd/API_NY.GDP.MKTP.CD_DS2_en_csv_v2_$year.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 append using "`wb_macro_data'"
 save "`wb_macro_data'", replace
 
-import delimited "$wb_data/nfi/API_NY.GSR.NFCY.CD_DS2_en_csv_v2_$pastyear.csv", ///
+import delimited "$wb_data/nfi/API_NY.GSR.NFCY.CD_DS2_en_csv_v2_$year.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4)
 
 append using "`wb_macro_data'"
 
 // Rename year variables
-cap dropmiss, force
 cap dropmiss
+cap dropmiss, force
 foreach v of varlist v* {
 	local year: variable label `v'
 	rename `v' value`year'
@@ -27,6 +27,7 @@ foreach v of varlist v* {
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland"      if countryname == "Eswatini"
 replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
+replace countryname = "Vietnam" if countryname == "Viet Nam"
 
 // Identify countries
 countrycode countryname, generate(iso) from("wb")

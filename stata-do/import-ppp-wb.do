@@ -2,8 +2,8 @@ import delimited "$wb_data/ppp/API_PA.NUS.PPP_DS2_en_csv_v2_$pastyear.csv", ///
 	clear encoding("utf8") rowrange(3) varnames(4) 
 
 // Rename year variables
-cap dropmiss, force
 cap dropmiss
+cap dropmiss, force
 foreach v of varlist v*{
 	local year: variable label `v'
 	rename `v' value`year'
@@ -13,8 +13,6 @@ foreach v of varlist v*{
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland"      if countryname == "Eswatini"
 replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
-// replace countryname = "Turkey" if countryname == "Turkiye"
-// replace countryname = "Czech Republic" if countryname == "Czechia"
 
 countrycode countryname, generate(iso) from("wb")
 

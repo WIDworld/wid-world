@@ -8,8 +8,8 @@ foreach v of varlist `r(varlist)'{
 	rename `v' value`year'
 }
 drop in 1
-cap dropmiss, force
 cap dropmiss
+cap dropmiss, force
 
 destring value*, replace force ignore(",")
 rename _var1 country

@@ -1,15 +1,29 @@
 // GDP
-import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
+import delimited "$un_data/sna-main/gdp/gdp-current-$year.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
 rename gdpatcurrentpricesnationalcurren gdp
 cap ren unit currency
+*drop if countryorarea == "Somalia"
 
 tempfile gdp
 save "`gdp'"
 
+/*only for Somalia
+import delimited "$un_data/sna-main/gdp/gdp-current-$year.csv", ///
+	clear delimiter(",") encoding("utf8")
+keep if countryarea == "Somalia"
+
+cap rename countryarea countryorarea
+rename gdpatcurrentpricesnationalcurren gdp
+cap ren unit currency
+drop if year >= $pastyear
+
+append using "`gdp'"
+save "`gdp'", replace
+*/
 // GNI
-import delimited "$un_data/sna-main/gni/gni-current-$pastyear.csv", ///
+import delimited "$un_data/sna-main/gni/gni-current-$year.csv", ///
 	clear delimiter(",") encoding("utf8")
 
 cap rename countryarea countryorarea
@@ -24,7 +38,7 @@ merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
 save "`gdp'", replace
 
 // GDP Current USD
-import delimited "$un_data/sna-main/gdp/gdp-usd-current-$pastyear.csv", ///
+import delimited "$un_data/sna-main/gdp/gdp-usd-current-$year.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
 drop if unit == "..."
@@ -98,10 +112,11 @@ replace currency = "CZK" if (currency == "CSK")
 replace gni = gni/1000 if (currency == "SUR")
 replace gdp = gdp/1000 if (currency == "SUR")
 replace currency = "RUB" if (currency == "SUR")
+/*
 // Correct some error in North Korea
 replace gni = gni*100 if (iso == "KP") & (year <= 2001)
 replace gdp = gdp*100 if (iso == "KP") & (year <= 2001)
-
+*/
 // Correct fiscal year ------------------------------------------------------ //
 reshape long g, i(iso year) j(indicator) string
 

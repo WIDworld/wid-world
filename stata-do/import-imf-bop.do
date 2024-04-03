@@ -48,11 +48,23 @@ drop if missing(gdp)
 tempfile gdp
 save "`gdp'"
 
+		// -------------------------------------------------------------------------- //
+		// 					GDP WID for missing countries
+		// 
+		// -------------------------------------------------------------------------- //
+	u "$work_data/retropolate-gdp.dta", clear
+	merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
+	merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
+	gen gdp_idx = gdp*index
+		gen gdp_wid = gdp_idx/exrate_usd
+	tempfile gdpwid
+	save "`gdpwid'"
+
 // -------------------------------------------------------------------------- //
 // Import IMF BOP
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_04-16-2021 15-29-32-28.csv", clear encoding(utf8)
+import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_01-31-2024 15-49-55-97.csv", clear encoding(utf8)
 
 kountry countrycode, from(imfn) to(iso2c)
 
@@ -67,6 +79,7 @@ replace iso = "SX" if countryname == "Sint Maarten, Kingdom of the Netherlands"
 replace iso = "SS" if countryname == "South Sudan, Rep. of"
 replace iso = "TC" if countryname == "Turks and Caicos Islands"
 replace iso = "PS" if countryname == "West Bank and Gaza"
+replace iso = "AD" if countryname == "Andorra, Principality of"
 drop if missing(iso)
 
 generate widcode = ""
@@ -81,6 +94,10 @@ replace widcode = "fdirx"     if indicatorcode == "BXIPID_BP6_USD"
 replace widcode = "fdipx"     if indicatorcode == "BMIPID_BP6_USD"
 replace widcode = "ptfrx"     if indicatorcode == "BXIPIP_BP6_USD"
 replace widcode = "ptfpx"     if indicatorcode == "BMIPIP_BP6_USD"
+replace widcode = "ptfrx_eq"  if indicatorcode == "BXIPIPE_BP6_USD"
+replace widcode = "ptfpx_eq"  if indicatorcode == "BMIPIPE_BP6_USD"
+replace widcode = "ptfrx_deb" if indicatorcode == "BXIPIPI_BP6_USD"
+replace widcode = "ptfpx_deb" if indicatorcode == "BMIPIPI_BP6_USD"
 replace widcode = "ptfrx_oth" if indicatorcode == "BXIPIO_BP6_USD"
 replace widcode = "ptfpx_oth" if indicatorcode == "BMIPIO_BP6_USD"
 replace widcode = "ptfrx_res" if indicatorcode == "BXIPIR_BP6_USD"
@@ -95,10 +112,254 @@ renvars value*, predrop(5)
 
 replace ptfrx = ptfrx + cond(missing(ptfrx_oth), 0, ptfrx_oth) + cond(missing(ptfrx_res), 0, ptfrx_res)
 replace ptfpx = ptfpx + cond(missing(ptfpx_oth), 0, ptfpx_oth)
-drop ptfrx_oth ptfrx_res ptfpx_oth
+replace ptfrx_deb = ptfrx_deb + cond(missing(ptfrx_oth), 0, ptfrx_oth)
+replace ptfpx_deb = ptfpx_deb + cond(missing(ptfpx_oth), 0, ptfpx_oth)
+drop ptfrx_oth ptfpx_oth
 
-generate flcir = pinrx + comrx
-generate flcip = pinpx + compx
+// completing
+replace ptfrx = pinrx - fdirx if (missing(ptfrx) | ptfrx == 0) & (!missing(pinrx) & pinrx !=0) & (!missing(fdirx) & fdirx !=0) & (fdirx < pinrx)
+replace ptfpx = pinpx - fdipx if (missing(ptfpx) | ptfpx == 0) & (!missing(pinpx) & pinpx !=0) & (!missing(fdipx) & fdipx !=0) & (fdipx < pinpx)
+replace fdirx = pinrx - ptfrx if (missing(fdirx) | fdirx == 0) & (!missing(pinrx) & pinrx !=0) & (!missing(ptfrx) & ptfrx !=0) & (ptfrx < pinrx) 
+replace fdipx = pinpx - ptfpx if (missing(fdipx) | fdipx == 0) & (!missing(pinpx) & pinpx !=0) & (!missing(ptfpx) & ptfpx !=0) & (ptfpx < pinpx) 
+
+// for portfolio components
+// received
+replace ptfrx_eq = ptfrx - ptfrx_deb - ptfrx_res if (missing(ptfrx_eq) | ptfrx_eq == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_deb) & ptfrx_deb !=0) & (!missing(ptfrx_res) & ptfrx_res !=0) & ((ptfrx_deb + ptfrx_res) < ptfrx) 
+replace ptfrx_deb = ptfrx - ptfrx_eq - ptfrx_res if (missing(ptfrx_deb) | ptfrx_deb == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_eq) & ptfrx_eq !=0) & (!missing(ptfrx_res) & ptfrx_res !=0) & ((ptfrx_eq + ptfrx_res) < ptfrx) 
+replace ptfrx_res = ptfrx - ptfrx_deb - ptfrx_eq if (missing(ptfrx_res) | ptfrx_res == 0) & (!missing(ptfrx) & ptfrx !=0) & (!missing(ptfrx_deb) & ptfrx_deb !=0) & (!missing(ptfrx_eq) & ptfrx_eq !=0) & ((ptfrx_deb + ptfrx_eq) < ptfrx) 
+
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+	replace `v' = 0 if (`v' == 0 | abs(`v') < 1)
+}
+
+egen ptfrx_comp = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res)
+replace ptfrx_comp = ptfrx - ptfrx_comp
+// allocating to deb and eq and reserves will be done below
+replace ptfrx_deb = ptfrx_comp if mi(ptfrx_deb) & ptfrx_comp > 0 & !mi(ptfrx_eq)
+replace ptfrx_eq = ptfrx_comp if mi(ptfrx_eq) & ptfrx_comp > 0 & !mi(ptfrx_deb)
+drop ptfrx_comp
+
+// paid
+replace ptfpx_eq = ptfpx - ptfpx_deb if (missing(ptfpx_eq) | ptfpx_eq == 0) & (!missing(ptfpx) & ptfpx !=0) & (!missing(ptfpx_deb) & ptfpx_deb !=0) & (ptfrx_deb < ptfpx) 
+replace ptfpx_deb = ptfpx - ptfpx_eq if (missing(ptfpx_deb) | ptfpx_deb == 0) & (!missing(ptfpx) & ptfpx !=0) & (!missing(ptfpx_eq) & ptfpx_eq !=0) & (ptfpx_eq < ptfpx) 
+
+foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+	replace `v' = 0 if (`v' == 0 | abs(`v') < 4e-6)
+}
+
+
+// whenever total income paid/received for one type of asset equals total foreign capital income paid/received and that country reports assets/liabilities of that type 
+// we assume that there is misreporting in the IMF and we separate total capital income based on the share of the asset class in total assets 
+gen checkptfrx = 1 if round(ptfrx) == round(pinrx) & !missing(ptfrx) & !missing(pinrx)
+gen checkfdirx = 1 if round(fdirx) == round(pinrx) & !missing(fdirx) & !missing(pinrx)
+gen checkptfpx = 1 if round(ptfpx) == round(pinpx) & !missing(ptfpx) & !missing(pinpx)
+gen checkfdipx = 1 if round(fdipx) == round(pinpx) & !missing(fdipx) & !missing(pinpx)
+
+gen checkptfrx_eq = 1 if round(ptfrx_eq) == round(ptfrx) & !missing(ptfrx_eq) & !missing(ptfrx)
+gen checkptfrx_deb = 1 if round(ptfrx_deb) == round(ptfrx) & !missing(ptfrx_deb) & !missing(ptfrx)
+gen checkptfrx_res = 1 if round(ptfrx_res) == round(ptfrx) & !missing(ptfrx_res) & !missing(ptfrx)
+
+gen checkptfpx_eq = 1 if round(ptfpx_eq) == round(ptfpx) & !missing(ptfpx_eq) & !missing(ptfpx)
+gen checkptfpx_deb = 1 if round(ptfpx_deb) == round(ptfpx) & !missing(ptfpx_deb) & !missing(ptfpx)
+
+merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN_new.dta", nogen
+encode iso, gen(i)
+xtset i year 
+
+foreach x in a d {
+gen share_fdix`x' = fdix`x'/nwgx`x'
+gen share_ptfx`x' = ptfx`x'/nwgx`x'
+}
+replace fdirx = pinrx*l.share_fdixa if missing(fdirx) | fdirx == 0
+replace ptfrx = pinrx*l.share_ptfxa if missing(ptfrx) | ptfrx == 0 
+replace fdipx = pinpx*l.share_fdixd if missing(fdipx) | fdipx == 0
+replace ptfpx = pinpx*l.share_ptfxd if missing(ptfpx) | ptfpx == 0 
+
+replace fdirx = pinrx*share_fdixa if (missing(fdirx) | fdirx == 0) & year == 1970
+replace ptfrx = pinrx*share_ptfxa if (missing(ptfrx) | ptfrx == 0) & year == 1970
+replace fdipx = pinpx*share_fdixd if (missing(fdipx) | fdipx == 0) & year == 1970
+replace ptfpx = pinpx*share_ptfxd if (missing(ptfpx) | ptfpx == 0) & year == 1970
+
+replace ptfrx = pinrx - fdirx if checkptfrx == 1
+replace fdirx = pinrx - ptfrx if checkfdirx == 1
+replace ptfpx = pinpx - fdipx if checkptfpx == 1
+replace fdipx = pinpx - ptfpx if checkfdipx == 1
+
+// for portfolio components
+foreach x in a d {
+gen share_ptfx`x'_deb = ptfx`x'_deb/(ptfx`x' - ptfx`x'_fin) // financial derivatives do not accrue income as per IMF BOP manual 6
+gen share_ptfx`x'_eq = ptfx`x'_eq/(ptfx`x' - ptfx`x'_fin)
+}
+gen share_ptfxa_res = ptfxa_res/(ptfxa - ptfxa_fin)
+
+replace ptfrx_eq = 0 if share_ptfxa_eq == 0 | mi(share_ptfxa_eq)
+replace ptfrx_deb = 0 if share_ptfxa_deb == 0 | mi(share_ptfxa_deb)
+replace ptfrx_res = 0 if share_ptfxa_res == 0 | mi(ptfrx_res)
+replace ptfpx_eq = 0 if share_ptfxd_eq == 0 | mi(share_ptfxd_eq)
+replace ptfpx_deb = 0 if share_ptfxd_deb == 0 | mi(share_ptfxd_deb)
+
+foreach x in ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	gen miss`x' = 1 if mi(`x')
+	replace miss`x' = 1 if `x' == 0 
+	replace miss`x' = 0 if mi(miss`x')
+}
+
+// received
+replace ptfrx_eq = ptfrx*l.share_ptfxa_eq if missing(ptfrx_eq) | ptfrx_eq == 0
+replace ptfrx_deb = ptfrx*l.share_ptfxa_deb if missing(ptfrx_deb) | ptfrx_deb == 0
+// since many years reserves are not reported, we substract them from debt
+replace ptfrx_res = ptfrx*l.share_ptfxa_res if missing(ptfrx_res) | ptfrx_res == 0
+replace ptfrx_deb = ptfrx_deb - ptfrx_res if missptfrx_res == 1 & missptfrx_deb == 0 & !mi(ptfrx_deb) & !mi(ptfrx_res) & ptfrx_deb > ptfrx_res 
+replace ptfrx_eq = ptfrx_eq - ptfrx_res if missptfrx_res == 1 & missptfrx_eq == 0 & !mi(ptfrx_eq) & !mi(ptfrx_res) & ptfrx_deb < ptfrx_res & ptfrx_eq > ptfrx_res
+
+replace ptfrx_eq = ptfrx*l.share_ptfxa_eq if missing(ptfrx_eq) | ptfrx_eq == 0 & year == 1970
+replace ptfrx_deb = ptfrx*l.share_ptfxa_deb if missing(ptfrx_deb) | ptfrx_deb == 0 & year == 1970
+replace ptfrx_res = ptfrx*l.share_ptfxa_res if missing(ptfrx_res) | ptfrx_res == 0 & year == 1970
+
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `var' = `var'/ratio
+}
+
+// replacing proportionally
+replace ptfrx_eq = ptfrx_eq - ptfrx_deb*(ptfrx_eq/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 0 & missptfrx_deb == 1 & ratio > 1
+replace ptfrx_res = ptfrx_res - ptfrx_deb*(ptfrx_res/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 0 & missptfrx_deb == 1 & ratio > 1
+
+replace ptfrx_deb = ptfrx_deb - ptfrx_eq*(ptfrx_deb/ptfrx) if missptfrx_eq == 1 & missptfrx_res == 0 & missptfrx_deb == 0 & ratio > 1
+replace ptfrx_res = ptfrx_res - ptfrx_eq*(ptfrx_res/ptfrx) if missptfrx_eq == 1 & missptfrx_res == 0 & missptfrx_deb == 0 & ratio > 1
+
+replace ptfrx_deb = ptfrx_deb - ptfrx_res*(ptfrx_deb/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 1 & missptfrx_deb == 0 & ratio > 1
+replace ptfrx_eq = ptfrx_eq - ptfrx_res*(ptfrx_eq/ptfrx) if missptfrx_eq == 0 & missptfrx_res == 1 & missptfrx_deb == 0 & ratio > 1
+
+drop check ratio 
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+replace ptfrx_eq = ptfrx - (ptfrx_deb + ptfrx_res) if checkptfrx_eq == 1 & ratio > 1
+replace ptfrx_deb = ptfrx - (ptfrx_eq + ptfrx_res) if checkptfrx_deb == 1 & ratio > 1
+replace ptfrx_res = ptfrx - (ptfrx_eq + ptfrx_deb) if checkptfrx_res == 1 & ratio > 1
+
+drop check ratio 
+// now adjust 
+gen check = ptfrx_deb + ptfrx_eq + ptfrx_res 
+order check, after(ptfrx)
+gen ratio = check/ptfrx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `var' = `var'/ratio
+}
+drop check ratio 
+
+// paid
+replace ptfpx_eq = ptfpx*l.share_ptfxd_eq if missing(ptfpx_eq) | ptfpx_eq == 0 
+replace ptfpx_deb = ptfpx*l.share_ptfxd_deb if missing(ptfpx_deb) | ptfpx_deb == 0 
+
+replace ptfpx_eq = ptfpx - ptfpx_deb if checkptfpx_eq == 1
+replace ptfpx_deb = ptfpx - ptfpx_eq if checkptfpx_deb == 1
+
+replace ptfpx_eq = ptfpx*l.share_ptfxd_eq if missing(ptfpx_eq) | ptfpx_eq == 0 & year == 1970
+replace ptfpx_deb = ptfpx*l.share_ptfxd_deb if missing(ptfpx_deb) | ptfpx_deb == 0 & year == 1970
+
+// now adjust 
+gen check = ptfpx_deb + ptfpx_eq 
+order check, after(ptfpx)
+gen ratio = check/ptfpx 
+order ratio, after(check)
+replace ratio = 0 if mi(ratio)
+
+foreach var in ptfpx_deb ptfpx_eq {
+	replace `var' = `var'/ratio
+}
+drop check ratio 
+
+drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa ptfxd fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd share* check* ptfxd* ptfxa*
+
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	gen flagimf`v' = 1 if missing(`v')
+	replace flagimf`v' = 0 if missing(flagimf`v')
+}
+
+merge 1:1 iso year using "`gdp'", nogenerate
+merge 1:1 iso year using "$work_data/imf-weo-gdpusd.dta", ///
+       nogenerate update assert(using master match) keepusing(gdp*)
+merge 1:1 iso year using "`gdpwid'", ///
+       nogenerate keep(1 3) keepusing(gdp_wid)
+	   
+replace gdp = gdp_usd_weo if missing(gdp) 
+replace gdp = gdp_wid if missing(gdp)
+
+*issues with gdp
+replace gdp = gdp_usd_weo if inlist(iso, "GY", "EG", "HN", "SV", "SB", "LR") & !missing(gdp_usd_weo)
+
+ds iso year gdp* flag*, not //
+local varlist = r(varlist)
+foreach v of local varlist {
+	replace `v' = `v'/gdp
+}
+
+// adding corecountry dummy and Tax Haven dummy
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+
+// computing for Curaçao and Sint Maarten based on Netherland Antilles GDP
+merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+bys year : gen aux`v' = `v' if iso == "AN"
+bys year : egen `v'AN = mode(aux`v')
+}
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+	foreach c in CW SX {
+		replace `v' = `v'AN*ratio`c'_ANlcu if iso == "`c'" & missing(`v')
+	}
+}	
+drop aux* ratio* *AN
+
+foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	replace `v' = `v'*gdp_wid
+}
+
+// ensuring consistency
+egen auxptfrx = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res), missing
+gen ratio = auxptfrx/ptfrx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
+replace ptfrx = auxptfrx if !missing(auxptfrx)
+
+egen auxptfpx = rowtotal(ptfpx_eq ptfpx_deb), missing
+gen ratio = auxptfpx/ptfpx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
+replace ptfpx = auxptfpx if !missing(auxptfpx)
+
+egen auxpinrx = rowtotal(fdirx ptfrx), missing
+gen ratio2 = auxpinrx/pinrx 
+replace ratio2 = 0 if mi(ratio2)
+drop ratio2 
+replace pinrx = auxpinrx if !missing(auxpinrx)
+
+egen auxpinpx = rowtotal(fdipx ptfpx), missing
+gen ratio = auxpinpx/pinpx 
+replace ratio = 0 if mi(ratio)
+drop ratio 
+replace pinpx = auxpinpx if !missing(auxpinpx)
+
+egen flcir = rowtotal(pinrx comrx), missing
+egen auxfinrx = rowtotal(flcir fsubx), missing 
+replace finrx = auxfinrx if !missing(auxfinrx)
+
+egen flcip = rowtotal(pinpx compx), missing
+egen auxfinpx = rowtotal(flcip ftaxx), missing 
+replace finpx = auxfinpx if !missing(auxfinpx)
+
 generate flcin = flcir - flcip
 generate pinnx = pinrx - pinpx
 generate comnx = comrx - compx
@@ -106,15 +367,18 @@ generate fdinx = fdirx - fdipx
 generate ptfnx = ptfrx - ptfpx
 generate taxnx = fsubx - ftaxx
 
+gen auxnnfin = finrx - finpx 
+replace nnfin = auxnnfin if !missing(auxnnfin)
+drop aux* // non*  min* share* 
+drop if missing(year)
+
 // Save USD version (for redistributing missing incomes later)
 save "$work_data/imf-usd.dta", replace
 
-merge 1:1 iso year using "`gdp'", nogenerate
-
-ds iso year, not
+ds iso year gdp* flag*, not
 local varlist = r(varlist)
 foreach v of local varlist {
-	replace `v' = `v'/gdp
+	replace `v' = `v'/gdp_wid
 }
 drop gdp
 generate series = 6000
@@ -131,9 +395,37 @@ enforce (comnx = comrx - compx) ///
 		(flcir = comrx + pinrx) ///
 		(flcip = compx + pinpx) ///
 		(pinnx = fdinx + ptfnx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
 		(pinpx = fdipx + ptfpx) ///
 		(pinrx = fdirx + ptfrx) ///
 		(fdinx = fdirx - fdipx) ///
-		(ptfnx = ptfrx - ptfpx), fixed(nnfin) replace
+		(ptfnx = ptfrx - ptfpx), fixed(nnfin) prefix(new) force
 
+foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx pinpx pinrx ptfpx ptfrx flcir flcip ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	replace `v' = new`v' if new`v' >= 0		
+	replace `v' = new`v' if new`v' < 0 & `v' < 0 & !missing(`v')		
+	replace `v' = 0 if missing(`v') & !missing(new`v')
+}
+drop new*
+
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		(pinnx = fdinx + ptfnx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
+		(pinpx = fdipx + ptfpx) ///
+		(pinrx = fdirx + ptfrx) ///
+		(fdinx = fdirx - fdipx) ///
+		(ptfnx = ptfrx - ptfpx), fixed(fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb) replace force
+	
+drop gdp_usd_weo gdp_wid corecountry TH		
 save "$work_data/imf-foreign-income.dta", replace

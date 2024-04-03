@@ -211,14 +211,14 @@ do "$do_dir/reformat-wid-data.do"
 
 // Retropolate, combine, impute and calibrate series
 do "$do_dir/retropolate-combine-series.do"
-// do "$do_dir/estimate-fki.do"
+do "$do_dir/estimate-fki.do"
 do "$do_dir/impute-confc.do"
 do "$do_dir/finalize-series.do"
 
 // Perform corrections for tax havens and reinvested earnings on portfolio investment
 do "$do_dir/estimate-tax-haven-income.do"
 do "$do_dir/estimate-reinvested-earnings-portfolio.do"
-// do "$do_dir/estimate-missing-profits.do"
+do "$do_dir/estimate-missing-profits.do"
 do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals

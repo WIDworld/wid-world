@@ -9,8 +9,8 @@ foreach v of varlist `r(varlist)' {
 }
 drop in 1
 destring value*, replace force
-cap dropmiss, force
 cap dropmiss
+cap dropmiss, force
 
 egen countmiss = rowmiss(value*)
 drop if countmiss == 33

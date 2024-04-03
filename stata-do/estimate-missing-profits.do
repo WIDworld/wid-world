@@ -69,10 +69,6 @@ keep iso year fdirx fdipx fdinx
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keepusing(gdp)
  
-foreach v in fdirx fdipx {
-	replace `v' = `v'*gdp
-}
- 
 preserve
 	u "$work_data/exchange-rates.dta", clear
 	keep if widcode == "xlcusx999i"
@@ -85,12 +81,16 @@ merge 1:1 iso year using `xrate', nogen
 merge 1:1 iso year using "$work_data/price-index.dta", nogen
 merge m:1 iso using `mprofits', nogen
 
-foreach var in fdirx fdipx gdp {
+foreach var in gdp {
 
 gen `var'_idx = `var'*index
 	replace `var' = `var'_idx/exrate_usd
 }
 
+foreach v in fdirx fdipx {
+	replace `v' = `v'*gdp
+}
+ 
 merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
 keep if corecountry == 1
 
@@ -103,6 +103,7 @@ foreach var in fdirx fdipx {
 	bys year : egen tot`var' = total(`var')
 }
 gen totfdinx = totfdirx - totfdipx 
+assert totfdinx > 0 
 
 // -------------------------------------------------------------------------- //
 // Redistribute missing income
