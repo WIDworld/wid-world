@@ -108,7 +108,7 @@ save "`oecd'", replace
 // -------------------------------------------------------------------------- //
 
 // IMF
-import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_03-12-2020 18-44-21-48.csv", clear encoding(utf8)
+import delimited "$input_data_dir/imf-data/balance-of-payments/BOP_04-04-2024 10-40-55-91.csv", clear encoding(utf8)
 
 drop if countryname == "Cayman Islands" // Data inconsistent with EWN
 drop if value == 0
@@ -131,15 +131,19 @@ tempfile iip
 save "`iip'"
 
 // EWN
-import excel "$input_data_dir/ewn-data/EWN 1970-2015.xls", sheet("Data") clear firstrow case(lower)
+import excel "$input_data_dir/ewn-data/EWN-dataset_12-2023.xlsx", sheet("Dataset") clear firstrow case(lower)
 
-rename portfolioequityassetsstock   ptf_asset
-rename portfolioequityliabilitiesst ptf_liabi
+rename portfolioequityassets   ptf_asset
+rename portfolioequityliabilities ptf_liabi
 
-rename fdiassetsstock      fdi_asset
-rename fdiliabilitiesstock fdi_liabi
+rename fdiassets      fdi_asset
+rename fdiliabilities fdi_liabi
 
 rename gdpus gdp
+
+ren country countryname
+
+ren ifs_code ifsid 
 
 keep countryname ifsid year ptf_asset ptf_liabi fdi_asset fdi_liabi gdp
 
@@ -147,13 +151,13 @@ foreach v of varlist ptf_asset ptf_liabi fdi_asset fdi_liabi gdp {
 	replace `v' = `v'*1e6
 }
 
-append using "`iip'" // Use official IIP for recent years
+*append using "`iip'" // Use official IIP for recent years
 
 kountry ifsid, from(imfn) to(iso2c)
 rename _ISO2C_ iso
-replace iso = "AD" if countryname == "Andorra"
+replace iso = "AD" if countryname == "Andorra" | countryname == "Andorra, Principality of"
 replace iso = "VG" if countryname == "British Virgin Islands"
-replace iso = "CW" if countryname == "Curacao"
+replace iso = "CW" if countryname == "Curacao" | countryname == "Curaçao" | countryname == "Curaçao and Sint Maarten"
 replace iso = "GG" if countryname == "Guernsey"
 replace iso = "IM" if countryname == "Isle of Man"
 replace iso = "JE" if countryname == "Jersey"
@@ -169,7 +173,8 @@ replace iso = "KS" if countryname == "Kosovo, Rep. of"
 replace iso = "RS" if countryname == "Serbia, Rep. of"
 replace iso = "SX" if countryname == "Sint Maarten, Kingdom of the Netherlands"
 replace iso = "TC" if countryname == "Turks and Caicos Islands"
-drop if inlist(countryname, "Eastern Caribbean Currency Union", "Euro Area")
+replace iso = "LI" if countryname == "Liechtenstein"
+drop if inlist(countryname, "Eastern Caribbean Currency Union", "Euro Area", "ECCU")
 assert iso != ""
 
 drop if iso == ""
@@ -365,7 +370,7 @@ save "`share_foreign'", replace
 // Use IMF CPIS database to redistribute foreign earnings
 // -------------------------------------------------------------------------- //
 
-import delimited "$input_data_dir/imf-data/cpis/CPIS_03-17-2020 19-38-03-43.csv", clear encoding(utf8)
+import delimited "$input_data_dir/imf-data/cpis/CPIS_04-04-2024 10-53-59-65.csv", clear encoding(utf8)
 
 drop if countryname == "World"
 
@@ -555,6 +560,12 @@ replace value = 0 if year == 1970
 merge n:1 iso year using "`share_foreign'", nogenerate keep(master match)
 
 replace foreign_secco = value*foreign_secco
+
+*last year is not fully covered, we simply carryforward the pastpastyear
+drop if year == $pastyear
+expand 2 if year == $pastpastyear, gen(exp)
+replace year = $pastyear if exp == 1
+drop exp
 
 *exit 1
 

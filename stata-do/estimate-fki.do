@@ -75,7 +75,7 @@ keep iso year pinrx pinpx fdirx ptfrx* fdipx ptfpx* nnfin pinnx fdinx ptfnx flag
 merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(country corecountry TH) 
 keep if corecountry == 1
 
-merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN_new.dta", nogen
+merge 1:1 iso year using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen
 
 // fixing some imputations
 replace fdixa =. if inlist(iso, "DM", "HT") & year == 1994

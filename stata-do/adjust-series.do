@@ -6,6 +6,7 @@ use "$work_data/sna-series-finalized.dta", clear
 
 merge 1:1 iso year using "$work_data/income-tax-havens.dta", nogenerate
 merge 1:1 iso year using "$work_data/reinvested-earnings-portfolio.dta", nogenerate
+merge 1:1 iso year using "$work_data/wealth-tax-havens.dta", nogenerate keepusing(nwgxa nwgxd nwoff)
 
 // Foreign portfolio income officially recorded
 generate ptfor = ptfrx
@@ -32,6 +33,12 @@ generate series_fdiop = series_fdipx
 generate series_fdion = series_fdinx
 
 generate series_fdimp = -3
+
+// External wealth officially recorded and hidden in Tax Havens
+replace nwgxa = nwgxa + nwoff 
+generate nwnxa = nwgxa - nwgxd
+
+generate series_nwoff = -3
 
 // Distribute missing property income from tax havens to housholds
 foreach v of varlist ptfrx ptfnx pinrx pinnx flcir flcin finrx nnfin prpho prphn prgho prghn ///

@@ -106,16 +106,12 @@ replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 // -------------------------------------------------------------------------- //
 // Completing foreign income variables
 // -------------------------------------------------------------------------- //
-sa "$work_data/temp", replace
-asd FROM HERE
-u "$work_data/temp", clear 
-
 replace pinrx =. if iso == "PT" & year <= 1974
 replace pinpx =. if iso == "PT" & year <= 1974
 
 // adding corecountry dummy and Tax Haven dummy
 merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
-keep if corecountry == 1 
+*keep if corecountry == 1 
 
 // interpolating foreign capital income variables
 // not interpolating for the countries where we never have data
@@ -144,8 +140,8 @@ foreach v in fdipx fdirx ptfpx ptfrx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res pt
 so iso year
 foreach v in fdipx fdirx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb pinrx pinpx nnfin pinnx flcir flcip finrx finpx flcin { 
 so iso year
-	by iso : ipolate `v' year if flagcountry`v' == 0, gen(x`v') 
-	replace `v' = x`v' if missing(`v') 
+	by iso : ipolate `v' year if flagcountry`v' == 0 & corecountry == 1, gen(x`v') 
+	replace `v' = x`v' if missing(`v') & corecountry == 1 
 	drop x`v'
 }
 
@@ -162,14 +158,14 @@ bys iso : egen maxyear`x' = max(auxyear`x')
 foreach x in r p {
 gen share_pin`x' = pin`x'x/flci`x' if nonmiss`x' > 0 & !missing(nonmiss`x')
 so iso year
-by iso : carryforward share_pin`x', replace
+by iso : carryforward share_pin`x' if corecountry == 1, replace
 gsort iso -year
-by iso : carryforward share_pin`x', replace
+by iso : carryforward share_pin`x' if corecountry == 1, replace
 }
 so iso year
 
 foreach x in r p {
-replace pin`x'x = share_pin`x'*flci`x'  if missing(pin`x'x) 
+replace pin`x'x = share_pin`x'*flci`x' if missing(pin`x'x) & corecountry == 1
 }
 drop minyear* maxyear* aux* share* nonmiss*
 
@@ -185,39 +181,39 @@ bys iso : egen maxyear`x' = max(auxyear`x')
 foreach x in r p {
 gen share_pin`x' = pin`x'x/fin`x'x if nonmiss`x' > 0 & !missing(nonmiss`x')
 so iso year
-by iso : carryforward share_pin`x', replace
+by iso : carryforward share_pin`x' if corecountry == 1, replace
 gsort iso -year
-by iso : carryforward share_pin`x', replace
+by iso : carryforward share_pin`x' if corecountry == 1, replace
 }
 so iso year
 
 foreach x in r p {
-replace pin`x'x = share_pin`x'*fin`x'x  if missing(pin`x'x)
+replace pin`x'x = share_pin`x'*fin`x'x  if missing(pin`x'x) & corecountry == 1
 }
 drop minyear* maxyear* aux* share* nonmiss*
 
-replace pinnx = pinrx - pinpx if missing(pinnx)
+replace pinnx = pinrx - pinpx if missing(pinnx) & corecountry == 1
 
 // 2nd: pinnx as a share of nnfin 
 // flagging first year where both variables have data
 gen nonmiss = pinnx + nnfin
 gen share_pinnx = pinnx/nnfin if abs(nonmiss) > 0 & !missing(nonmiss)
 so iso year
-by iso : carryforward share_pinnx, replace
+by iso : carryforward share_pinnx if corecountry == 1, replace
 gsort iso -year
-by iso : carryforward share_pinnx, replace
+by iso : carryforward share_pinnx if corecountry == 1, replace
 
 // to make sure that signs hold consistent
 replace share_pinnx = abs(share_pinnx) if ((nnfin > 0 & share_pinnx < 0) | (nnfin < 0 & share_pinnx > 0)) & missing(pinnx) & !missing(nnfin)
-replace pinnx = share_pinnx*nnfin if missing(pinnx)
+replace pinnx = share_pinnx*nnfin if missing(pinnx) & corecountry == 1
 drop share* nonmiss
 
 // 3rd: pinnx = pinrx - pinpx 
-replace pinrx = pinnx + pinpx if (missing(pinrx) | pinrx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinpx) & pinpx !=0)
-replace pinpx = pinrx - pinnx if (missing(pinpx) | pinpx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinrx) & pinrx !=0)
+replace pinrx = pinnx + pinpx if (missing(pinrx) | pinrx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinpx) & pinpx !=0) & corecountry == 1
+replace pinpx = pinrx - pinnx if (missing(pinpx) | pinpx == 0) & (!missing(pinnx) & pinnx !=0) & (!missing(pinrx) & pinrx !=0) & corecountry == 1
 
 // 4th fdirx and ptfrx as a share of asset class
-merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN.dta", nogen
+merge 1:1 iso year using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen
 encode iso, gen(i)
 xtset i year 
 
@@ -233,22 +229,22 @@ gen checkfdirx = 1 if round(fdirx,.0000001) == round(pinrx,.0000001) & !missing(
 gen checkptfpx = 1 if round(ptfpx,.0000001) == round(pinpx,.0000001) & !missing(ptfpx) & !missing(pinpx)
 gen checkfdipx = 1 if round(fdipx,.0000001) == round(pinpx,.0000001) & !missing(fdipx) & !missing(pinpx)
 
-replace fdirx = pinrx*l.share_fdixa if missing(fdirx) | fdirx == 0
-replace ptfrx = pinrx*l.share_ptfxa if missing(ptfrx) | ptfrx == 0 
-replace fdipx = pinpx*l.share_fdixd if missing(fdipx) | fdipx == 0
-replace ptfpx = pinpx*l.share_ptfxd if missing(ptfpx) | ptfpx == 0 
+replace fdirx = pinrx*l.share_fdixa if missing(fdirx) | fdirx == 0 & corecountry == 1
+replace ptfrx = pinrx*l.share_ptfxa if missing(ptfrx) | ptfrx == 0 & corecountry == 1 
+replace fdipx = pinpx*l.share_fdixd if missing(fdipx) | fdipx == 0 & corecountry == 1
+replace ptfpx = pinpx*l.share_ptfxd if missing(ptfpx) | ptfpx == 0 & corecountry == 1 
 
-replace fdirx = pinrx*share_fdixa if (missing(fdirx) | fdirx == 0) & year == 1970
-replace ptfrx = pinrx*share_ptfxa if (missing(ptfrx) | ptfrx == 0) & year == 1970
-replace fdipx = pinpx*share_fdixd if (missing(fdipx) | fdipx == 0) & year == 1970
-replace ptfpx = pinpx*share_ptfxd if (missing(ptfpx) | ptfpx == 0) & year == 1970
+replace fdirx = pinrx*share_fdixa if (missing(fdirx) | fdirx == 0) & year == 1970 & corecountry == 1
+replace ptfrx = pinrx*share_ptfxa if (missing(ptfrx) | ptfrx == 0) & year == 1970 & corecountry == 1
+replace fdipx = pinpx*share_fdixd if (missing(fdipx) | fdipx == 0) & year == 1970 & corecountry == 1
+replace ptfpx = pinpx*share_ptfxd if (missing(ptfpx) | ptfpx == 0) & year == 1970 & corecountry == 1
 
-replace ptfrx = pinrx - fdirx if checkptfrx == 1
-replace fdirx = pinrx - ptfrx if checkfdirx == 1
-replace ptfpx = pinpx - fdipx if checkptfpx == 1
-replace fdipx = pinpx - ptfpx if checkfdipx == 1
+replace ptfrx = pinrx - fdirx if checkptfrx == 1 & corecountry == 1
+replace fdirx = pinrx - ptfrx if checkfdirx == 1 & corecountry == 1
+replace ptfpx = pinpx - fdipx if checkptfpx == 1 & corecountry == 1
+replace fdipx = pinpx - ptfpx if checkfdipx == 1 & corecountry == 1
 
-drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa ptfxd fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd share*
+drop checkptfrx checkfdirx checkptfpx checkfdipx ptfxa* ptfxd* fdixa fdixd nwgxa nwgxd flagnwgxa flagnwgxd i share_fdixa share_ptfxa share_fdixd share_ptfxd share*
 
 // 5th: we use regional shares to get ptf and fdi incomes
 // for Cuba but not completely satisfied
@@ -333,7 +329,7 @@ replace `v' = pinpx*sh_`v' if missing(`v') & iso == "CU"
 }
 drop sh*
 
-drop corecountry TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx geoundet geoun soviet yugosl other
+drop TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx geoundet geoun soviet yugosl other
 
 // -------------------------------------------------------------------------- //
 // Perform re-calibration
@@ -513,18 +509,18 @@ foreach v of varlist *go {
 
 // fixing some discrepancies caused by enforce
 egen auxptfrx = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res), missing
-replace ptfrx = auxptfrx if !missing(auxptfrx)
+replace ptfrx = auxptfrx if !missing(auxptfrx) & corecountry == 1
 
 egen auxptfpx = rowtotal(ptfpx_eq ptfpx_deb), missing
-replace ptfpx = auxptfpx if !missing(auxptfpx)
+replace ptfpx = auxptfpx if !missing(auxptfpx) & corecountry == 1
 
 egen auxpinrx = rowtotal(fdirx ptfrx)
-replace pinrx = auxpinrx if !missing(auxpinrx)
+replace pinrx = auxpinrx if !missing(auxpinrx) & corecountry == 1
 
 egen auxpinpx = rowtotal(fdipx ptfpx)
-replace pinpx = auxpinpx if !missing(auxpinpx)
+replace pinpx = auxpinpx if !missing(auxpinpx) & corecountry == 1
 
 replace pinnx = pinrx - pinpx
-drop aux* 
+drop aux* corecountry
 
 save "$work_data/sna-combined-prefki.dta", replace
