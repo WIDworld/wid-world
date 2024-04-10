@@ -1,4 +1,20 @@
 // -------------------------------------------------------------------------- //
+// Convert Public Finance data to real values
+// -------------------------------------------------------------------------- //
+u "$wid_dir/Country-Updates/publicfinance/wid-gethinpublicfinance.dta", clear
+
+merge m:1 iso year using "$work_data/price-index.dta", ///
+	nogenerate update keep(master match match_update match_conflict) ///
+	assert(using master match match_update)
+replace value = value/index 
+
+drop extrapolation data_points data_quality source method author index currency
+replace p = "pall"
+
+tempfile pfgethin
+sa `pfgethin'
+
+// -------------------------------------------------------------------------- //
 // Generate final national accounts series (totals + decomposition)
 // -------------------------------------------------------------------------- //
 
@@ -36,6 +52,9 @@ replace widcode = "m" + widcode + "999i"
 generate p = "pall"
 
 // Kosovo: use KV rather than KS
+
+// appending Public Finance data
+append using `pfgethin'
 
 save "$work_data/national-accounts.dta", replace
 
@@ -135,6 +154,22 @@ order iso sixlet source method
 
 tempfile compo
 save "`compo'"
+
+// -------------------------------------------------------------------------- //
+// Generate metadata for Public Finance
+// -------------------------------------------------------------------------- //
+
+u "$wid_dir/Country-Updates/publicfinance/wid-gethinpublicfinance.dta", clear
+keep iso widcode method
+gduplicates drop iso widcode, force 
+replace widcode = substr(widcode, 1, 6)
+ren widcode sixlet
+replace method = "See [URL][URL_LINK]https://wid.world/document/revisiting-global-poverty-reduction-public-goods-and-the-world-distribution-of-income-1980-2022-wid-world-working-paper-2023-24/[/URL_LINK][URL_TEXT]Gethin A. (2023), Revisiting Global Poverty Reduction: Public Goods and the World Distribution of Income, 1980-2022 " + /// 
+"and Gethin A. (2024), A New Database of General Government Revenue and Expenditure by Function, 1980-2022[/URL_TEXT][/URL]; " 
+ren method source 
+
+tempfile pfgethin_metadata
+sa `pfgethin_metadata'
 
 // -------------------------------------------------------------------------- //
 // Generate metadata for GDP
@@ -242,8 +277,10 @@ order iso sixlet source method
 
 append using "`compo'"
 
-sort iso sixlet
-
 replace sixlet = "m" + sixlet
+
+append using "`pfgethin_metadata'"
+
+sort iso sixlet
 
 save "$work_data/na-metadata.dta", replace
