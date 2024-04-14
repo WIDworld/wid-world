@@ -157,8 +157,9 @@ preserve
 	replace p = p/1000
 	bys year iso widcode (p) : gen p2 = p[_n+1]
 	replace p2 = 100 if p2 == .
-	gen perc = "p0p"+string(p2)
+	gen perc = "p0p"+string(p)
 	drop p p2
+	drop if p == "p0p0"
 
 	rename perc    p
 	renvars bs ba / s a
