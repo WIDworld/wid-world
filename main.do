@@ -262,14 +262,8 @@ do "$do_dir/add-populations.do"
 // Perform some additional computations
 // -------------------------------------------------------------------------- //
 
-// Add researchers data which are in real value
-do "$do_dir/add-researchers-data-real.do"
-
 // Add wealth macro aggregates
 do "$do_dir/add-wealth-aggregates.do"
-
-// Add Wealth distribution 
-do "$do_dir/add-wealth-distribution.do"
 
 // Aggregate by regions
 do "$do_dir/aggregate-macro-regions.do"
@@ -282,6 +276,21 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 
 // Per capita/per adults series
 do "$do_dir/calculate-per-capita-series.do"
+
+// Merge historical aggregates to WID
+do "$do_dir/merge-historical-aggregates.do"
+
+
+
+// -------------------------------------------------------------------------- //
+// END OF MACRO PART
+// -------------------------------------------------------------------------- //
+
+// Add researchers data which are in real value
+do "$do_dir/add-researchers-data-real.do"
+
+// Add Wealth distribution 
+do "$do_dir/add-wealth-distribution.do"
 
 // Distribute national income by rescaling fiscal income
 do "$do_dir/distribute-national-income.do"
@@ -316,9 +325,6 @@ do "$do_dir/calculate-pareto-coef.do"
 
 // calculate gini coefficients
 do "$do_dir/calculate-gini-coef.do"
-
-// Merge historical aggregates to WID
-do "$do_dir/merge-historical-aggregates.do"
 
 // Merge longrun series with main data, update metadata
 do "$do_dir/merge-historical-main.do"

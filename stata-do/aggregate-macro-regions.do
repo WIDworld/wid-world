@@ -43,8 +43,7 @@ save "`region'"
 
 // Store PPP and exchange rates as an extra variable
 
-// use "$work_data/add-populations-output.dta", clear
-use "$work_data/add-wealth-distribution-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
 
 keep if substr(widcode, 1, 3) == "xlc"
 keep if year == $pastyear
@@ -67,8 +66,7 @@ save "`pppexc'"
 
 // Only keep data to aggregate
 
-// use "$work_data/add-populations-output.dta", clear
-use "$work_data/add-wealth-distribution-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
 
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
@@ -229,8 +227,8 @@ drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i", "mhweal999i") 
 tempfile regions
 save "`regions'"
 
-// append using "$work_data/add-populations-output.dta"
-append using "$work_data/add-wealth-distribution-output.dta"
+append using "$work_data/add-wealth-aggregates-output.dta"
+
 
 duplicates tag iso year widcode p, gen(dup)
 *br if dup
@@ -253,6 +251,6 @@ gduplicates drop
 generate source = "WID.world (see individual countries for more details)"
 generate method = "WID.world aggregations of individual country data"
 
-append using "$work_data/add-wealth-distribution-metadata.dta"
+append using "$work_data/add-wealth-aggregates-metadata.dta"
 save "$work_data/aggregate-regions-metadata-output.dta", replace
 
