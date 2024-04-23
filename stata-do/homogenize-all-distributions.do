@@ -179,6 +179,7 @@ duplicates drop iso year p widcode, force
 
 tempfile full_pretax_wealth 
 save "`full_pretax_wealth'"
+save "$work_data/full_pretax_wealth.dta", replace
 
 // -------------------------------------------------------------------------- //
 // Deciles
@@ -186,7 +187,6 @@ save "`full_pretax_wealth'"
 
 use `final', clear
 
-replace a = a*n/1e5 if !missing(a)
 gsort iso year widcode p
 
 generate decile = 1 if inrange(p, 0, 9000)
@@ -200,7 +200,11 @@ replace decile = 8  if inrange(p, 70000, 79000)
 replace decile = 9  if inrange(p, 80000, 89000)
 replace decile = 10 if inrange(p, 90000, 99999)
 
-collapse (sum) s  a (min) t p , by(iso year widcode decile)
+collapse (sum) s (min) anninc992i ahweal992i average t p , by(iso year widcode decile)
+
+generate a = s * anninc992i / 0.1 if inlist(widcode, "ptinc992j") & !missing(anninc992i)
+replace a  = s * ahweal992i / 0.1 if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
+replace a  = s * average / 0.1 if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
@@ -215,6 +219,7 @@ gen perc = "p"+string(p)+"p"+string(p2)
 drop p p2 decile
 rename perc p
  
+keep a s t iso year p widcode 
 reshape wide a s t, i(iso year p) j(widcode) string
 renvars ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 greshape long value, i(iso year p) j(widcode) string
@@ -223,6 +228,7 @@ drop if missing(value)
 tempfile decile_pretax_wealth
 save "`decile_pretax_wealth'"
 
+save "$work_data/full-deciles-pretax-wealth.dta", replace
 
 // -------------------------------------------------------------------------- //
 // Middle 40
