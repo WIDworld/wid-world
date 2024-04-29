@@ -236,10 +236,12 @@ save "$work_data/full-deciles-pretax-wealth.dta", replace
 
 use `final', clear
 
-replace a = a*n/1e5 if !missing(a)
 generate mid40 = inrange(p, 50000, 89000)
 drop if mid40 == 0
-collapse (sum) s  a (min) t p , by(iso year widcode mid40)
+collapse (sum) s (min) anninc992i ahweal992i average t p, by(iso year widcode mid40)
+generate a = s * anninc992i / 0.4 if inlist(widcode, "ptinc992j") & !missing(anninc992i)
+replace a  = s * ahweal992i / 0.4 if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
+replace a  = s * average / 0.4 if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
@@ -251,6 +253,7 @@ generate perc = "p50p90"
 drop p mid40
 rename perc p
 
+keep a s t iso year p widcode 
 reshape wide a s t, i(iso year p) j(widcode) string
 renvars ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 greshape long value, i(iso year p) j(widcode) string
