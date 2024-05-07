@@ -24,3 +24,11 @@ data-input/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_10032020180957562.cs
 data-input/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_19042021180740312.csv
 data-input/oecd-data/national-accounts/SNA_TABLE14A_19042021180438124.csv
 hs_err_pid85650.log
+.RDataTmp
+.Rhistory
+data-input/oecd-data/national-accounts/SNA_TABLE14A_06032020123612266/__MACOSX/._SNA_TABLE14A_06032020123612266.csv
+data-input/oecd-data/national-accounts/SNA_TABLE14A_19042021180438124/__MACOSX/._SNA_TABLE14A_19042021180438124.csv
+data-input/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_10032020180957562/__MACOSX/._SNA_TABLE14A_ARCHIVE_10032020180957562.csv
+data-input/oecd-data/national-accounts/SNA_TABLE14A_ARCHIVE_19042021180740312/__MACOSX/._SNA_TABLE14A_ARCHIVE_19042021180740312.csv
+data-input/un-sna/download-raw-un-sna.R
+data-input/un-sna/download-raw-un-sna.R
