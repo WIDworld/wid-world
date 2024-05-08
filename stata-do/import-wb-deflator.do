@@ -23,6 +23,7 @@ rename j year
 replace countryname = "Macedonia, FYR" if countryname == "North Macedonia"
 replace countryname = "Swaziland"      if countryname == "Eswatini"
 replace countryname = "Korea, Dem. People's Rep." if countryname == "Korea, Dem. People’s Rep."
+replace countryname = "Vietnam" if countryname == "Viet Nam"
 
 countrycode countryname, generate(iso) from("wb")
 drop countrycode
@@ -34,6 +35,7 @@ drop countryname
 	
 // Identify currencies
 replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
+replace currency = "u.s. dollar" if currency == "Liberian dollar"
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
 drop currency
 rename currency_iso currency

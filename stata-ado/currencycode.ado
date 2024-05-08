@@ -246,7 +246,7 @@ program currencycode, nclass
 			replace `generate' = "GYD" if (`iso2c' == "GY") & (`curr' == "guyana dollar")
 			replace `generate' = "HKD" if (`iso2c' == "HK") & (`curr' == "hong kong dollar")
 			replace `generate' = "HNL" if (`iso2c' == "HN") & (`curr' == "lempira")
-			replace `generate' = "HRK" if (`iso2c' == "HR") & (`curr' == "croatian kuna")
+			replace `generate' = "EUR" if (`iso2c' == "HR") & (`curr' == "euro")
 			replace `generate' = "HTG" if (`iso2c' == "HT") & (`curr' == "gourde")
 			replace `generate' = "HUF" if (`iso2c' == "HU") & (`curr' == "forint")
 			replace `generate' = "IDR" if (`iso2c' == "ID") & (`curr' == "rupiah")

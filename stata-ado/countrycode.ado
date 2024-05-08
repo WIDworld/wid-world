@@ -774,6 +774,7 @@ program countrycode, nclass
 			replace `generate' = "CA" if (`varlist' == "Canada")
 			replace `generate' = "CH" if (`varlist' == "Switzerland")
 			replace `generate' = "CL" if (`varlist' == "Chile")
+			replace `generate' = "CM" if (`varlist' == "Cameroon")
 			replace `generate' = "CN" if (`varlist' == "China")
 			replace `generate' = "CO" if (`varlist' == "Colombia")
 			replace `generate' = "CR" if (`varlist' == "Costa Rica")

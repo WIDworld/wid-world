@@ -65,9 +65,8 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* 
-/*
-*/
+/* */
+
 
 // -------------------------------------------------------------------------- //
 // Import external GDP data
@@ -83,7 +82,7 @@ do "$do_dir/import-un-sna-main-tables.do"
 do "$do_dir/import-wb-macro-data.do"
 
 // Import GDP from World Bank Global Economic Monitor
-do "$do_dir/import-wb-gem-gdp.do"
+do "$do_dir/import-wb-gem-gdp.do" // Check AR
 
 // Import GDP from the IMF World Economic Outlook data
 do "$do_dir/import-imf-weo-gdp.do"
@@ -150,7 +149,7 @@ do "$do_dir/import-un-populations.do"
 do "$do_dir/import-un-sna-populations.do"
 
 // Calculate the population series
-do "$do_dir/calculate-populations.do"
+do "$do_dir/calculate-populations.do" // code not running on my side
 
 // -------------------------------------------------------------------------- //
 // Calculate PPPs & exchange rates and deflators
@@ -160,7 +159,7 @@ do "$do_dir/calculate-populations.do"
 do "$do_dir/calculate-price-index.do"
 
 // Import exchange rates from Open Exchange rates
-do "$do_dir/import-exchange-rate.do"
+do "$do_dir/import-exchange-rate.do" // i only updated the data currencies-rate the one in the R code 
 
 // Import Purchasing Power Parities from the OECD
 do "$do_dir/import-ppp-oecd.do"

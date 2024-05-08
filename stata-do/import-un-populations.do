@@ -1,21 +1,21 @@
 *! TB 07/07/2016
 
-*! year(2020) was changed to pastyear(2019) in the import command, bcz there is still no WPP 2020
+*! year(2020) was changed to pastpastyear(2019) in the import command, bcz there is still no WPP 2020
 * once it is published, we have to switch back to year 
 
 // Both sexes, all ages ----------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
-		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
-keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
-keep if year == $pastyear
+	import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
+			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
+	keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
+	keep if year == $pastyear
 	tempfile $pastyear
 	save `$pastyear'
 restore	
@@ -41,7 +41,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -60,7 +60,7 @@ foreach v of varlist l-af {
 }
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
 foreach v of varlist l-af {
@@ -117,7 +117,7 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -137,7 +137,7 @@ foreach v of varlist l-af {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
 	foreach v of varlist l-af {
@@ -204,7 +204,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -224,7 +224,7 @@ foreach v of varlist l-af {
 
 // Adding estimated year - Medium Variant - 2021
 preserve
-import excel "$un_data/populations/wpp/WPP${pastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
 	foreach v of varlist l-af {
@@ -308,8 +308,8 @@ save "$work_data/un-population.dta", replace
 import excel "$un_data/populations/wpp/WPP${year}_DB04_Population_By_Age_Annual.xlsx", ///
 	sheet("Sheet1") case(lower) firstrow clear
 
-*june 2018: estimates of the other files only go until 2015 still, so I keep pastyear (2017) and pastyear - 1 (2016) 
-keep if time==$pastyear | time == ($pastyear - 1)
+*june 2018: estimates of the other files only go until 2015 still, so I keep pastpastyear (2017) and pastpastyear - 1 (2016) 
+keep if time==$pastpastyear | time == ($pastpastyear - 1)
 
 // Identify countries
 countrycode location, generate(iso) from("wpp")

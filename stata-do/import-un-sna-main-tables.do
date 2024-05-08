@@ -1,5 +1,5 @@
 // GDP
-import delimited "$un_data/sna-main/gdp/gdp-current-$year.csv", ///
+import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
 rename gdpatcurrentpricesnationalcurren gdp
@@ -10,7 +10,7 @@ tempfile gdp
 save "`gdp'"
 
 /*only for Somalia
-import delimited "$un_data/sna-main/gdp/gdp-current-$year.csv", ///
+import delimited "$un_data/sna-main/gdp/gdp-current-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8")
 keep if countryarea == "Somalia"
 
@@ -23,7 +23,7 @@ append using "`gdp'"
 save "`gdp'", replace
 */
 // GNI
-import delimited "$un_data/sna-main/gni/gni-current-$year.csv", ///
+import delimited "$un_data/sna-main/gni/gni-current-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8")
 
 cap rename countryarea countryorarea
@@ -38,7 +38,7 @@ merge 1:1 countryorarea year using "`gdp'", assert(match) nogenerate
 save "`gdp'", replace
 
 // GDP Current USD
-import delimited "$un_data/sna-main/gdp/gdp-usd-current-$year.csv", ///
+import delimited "$un_data/sna-main/gdp/gdp-usd-current-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8")
 cap rename countryarea countryorarea
 drop if unit == "..."
