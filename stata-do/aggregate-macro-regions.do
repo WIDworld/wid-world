@@ -10,7 +10,7 @@ save `combined', emptyok
 * 	Get regions decomposition
 // ---------------------------------------------------- //
 
-use "$work_data/import-country-codes-output.dta", clear
+use "$work_data/import-core-country-codes-output.dta", clear
 
 drop if strpos(iso, "-")
 drop titlename shortname
@@ -28,14 +28,19 @@ merge m:1 shortname using "$work_data/import-region-codes-output.dta", keep(matc
 keep iso_country iso type
 rename iso region
 rename iso_country iso
-drop if type == 1 & region == "QE"
-drop if type == 2 & region == "QL"
-drop if inlist(iso, "GB", "YU") & region == "QY"
+duplicates drop iso region, force
+// drop if type == 1 & region == "QE"
+// drop if type == 2 & region == "QL"
+// drop if inlist(iso, "GB", "YU") & region == "QY"
 reshape wide 
-// drop if inlist(iso, "YU", "CZ", "SK", "DD", "SU")
+replace region5 = region1 if missing(region5)
+replace region5 = "QL" if iso  == "MO"
+replace region2 = region5 if missing(region2)
+replace region5 = "QL" if region5 == "QD"
+replace region1 = "" if region1 == region5
+replace region2 = "" if region2 == region5
 
-merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
-keep if corecountry == 1 
+// replace region4 = "QM" if missing(region4) & region2 == "QM"
 
 tempfile region
 save "`region'"
@@ -43,10 +48,12 @@ save "`region'"
 
 // Store PPP and exchange rates as an extra variable
 
-use "$work_data/add-wealth-aggregates-output.dta", clear
-
+// use "$work_data/add-wealth-aggregates-output.dta", clear
+use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+drop refyear
 keep if substr(widcode, 1, 3) == "xlc"
-keep if year == $pastyear
+// keep if year == $pastyear
+keep if year == 2022
 keep iso widcode value
 duplicates drop iso widcode, force
 reshape wide value, i(iso) j(widcode) string
@@ -66,8 +73,9 @@ save "`pppexc'"
 
 // Only keep data to aggregate
 
-use "$work_data/add-wealth-aggregates-output.dta", clear
-
+// use "$work_data/add-wealth-aggregates-output.dta", clear
+use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+drop refyear
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
 	   | widcode == "mnninc999i" ///
@@ -97,33 +105,18 @@ foreach v in `r(varlist)' {
 		generate `v'_`l' = `v'/`l' 
 	}
 }
-//  
-// mccmhn999i-mtprgo999i
-drop mcomhn999i-mtaxnx999i pppeur-exccny
-// drop if inlist(iso, "HR", "SI", "RS", "MK", "BA", "ME", "KS") & (year <= 1990)
-drop if (iso == "YU") & (year > 1990)
+drop mcomhn999i-mtaxnx999i pppeur-exccny 
 
+drop if (iso == "YU") & (year > 1990)
 // drop if inlist(iso, "CZ", "SK") & (year <= 1990)
 drop if (iso == "CS") & (year > 1990)
-
 drop if (iso == "DD") & (year >= 1991)
-drop if (iso == "SU") & (year > 1990)
+// drop if (iso == "SU") & (year > 1990)
+
+tempfile countries
+save `countries'  
 
 merge m:1 iso using "`region'", nogen keep(matched)
-//	These countries cause problems since they disappear after 1991. They are included in succedent states
-replace region2 = "" if iso == "DD"
-replace region4 = "" if iso == "DD"
-replace region5 = "" if iso == "DD"
-replace region2 = "" if inlist(iso, "YU", "CS")
-replace region3 = "" if inlist(iso, "YU", "CS")
-
-//	Some countries are missing an Other region
-replace region4 = "OA" if inlist(iso, "AL", "BA", "BG", "CY", "CZ", "EE", "HR")
-replace region4 = "OA" if inlist(iso, "HU", "KS", "LT", "LV", "MD", "ME", "MK", "PL")
-replace region4 = "OA" if inlist(iso, "RO", "RS", "SI", "SK")
-replace region4 = "OC" if inlist(iso, "GG", "JE")
-replace region4 = "OD" if inlist(iso, "BQ", "MF")
-replace region4 = "OH" if inlist(iso, "BM", "GL", "PG", "PM")
 
 preserve
 	collapse (firstnm) region*, by(iso year)
@@ -151,7 +144,7 @@ restore
 foreach x of varlist region* {
 preserve
 	drop if missing(`x')
-	collapse (sum) npopul001f-mpweal999i_exccny, by(year `x')
+	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year `x')
 	
 	rename `x' region
 	
@@ -165,23 +158,31 @@ use "`combined'", clear
 gsort region year 
 
 preserve
-*	keep if inlist(region , "XN", "XR", "XL", "XS", "XF") |  inlist(region , "QF", "QL", "QE", "QP") 
 	keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
 	ds year region, not
 	collapse (sum) `r(varlist)', by(year)
-	generate region = "WO"
+	generate region = "WO from regions"
 	
 	tempfile world
 	save `world'
 restore
 
-append using "`world'"
+preserve
+	use "`countries'", clear
+	ds year iso p, not
+	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year)
+	generate region = "WO from countries"
+	
+	tempfile world_iso
+	save `world_iso'
+restore
 
-renvars npopul001f-mpweal999i_exccny, pref("value")
+append using "`world'"
+append using "`world_iso'"
+
+renvars npopul001f-mtaxnx999i_exccny, pref("value")
 reshape long value, i(year region) j(widcode) string
 
-
-drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i", "mhweal999i") & year<1995
 drop if value == 0
 
 preserve
@@ -222,13 +223,19 @@ keep iso year widcode value currency
 generate p = "pall"
 replace value = round(value, 1) if strpos(widcode, "npopul")
 
+drop if !((substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
+	   | widcode == "mnninc999i" ///
+	   | widcode == "mndpro999i" ///
+	   | widcode == "mgdpro999i") ///
+	   & year<1970
 drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i", "mhweal999i") & year<1995
 
 tempfile regions
 save "`regions'"
 
-append using "$work_data/add-wealth-aggregates-output.dta"
-
+// append using "$work_data/add-wealth-aggregates-output.dta"
+append using  "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta"
+drop refyear
 
 duplicates tag iso year widcode p, gen(dup)
 *br if dup
