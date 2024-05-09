@@ -48,8 +48,8 @@ save "`region'"
 
 // Store PPP and exchange rates as an extra variable
 
-// use "$work_data/add-wealth-aggregates-output.dta", clear
-use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
+// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
 drop refyear
 keep if substr(widcode, 1, 3) == "xlc"
 // keep if year == $pastyear
@@ -73,8 +73,8 @@ save "`pppexc'"
 
 // Only keep data to aggregate
 
-// use "$work_data/add-wealth-aggregates-output.dta", clear
-use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
+// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
 drop refyear
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
@@ -107,10 +107,10 @@ foreach v in `r(varlist)' {
 }
 drop mcomhn999i-mtaxnx999i pppeur-exccny 
 
-drop if (iso == "YU") & (year > 1990)
-// drop if inlist(iso, "CZ", "SK") & (year <= 1990)
-drop if (iso == "CS") & (year > 1990)
-drop if (iso == "DD") & (year >= 1991)
+// drop if (iso == "YU") & (year > 1990)
+// // drop if inlist(iso, "CZ", "SK") & (year <= 1990)
+// drop if (iso == "CS") & (year > 1990)
+// drop if (iso == "DD") & (year >= 1991)
 // drop if (iso == "SU") & (year > 1990)
 
 tempfile countries
@@ -158,7 +158,8 @@ use "`combined'", clear
 gsort region year 
 
 preserve
-	keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
+	*keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
+	keep if inlist(region ,  "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
 	ds year region, not
 	collapse (sum) `r(varlist)', by(year)
 	generate region = "WO from regions"
@@ -233,8 +234,8 @@ drop if inlist(widcode, "mnweal999i", "mpweal999i", "mgweal999i", "mhweal999i") 
 tempfile regions
 save "`regions'"
 
-// append using "$work_data/add-wealth-aggregates-output.dta"
-append using  "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta"
+append using "$work_data/add-wealth-aggregates-output.dta"
+// append using  "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta"
 drop refyear
 
 duplicates tag iso year widcode p, gen(dup)
