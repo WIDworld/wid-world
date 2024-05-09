@@ -48,8 +48,9 @@ save "`region'"
 
 // Store PPP and exchange rates as an extra variable
 
-use "$work_data/add-wealth-aggregates-output.dta", clear
-// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+// use "$work_data/add-wealth-aggregates-output.dta", clear
+use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+
 drop refyear
 keep if substr(widcode, 1, 3) == "xlc"
 // keep if year == $pastyear
@@ -73,8 +74,9 @@ save "`pppexc'"
 
 // Only keep data to aggregate
 
-use "$work_data/add-wealth-aggregates-output.dta", clear
-// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+// use "$work_data/add-wealth-aggregates-output.dta", clear
+use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+
 drop refyear
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
