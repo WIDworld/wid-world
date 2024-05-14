@@ -103,6 +103,7 @@ drop com_vahn
 // Small data fix in MX
 replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 
+sa "$work_data/temp", replace 
 // -------------------------------------------------------------------------- //
 // Completing foreign income variables
 // -------------------------------------------------------------------------- //
@@ -329,7 +330,96 @@ replace `v' = pinpx*sh_`v' if missing(`v') & iso == "CU"
 }
 drop sh*
 
-drop TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx geoundet geoun soviet yugosl other
+// -------------------------------------------------------------------------- //
+// completing comrx and compx for corecountries
+// -------------------------------------------------------------------------- //
+foreach v in compx comrx { 
+	replace `v' =. if `v' == 0
+	bys iso : egen tot`v' = total(abs(`v')), missing
+	gen flagcountry`v' = 1 if tot`v' == .
+	replace flagcountry`v' = 0 if missing(flagcountry`v')
+	drop tot`v'
+}
+
+so iso year
+foreach v in compx comrx { 
+	by iso : ipolate `v' year if corecountry == 1 & flagcountry`v' == 0, gen(x`v') 
+	replace `v' = x`v' if missing(`v') 
+	drop x`v'
+}
+
+//Carryforward 
+foreach v in compx comrx { 
+so iso year
+by iso: carryforward `v' if corecountry == 1, replace 
+
+gsort iso -year 
+by iso: carryforward `v' if corecountry == 1, replace
+}
+
+/*
+//Fill missing with regional averages for all countries 
+foreach v in compx comrx { 
+	
+ foreach level in undet un {
+		
+  bys geo`level' year : egen av`level'`v' = mean(`v') if corecountry == 1
+
+  }
+replace `v' = avundet`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1	 
+replace `v' = avun`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1	
+}
+drop av*
+*/
+
+//Fill missing with regional averages for non-tax havens countries 
+foreach v in compx comrx { 
+	
+ foreach level in undet un {
+		
+  bys geo`level' year : egen av`level'`v' = mean(`v') if corecountry == 1 & TH == 0 
+
+  }
+replace `v' = avundet`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1	 
+replace `v' = avun`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1	
+}
+drop av*
+
+//Fill missing with TH average for TH
+foreach v in compx comrx { 
+	
+bys year : egen av`v' = mean(`v') if corecountry == 1 & TH == 1 
+
+replace `v' = av`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1	
+
+}
+drop av*
+
+merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
+merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
+merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
+keep if corecountry == 1
+foreach var in gdp {
+gen `var'_idx = `var'*index
+	replace `var' = `var'_idx/exrate_usd
+}
+
+replace comnx = comrx - compx 
+foreach v in comrx compx comnx {
+	replace `v' = `v'*gdp 
+	bys year : egen tot`v' = total(`v') if corecountry == 1
+}
+gen ratio_comrx = comrx/totcomrx
+gen ratio_compx = comrx/totcompx
+replace comrx = comrx - totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1	
+replace compx = compx + totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1		
+
+drop ratio* tot* geo*
+foreach v in comnx comrx compx {
+	replace `v' = `v'/gdp 
+}
+
+drop TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx soviet yugosl other gdp
 
 // -------------------------------------------------------------------------- //
 // Perform re-calibration

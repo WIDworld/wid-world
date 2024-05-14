@@ -31,6 +31,10 @@ use "$work_data/sna-series-adjusted.dta", clear
 
 drop gdpro series_* gdp *_gdp
 
+//	current account
+merge 1:1 iso year using "$work_data/bop_currentacc.dta", nogenerate
+egen ncanx = rowtotal(pinnx tbnnx comnx opinx scinx)
+
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp currency)
 
 ds iso year gdp currency, not

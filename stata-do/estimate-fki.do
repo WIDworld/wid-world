@@ -469,7 +469,7 @@ foreach v in fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx
 bys iso : egen tag`v' = mean(flag`v')
 bys iso : egen miss`v' = mean(`v')
 }
-
+so iso year
 // -------------------------------------------------------------------------- //
 // Predicting rates of return whenever is missing
 // -------------------------------------------------------------------------- //
@@ -651,6 +651,9 @@ gen aux`v' = `v' if iso == "SA"
 bys year : egen SA`v' = mode(aux`v')
 replace `v' = SA`v' if iso == "AE"
 drop aux`v' SA`v'
+}
+foreach v in fdipx fdirx pinpx pinrx ptfpx ptfpx_deb ptfpx_eq ptfrx ptfrx_deb ptfrx_eq ptfrx_res {
+replace flag`v' = 1 if iso == "AE"
 }
 
 *******************
@@ -905,8 +908,9 @@ replace `v' = `v'_gdp*gdp if iso == "KP"
 		xtset i year
 		gen fdiorx = l.fdirx // officially recorded fdirx
 		replace fdiorx = fdirx if year == 1970 & missing(fdiorx) 
-		replace fdirx = fdirx + aux if !missing(aux) & fdirx > 0 & year >= 2007 // (inlist(year, 1981, 1982, 1985) | year >= 2007)
-		replace fdirx = fdirx + aux if !missing(aux) & fdirx > 0 & inlist(year, 1970, 1971, 1972) 
+		replace fdirx = fdirx + aux if !missing(aux) & fdirx > 0 & inlist(year, 1971, 2007, 2009)
+		replace fdirx = fdirx + aux if !missing(aux) & fdirx > 0 & year >= 2017
+
 		drop aux tot_fdirx tot_fdipx_gdp
 replace fdirx_gdp = fdirx/gdp
 drop *_gdp
@@ -950,7 +954,6 @@ foreach var in ptfpx_deb ptfpx_eq {
 }
 drop ratio 
 replace ptfpx = auxptfpx if missing(ptfpx)
-
 replace ptfnx = ptfrx - ptfpx 
 
 egen auxpinrx = rowtotal(fdirx ptfrx), missing
@@ -1025,6 +1028,7 @@ replace pinpx = fdipx + ptfpx
 gen pinnx = pinrx - pinpx 
 gen fdinx = fdirx - fdipx 
 gen ptfnx = ptfrx - ptfpx 
+
 drop gdp 
 
 sa "$work_data/estimated-fki.dta", replace

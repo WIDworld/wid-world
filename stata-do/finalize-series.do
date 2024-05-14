@@ -92,50 +92,50 @@ so iso year
 
 //	fixing some TH 
 foreach var in comrx compx ftaxx fsubx { // comhn fkpin nmxho ptxgo
-	replace `var' =. if iso == "BQ" & (inlist(year, 2008) | year >= 2014)
-	replace `var' =. if iso == "CG" & (inlist(year, 2005))
+	replace `var' =. if iso == "BQ" & (year >= 2007)
+	replace `var' =. if iso == "CG" & (year >= 1995 & year <= 2007)
+	replace `var' =. if iso == "CG" & (year >= 2015)
 	replace `var' =. if iso == "GN" & (inlist(year, 1970, 1974, 1975))
-	replace `var' =. if iso == "KY" & (year >= 1973 & year <= 1982)
-	replace `var' =. if iso == "KY" & (year >= 1992 & year <= 1996)
-	replace `var' =. if iso == "MC" & (year >= 2017 & year <= 2019)
-	replace `var' =. if iso == "VG" & (year >= 2009)
-	replace `var' =. if iso == "ZM" & (year == 1987)
+	replace `var' =. if iso == "KY" & (year <= 2015)
+	replace `var' =. if iso == "MC" & (year >= 2014 & year <= 2019)
+	replace `var' =. if iso == "VG" & (year >= 2000)
+	replace `var' =. if iso == "GI" & (year >= 2012 & year <= 2015)
 	
-	so iso year 
-	by iso: carryforward `var' if corecountry == 1, replace cfindic(flag)
-	replace series_`var' = -2 if flag & corecountry == 1
-	drop flag 
+so iso year 
+by iso: carryforward `var' if corecountry == 1, replace cfindic(flag)
+replace series_`var' = -2 if flag & corecountry == 1
+drop flag 
 }
 
-replace comnx = comrx - compx if mi(comnx) & corecountry == 1
+replace comnx = comrx - compx if corecountry == 1
 	replace series_comnx = -1 if mi(series_comnx) & !mi(comnx) & (series_comrx == -1 | series_compx == -1)
 	replace series_comnx = -2 if mi(series_comnx) & !mi(comnx) & (series_comrx == -2 | series_compx == -2)
 	
-replace flcir = comrx + pinrx if mi(flcir) & corecountry == 1
+replace flcir = comrx + pinrx if corecountry == 1
 	replace series_flcir = -1 if mi(series_flcir) & !mi(flcir) & (series_comrx == -1 | series_pinrx == -1)
 	replace series_flcir = -2 if mi(series_flcir) & !mi(flcir) & (series_comrx == -2 | series_pinrx == -2)
 	
-replace flcip = compx + pinpx if mi(flcip) & corecountry == 1
+replace flcip = compx + pinpx if corecountry == 1
 	replace series_flcip = -1 if mi(series_flcip) & !mi(flcip) & (series_compx == -1 | series_pinpx == -1)
 	replace series_flcip = -2 if mi(series_flcip) & !mi(flcip) & (series_compx == -2 | series_pinpx == -2)
 	
-replace flcin = flcir - flcip if mi(flcin) & corecountry == 1
+replace flcin = flcir - flcip if corecountry == 1
 	replace series_flcin = -1 if mi(series_flcin) & !mi(flcin) & (series_flcir == -1 | series_flcip == -1)
 	replace series_flcin = -2 if mi(series_flcin) & !mi(flcin) & (series_flcir == -2 | series_flcip == -2)
 	
-replace finrx = comrx + pinrx + fsubx if mi(finrx) & corecountry == 1
+replace finrx = comrx + pinrx + fsubx if corecountry == 1
 	replace series_finrx = -1 if mi(series_finrx) & !mi(finrx) & (series_comrx == -1 | series_pinrx == -1 | series_fsubx == -1)
 	replace series_finrx = -2 if mi(series_finrx) & !mi(finrx) & (series_comrx == -2 | series_pinrx == -2 | series_fsubx == -2)
 	
-replace finpx = compx + pinpx + ftaxx if mi(finpx) & corecountry == 1
+replace finpx = compx + pinpx + ftaxx if corecountry == 1
 	replace series_finpx = -1 if mi(series_finpx) & !mi(finpx) & (series_compx == -1 | series_pinpx == -1 | series_ftaxx == -1)
 	replace series_finpx = -2 if mi(series_finpx) & !mi(finpx) & (series_compx == -2 | series_pinpx == -2 | series_ftaxx == -2)
 
-replace taxnx = fsubx - ftaxx if mi(taxnx) & corecountry == 1
+replace taxnx = fsubx - ftaxx if corecountry == 1
 	replace series_taxnx = -1 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -1 | series_flcip == -1)
 	replace series_taxnx = -2 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -2 | series_flcip == -2)
 
-replace nnfin = flcin + taxnx if mi(nnfin) & corecountry == 1
+replace nnfin = flcin + taxnx if corecountry == 1
 	replace series_nnfin = -1 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -1 | series_taxnx == -1)
 	replace series_nnfin = -2 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -2 | series_taxnx == -2)
 

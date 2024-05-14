@@ -162,7 +162,7 @@ gen checkptfrx_res = 1 if round(ptfrx_res) == round(ptfrx) & !missing(ptfrx_res)
 gen checkptfpx_eq = 1 if round(ptfpx_eq) == round(ptfpx) & !missing(ptfpx_eq) & !missing(ptfpx)
 gen checkptfpx_deb = 1 if round(ptfpx_deb) == round(ptfpx) & !missing(ptfpx_deb) & !missing(ptfpx)
 
-merge 1:1 iso year using "C:/Users/g.nievas/Dropbox/NS_ForeignWealth/Data/foreign-wealth-total-EWN_new.dta", nogen
+merge 1:1 iso year using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen
 encode iso, gen(i)
 xtset i year 
 
@@ -312,17 +312,18 @@ merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen ke
 
 // computing for Curaçao and Sint Maarten based on Netherland Antilles GDP
 merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
-foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+foreach v in compx comrx fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 bys year : gen aux`v' = `v' if iso == "AN"
 bys year : egen `v'AN = mode(aux`v')
 }
-foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
+foreach v in compx comrx fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb { 
 	foreach c in CW SX {
 		replace `v' = `v'AN*ratio`c'_ANlcu if iso == "`c'" & missing(`v')
 	}
 }	
 drop aux* ratio* *AN
 
+// variables in USD
 foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	replace `v' = `v'*gdp_wid
 }
@@ -352,13 +353,21 @@ replace ratio = 0 if mi(ratio)
 drop ratio 
 replace pinpx = auxpinpx if !missing(auxpinpx)
 
-egen flcir = rowtotal(pinrx comrx), missing
-egen auxfinrx = rowtotal(flcir fsubx), missing 
+gen flcir = pinrx + comrx
+gen auxfinrx = flcir + fsubx
 replace finrx = auxfinrx if !missing(auxfinrx)
 
-egen flcip = rowtotal(pinpx compx), missing
-egen auxfinpx = rowtotal(flcip ftaxx), missing 
+//egen flcir = rowtotal(pinrx comrx), missing
+//egen auxfinrx = rowtotal(flcir fsubx), missing 
+//replace finrx = auxfinrx if !missing(auxfinrx)
+
+gen flcip = pinpx + compx
+gen auxfinpx = flcip + ftaxx 
 replace finpx = auxfinpx if !missing(auxfinpx)
+
+//egen flcip = rowtotal(pinpx compx), missing
+//egen auxfinpx = rowtotal(flcip ftaxx), missing 
+//replace finpx = auxfinpx if !missing(auxfinpx)
 
 generate flcin = flcir - flcip
 generate pinnx = pinrx - pinpx
@@ -425,7 +434,11 @@ enforce (comnx = comrx - compx) ///
 		(pinpx = fdipx + ptfpx) ///
 		(pinrx = fdirx + ptfrx) ///
 		(fdinx = fdirx - fdipx) ///
-		(ptfnx = ptfrx - ptfpx), fixed(fsubx ftaxx comrx compx fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb) replace force
-	
+		(ptfnx = ptfrx - ptfpx), fixed(fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb) replace force
+
+foreach v in fdipx fdirx ptfpx ptfrx pinpx pinrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	replace `v' =. if flagimf`v' == 1
+}
+		
 drop gdp_usd_weo gdp_wid corecountry TH		
 save "$work_data/imf-foreign-income.dta", replace

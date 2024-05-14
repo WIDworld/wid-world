@@ -156,7 +156,7 @@ do "$do_dir/calculate-populations.do" // code not running on my side
 // -------------------------------------------------------------------------- //
 
 // Price index
-do "$do_dir/calculate-price-index.do"
+do "$do_dir/calculate-price-index.do" // check merge with UN data (Croatia)
 
 // Import exchange rates from Open Exchange rates
 do "$do_dir/import-exchange-rate.do" // i only updated the data currencies-rate the one in the R code 
@@ -211,6 +211,9 @@ do "$do_dir/import-oecd-data.do"
 
 // Import data from other sources
 do "$do_dir/import-imf-bop.do"
+do "$do_dir/import-imf-dottrade.do"
+do "$do_dir/import-combine-gravityimftrade.do"
+do "$do_dir/currentaccount.do"
 do "$do_dir/import-income-researchers.do"
 do "$do_dir/reformat-wid-data.do"
 
@@ -265,7 +268,7 @@ do "$do_dir/add-populations.do"
 do "$do_dir/add-wealth-aggregates.do"
 
 // Aggregate by regions
-do "$do_dir/aggregate-macro-regions.do"
+do "$do_dir/aggregate-macro-regions.do" // drop some variables
 
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"
