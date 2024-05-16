@@ -58,6 +58,8 @@ drop fivelet
 // Add new national accounts
 append using "$work_data/national-accounts.dta"
 
+drop if length(widcode) > 10
+
 // Save
 compress
 save "$work_data/add-national-accounts-output.dta", replace

@@ -4,6 +4,7 @@
 use "$work_data/ppp-oecd.dta", clear
 merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
+		replace currency = "EUR" if iso == "HR"
 		drop if iso == "VE"
 		append using "$work_data/imf-ven-pppex" 
 		replace currency = "VES" if iso == "VE"
@@ -245,7 +246,7 @@ import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
 cap renvars obs_value time_period / value time
 
-drop if na_item != "Gross domestic product at market prices"
+drop if na_item != "B1GQ" // "Gross domestic product at market prices"
 destring value, ignore(":") replace
 split time, parse("Q")
 replace time1 = subinstr(time1, "-", "", .)

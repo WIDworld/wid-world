@@ -1,8 +1,9 @@
-import delimited "$current_account/DOT_01-30-2024 14-36-07-21_timeSeries.csv", clear 
+import delimited "$current_account/DOT_${pastyear}_timeSeries.csv", clear 
 
-drop v11 v8
-ren v9  v2021
-ren v10 v2022
+ren v8  v2021
+ren v9 v2022
+ren v10 v2023
+drop v11
 
 drop if attribute == "Status"
 

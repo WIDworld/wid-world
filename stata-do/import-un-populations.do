@@ -10,13 +10,13 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_IN
 
 keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
 
-// Adding estimated year - Medium Variant - 2021
+// Adding estimated year - Medium Variant - 2022 and 2023
 preserve
 	import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 	keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
-	keep if year == $pastyear
-	tempfile $pastyear
+	keep if year == $pastyear | year == $pastpastyear
+	tempfile $pastyear 
 	save `$pastyear'
 restore	
 
@@ -58,7 +58,7 @@ foreach v of varlist l-af {
 		rename `v' value`age'
 	}
 }
-// Adding estimated year - Medium Variant - 2021
+// Adding estimated year - Medium Variant - 2022 and 2023
 preserve
 import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
@@ -77,7 +77,7 @@ foreach v of varlist l-af {
 		}
 	}
 
-	keep if year == $pastyear	
+	keep if year == $pastyear | year == $pastpastyear
 	
 	tempfile age_$pastyear
 	save `age_$pastyear'
@@ -135,7 +135,7 @@ foreach v of varlist l-af {
 	}
 }
 
-// Adding estimated year - Medium Variant - 2021
+// Adding estimated year - Medium Variant - 2022 and 2023
 preserve
 import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
@@ -154,7 +154,7 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5
 		}
 	}
 
-	keep if year == $pastyear	
+	keep if year == $pastyear | year == $pastpastyear
 	
 	tempfile male_$pastyear
 	save `male_$pastyear'
@@ -222,7 +222,7 @@ foreach v of varlist l-af {
 	}
 }
 
-// Adding estimated year - Medium Variant - 2021
+// Adding estimated year - Medium Variant - 2022 and 2023
 preserve
 import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
@@ -241,7 +241,7 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5
 		}
 	}
 
-	keep if year == $pastyear	
+	keep if year == $pastyear | year == $pastpastyear
 	
 	tempfile female_$pastyear
 	save `female_$pastyear'

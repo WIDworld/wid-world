@@ -12,7 +12,7 @@ ren value exrate_usd
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
 merge 1:1 iso year using "$work_data/price-index.dta", nogen
-merge 1:1 iso year using "$work_data/sna-series-finalized.dta", nogenerate keep(match) keepusing(ptfnx ptfrx ptfpx)
+merge 1:1 iso year using "$work_data/sna-series-finalized.dta", nogenerate keep(master match) keepusing(ptfnx ptfrx ptfpx)
 
 foreach v in ptfnx ptfrx ptfpx {
 	replace `v' = `v'*gdp

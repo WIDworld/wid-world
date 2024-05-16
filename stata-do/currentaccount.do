@@ -107,7 +107,7 @@ keep if inrange(year, 1970, $pastyear )
 
 //Express all variables as share of GDP
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit tradebalance capital_credit capital_debit {
+ otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit exports imports tradebalance capital_credit capital_debit {
 replace `v' = `v'/gdp_usd
 }
 

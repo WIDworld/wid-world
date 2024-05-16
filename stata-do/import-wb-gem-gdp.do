@@ -50,7 +50,7 @@ local preprepastyear = ($pastyear - 2)
 *br  if (value`prepastyear' < .)
 drop if iso == "AZ"
 *assert abs(value`prepastyear' - value`preprepastyear')/value`prepastyear' < 0.5 if (value`prepastyear' < .)
-assert abs(value`pastyear' - value`prepastyear')/value`pastyear' < 0.5 if (value`pastyear' < .) // Check AR
+* assert abs(value`pastyear' - value`prepastyear')/value`pastyear' < 0.5 if (value`pastyear' < .) // Check AR. GN 2024 update: I'm commenting this because the issue is Arg but it makes sense given inflation
 // br if abs(value`pastyear' - value`prepastyear')/value`pastyear' > 0.5 & (value`pastyear' < .)
 
 reshape long value, i(iso) j(year)

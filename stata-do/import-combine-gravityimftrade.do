@@ -461,6 +461,8 @@ gen check = totexp - totimp
 assert check == 0 
 
 gen tradebalance = exports - imports
+so iso year
+by iso : carryforward exports imports tradebalance if year == $pastyear , replace 
 assert !mi(tradebalance)
 
 drop tot* check* // exports imports

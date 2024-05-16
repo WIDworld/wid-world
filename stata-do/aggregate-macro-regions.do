@@ -48,8 +48,8 @@ save "`region'"
 
 // Store PPP and exchange rates as an extra variable
 
-// use "$work_data/add-wealth-aggregates-output.dta", clear
-use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
+// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
 
 drop refyear
 keep if substr(widcode, 1, 3) == "xlc"
@@ -74,8 +74,7 @@ save "`pppexc'"
 
 // Only keep data to aggregate
 
-// use "$work_data/add-wealth-aggregates-output.dta", clear
-use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-wealth-aggregates-output.dta", clear
 
 drop refyear
 keep if p == "pall"
@@ -92,7 +91,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | inlist(substr(widcode, 1, 6), "mfdirx", "mfdipx", "mptfnx", "mptfrx", "mptfpx", "mflcin", "mflcir", "mflcip") /// 
 	   | inlist(substr(widcode, 1, 6), "mncanx", "mtbnnx", "mcomnx", "mopinx", "mscinx", "mtbxrx", "mtbmpx", "mopirx") /// 
 	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
-	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx", "mnmxho", "mptxgo") 
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx") 
 
 	   
 //       | (substr(widcode, 1, 1) == "m")	   
@@ -139,7 +138,6 @@ preserve
 	export excel "$wid_dir/wid-regions-list.xlsx", sheet("WID", replace) firstrow(variables)
 restore
 
-
 foreach x of varlist region* {
 preserve
 	drop if missing(`x')
@@ -168,6 +166,8 @@ restore
 
 preserve
 	use "`countries'", clear
+	merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
+	keep if corecountry == 1
 	ds year iso p, not
 	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year)
 	generate region = "WO from countries"

@@ -82,7 +82,7 @@ do "$do_dir/import-un-sna-main-tables.do"
 do "$do_dir/import-wb-macro-data.do"
 
 // Import GDP from World Bank Global Economic Monitor
-do "$do_dir/import-wb-gem-gdp.do" // Check AR
+do "$do_dir/import-wb-gem-gdp.do" 
 
 // Import GDP from the IMF World Economic Outlook data
 do "$do_dir/import-imf-weo-gdp.do"
@@ -149,17 +149,17 @@ do "$do_dir/import-un-populations.do"
 do "$do_dir/import-un-sna-populations.do"
 
 // Calculate the population series
-do "$do_dir/calculate-populations.do" // code not running on my side
+do "$do_dir/calculate-populations.do" 
 
 // -------------------------------------------------------------------------- //
 // Calculate PPPs & exchange rates and deflators
 // -------------------------------------------------------------------------- //
 
 // Price index
-do "$do_dir/calculate-price-index.do" // check merge with UN data (Croatia)
+do "$do_dir/calculate-price-index.do"
 
 // Import exchange rates from Open Exchange rates
-do "$do_dir/import-exchange-rate.do" // i only updated the data currencies-rate the one in the R code 
+do "$do_dir/import-exchange-rate.do" 
 
 // Import Purchasing Power Parities from the OECD
 do "$do_dir/import-ppp-oecd.do"
@@ -268,7 +268,7 @@ do "$do_dir/add-populations.do"
 do "$do_dir/add-wealth-aggregates.do"
 
 // Aggregate by regions
-do "$do_dir/aggregate-macro-regions.do" // drop some variables
+do "$do_dir/aggregate-macro-regions.do" 
 
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"

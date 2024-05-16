@@ -745,6 +745,7 @@ program countrycode, nclass
 			replace `generate' = "VG" if (`varlist' == "British Virgin Islands")
 			replace `generate' = "VI" if (`varlist' == "Virgin Islands (U.S.)")
 			replace `generate' = "VN" if (`varlist' == "Vietnam")
+			replace `generate' = "VN" if (`varlist' == "Viet Nam")
 			replace `generate' = "VU" if (`varlist' == "Vanuatu")
 			replace `generate' = "WS" if (`varlist' == "Samoa")
 			replace `generate' = "YE" if (`varlist' == "Yemen, Rep.")

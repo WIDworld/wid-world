@@ -27,6 +27,7 @@ merge 1:1 iso year using "$work_data/wb-gem-deflator.dta", ///
 	nogenerate update assert(using master match)
 	replace currency = "USD" if iso == "ZW"
 	replace currency = "VES" if iso == "VE"
+	replace currency = "EUR" if iso == "HR"
 merge 1:1 iso year using "$work_data/un-deflator.dta", ///
 	nogenerate update assert(using master match) 
 	replace currency = "ZWD" if iso == "ZW"
@@ -461,8 +462,8 @@ by iso: generate yearbreak = (year[_n - 1] != year - 1) ///
 	& (index_source[_n - 1] != index_source) ///
 	& (year[_n - 1] != firstyear)
 egen hasbreak = total(yearbreak), by(iso)
-// South Korea only
-assert iso == "KR" if hasbreak
+// Malawi only
+assert iso == "MW" if hasbreak
 drop firstyear hasbreak
 // Seperate periods between before & after the break
 by iso: generate catbreak = sum(yearbreak)
@@ -470,39 +471,40 @@ by iso: generate catbreak = sum(yearbreak)
 generate obsn = _n
 quietly levelsof iso if (yearbreak == 1), local(countrybreak)
 foreach c of local countrybreak {
-	di "`c'"
-	// List categories for that country
-	quietly summarize catbreak if (iso == "`c'")
-	local maxcat = r(max)
-	forvalues i = 1/`maxcat' {
-		// Find a serie available in both time periods
-		foreach v of varlist def_wid cpi_wid def_wb def_un def_weo cpi_wb cpi_gfd cpi_fw {
-			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i' - 1)
-			local nnmiss_before = r(N)
-			quietly count if (`v' < .) & (iso == "`c'") & (catbreak == `i')
-			local nnmiss_after = r(N)
-			if (`nnmiss_before' > 0) & (`nnmiss_after' > 0) {
-				local serie `v'
-				continue, break
-			}
-		}
-		// Identify first & last value before break
-		quietly summarize obsn if (iso == "`c'") & (catbreak == `i' - 1) & (`serie' < .)
-		local nlast = r(max)
-		quietly summarize obsn if (iso == "`c'") & (catbreak == `i') & (`serie' < .)
-		local nfirst = r(min)
-		local lastserie = `serie'[`nlast']
-		local firstserie = `serie'[`nfirst']
-		local lastindex = index[`nlast']
-		local firstindex = index[`nfirst']
-		// Adjust index in period i - 1
-		disp as res `lastserie'
-		disp as res `firstserie'
-		disp as res `firstindex'
-		disp as res `lastindex'
-		replace index = index + (`lastserie' - `firstserie') + (`firstindex' - `lastindex') ///
-			if (iso == "`c'") & (catbreak == `i' - 1)
-	}
+    di "`c'"
+    // List categories for that country
+    quietly summarize catbreak if (iso == "`c'")
+    local maxcat = r(max)
+    forvalues i = 1/`maxcat' {
+        // Find a serie available in both time periods
+        foreach v of varlist def_wid cpi_wid def_wb def_un def_weo cpi_wb cpi_gfd cpi_fw {
+            quietly count if (`v' != .) & (iso == "`c'") & (catbreak == `i' - 1)
+            local nnmiss_before = r(N)
+            quietly count if (`v' != .) & (iso == "`c'") & (catbreak == `i')
+            local nnmiss_after = r(N)
+            if (`nnmiss_before' > 0 & `nnmiss_after' > 0) {
+                local serie `v'
+                break
+            }
+        }
+        if "`serie'" != "" {
+            // Identify first & last value before break
+            quietly summarize obsn if (iso == "`c'") & (catbreak == `i' - 1) & (`serie' != .)
+            local nlast = r(max)
+            quietly summarize obsn if (iso == "`c'") & (catbreak == `i') & (`serie' != .)
+            local nfirst = r(min)
+            local lastserie = `serie'[`nlast']
+            local firstserie = `serie'[`nfirst']
+            local lastindex = index[`nlast']
+            local firstindex = index[`nfirst']
+            // Adjust index in period i - 1
+            display `lastserie'
+            display `firstserie'
+            display `firstindex'
+            display `lastindex'
+            replace index = index + (`lastserie' - `firstserie') + (`firstindex' - `lastindex') if (iso == "`c'") & (catbreak == `i' - 1)
+        }
+    }
 }
 drop obsn yearbreak catbreak
 

@@ -143,7 +143,8 @@ countrycode countryname, generate(iso) from("wb")
 merge n:1 countryname using "$work_data/wb-metadata.dta", ///
 	keep(master match) nogenerate //Regions are droppped
 
-// Identify currencies
+	// Identify currencies
+replace currency = "vietnamese dong" if iso == "VN"
 replace currency = "turkmenistan manat" if currency == "New Turkmen manat"
 replace currency = "democratic people's republic of korean won" if countryname == "Korea, Dem. People's Rep."  // compared to xrate from 2020, KP used to have the same xrate as KR from 1999 onwards
 currencycode currency, generate(currency_iso) iso2c(iso) from("wb")
@@ -281,6 +282,7 @@ preserve
 	sa `exrateyu', replace 
 restore 
 	
+	drop if iso == "HR" & currency == "HRK"
 	merge 1:1 iso year using `exrateyu'
 	drop if _m == 2
 	drop _m 
@@ -321,7 +323,7 @@ drop exrate_usd
 
 // Complete the missing exchange rates using UN SNA data
 preserve
-import delimited "$input_data_dir/currency-rates/currencies-UNSNA-$year.csv", clear 
+import delimited "$un_data/sna-main/exchange-rate/usd-exchange-rate-$year.csv", clear
 
 ren (countryarea amaexchangerate imfbasedexchangerate) (country amaxrt imfxrt)
 
@@ -341,13 +343,13 @@ replace soviet = 1 if country == "Uzbekistan"
 replace soviet = 0 if missing(soviet)
 
 gen yugosl = 1 if country == "Bosnia and Herzegovina"
-replace yugosl = 1 if country == "Croatia"
+*replace yugosl = 1 if country == "Croatia"
 replace yugosl = 1 if country == "Former Yugoslavia"
 replace yugosl = 1 if country == "Republic of North Macedonia"
 replace yugosl = 1 if country == "Serbia"
 replace yugosl = 0 if missing(yugosl)
 
-gen euro = 1 if inlist(country, "Estonia", "Kosovo", "Lithuania", "Latvia", "Slovenia", "Slovakia")
+gen euro = 1 if inlist(country, "Estonia", "Kosovo", "Lithuania", "Latvia", "Slovenia", "Slovakia", "Croatia")
 replace euro = 0 if missing(euro)
 
 *extrapolating variation rates of main currency to the post-union currency
@@ -513,7 +515,8 @@ sa `xrateunsna', replace
 restore
 
 merge 1:1 iso year using `xrateunsna', keepusing(imfxrt amaxrt soviet yugosl)
-drop if _m == 2
+drop if _m == 2 & iso != "HR"
+replace currency = "EUR" if iso == "HR"
 drop _m 
 gen flagexrate = 1 if missing(valuexlcusx999i)
 replace flagexrate = 0 if missing(flagexrate)

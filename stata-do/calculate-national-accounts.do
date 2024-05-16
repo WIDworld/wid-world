@@ -6,9 +6,20 @@ u "$wid_dir/Country-Updates/publicfinance/wid-gethinpublicfinance.dta", clear
 merge m:1 iso year using "$work_data/price-index.dta", ///
 	nogenerate update keep(master match match_update match_conflict) ///
 	assert(using master match match_update)
-replace value = value/index 
+replace value = value/index
+ 
+// updating until lastyear 
+expand 2 if year == $pastpastyear, gen(exp)
+replace year = $pastyear if exp == 1
+replace value = . if exp == 1 
 
-drop extrapolation data_points data_quality source method author index currency
+	merge m:1 iso year using "$work_data/retropolate-gdp.dta", nogen keep(master match)
+	gen value_gdp = value/gdp 
+	so iso widcode year 
+	by iso widcode : carryforward value_gdp, replace
+	replace value = value_gdp*gdp if exp == 1
+
+drop extrapolation data_points data_quality source method author index currency exp gdp level* growth_src value_gdp
 replace p = "pall"
 
 tempfile pfgethin
