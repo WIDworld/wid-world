@@ -28,6 +28,7 @@ merge 1:1 iso year using "$work_data/wb-gem-deflator.dta", ///
 	replace currency = "USD" if iso == "ZW"
 	replace currency = "VES" if iso == "VE"
 	replace currency = "EUR" if iso == "HR"
+	replace currency = "USD" if iso == "PS"
 merge 1:1 iso year using "$work_data/un-deflator.dta", ///
 	nogenerate update assert(using master match) 
 	replace currency = "ZWD" if iso == "ZW"

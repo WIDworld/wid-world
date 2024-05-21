@@ -169,17 +169,17 @@ replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the lates
 replace ppp_method = ppp_method + " for Switzerland" if newobs
 drop newobs
 
-// For French Polynesia, use France 
-expand 2 if (iso == "FR"), generate(newobs)
+// For French Polynesia, use New Zealand  
+expand 2 if (iso == "NZ"), generate(newobs)
 replace iso = "PF" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for France from the latest ICP", 1) if newobs
+replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for New Zealand from the latest ICP", 1) if newobs
 replace ppp_method = ppp_method + " for France" if newobs
 drop newobs
 
-// For New Caledonia, use France 
-expand 2 if (iso == "FR"), generate(newobs)
+// For New Caledonia, use New Zealand 
+expand 2 if (iso == "NZ"), generate(newobs)
 replace iso = "NC" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for France from the latest ICP", 1) if newobs
+replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for New Zealand from the latest ICP", 1) if newobs
 replace ppp_method = ppp_method + " for France" if newobs
 drop newobs
 

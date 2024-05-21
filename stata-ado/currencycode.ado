@@ -304,6 +304,7 @@ program currencycode, nclass
 			replace `generate' = "PHP" if (`iso2c' == "PH") & (`curr' == "philippine peso")
 			replace `generate' = "PKR" if (`iso2c' == "PK") & (`curr' == "pakistan rupee")
 			replace `generate' = "PLN" if (`iso2c' == "PL") & (`curr' == "zloty")
+			replace `generate' = "USD" if (`iso2c' == "PS") & (`curr' == "us dollar")
 			replace `generate' = "PYG" if (`iso2c' == "PY") & (`curr' == "guarani")
 			replace `generate' = "QAR" if (`iso2c' == "QA") & (`curr' == "qatari rial")
 			replace `generate' = "RON" if (`iso2c' == "RO") & (`curr' == "new leu")
