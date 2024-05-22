@@ -157,15 +157,15 @@ append using  "`combined'"
 use "`combined'", clear
 gsort region year 
 
-preserve
-	keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
-	ds year region, not
-	collapse (sum) `r(varlist)', by(year)
-	generate region = "WO from regions"
-	
-	tempfile world
-	save `world'
-restore
+// preserve
+// 	keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
+// 	ds year region, not
+// 	collapse (sum) `r(varlist)', by(year)
+// 	generate region = "WO from regions"
+//	
+// 	tempfile world
+// 	save `world'
+// restore
 
 preserve
 	use "`countries'", clear
@@ -173,7 +173,7 @@ preserve
 	keep if corecountry == 1
 	ds year iso p, not
 	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year)
-	generate region = "WO from countries"
+	generate region = "WO"
 	
 	tempfile world_iso
 	save `world_iso'

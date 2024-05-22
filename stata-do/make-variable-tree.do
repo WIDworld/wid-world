@@ -67,7 +67,6 @@ save "`tree'"
 // -------------------------------------------------------------------------- //
 
 import excel using "$codes_dictionary", sheet("Income_Macro_Variables") cellrange(A4) clear allstring
-*import excel "~/Dropbox/W2ID/Country-Updates/National_Accounts/Update_2020/Codes_Dictionnary_WID_new.xlsx", sheet("Income_Macro_Variables") cellrange(A4) clear allstring
 keep A-AA
 keep if ustrregexm(B, "[a-z][a-z]")
 
