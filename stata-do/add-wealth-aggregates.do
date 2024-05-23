@@ -13,6 +13,7 @@ reshape wide value, i(iso year) j(widcode) string
 // merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
 
 merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
+drop nwnxa nwgxd nwgxa nwoff
 // Netherlands
 // merge 1:1 iso year using "$wid_dir/Country-Updates/Netherlands/2022_11/NL_WealthAggregates_WID_tomerge", update nogen
 
