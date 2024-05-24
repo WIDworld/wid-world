@@ -93,7 +93,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | inlist(substr(widcode, 1, 6), "mfdirx", "mfdipx", "mptfnx", "mptfrx", "mptfpx", "mflcin", "mflcir", "mflcip") /// 
 	   | inlist(substr(widcode, 1, 6), "mncanx", "mtbnnx", "mcomnx", "mopinx", "mscinx", "mtbxrx", "mtbmpx", "mopirx") /// 
 	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
-	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx")
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx") /// 
 	   | inlist(substr(widcode, 1, 6), "mexpgo", "mgpsge", "mdefge", "mpolge", "mecoge", "menvge", "mhouge", "mheage") ///
 	   | inlist(substr(widcode, 1, 6), "mrecge", "meduge", "medpge", "medsge", "medtge", "msopge", "mspige", "msacge") ///
 	   | inlist(substr(widcode, 1, 6), "msakge", "mrevgo", "mpitgr", "mcitgr", "mscogr", "mpwtgr", "mintgr", "mottgr") /// 
@@ -115,7 +115,7 @@ foreach v in `r(varlist)' {
 		generate `v'_`l' = `v'/`l' 
 	}
 }
-drop mcomhn999i-mtaxnx999i pppeur-exccny 
+drop mcitgr999i-mtaxnx999i pppeur-exccny 
 
 tempfile countries
 save `countries'  
@@ -147,7 +147,7 @@ restore
 foreach x of varlist region* {
 preserve
 	drop if missing(`x')
-	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year `x')
+	collapse (sum) npopul001f-mtbxrx999i_exccny, by(year `x')
 	
 	rename `x' region
 	
@@ -178,7 +178,7 @@ preserve
 	merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
 	keep if corecountry == 1
 	ds year iso p, not
-	collapse (sum) npopul001f-mtaxnx999i_exccny, by(year)
+	collapse (sum) npopul001f-mtbxrx999i_exccny, by(year)
 	generate region = "WO"
 	
 	tempfile world_iso
@@ -187,8 +187,8 @@ restore
 *append using "`world'"
 append using "`world_iso'"
 
-renvars npopul001f-mtaxnx999i_exccny, pref("value")
-reshape long value, i(year region) j(widcode) string
+renvars npopul001f-mtbxrx999i_exccny, pref("value")
+greshape long value, i(year region) j(widcode) string
 
 drop if value == 0
 
