@@ -97,7 +97,7 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | inlist(substr(widcode, 1, 6), "mexpgo", "mgpsge", "mdefge", "mpolge", "mecoge", "menvge", "mhouge", "mheage") ///
 	   | inlist(substr(widcode, 1, 6), "mrecge", "meduge", "medpge", "medsge", "medtge", "msopge", "mspige", "msacge") ///
 	   | inlist(substr(widcode, 1, 6), "msakge", "mrevgo", "mpitgr", "mcitgr", "mscogr", "mpwtgr", "mintgr", "mottgr") /// 
-	   | inlist(substr(widcode, 1, 6), "mntrgr", "mpsugo")  
+	   | inlist(substr(widcode, 1, 6), "mntrgr", "mpsugo", "mretgo")  
 
 	   
 //       | (substr(widcode, 1, 1) == "m")	   
