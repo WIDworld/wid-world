@@ -62,6 +62,9 @@ rename currency2 currency
 // Brunei IMF weo projection is too high, using WB consulted from website WDI
 replace cpi_wb = 106.5 if iso == "BN" & year == 2022 & missing(cpi_wb)
 
+// Fixing Arg IMF weo projection
+replace def_weo = 35368.354 if iso == "AR" & year == 2023
+
 /*
 reshape long def_ cpi_, i(iso year) j(src) string
 keep if (cpi < .) | (def < .)

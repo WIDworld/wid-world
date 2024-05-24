@@ -300,7 +300,7 @@ ren imports 			tbmpx
 ren tradebalance 		tbnnx
 *ren otherpinc_credit 	opirx
 *ren otherpinc_debit 	opipx
-*ren net_otherpinc 		opinx
+ren net_otherpinc 		opinx
 ren secinc_credit 		scirx
 ren secinc_debit 		scipx
 ren net_secinc 			scinx
