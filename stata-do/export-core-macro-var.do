@@ -15,10 +15,12 @@ keep if  inlist(substr(widcode, 1, 6), "npopul") ///
 	   | inlist(substr(widcode, 2, 5), "nyixx", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp") ///
 	   | inlist(substr(widcode, 2, 5), "expgo", "gpsge", "defge", "polge", "ecoge", "envge", "houge", "heage") ///
 	   | inlist(substr(widcode, 2, 5), "recge", "eduge", "edpge", "edsge", "edtge", "sopge", "spige", "sacge") ///
-	   | inlist(substr(widcode, 2, 5), "sakge", "revgo", "pitgr", "citgr", "scogr", "pwtgr", "intgr", "ottgr") 
+	   | inlist(substr(widcode, 2, 5), "sakge", "revgo", "pitgr", "citgr", "scogr", "pwtgr", "intgr", "ottgr") ///
+	   | inlist(substr(widcode, 2, 5), "ntrgr", "psugo") 
 	   
 	   *| inlist(substr(widcode, 2, 5), "", "", "", "", "", "", "", "")
 	   
+"mntrgr", "mpsugo")
 	   replace p = "p0p100"
 	   replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
 replace value = round(value, 1)      if inlist(substr(widcode, 1, 1), "m", "n")
