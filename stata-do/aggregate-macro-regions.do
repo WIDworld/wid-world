@@ -93,7 +93,11 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | inlist(substr(widcode, 1, 6), "mfdirx", "mfdipx", "mptfnx", "mptfrx", "mptfpx", "mflcin", "mflcir", "mflcip") /// 
 	   | inlist(substr(widcode, 1, 6), "mncanx", "mtbnnx", "mcomnx", "mopinx", "mscinx", "mtbxrx", "mtbmpx", "mopirx") /// 
 	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
-	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx") 
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx")
+	   | inlist(substr(widcode, 1, 6), "mexpgo", "mgpsge", "mdefge", "mpolge", "mecoge", "menvge", "mhouge", "mheage") ///
+	   | inlist(substr(widcode, 1, 6), "mrecge", "meduge", "medpge", "medsge", "medtge", "msopge", "mspige", "msacge") ///
+	   | inlist(substr(widcode, 1, 6), "msakge", "mrevgo", "mpitgr", "mcitgr", "mscogr", "mpwtgr", "mintgr", "mottgr") /// 
+	   | inlist(substr(widcode, 1, 6), "mntrgr", "mpsugo")  
 
 	   
 //       | (substr(widcode, 1, 1) == "m")	   
