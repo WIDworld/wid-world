@@ -1,7 +1,7 @@
 
 
 clear all 
-use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (5).dta", clear
+use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (7).dta", clear
 
 // keep if (substr(widcode, 1, 1) == "m" | substr(widcode, 1, 1) == "a" | substr(widcode, 1, 1) == "w")
 keep if  inlist(substr(widcode, 1, 6), "npopul") ///
@@ -16,16 +16,16 @@ keep if  inlist(substr(widcode, 1, 6), "npopul") ///
 	   | inlist(substr(widcode, 2, 5), "expgo", "gpsge", "defge", "polge", "ecoge", "envge", "houge", "heage") ///
 	   | inlist(substr(widcode, 2, 5), "recge", "eduge", "edpge", "edsge", "edtge", "sopge", "spige", "sacge") ///
 	   | inlist(substr(widcode, 2, 5), "sakge", "revgo", "pitgr", "citgr", "scogr", "pwtgr", "intgr", "ottgr") ///
-	   | inlist(substr(widcode, 2, 5), "ntrgr", "psugo") 
+	   | inlist(substr(widcode, 2, 5), "ntrgr", "psugo", "retgo") 
 	   
 	   *| inlist(substr(widcode, 2, 5), "", "", "", "", "", "", "", "")
 	   
-"mntrgr", "mpsugo")
-	   replace p = "p0p100"
-	   replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
+
+replace p = "p0p100"
+replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
 replace value = round(value, 1)      if inlist(substr(widcode, 1, 1), "m", "n")
 replace value = round(value, 0.0001) if inlist(substr(widcode, 1, 1), "s")
-
+drop if strpos(iso, "XX")
 drop if missing(year)
 keep iso year p widcode value 
 
