@@ -82,9 +82,9 @@ replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OH" & year<
 replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OH" & year<=1970
 
 *OA
-generate t_pop992 = npopul992i/npopul992i_hist if iso == "OA" & year == 1980
-generate t_pop999 = npopul999i/npopul999i_hist if iso == "OA" & year == 1980
-generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OA" & year == 1980
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "OA" & year == 1960
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "OA" & year == 1960
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OA" & year == 1970
 
 bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "OA" 
 bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "OA" 
@@ -93,34 +93,33 @@ bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "OA"
 // replace ratio_pop999 = 1 if year<=1900 & iso == "OA" 
 drop t_pop992 t_pop999 t_mnninc
 
-replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OA" & year<=1980
-replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OA" & year<=1980
-replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" & year<=1980
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "OA" & year<=1970
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "OA" & year<=1970
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "OA" & year<=1970
 
-replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OH" & year<=1960
-replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OH" & year<=1960
+replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "OA" & year<=1970
+replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "OA" & year<=1970
 drop ratio_pop992 ratio_pop999 ratio_mnninc
 
 *QM
-generate t_pop992 = npopul992i/npopul992i_hist if iso == "QM" & year == 1990
-generate t_pop999 = npopul999i/npopul999i_hist if iso == "QM" & year == 1990
-generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "QM" & year == 1990
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "QM" & year == 1970
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "QM" & year == 1970
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "QM" & year == 1970
 
 bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "QM" 
 bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "QM" 
 bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "QM" 
 drop t_pop992 t_pop999 t_mnninc
 
-replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "QM" & year<=1990
-replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "QM" & year<=1990
-replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "QM" & year<=1990
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "QM" & year<=1970
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "QM" & year<=1970
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "QM" & year<=1970
 drop ratio_pop992 ratio_pop999 ratio_mnninc
-
 
 **
 replace npopul999i = . if iso == "RU" & year<=1920
 foreach x in anninc992i anninc999i npopul992i npopul999i mnninc999i {
-	replace `x' = . if year <1980 & inlist(iso, "OA", "QM")
+	replace `x' = . if year <1970 & inlist(iso, "OA", "QM")
 
 }
 
@@ -145,6 +144,12 @@ replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999
 replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & year<=1980 & iso == "OA"
 
 // for QM (Other Eastern Europe, Eastern Europe)
+replace anninc992i = . if iso == "QM" & year < 1970 
+replace anninc999i = . if iso == "QM" & year < 1970
+replace mnninc999i = . if iso == "QM" & year < 1970
+replace npopul992i = . if iso == "QM" & year < 1970
+replace npopul999i = . if iso == "QM" & year < 1970
+
 replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<1980 & iso == "QM"
 replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<1980 & iso == "QM"
 replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<1980 & iso == "QM"
@@ -190,7 +195,7 @@ save "`country_hist_agg_2'"
 
 ** Aggregate to Regions (from 33 territories to regions)
 preserve
-	use if widcode == "xlceup999i" & year == 2022 using "$work_data/calculate-per-capita-series-output.dta", clear
+	use if widcode == "xlceup999i" & year == $pastyear using "$work_data/calculate-per-capita-series-output.dta", clear
 	keep if inlist(iso, "RU", "OA")  | ///
 			inlist(iso, "CN", "JP", "OB")  | ///
 			inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
@@ -238,7 +243,7 @@ save "`regions_hist_agg'"
 	
 ** World
 use "`country_hist_agg_ppp'", clear
-collapse (sum) mnninc999i npopul992i npopul999i, by( year)
+collapse (sum) mnninc999i npopul992i npopul999i, by(year)
 
 keep if (inlist(year, 1820, 1850, 1880) | year>=1900)
 generate iso = "WO"
