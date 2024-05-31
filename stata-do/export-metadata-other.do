@@ -1,6 +1,7 @@
 // List variables in the database
 use "$work_data/merge-historical-main.dta", clear
 append using "$work_data/add-carbon-series-output.dta"
+merge 1:1 iso year widcode p using "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates-changed.dta", update replace nogen
 
 generate fivelet = substr(widcode, 2, 5)
 keep fivelet
