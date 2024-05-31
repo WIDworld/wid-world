@@ -267,7 +267,8 @@ tempfile full
 save `full'
 
 use "$work_data/calculate-per-capita-series-output.dta", clear
-merge 1:1 iso year p widcode using "`full'", nogen update replace
+merge 1:1 iso year p widcode using "`full'", nogen
+update replace
 
 save "$work_data/merge-historical-aggregates.dta", replace
 
