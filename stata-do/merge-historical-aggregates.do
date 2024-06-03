@@ -63,7 +63,7 @@ gsort iso year
 * OH
 generate t_pop992 = npopul992i/npopul992i_hist if iso == "OH" & year == 1950
 generate t_pop999 = npopul999i/npopul999i_hist if iso == "OH" & year == 1950
-generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OH" & year == 1960
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "OH" & year == 1970
 
 bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "OH" 
 bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "OH" 
