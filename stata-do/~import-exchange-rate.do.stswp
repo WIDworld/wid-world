@@ -56,7 +56,8 @@ keep if year == $pastyear
 
 replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, April 2021
 replace lcu_to_usd = 1355.14	  if (currency == "YER") & $pastyear == 2023 // taken from IMF WEO (GDP lcu/GDP USD)current prices
-replace lcu_to_usd = 380127.65	  if (currency == "IRR") & $pastyear == 2023
+replace lcu_to_usd = 380127.65	  if (currency == "IRR") & $pastyear == 2023 // taken from IMF WEO (GDP lcu/GDP USD)current prices
+replace lcu_to_usd = 2289.92	  if (currency == "SSP") & $pastyear == 2023 // taken from IMF WEO (GDP lcu/GDP USD)current prices
 assert $pastyear == 2023
 
 // Generate exchange rates with euro and yuan
@@ -565,7 +566,8 @@ replace flagexrate = 0 if missing(flagexrate)
 	replace valuexlcusx999i = 9.7184 if iso == "ZW" & year == 2019
 	replace valuexlcusx999i = 64.1011 if iso == "ZW" & year == 2020
 	replace valuexlcusx999i = 112.4356 if iso == "ZW" & year == 2021
-	replace valuexlcusx999i = 112.4356 if iso == "ZW" & year == 2022
+	replace valuexlcusx999i = 452.85 if iso == "ZW" & year == 2022 // dividing WB GDPs
+	replace valuexlcusx999i = 452.85 if iso == "ZW" & year == 2023
 	replace valuexlcusx999i = amaxrt if iso == "SL"
 	// from the ratio of gdp_lcu/gdp_usd from WB WDI to fix problematic years for Georgia. gdp_usd WB is calculated using their growth rate before 1990
 	/*
@@ -684,9 +686,17 @@ assert valuexlceux999i == 1 if currency == "EUR" & year > 1999
 assert valuexlcyux999i == 1 if currency == "CNY"
 assert valuexlcusx999i == 1 if currency == "USD"
 
-reshape long value, i(iso year p currency) j(widcode) string
+greshape long value, i(iso year p currency) j(widcode) string
 drop if mi(value)
 sort iso widcode year
+
+fillin iso widcode year
+merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keep(1 3)
+drop if _fillin == 1 & corecountry != 1 
+drop if _fillin == 1 & year < 1970 
+
+so iso widcode year
+by iso widcode : carryforward value p currency if missing(value) & year == $pastyear & corecountry == 1, replace
 
 // Drop Iraq before 2003 (problematic data)
 // Gaston: I've replaced it with WDI data for year <= 2003 in line
