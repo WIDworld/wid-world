@@ -304,12 +304,15 @@ preserve
 	duplicates drop 
 	gen iso_d = iso_o
 	tempfile flag
-	sa `flag'
+	sa "$work_data/flagetemp", replace
 restore 
 
-merge m:1 iso_o using `flag', keepusing(flag1 flag2 minyear maxyear)
+merge m:1 iso_o using "$work_data/flagetemp", keepusing(flag1 flag2 minyear maxyear)
 drop _m 
 
+sa "$work_data/tradetemp", replace 
+
+u "$work_data/tradetemp", clear  
 //	bring GDP in usd
 ren iso_o iso  
 merge m:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keepusing(gdp) keep(master matched)
@@ -344,6 +347,16 @@ replace GEO = "Europe" if inlist(iso_o, "KS", "ME", "GG", "JE", "IM") & "`level'
 ren GEO geo`level'
 drop NAMES_STD 
 }
+
+// fixing crazy values
+replace flag1 = 0 if (iso_o == "GW" | iso_d == "GW") & inlist(year, 2003, 2004)
+replace flag2 = 0 if (iso_o == "GW" | iso_d == "GW") & inlist(year, 2003, 2004)
+replace flag1 = 0 if (iso_o == "SN" | iso_d == "SN") & inlist(year, 1987)
+replace flag2 = 0 if (iso_o == "SN" | iso_d == "SN") & inlist(year, 1987)
+replace flag1 = 0 if (iso_o == "LR" | iso_d == "LR") & year >= 1989
+replace flag2 = 0 if (iso_o == "LR" | iso_d == "LR") & year >= 1989
+replace flag1 = 0 if (iso_o == "ST" | iso_d == "ST") & year >= 2015 
+replace flag2 = 0 if (iso_o == "ST" | iso_d == "ST") & year >= 2015
 
 //Fill missing with regional averages for those that never have data 
 foreach v in exports { 
@@ -385,7 +398,7 @@ ren iso iso_d
 replace exports = exports/gdp_usd 
 
 drop geo* flag* minyear maxyear 
-merge m:1 iso_d using `flag', keepusing(flag1 flag2 minyear maxyear)
+merge m:1 iso_d using "$work_data/flagetemp", keepusing(flag1 flag2 minyear maxyear)
 drop _m 
 
 foreach level in undet un {
@@ -408,6 +421,17 @@ replace GEO = "Europe" if inlist(iso_d, "KS", "ME", "GG", "JE", "IM") & "`level'
 ren GEO geo`level'
 drop NAMES_STD 
 }
+
+// fixing crazy values
+replace flag1 = 0 if (iso_o == "GW" | iso_d == "GW") & inlist(year, 2003, 2004)
+replace flag2 = 0 if (iso_o == "GW" | iso_d == "GW") & inlist(year, 2003, 2004)
+replace flag1 = 0 if (iso_o == "SN" | iso_d == "SN") & inlist(year, 1987)
+replace flag2 = 0 if (iso_o == "SN" | iso_d == "SN") & inlist(year, 1987)
+replace flag1 = 0 if (iso_o == "LR" | iso_d == "LR") & year >= 1989
+replace flag2 = 0 if (iso_o == "LR" | iso_d == "LR") & year >= 1989
+replace flag1 = 0 if (iso_o == "ST" | iso_d == "ST") & year >= 2015 
+replace flag2 = 0 if (iso_o == "ST" | iso_d == "ST") & year >= 2015
+
 //Fill missing with regional averages for countries where we never have data
 foreach v in exports { 
 	

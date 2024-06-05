@@ -56,7 +56,7 @@ keep if year == $pastyear
 
 replace lcu_to_usd = 87.6462      if (currency == "YUN") // source: mataf.net, April 2021
 replace lcu_to_usd = 1355.14	  if (currency == "YER") & $pastyear == 2023 // taken from IMF WEO (GDP lcu/GDP USD)current prices
-replace lcu_to_usd = 380127.65	  if (currency == "IRR") & $pastyear == 2023 // taken from IMF WEO (GDP lcu/GDP USD)current prices
+replace lcu_to_usd = 380127.65	  if (currency == "IRR") & $pastyear == 2023
 assert $pastyear == 2023
 
 // Generate exchange rates with euro and yuan

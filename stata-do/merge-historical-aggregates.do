@@ -123,6 +123,23 @@ foreach x in anninc992i anninc999i npopul992i npopul999i mnninc999i {
 
 }
 
+// for AR 
+generate t_pop992 = npopul992i/npopul992i_hist if iso == "AR" & year == 1950
+generate t_pop999 = npopul999i/npopul999i_hist if iso == "AR" & year == 1950
+generate t_mnninc = mnninc999i/mnninc999i_hist if iso == "AR" & year == 1950
+
+bys iso : egen ratio_pop992 = mode(t_pop992) if iso == "AR" 
+bys iso : egen ratio_pop999 = mode(t_pop999) if iso == "AR" 
+bys iso : egen ratio_mnninc = mode(t_mnninc) if iso == "AR" 
+
+replace npopul992i_hist = round(npopul992i_hist*ratio_pop992, 1) if iso == "AR" & year<=1970
+replace npopul999i_hist = round(npopul999i_hist*ratio_pop999, 1) if iso == "AR" & year<=1970
+replace mnninc999i_hist = round(mnninc999i_hist*ratio_mnninc, 1) if iso == "AR" & year<=1970
+
+replace anninc992i_hist = mnninc999i_hist/npopul992i_hist if iso == "AR" & year<=1970
+replace anninc999i_hist = mnninc999i_hist/npopul999i_hist if iso == "AR" & year<=1970
+drop ratio_pop992 ratio_pop999 ratio_mnninc
+
 replace anninc992i = anninc992i_hist if missing(anninc992i) & !missing(anninc992i_hist) & year<1950
 replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999i_hist) & year<1950
 replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & year<1950
@@ -168,6 +185,8 @@ replace anninc999i = anninc999i_hist if missing(anninc999i) & !missing(anninc999
 replace mnninc999i = mnninc999i_hist if missing(mnninc999i) & !missing(mnninc999i_hist) & iso == "OH"
 replace npopul992i = npopul992i_hist if missing(npopul992i) & !missing(npopul992i_hist) & iso == "OH"
 replace npopul999i = npopul999i_hist if missing(npopul999i) & !missing(anninc999i_hist) & iso == "OH"
+
+
 
 keep iso year mnninc999i npopul992i npopul999i 
 renvars mnninc999i npopul992i npopul999i, postf("_")
