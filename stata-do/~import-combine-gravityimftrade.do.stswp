@@ -283,6 +283,11 @@ ren iso iso_d
 
 // dropping non-corecountry counterparts 
 drop if core_d != 1 | core_o != 1
+
+// NA value in 2018 is weird
+replace exports = . if iso_o == "NA" & year == 2018
+replace exports = . if iso_d == "NA" & year == 2018
+
 ********************************************************************************
 // completing missing values
 // for countries where only some years are not in the data we carryforward exports/gdp by partner
@@ -379,6 +384,11 @@ by iso_o iso_d : carryforward exports if flag2 == 1 & year > maxyear, replace
 
 gsort iso_o iso_d -year 
 by iso_o iso_d : carryforward exports if flag2 == 1 & year < minyear, replace 
+
+// fixing NA 2018
+sort iso_o iso_d year 
+by iso_o iso_d : carryforward exports if flag2 == 1 & year == 2018 & iso_o == "NA", replace 
+by iso_o iso_d : carryforward exports if year == 2018 & iso_d == "NA", replace 
 
 // exports in nominals
 replace exports = exports*gdp_usd 

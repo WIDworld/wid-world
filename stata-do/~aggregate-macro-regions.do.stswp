@@ -51,7 +51,6 @@ save "`region'"
 // Store PPP and exchange rates as an extra variable
 
 use "$work_data/add-wealth-aggregates-output.dta", clear
-// use "/Users/rowaidamoshrif/Downloads/add-wealth-aggregates-output.dta", clear
 
 drop refyear
 keep if substr(widcode, 1, 3) == "xlc"

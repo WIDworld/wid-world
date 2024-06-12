@@ -23,8 +23,8 @@ gen `var'_idx = `var'*index
 	gen `var'_usd = `var'_idx/exrate_usd
 }
 
-merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
-keep if corecountry == 1 & year >= 1970
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+keep if corecountry == 1
 
 keep iso year gdp_usd
 ren gdp_usd gdp
@@ -199,8 +199,8 @@ foreach v in ptf_asset ptf_liabi fdi_asset fdi_liabi {
 }	
 drop aux* *AN *ANlcu
 
-merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
-keep if corecountry == 1 & year >= 1970
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+keep if corecountry == 1
 
 sort iso year
 
@@ -331,8 +331,8 @@ foreach v in secco {
 }	
 drop aux* *AN *ANlcu
 
-merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
-keep if corecountry == 1 & year >= 1970
+merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+keep if corecountry == 1
 
 // Extrapolate the value of net corporate savings
 gsort iso -year
@@ -567,8 +567,11 @@ expand 2 if year == $pastpastyear, gen(exp)
 replace year = $pastyear if exp == 1
 drop exp
 
+*problems with KY
+replace foreign_secco =. if iso2 == "KY" & year >= 2011 
+sort iso iso2 year 
+by iso iso2 : carryforward foreign_secco if iso2 == "KY" & year >= 2011, replace 
 *exit 1
-
 collapse (sum) foreign_secco, by(iso2 year)
 
 // Merge GDP data

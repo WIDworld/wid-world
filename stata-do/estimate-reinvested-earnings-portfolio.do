@@ -567,8 +567,11 @@ expand 2 if year == $pastpastyear, gen(exp)
 replace year = $pastyear if exp == 1
 drop exp
 
+*problems with KY
+replace foreign_secco =. if iso2 == "KY" & year >= 2011 
+sort iso iso2 year 
+by iso iso2 : carryforward foreign_secco if iso2 == "KY" & year >= 2011, replace 
 *exit 1
-
 collapse (sum) foreign_secco, by(iso2 year)
 
 // Merge GDP data
