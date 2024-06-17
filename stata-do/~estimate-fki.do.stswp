@@ -1067,7 +1067,7 @@ sa "$work_data/estimated-fki.dta", replace
 keep iso year fdirx fdiorx fdipx ptfrx ptfpx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb
 
 *merging with retropolate
-u "$work_data/sna-combined.dta", clear
+u "$work_data/sna-combined-prefki.dta", clear
 
 merge 1:1 iso year using "$work_data/estimated-fki.dta", nogen update replace
 

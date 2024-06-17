@@ -37,8 +37,12 @@ replace gdp_usd_un2 = . if iso == "YU" & year > 1990
 replace gdp_lcu_un2 = gdp_usd_un2 if iso == "PS"
 
 // drop UN gdp for ZW so that the level is WB
-replace gdp_lcu_un2 = . if iso == "ZW" & year == $pastyear
-replace gdp_usd_un2 = . if iso == "ZW" & year == $pastyear
+replace gdp_lcu_un2 = . if iso == "ZW" & year == $pastyear & $pastyear == 2023
+replace gdp_usd_un2 = . if iso == "ZW" & year == $pastyear & $pastyear == 2023
+
+// drop WB gdp for CU so that the level is UN
+replace gdp_lcu_wb = . if iso == "CU" & year >= 2021 & $pastyear == 2023
+replace gdp_usd_wb = . if iso == "CU" & year >= 2021 & $pastyear == 2023
 
 // Calculate the GDP
 

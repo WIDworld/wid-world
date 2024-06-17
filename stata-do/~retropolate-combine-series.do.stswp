@@ -420,7 +420,7 @@ foreach v in comrx compx comnx fsubx ftaxx taxnx {
 }
 replace totcomnx = totcomrx - totcompx
 replace tottaxnx = totfsubx - totftaxx
-
+asd
 gen ratio_comrx = comrx/totcomrx
 gen ratio_compx = comrx/totcompx
 replace comrx = comrx - totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1	
