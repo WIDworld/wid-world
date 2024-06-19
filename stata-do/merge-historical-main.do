@@ -259,7 +259,7 @@ tempfile completehistorical
 save `completehistorical'
 
 // Merging into the database
-use "$work_data/merge-historical-aggregates.dta", clear
+use "$work_data/calculate-gini-coef-output.dta", clear
 merge 1:m iso year widcode p using `completehistorical', update nogen
 merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Historical_series/2023_December/0H_OD_CL_ptinc_post1980.dta", nogen
 

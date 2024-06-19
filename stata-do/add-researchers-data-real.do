@@ -42,6 +42,9 @@ append using "$wid_dir/Country-Updates/Latin_America/2023_10/LatinAmercia2023.dt
 // Post-tax series (Fisher-Post & Gethin 2023) 
 append using "$wid_dir/Country-Updates/posttax/03_2024/global-posttax-032024.dta"
 
+// 40 new additional countries accoding to the 2024 extension of the database
+append using "$wid_dir/Country-Updates/Historical_series/2024_May/forty_additional_countries_ptinc.dta"
+
 compress, nocoalesce 
 
 tempfile researchers
@@ -82,7 +85,8 @@ save "`meta'"
 
 use iso year p widcode value author using "`researchers'", clear
 // append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
-append using "$work_data/add-populations-output.dta", generate(oldobs)
+// append using "$work_data/add-populations-output.dta", generate(oldobs)
+append using "$work_data/merge-historical-aggregates (11)", generate(oldobs)
 
 // France 2017: drop specific widcodes
 drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///

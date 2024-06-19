@@ -1,5 +1,5 @@
 // List countries where we already have pre-tax national income
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 keep if substr(widcode, 1, 6) == "sptinc"
 keep iso
 duplicates drop
@@ -7,7 +7,7 @@ tempfile iso_ptinc
 save "`iso_ptinc'"
 
 // Averages
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 
 drop currency
 
@@ -36,7 +36,7 @@ drop if missing(factor)
 tempfile factor
 save "`factor'"
 
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 
 drop currency
 
@@ -61,7 +61,7 @@ tempfile averages
 save "`averages'"
 
 // Shares
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 
 keep if substr(widcode, 1, 9) == "sfiinc992"
 replace widcode = "sptinc992" + substr(widcode, 10, 1)
@@ -72,7 +72,7 @@ tempfile shares
 save "`shares'"
 
 // Aggregates
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 
 drop currency
 
@@ -96,7 +96,7 @@ tempfile aggregates
 save "`aggregates'"
 
 // Add to main file
-use "$work_data/calculate-per-capita-series-output.dta", clear
+use "$work_data/add-wealth-distribution-output.dta", clear
 
 merge 1:1 iso year p widcode using "`averages'", update nogenerate
 merge 1:1 iso year p widcode using "`shares'", update nogenerate
