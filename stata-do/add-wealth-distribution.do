@@ -23,7 +23,7 @@
 *****************************
 
 // Add Macro Wealth aggregates
-use "$work_data/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-researchers-data-real-output.dta", clear
 
 keep if inlist(widcode, "mhweal999i", "npopul992i")
 drop p currency 
@@ -338,7 +338,7 @@ save "$work_data/add-wealth-distribution-metadata.dta", replace
 *	V. Integrate with WID	*
 *****************************
 
-use "$work_data/add-wealth-aggregates-output.dta", clear
+use "$work_data/add-researchers-data-real-output.dta", clear
 
 drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j") & year>=1995
 append using "`final'"

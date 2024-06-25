@@ -1,7 +1,7 @@
 
 
 clear all 
-use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (9).dta", clear
+use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (11).dta", clear
 
 // keep if (substr(widcode, 1, 1) == "m" | substr(widcode, 1, 1) == "a" | substr(widcode, 1, 1) == "w")
 keep if  inlist(substr(widcode, 1, 6), "npopul") ///
@@ -38,13 +38,13 @@ export delim "$output_dir/$time/wid-data-$time-core-macro.csv", delimiter(";") r
 
 clear all 
 **
-use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (9).dta", clear
+use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (11).dta", clear
 
 keep if (substr(widcode, 1, 1) == "m" | substr(widcode, 1, 1) == "w")
 generate fivelet = substr(widcode, 2, 5)
 levelsof fivelet, local(fivelet)
 **
-use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (9).dta", clear
+use "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (11).dta", clear
 
 generate fivelet = substr(widcode, 2, 5)
 generate tokeep = 0
@@ -55,8 +55,8 @@ foreach l in `fivelet' {
 replace tokeep = 1 if inlist(substr(widcode, 1, 6), "npopul")
 replace tokeep = 1 if inlist(substr(widcode, 2, 5), "nyixx", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp")
 replace tokeep = 0 if inlist(substr(widcode, 1, 1), "s", "t", "o")
-replace tokeep = 0 if inlist(substr(widcode, 2, 5), "fdimp", "fdion", "fdiop", "fdior", "fdixa", "fdixd")
-replace tokeep = 0 if inlist(substr(widcode, 2, 5), "ptfxa", "ptfxd", "ssugo")
+replace tokeep = 0 if inlist(substr(widcode, 2, 5), "fdimp", "fdion", "fdiop", "fdior"/*, "fdixa", "fdixd"*/)
+replace tokeep = 0 if inlist(substr(widcode, 2, 5), /*"ptfxa", "ptfxd",*/ "ssugo")
 
 levelsof fivelet if inlist(substr(widcode, 1, 1), "s", "t", "o"), local(fivelet_2)
 foreach l in `fivelet_2' {

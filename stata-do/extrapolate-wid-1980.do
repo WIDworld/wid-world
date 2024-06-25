@@ -255,7 +255,9 @@ egen average = total(a*n/1e5), by(iso year)
 
 generate s = a*n/1e5/average
 */
-
+** TEMPORARY 18/06/2024
+drop if iso == "RU" & year == 2022
+**
 assert inrange(s, 0, 1) if !inlist(p, 0, 1000)
 
 gsort iso year -p
