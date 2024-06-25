@@ -41,115 +41,13 @@ replace confc = imputed_confc if (missing(confc) | toreplace2) & !missing(impute
 drop imputed_* toreplace toreplace2
 
 // -------------------------------------------------------------------------- //
-// Complete variables for corecountries
-// -------------------------------------------------------------------------- //
-merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
-replace corecountry = 0 if year < 1970
-
-foreach level in undet un {
-	kountry iso, from(iso2c) geo(`level')
-
-replace GEO = "Western Asia" 	if iso == "AE" & "`level'" == "undet"
-replace GEO = "Caribbean" 		if iso == "CW" & "`level'" == "undet"
-replace GEO = "Caribbean"		if iso == "SX" & "`level'" == "undet"
-replace GEO = "Caribbean" 		if iso == "BQ" & "`level'" == "undet"
-replace GEO = "Southern Europe" if iso == "KS" & "`level'" == "undet"
-replace GEO = "Southern Europe" if iso == "ME" & "`level'" == "undet"
-replace GEO = "Eastern Asia" 	if iso == "TW" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "GG" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "JE" & "`level'" == "undet"
-replace GEO = "Northern Europe" if iso == "IM" & "`level'" == "undet"
-
-replace GEO = "Asia" if inlist(iso, "AE", "TW") & "`level'" == "un"
-replace GEO = "Americas" if inlist(iso, "CW", "SX", "BQ") & "`level'" == "un"
-replace GEO = "Europe" if inlist(iso, "KS", "ME", "GG", "JE", "IM") & "`level'" == "un"
-ren GEO geo`level'
-drop NAMES_STD 
-}
-
-foreach var in comrx compx ftaxx fsubx { // comhn fkpin nmxho ptxgo
-	
-	sort iso year
-	by iso: carryforward `var' if corecountry == 1, replace cfindic(flag)
-	replace series_`var' = -2 if flag
-	drop flag
-
-	gsort iso -year
-	by iso: carryforward `var' if corecountry == 1, replace cfindic(flag)
-	replace series_`var' = -2 if flag
-	drop flag
-
-	// Completing with regional average for countries with always missing values 
-	bys geoundet year : egen avg = mean(`var') if corecountry == 1
-	bys geoun year : egen avgun = mean(`var') if corecountry == 1
-	replace series_`var' = -1 if missing(`var') & corecountry == 1
-	replace `var' = avg if missing(`var') & corecountry == 1
-	replace `var' = avgun if missing(`var') & corecountry == 1
-	drop avg avgun
-	
-	}
-so iso year	
-
-//	fixing some TH 
-foreach var in comrx compx ftaxx fsubx { // comhn fkpin nmxho ptxgo
-	replace `var' =. if iso == "BQ" & (year >= 2007)
-	replace `var' =. if iso == "CG" & (year >= 1995 & year <= 2007)
-	replace `var' =. if iso == "CG" & (year >= 2015)
-	replace `var' =. if iso == "GN" & (inlist(year, 1970, 1974, 1975))
-	replace `var' =. if iso == "KY" & (year <= 2015)
-	replace `var' =. if iso == "MC" & (year >= 2014 & year <= 2019)
-	replace `var' =. if iso == "VG" & (year >= 2000)
-	replace `var' =. if iso == "GI" & (year >= 2012 & year <= 2015)
-	
-so iso year 
-by iso: carryforward `var' if corecountry == 1, replace cfindic(flag)
-replace series_`var' = -2 if flag & corecountry == 1
-drop flag 
-}
-
-replace comnx = comrx - compx if corecountry == 1
-	replace series_comnx = -1 if mi(series_comnx) & !mi(comnx) & (series_comrx == -1 | series_compx == -1)
-	replace series_comnx = -2 if mi(series_comnx) & !mi(comnx) & (series_comrx == -2 | series_compx == -2)
-	
-replace flcir = comrx + pinrx if corecountry == 1
-	replace series_flcir = -1 if mi(series_flcir) & !mi(flcir) & (series_comrx == -1 | series_pinrx == -1)
-	replace series_flcir = -2 if mi(series_flcir) & !mi(flcir) & (series_comrx == -2 | series_pinrx == -2)
-	
-replace flcip = compx + pinpx if corecountry == 1
-	replace series_flcip = -1 if mi(series_flcip) & !mi(flcip) & (series_compx == -1 | series_pinpx == -1)
-	replace series_flcip = -2 if mi(series_flcip) & !mi(flcip) & (series_compx == -2 | series_pinpx == -2)
-	
-replace flcin = flcir - flcip if corecountry == 1
-	replace series_flcin = -1 if mi(series_flcin) & !mi(flcin) & (series_flcir == -1 | series_flcip == -1)
-	replace series_flcin = -2 if mi(series_flcin) & !mi(flcin) & (series_flcir == -2 | series_flcip == -2)
-	
-replace finrx = comrx + pinrx + fsubx if corecountry == 1
-	replace series_finrx = -1 if mi(series_finrx) & !mi(finrx) & (series_comrx == -1 | series_pinrx == -1 | series_fsubx == -1)
-	replace series_finrx = -2 if mi(series_finrx) & !mi(finrx) & (series_comrx == -2 | series_pinrx == -2 | series_fsubx == -2)
-	
-replace finpx = compx + pinpx + ftaxx if corecountry == 1
-	replace series_finpx = -1 if mi(series_finpx) & !mi(finpx) & (series_compx == -1 | series_pinpx == -1 | series_ftaxx == -1)
-	replace series_finpx = -2 if mi(series_finpx) & !mi(finpx) & (series_compx == -2 | series_pinpx == -2 | series_ftaxx == -2)
-
-replace taxnx = fsubx - ftaxx if corecountry == 1
-	replace series_taxnx = -1 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -1 | series_flcip == -1)
-	replace series_taxnx = -2 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -2 | series_flcip == -2)
-
-replace nnfin = flcin + taxnx if corecountry == 1
-	replace series_nnfin = -1 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -1 | series_taxnx == -1)
-	replace series_nnfin = -2 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -2 | series_taxnx == -2)
-
-*replace nnfin = pinnx if mi(nnfin)
-
-// -------------------------------------------------------------------------- //
 // Extrapolate net foreign income in the recent year
 // -------------------------------------------------------------------------- //
 
 sort iso year
-by iso: carryforward nnfin if corecountry == 1, replace cfindic(flag)
-replace series_nnfin = -2 if flag & corecountry == 1
-drop flag corecountry geo*
-
+by iso: carryforward nnfin, replace cfindic(flag)
+replace series_nnfin = -2 if flag
+drop flag 
 
 // -------------------------------------------------------------------------- //
 // Final calibration

@@ -110,6 +110,8 @@ drop com_vahn
 replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 
 sa "$work_data/temp", replace 
+
+u "$work_data/temp", clear
 // -------------------------------------------------------------------------- //
 // Completing foreign income variables
 // -------------------------------------------------------------------------- //
@@ -401,6 +403,10 @@ replace `v' = av`v' if missing(`v') & flagcountry`v' == 1 & corecountry == 1
 }
 drop av*
 
+foreach var in fsubx ftaxx taxnx { 
+	replace `var' = 0 if year < 1991
+}
+
 merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
 merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
@@ -415,16 +421,19 @@ replace taxnx = fsubx - ftaxx
 foreach v in comrx compx comnx fsubx ftaxx taxnx {
 	replace `v' = `v'*gdp 
 	gen aux = abs(`v')
-	bys year : egen tot`v' = total(aux) if corecountry == 1
+	bys year : egen tot`v' = total(`v') if corecountry == 1
+	bys year : egen totaux`v' = total(aux) if corecountry == 1
 	drop aux
 }
 replace totcomnx = totcomrx - totcompx
 replace tottaxnx = totfsubx - totftaxx
 
-gen ratio_comrx = comrx/totcomrx
-gen ratio_compx = comrx/totcompx
-replace comrx = comrx - totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1	
-replace compx = compx + totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1		
+gen ratio_comrx = comrx/totauxcomrx
+gen ratio_compx = compx/totauxcompx
+replace comrx = comrx - totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1 & comrx > 0
+replace comrx = comrx + totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1 & comrx < 0
+replace compx = compx + totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1 & compx > 0	
+replace compx = compx - totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1 & compx < 0	
 
 gen ratio_fsubx = fsubx/totfsubx
 gen ratio_ftaxx = ftaxx/totftaxx

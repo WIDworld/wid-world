@@ -47,7 +47,7 @@ save "`gdp'"
 
 use "$work_data/sna-series-adjusted.dta", clear
 
-drop gdpro series_* gdp *_gdp
+drop gdpro series_* gdp_idx *_gdp
 
 ren (ptfrx_deb ptfrx_eq ptfrx_res ptfxa_deb ptfxa_eq ptfxa_res) (ptdrx pterx ptrrx ptdxa ptexa ptrxa)
 ren (ptfpx_deb ptfpx_eq ptfxd_deb ptfxd_eq) (ptdpx ptepx ptdxd ptexd)

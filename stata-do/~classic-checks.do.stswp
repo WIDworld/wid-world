@@ -46,10 +46,10 @@ keep if  widcode == "npopul999i" ///
 	   | widcode == "mgdpro999i" ///
 	   | inlist(substr(widcode, 1, 6), "mnnfin", "mfinrx", "mfinpx", "mcomnx", "mpinnx", "mnwnxa", "mnwgxa", "mnwgxd") ///
 	   | inlist(substr(widcode, 1, 6), "mnwoff", "mconfc", "mcomnx", "mcomrx", "mcompx", "mpinrx", "mpinpx", "mfdinx") ///
-	   | inlist(substr(widcode, 1, 6), "mptfxa", "mptfxd", "mfdixa", "mfdixd", "mfdirx", "mfdipx", "mptfnx", "mptfrx") /// 
+	   | inlist(substr(widcode, 1, 6), "mptfxa", "mptfxd", "mfdimp", "mfdixd", "mfdirx", "mfdipx", "mptfnx", "mptfrx") /// 
 	   | inlist(substr(widcode, 1, 6), "mptfpx", "mncanx", "mtbnnx", "mtbxrx", "mtbmpx", "mopinx", "mscinx", "mopirx") /// 
 	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
-	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx", "inyixx", "xlcusx") ///
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "xlceux", "inyixx", "xlcusx") ///
 	   | inlist(substr(widcode, 2, 5), "expgo", "gpsge", "defge", "polge", "ecoge", "envge", "houge", "heage") ///
 	   | inlist(substr(widcode, 2, 5), "recge", "eduge", "edpge", "edsge", "edtge", "sopge", "spige", "sacge") ///
 	   | inlist(substr(widcode, 2, 5), "sakge", "revgo", "pitgr", "citgr", "scogr", "pwtgr", "intgr", "ottgr")
@@ -61,6 +61,10 @@ keep if year >= 1970
 drop p currency	  
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, pred(5)
+
+foreach var in mgdpro999i mnninc mfdimp {
+	gen `var'_usd = `var'*inyixx/xlcusx
+}
 
 gen mnnfin_gdp = mnnfin/mgdpro
 gen mconfc_gdp = mconfc/mgdpro

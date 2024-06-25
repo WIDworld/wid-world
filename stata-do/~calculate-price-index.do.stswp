@@ -48,7 +48,9 @@ merge 1:1 iso year using "$work_data/cbs-cpi.dta", ///
 	nogenerate update assert(using master match)
 
 replace currency = "USD" if iso == "PS"	
-	
+replace cpi_wb =. if iso == "HR"
+d if mi(def_un) & iso == "HR"
+
 	*replace currency = "VEF" if iso == "VE"
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
@@ -315,8 +317,8 @@ gen aux_yug_src = index_source if iso == "YU"
 bys year : egen index_source_yug = mode(aux_yug_src)
 replace index_yug = . if year == 1970
 
-replace index_source = index_source_yug + "_yu" if inlist(iso, "BA", "HR", "MK", "RS") & year <= 1990 & missing(delta_index)
-	replace delta_index = index_yug if inlist(iso, "BA", "HR", "MK", "RS") & year <= 1990 & missing(delta_index)
+replace index_source = index_source_yug + "_yu" if inlist(iso, "BA", "MK", "RS") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_yug if inlist(iso, "BA", "MK", "RS") & year <= 1990 & missing(delta_index)
 	
 // Kosovo, Montenegro and Slovenia currency is euros
 // For price index we are going to use average of yugoslavia and the EU
@@ -327,8 +329,8 @@ bys year : egen aux_ks = mean(delta_index) if inlist(iso, "AT", "BE", "CY", "DE"
 								| inlist(iso, "SM", "YU")								
 bys year : egen index_ks = max(aux_ks)
 replace index_ks = . if year == 1970
-replace index_source = "Average Yugoslavia and EU" if inlist(iso, "KS", "ME", "SI") & year <= 1990 & missing(delta_index)
-	replace delta_index = index_ks if inlist(iso, "KS", "ME", "SI") & year <= 1990 & missing(delta_index)
+replace index_source = "Average Yugoslavia and EU" if inlist(iso, "KS", "HR", "ME", "SI") & year <= 1990 & missing(delta_index)
+	replace delta_index = index_ks if inlist(iso, "KS", "HR", "ME", "SI") & year <= 1990 & missing(delta_index)
 drop aux_yug index_yug aux_yug_src index_source_yug aux_ks index_ks
 // Slovenia currency is euros
 /*

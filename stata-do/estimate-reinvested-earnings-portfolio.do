@@ -364,6 +364,12 @@ replace foreign_secco = foreign_secco*gdp
 
 keep iso year foreign_secco ptfrp
 
+*last year is not fully covered, we simply carryforward the pastpastyear
+drop if year == $pastyear
+expand 2 if year == $pastpastyear, gen(exp)
+replace year = $pastyear if exp == 1
+drop exp
+
 save "`share_foreign'", replace
 
 // -------------------------------------------------------------------------- //
@@ -559,6 +565,11 @@ replace value = 0 if year == 1970
 
 merge n:1 iso year using "`share_foreign'", nogenerate keep(master match)
 
+*problems with KY
+replace foreign_secco =. if iso2 == "KY" & year >= 2011 
+sort iso iso2 year 
+by iso iso2 : carryforward foreign_secco if iso2 == "KY" & year >= 2011, replace 
+
 replace foreign_secco = value*foreign_secco
 
 *last year is not fully covered, we simply carryforward the pastpastyear
@@ -567,10 +578,6 @@ expand 2 if year == $pastpastyear, gen(exp)
 replace year = $pastyear if exp == 1
 drop exp
 
-*problems with KY
-replace foreign_secco =. if iso2 == "KY" & year >= 2011 
-sort iso iso2 year 
-by iso iso2 : carryforward foreign_secco if iso2 == "KY" & year >= 2011, replace 
 *exit 1
 collapse (sum) foreign_secco, by(iso2 year)
 
@@ -591,10 +598,18 @@ replace foreign_secco = 0 if year == 1970
 bys year : egen totfs_r = total(foreign_secco_r)
 bys year : egen totfs_p = total(foreign_secco)
 gen dif = totfs_r - totfs_p
+
+gen ratio_r = foreign_secco_r/totfs_r
+gen ratio_p = foreign_secco/totfs_p
+by year : replace foreign_secco_r = foreign_secco_r + abs(dif)*ratio_r if dif < 0
+by year : replace foreign_secco = foreign_secco + abs(dif)*ratio_p if dif > 0
+drop tot* ratio*
+/*
 gsort year -foreign_secco_r
 by year : replace foreign_secco_r = foreign_secco_r + abs(dif) if _n == 1 & dif < 0
 gsort year -foreign_secco
 by year : replace foreign_secco = foreign_secco + abs(dif) if _n == 1 & dif > 0
+*/
 
 // change later
 sort iso year

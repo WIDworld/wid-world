@@ -37,6 +37,20 @@
 
 		merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
 		keep if corecountry == 1 
+		merge 1:m iso using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen keep(matched) keepusing(fdixa year)
+
+		merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
+		merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
+		merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
+		keep if corecountry == 1
+		foreach var in gdp {
+		gen `var'_idx = `var'*index
+			replace `var' = `var'_idx/exrate_usd
+		}
+		keep if year == 2017
+		replace fdixa = fdixa*gdp/1e6 // TWZ is in millons of USD
+
+		gen rate_unreported = received_added/fdixa
 		
 		egen total_received_official = total(received_official_imf)
 		gen share_unreported_received = received_added/total_received_official
@@ -53,8 +67,8 @@
 		egen check2 = total(share_unreported_received_added)
 		assert check2 == 1 
 
-		keep iso share_unreported_paid share_unreported_received share_unreported_received_added
-		foreach v in share_unreported_paid share_unreported_received share_unreported_received_added {
+		keep iso share_unreported_paid share_unreported_received share_unreported_received_added rate_unreported
+		foreach v in share_unreported_paid share_unreported_received share_unreported_received_added rate_unreported {
 			replace `v' = 0 if missing(`v')
 		}
 
@@ -283,8 +297,22 @@ foreach var in fdirx fdipx ptfrx ptfpx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res 
 	gen orig`var' = `var'
 	replace `var' = f.`var'
 }
-drop i 
 
+// check this
+	gen nomprofits_fdirx = fdirx
+	merge m:1 iso using `mprofits', nogen keepusing(rate)
+	foreach v in rate {
+		replace `v' = 0 if missing(`v')
+	}
+
+	gen aux = fdixa*rate
+	xtset i year
+	gen fdiorx = l.fdirx // officially recorded fdirx
+	replace fdiorx = fdirx if year == 1970 & missing(fdiorx) 
+	replace fdirx = fdirx + aux if !missing(aux) 
+	ren aux fdirx_corr // this won't be part of nninc
+	drop i 
+	
 gen rf_a = fdirx/fdixa
 gen rf_d = fdipx/fdixd
 gen rp_a = ptfrx/ptfxa
@@ -913,6 +941,7 @@ foreach v in ptfxa ptfxd fdixa fdixd ptfxd_deb ptfxd_eq ptfxd_fin ptfxa_res ptfx
 replace `v' = `v'_gdp*gdp if iso == "KP"
 }
 
+/*
 // check this
 	gen nomprofits_fdirx = fdirx
 	merge m:1 iso using `mprofits', nogen keepusing(share_unreported_received)
@@ -934,8 +963,9 @@ replace `v' = `v'_gdp*gdp if iso == "KP"
 		drop tot_fdirx tot_fdipx_gdp
 replace fdirx_gdp = fdirx/gdp
 drop *_gdp
+*/
 
-// collapse (sum) fdirx fdipx ptfrx ptfpx gdp, by(year)
+// collapse (sum) fdirx fdipx ptfrx ptfpx gdp, by(TH year)
 // gen fdinx = fdirx - fdipx 
 // gen ptfnx = ptfrx - ptfpx 
 // asd
@@ -953,8 +983,8 @@ xtset i year
 	gsort iso -year
 	by iso : carryforward `var', replace
 }
-
 so iso year
+
 // ensuring consistency
 egen auxptfrx = rowtotal(ptfrx_eq ptfrx_deb ptfrx_res), missing
 replace ptfrx = auxptfrx if !missing(auxptfrx) & flagpinrx == 1 
@@ -967,11 +997,12 @@ drop ratio
 replace ptfrx = auxptfrx if missing(ptfrx)
 
 egen auxptfpx = rowtotal(ptfpx_eq ptfpx_deb), missing
-replace ptfpx = auxptfpx if !missing(auxptfpx) & flagpinpx == 1
+replace ptfpx = auxptfpx if !missing(auxptfpx) & flagpinpx == 1 & iso != "KY"
 gen ratio = auxptfpx/ptfpx 
 replace ratio = 0 if mi(ratio)
 foreach var in ptfpx_deb ptfpx_eq {
-	replace `var' = `var'/ratio if !missing(auxptfpx) & flagpinpx == 0
+	replace `var' = `var'/ratio if !missing(auxptfpx) & flagpinpx == 0 
+	replace `var' = `var'/ratio if !missing(auxptfpx) & iso == "KY" & flagpinpx != 0 
 }
 drop ratio 
 replace ptfpx = auxptfpx if missing(ptfpx)
@@ -983,11 +1014,11 @@ gen ratio = auxpinrx/pinrx
 
 replace ratio = 0 if mi(ratio)
 foreach var in fdirx ptfrx {
-	replace `var' = `var'/ratio if !missing(auxpinrx) & flagpinrx == 0 & share_unreported_received == 0
+	replace `var' = `var'/ratio if !missing(auxpinrx) & flagpinrx == 0 & rate == 0
 }
 drop ratio 
 replace pinrx = auxpinrx if missing(pinrx)
-replace pinrx = auxpinrx if share_unreported_received > 0 // & iso != "KY"
+replace pinrx = auxpinrx if rate > 0 // & iso != "KY"
 
 egen auxpinpx = rowtotal(fdipx ptfpx), missing
 replace pinpx = auxpinpx if !missing(auxpinpx) & flagpinpx == 1

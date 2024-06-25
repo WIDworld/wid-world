@@ -266,10 +266,13 @@ foreach v in compemp otherpinc secinc trade capital {
 	replace `v'_debit = `v'_debit*gdp_usd
 	gen net_`v' = `v'_credit - `v'_debit
 
+	bys year : egen tot`v'_credit = total(`v'_credit)
+	bys year : egen tot`v'_debit = total(`v'_debit)
+
 	gen aux`v'_credit = abs(`v'_credit)
 	gen aux`v'_debit = abs(`v'_debit)
-	bys year : egen tot`v'_credit = total(aux`v'_credit)
-	bys year : egen tot`v'_debit = total(aux`v'_debit)
+	bys year : egen totaux`v'_credit = total(aux`v'_credit)
+	bys year : egen totaux`v'_debit = total(aux`v'_debit)
 }
 drop aux*
 
@@ -279,13 +282,16 @@ gen totnet_secinc = totsecinc_credit - totsecinc_debit
 gen totnet_capital = totcapital_credit - totcapital_debit 
 
 foreach v in compemp otherpinc secinc capital {
-	gen ratio_`v'_credit = `v'_credit/tot`v'_credit
-	gen ratio_`v'_debit = `v'_debit/tot`v'_debit
+	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
+	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
 	
-replace `v'_credit = `v'_credit - totnet_`v'*ratio_`v'_credit if totnet_`v' > 0	
-replace `v'_debit = `v'_debit + totnet_`v'*ratio_`v'_debit if totnet_`v' < 0	
+replace `v'_credit = `v'_credit - totnet_`v'*ratio_`v'_credit if totnet_`v' > 0	& `v'_credit > 0
+replace `v'_credit = `v'_credit + totnet_`v'*ratio_`v'_credit if totnet_`v' > 0	& `v'_credit < 0	
+replace `v'_debit = `v'_debit + totnet_`v'*ratio_`v'_debit if totnet_`v' < 0 & `v'_debit > 0		
+replace `v'_debit = `v'_debit - totnet_`v'*ratio_`v'_debit if totnet_`v' < 0 & `v'_debit < 0			
 }
 drop ratio* net* tot* 
+asd
 
 foreach x in compemp otherpinc secinc capital {
 	gen net_`x' = `x'_credit - `x'_debit
