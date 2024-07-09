@@ -49,6 +49,9 @@ replace gdp_usd_wb = . if iso == "CU" & year >= 2021 & $pastyear == 2023
 // Drop Iraq before 1968 because of holes in the data: better to have
 // the Maddison data handle everything from there.
 drop if (iso == "IQ") & (year < 1968)
+* we stick to UN for IQ
+replace gdp_lcu_wb = . if iso == "IQ" 
+replace gdp_usd_wb = . if iso == "IQ" 
 
 // Identify reference year (and reference GDP level)
 // First case: there are some WID values, we use the last one

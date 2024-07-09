@@ -4,9 +4,8 @@
 
 use "$work_data/sna-series-finalized.dta", clear
 
-merge 1:1 iso year using "$work_data/income-tax-havens.dta", nogenerate
 merge 1:1 iso year using "$work_data/reinvested-earnings-portfolio.dta", nogenerate
-merge 1:1 iso year using "$work_data/wealth-tax-havens.dta", nogenerate update replace keepusing(nwgxa nwgxd nwoff ptfxa ptfxd fdixa fdixd)
+// merge 1:1 iso year using "$work_data/wealth-tax-havens.dta", nogenerate update replace keepusing(nwgxa nwgxd ptfxa ptfxd fdixa fdixd)
 
 // Foreign portfolio income officially recorded
 generate ptfor = ptfrx
@@ -22,36 +21,8 @@ generate series_ptfrr = -3
 generate series_ptfrp = -3
 generate series_ptfrn = -3
 
-// Foreign direct investment income officially recorded
-generate fdior = fdirx
-generate fdiop = fdipx
-generate fdion = fdinx
-merge 1:1 iso year using "$work_data/missing-profits-havens.dta", nogenerate replace update
-replace fdimp = 0 if mi(fdimp)
-
-generate series_fdior = series_fdirx
-generate series_fdiop = series_fdipx
-generate series_fdion = series_fdinx
-
-generate series_fdimp = -3
-
-*taking fdirx from missingprofits correction out of nninc
-generate diff_fdirx = fdirx - fdiorx
-replace diff_fdirx = 0 if mi(diff_fdirx)
-
 // External wealth officially recorded and hidden in Tax Havens
-replace nwgxa = nwgxa + nwoff 
 generate nwnxa = nwgxa - nwgxd
-replace ptfxa = ptfxa + nwoff
-
-generate series_nwoff = -3
-
-// Distribute missing property income from tax havens to housholds
-foreach v of varlist ptfrx ptfnx pinrx pinnx flcir flcin finrx nnfin prpho prphn prgho prghn ///
-	capho caphn cagho caghn priho prihn segho seghn secho sechn savho savhn sagho saghn fkpin {
-
-	replace `v' = `v' + ptfhr if !missing(ptfhr)
-}
 
 // Distribute reinvested earnings on portfolio investment to
 // non-financial corporations
@@ -71,23 +42,42 @@ foreach v of varlist ptfnx pinnx flcin nnfin prpco prpnf prgco prgnf ///
 	replace `v' = `v' - ptfrp if !missing(ptfrp)
 }
 
-// Distribute missing profits to non-financial corporations
- foreach v of varlist fdipx pinpx flcip finpx {
- 	replace `v' = `v' + fdimp if !missing(fdimp)
- }
 
-foreach v of varlist fdinx pinnx { // flcin nnfin prpco prpnf prgco prgnf /// prico prinf segco segnf secco secnf fkpin
-	replace `v' = `v' - fdimp if !missing(fdimp)
-}
+// -------------------------------------------------------------------------- //
+// Ensure that imputations do not distort net national income
+// -------------------------------------------------------------------------- //
+replace gdpro = 1 if missing(gdpro)
+generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
 
+gen flagnninc = 1 if nninc < .5 & (flagpinrx == 1 | flagpinpx == 1) 
+replace flagnninc = 0 if mi(flagnninc)
+gen difnninc = .5 - nninc if flagnninc == 1 
+gen sh_ptfrx = ptfrx/pinrx 
+gen sh_fdirx = fdirx/pinrx 
+replace ptfrx = ptfrx + sh_ptfrx*difnninc if flagnninc == 1 
+replace fdirx = fdirx + sh_fdirx*difnninc if flagnninc == 1 
+drop flagnninc difnninc sh_*
+
+gen flagnninc = 1 if nninc > 1.5 & (flagpinrx == 1 | flagpinpx == 1) 
+replace flagnninc = 0 if mi(flagnninc)
+gen difnninc = nninc - 1.5 if flagnninc == 1 
+gen sh_ptfpx = ptfpx/pinpx 
+gen sh_fdipx = fdipx/pinpx 
+replace ptfpx = ptfpx + sh_ptfpx*difnninc if flagnninc == 1 
+replace fdipx = fdipx + sh_fdipx*difnninc if flagnninc == 1 
+drop flagnninc difnninc sh_*
+drop nninc 
+
+replace ptfnx = ptfrx - ptfpx 
+replace fdinx = fdirx - fdipx 
 replace pinnx = fdinx + ptfnx
 replace pinrx = fdirx + ptfrx 
 replace pinpx = fdipx + ptfpx 
 
 // -------------------------------------------------------------------------- //
-// Ensure aggregate 0 for comnx and taxnx
+// Ensure aggregate 0 for pinnx fdinx ptfnx nwnxa fdixn ptfxn comnx and taxnx
 // -------------------------------------------------------------------------- //
-merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
+merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
 replace corecountry = 0 if year < 1970
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keep(master matched)
@@ -99,34 +89,76 @@ gen `var'_idx = `var'*index
 	gen `var'usd = `var'_idx/exrate_usd
 }
 
-foreach v in comrx compx ftaxx fsubx { // comhn fkpin nmxho ptxgo
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx { 
 	replace `v' = `v'*gdpusd 
 	gen aux = abs(`v')
 	bys year : egen tot`v' = total(`v') if corecountry == 1
 	bys year : egen totaux`v' = total(aux) if corecountry == 1
 	drop aux
 }
+gen totfdinx = totfdirx - totfdipx 
+gen totptfnx = totptfrx - totptfpx 
+gen totfdixn = totfdixa - totfdixd 
+gen totptfxn = totptfxa - totptfxd 
 gen totcomnx = totcomrx - totcompx
 gen tottaxnx = totfsubx - totftaxx
 
+gen ratio_fdirx = fdirx/totauxfdirx
+gen ratio_fdipx = fdipx/totauxfdipx
+replace fdirx = fdirx - totfdinx*ratio_fdirx if totfdinx < 0 & corecountry == 1 & fdirx > 0
+replace fdirx = fdirx + totfdinx*ratio_fdirx if totfdinx < 0 & corecountry == 1 & fdirx < 0
+replace fdipx = fdipx + totfdinx*ratio_fdipx if totfdinx > 0 & corecountry == 1 & fdipx > 0	
+replace fdipx = fdipx - totfdinx*ratio_fdipx if totfdinx > 0 & corecountry == 1 & fdipx < 0	
+
+gen ratio_ptfrx = ptfrx/totauxptfrx
+gen ratio_ptfpx = ptfpx/totauxptfpx
+replace ptfrx = ptfrx - totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx > 0
+replace ptfrx = ptfrx + totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx < 0
+replace ptfpx = ptfpx + totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx > 0	
+replace ptfpx = ptfpx - totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx < 0	
+
+gen ratio_fdixa = fdixa/totauxfdixa
+gen ratio_fdixd = fdixd/totauxfdixd
+replace fdixa = fdixa - totfdixn*ratio_fdixa if totfdixn < 0 & corecountry == 1 & fdixa > 0
+replace fdixa = fdixa + totfdixn*ratio_fdixa if totfdixn < 0 & corecountry == 1 & fdixa < 0
+replace fdixd = fdixd + totfdixn*ratio_fdixd if totfdixn > 0 & corecountry == 1 & fdixd > 0	
+replace fdixd = fdixd - totfdixn*ratio_fdixd if totfdixn > 0 & corecountry == 1 & fdixd < 0	
+
+gen ratio_ptfxa = ptfxa/totauxptfxa
+gen ratio_ptfxd = ptfxd/totauxptfxd
+replace ptfxa = ptfxa - totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa > 0
+replace ptfxa = ptfxa + totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa < 0
+replace ptfxd = ptfxd + totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd > 0	
+replace ptfxd = ptfxd - totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd < 0	
+
 gen ratio_comrx = comrx/totauxcomrx
 gen ratio_compx = compx/totauxcompx
-replace comrx = comrx - totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1 & comrx > 0
-replace comrx = comrx + totcomnx*ratio_comrx if totcomnx > 0 & corecountry == 1 & comrx < 0
-replace compx = compx + totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1 & compx > 0	
-replace compx = compx - totcomnx*ratio_compx if totcomnx < 0 & corecountry == 1 & compx < 0	
+replace comrx = comrx - totcomnx*ratio_comrx if totcomnx < 0 & corecountry == 1 & comrx > 0
+replace comrx = comrx + totcomnx*ratio_comrx if totcomnx < 0 & corecountry == 1 & comrx < 0
+replace compx = compx + totcomnx*ratio_compx if totcomnx > 0 & corecountry == 1 & compx > 0	
+replace compx = compx - totcomnx*ratio_compx if totcomnx > 0 & corecountry == 1 & compx < 0	
 
 gen ratio_fsubx = fsubx/totfsubx
 gen ratio_ftaxx = ftaxx/totftaxx
 replace fsubx = fsubx - tottaxnx*ratio_fsubx if tottaxnx > 0 & corecountry == 1	
 replace ftaxx = ftaxx + tottaxnx*ratio_ftaxx if tottaxnx < 0 & corecountry == 1		
 
-replace comnx = comrx - compx 
-replace taxnx = fsubx - ftaxx
-
-foreach v in comrx compx comnx fsubx ftaxx taxnx {
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx { 
 	replace `v' = `v'/gdpusd 
 }
+
+replace ptfnx = ptfrx - ptfpx 
+replace fdinx = fdirx - fdipx 
+replace pinnx = fdinx + ptfnx
+replace pinrx = fdirx + ptfrx 
+replace pinpx = fdipx + ptfpx 
+replace comnx = comrx - compx 
+replace taxnx = fsubx - ftaxx
+gen ptfxn = ptfxa - ptfxd 
+gen fdixn = fdixa - fdixd 
+replace nwgxa = ptfxa + fdixa 
+replace nwgxd = ptfxd + fdixd 
+replace nwnxa = nwgxa - nwgxd 
 
 replace comnx = comrx - compx if corecountry == 1
 	replace series_comnx = -1 if mi(series_comnx) & !mi(comnx) & (series_comrx == -1 | series_compx == -1)
@@ -156,12 +188,12 @@ replace taxnx = fsubx - ftaxx if corecountry == 1
 	replace series_taxnx = -1 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -1 | series_flcip == -1)
 	replace series_taxnx = -2 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -2 | series_flcip == -2)
 
-replace nnfin = flcin + taxnx + fdimp if corecountry == 1
+replace nnfin = flcin + taxnx if corecountry == 1
 	replace series_nnfin = -1 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -1 | series_taxnx == -1)
 	replace series_nnfin = -2 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -2 | series_taxnx == -2)
 
 *replace nnfin = pinnx if mi(nnfin)
-drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd
+drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag*
 
 // Remove useless variables
 drop cap?? cag?? nsmnp
@@ -169,10 +201,7 @@ drop cap?? cag?? nsmnp
 // Finally calculate net national income
 replace gdpro = 1 if missing(gdpro)
 generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
-replace nninc = nninc - diff_fdirx if iso == "KY" & year >= 2016
 generate ndpro = gdpro - confc
 generate gninc = gdpro + cond(missing(nnfin), 0, nnfin)
-
-drop diff_fdirx 
 
 save "$work_data/sna-series-adjusted.dta", replace

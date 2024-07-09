@@ -26,7 +26,10 @@ replace value = . if exp == 1
 	by iso widcode : carryforward value_gdp, replace
 	replace value = value_gdp*gdp if exp == 1
 
-drop extrapolation data_points data_quality source method author index currency exp gdp level* growth_src value_gdp
+merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keep(1 3)
+replace value =. if region5 == "Europe" & year <= 1995	
+	
+keep iso year widcode value p 
 replace p = "pall"
 
 tempfile pfgethin

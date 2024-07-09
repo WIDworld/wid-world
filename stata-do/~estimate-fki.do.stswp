@@ -1,82 +1,3 @@
-		// -------------------------------------------------------------------------- //
-		// -------------------------------------------------------------------------- //
-		// 					Correct FDI income by missing profits
-		// 
-		// -------------------------------------------------------------------------- //
-
-		// Import income corrections from Torslov, Wier and Zucman (2022) and Wier and Zucman (2022)
-		import excel "$input_data_dir/twz-2022-data/WZ2022.xlsb.xlsx.xls", sheet("TableB10") cellrange(D10:T218) clear
-		ren (D E F G K N O P Q T) (countrycode countryname paid_official_oecd paid_official_imf paid_added1 paid_added2 paid_added3_final received_official_oecd received_official_imf received_added)
-
-		kountry countrycode, from(iso3c) to(iso2c)
-		rename _ISO2C_ iso
-		replace iso = "TV" if countryname == "Tuvalu"
-		replace iso = "CW" if countryname == "Curacao"
-		replace iso = "KS" if countryname == "Kosovo, Republic of"
-		replace iso = "RS" if countryname == "Serbia"
-		replace iso = "SX" if countryname == "Sint Maarten"
-		replace iso = "SS" if countryname == "South Sudan"
-		replace iso = "TC" if countryname == "Turks and Caicos Islands"
-		replace iso = "PS" if countryname == "West Bank and Gaza"
-		replace iso = "VG" if countryname == "British Virgin Islands"
-		replace iso = "IM" if countryname == "Isle of man"
-		replace iso = "SZ" if countryname == "Swaziland"
-		replace iso = "BQ" if countryname == "Bonaire"
-		replace iso = "GG" if countryname == "Guernsey"
-		replace iso = "JE" if countryname == "Jersey"	
-		drop if missing(iso)
-		drop if countryname == "Equatorial Guinea"
-		drop if inlist(iso, "GD", "BZ") & missing(received_added)
-
-		replace paid_official_imf = paid_official_oecd if (paid_official_imf == 0 | missing(paid_official_imf)) & !missing(paid_official_oecd)
-		replace received_official_imf = received_official_oecd if (received_official_imf == 0 | missing(received_official_imf)) & !missing(received_official_oecd)
-		drop paid_official_oecd received_official_oecd
-
-		*gen ratio_add_p = (paid_added1 + paid_added2)/paid_official_imf
-		*gen ratio_add_r = received_added/received_official_imf
-
-		merge 1:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
-		keep if corecountry == 1 
-		merge 1:m iso using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen keep(matched) keepusing(fdixa year)
-
-		merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
-		merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
-		merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(gdp)
-		keep if corecountry == 1
-		foreach var in gdp {
-		gen `var'_idx = `var'*index
-			replace `var' = `var'_idx/exrate_usd
-		}
-		keep if year == 2017
-		replace fdixa = fdixa*gdp/1e6 // TWZ is in millons of USD
-
-		gen rate_unreported = received_added/fdixa
-		
-		egen total_received_official = total(received_official_imf)
-		gen share_unreported_received = received_added/total_received_official
-		egen total_received_added = total(received_added)
-		gen share_unreported_received_added = received_added/total_received_added
-
-		egen tot_paid_added = rowtotal(paid_added1 paid_added2 paid_added3_final), missing
-		egen total_added = total(tot_paid_added) 
-		gen share_unreported_paid = tot_paid_added/total_added
-
-		egen check = total(share_unreported_paid)
-		assert check == 1 
-
-		egen check2 = total(share_unreported_received_added)
-		assert check2 == 1 
-
-		keep iso share_unreported_paid share_unreported_received share_unreported_received_added rate_unreported
-		foreach v in share_unreported_paid share_unreported_received share_unreported_received_added rate_unreported {
-			replace `v' = 0 if missing(`v')
-		}
-
-		tempfile mprofits
-		sa `mprofits', replace
-
-
-
 // -------------------------------------------------------------------------- //
 // Imputing Foreign Capital Income
 // -------------------------------------------------------------------------- //
@@ -157,7 +78,7 @@ foreach v in fdirx {
 	replace `v'=0 if iso == "TZ" & year < 1999 // does not have FDI data from EWN but has FDI income from IMF BOP
 	replace `v'=0 if iso == "UG" & inrange(year,1985,1986) // does not have FDI data from EWN but has FDI income from IMF BOP
 	replace `v'=. if iso == "CD" & flagimf`v' == 1 & fdixa != 0
-	replace `v'=. if iso == "TD" & flag`v' == 1 & fdixa != 0 & missing(flagimf`v') // maybe also change ptfrx mais bon
+	replace `v'=. if iso == "TD" & flag`v' == 1 & fdixa != 0 & missing(flagimf`v') // maybe also change ptfrx 
 	replace `v'=. if iso == "CV" & inrange(year,1997,1999) // not in original IMF BOP 
 	replace `v'=. if iso == "GH" & fdixa != 0
 	replace `v'=0 if iso == "GN" & year == 2015 // not in original IMF BOP 
@@ -298,20 +219,7 @@ foreach var in fdirx fdipx ptfrx ptfpx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res 
 	replace `var' = f.`var'
 }
 
-// check this
-	gen nomprofits_fdirx = fdirx
-	merge m:1 iso using `mprofits', nogen keepusing(rate)
-	foreach v in rate {
-		replace `v' = 0 if missing(`v')
-	}
-
-	gen aux = fdixa*rate
-	xtset i year
-	gen fdiorx = l.fdirx // officially recorded fdirx
-	replace fdiorx = fdirx if year == 1970 & missing(fdiorx) 
-	replace fdirx = fdirx + aux if !missing(aux) 
-	ren aux fdirx_corr // this won't be part of nninc
-	drop i 
+drop i 
 	
 gen rf_a = fdirx/fdixa
 gen rf_d = fdipx/fdixd
@@ -941,30 +849,6 @@ foreach v in ptfxa ptfxd fdixa fdixd ptfxd_deb ptfxd_eq ptfxd_fin ptfxa_res ptfx
 replace `v' = `v'_gdp*gdp if iso == "KP"
 }
 
-/*
-// check this
-	gen nomprofits_fdirx = fdirx
-	merge m:1 iso using `mprofits', nogen keepusing(share_unreported_received)
-	foreach v in share_unreported_received {
-		replace `v' = 0 if missing(`v')
-	}
-		bys year : egen tot_fdirx_gdp = total(fdirx)
-		bys year : egen tot_fdipx_gdp = total(fdipx)
-
-		replace tot_fdirx =. if tot_fdirx == 0
-
-		gen aux = tot_fdirx*share_unreported_received
-		xtset i year
-		gen fdiorx = l.fdirx // officially recorded fdirx
-		replace fdiorx = fdirx if year == 1970 & missing(fdiorx) 
-		replace fdirx = fdirx + aux if !missing(aux) & fdirx != 0 & inlist(year, 1971, 2007, 2009)
-		replace fdirx = fdirx + aux if !missing(aux) & fdirx != 0 & year >= 2017
-		ren aux fdirx_corr // this won't be part of nninc
-		drop tot_fdirx tot_fdipx_gdp
-replace fdirx_gdp = fdirx/gdp
-drop *_gdp
-*/
-
 // collapse (sum) fdirx fdipx ptfrx ptfpx gdp, by(TH year)
 // gen fdinx = fdirx - fdipx 
 // gen ptfnx = ptfrx - ptfpx 
@@ -1014,11 +898,10 @@ gen ratio = auxpinrx/pinrx
 
 replace ratio = 0 if mi(ratio)
 foreach var in fdirx ptfrx {
-	replace `var' = `var'/ratio if !missing(auxpinrx) & flagpinrx == 0 & rate == 0
+	replace `var' = `var'/ratio if !missing(auxpinrx) & flagpinrx == 0 
 }
 drop ratio 
 replace pinrx = auxpinrx if missing(pinrx)
-replace pinrx = auxpinrx if rate > 0 // & iso != "KY"
 
 egen auxpinpx = rowtotal(fdipx ptfpx), missing
 replace pinpx = auxpinpx if !missing(auxpinpx) & flagpinpx == 1
@@ -1030,13 +913,13 @@ foreach var in fdipx ptfpx {
 drop ratio 
 replace pinpx = auxpinpx if missing(pinpx)
 
-keep iso year fdixa fdixd ptfxa ptfxd fdirx fdiorx fdipx ptfrx ptfpx gdp pinrx pinpx ptfxa_deb ptfxa_eq ptfxa_res ptfxa_fin ptfxd_eq ptfxd_deb ptfxd_fin ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb // flag*
+keep iso year fdixa fdixd ptfxa ptfxd fdirx fdipx ptfrx ptfpx gdp pinrx pinpx ptfxa_deb ptfxa_eq ptfxa_res ptfxa_fin ptfxd_eq ptfxd_deb ptfxd_fin ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb flagpinrx flagpinpx
 
 // collapse (sum) fdirx fdipx ptfrx ptfpx gdp, by(year)
 // gen fdinx = fdirx - fdipx 
 // gen ptfnx = ptfrx - ptfpx 
 
-foreach var in fdixa fdixd ptfxa ptfxd fdirx fdiorx fdipx ptfrx ptfpx pinrx pinpx ptfxa_deb ptfxa_eq ptfxa_res ptfxa_fin ptfxd_eq ptfxd_deb ptfxd_fin ptfrx_eq ptfxd_fin ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+foreach var in fdixa fdixd ptfxa ptfxd fdirx fdipx ptfrx ptfpx pinrx pinpx ptfxa_deb ptfxa_eq ptfxa_res ptfxa_fin ptfxd_eq ptfxd_deb ptfxd_fin ptfrx_eq ptfxd_fin ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	replace `var' = `var'/gdp
 	replace `var' = 0 if mi(`var')
 }
@@ -1095,7 +978,7 @@ gen ptfnx = ptfrx - ptfpx
 drop gdp 
 
 sa "$work_data/estimated-fki.dta", replace
-keep iso year fdirx fdiorx fdipx ptfrx ptfpx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb
+keep iso year fdirx fdipx ptfrx ptfpx pinrx pinpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb
 
 *merging with retropolate
 u "$work_data/sna-combined-prefki.dta", clear

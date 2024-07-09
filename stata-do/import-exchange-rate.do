@@ -532,7 +532,7 @@ replace flagexrate = 0 if missing(flagexrate)
 	replace valuexlcusx999i = amaxrt if year > 1994 & year <= 2001 & iso == "TM" // Turkmenistan's exchange rate is preferred from UN SNA than from WB WDI
 	replace valuexlcusx999i = amaxrt if iso == "CD" & !missing(amaxrt) // if we use the imfxrt Congo gets and incredible jump in gdp_usd in 2000s
 	replace valuexlcusx999i = amaxrt if iso == "GN" & !missing(amaxrt) // we need to use ama because if not there is a disparity pre and post 1986
-	replace valuexlcusx999i = imfxrt if iso == "IQ" & !missing(imfxrt) & year < 1991 // we need to use ama because of inconsistency pre 2003. We are comparing with WB whenever cases are critical
+	replace valuexlcusx999i = amaxrt if iso == "IQ" & !missing(amaxrt) // & year < 1991 // we need to use ama because of inconsistency pre 2003. We are comparing with WB whenever cases are critical
 	*replace valuexlcusx999i = amaxrt if iso == "IQ" & !missing(amaxrt) & year >= 1991 // we need to use ama because of inconsistency pre 2003
 	replace valuexlcusx999i = amaxrt if iso == "IR" & !missing(amaxrt) & year >= 1987 // 1990 is problematic if not
 	replace valuexlcusx999i = amaxrt if iso == "MM" & !missing(amaxrt) // evolution does not coincide with WB if not

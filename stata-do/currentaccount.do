@@ -285,10 +285,10 @@ foreach v in compemp otherpinc secinc capital {
 	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
 	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
 	
-replace `v'_credit = `v'_credit - totnet_`v'*ratio_`v'_credit if totnet_`v' > 0	& `v'_credit > 0
-replace `v'_credit = `v'_credit + totnet_`v'*ratio_`v'_credit if totnet_`v' > 0	& `v'_credit < 0	
-replace `v'_debit = `v'_debit + totnet_`v'*ratio_`v'_debit if totnet_`v' < 0 & `v'_debit > 0		
-replace `v'_debit = `v'_debit - totnet_`v'*ratio_`v'_debit if totnet_`v' < 0 & `v'_debit < 0			
+replace `v'_credit = `v'_credit - totnet_`v'*ratio_`v'_credit if totnet_`v' < 0	& `v'_credit > 0
+replace `v'_credit = `v'_credit + totnet_`v'*ratio_`v'_credit if totnet_`v' < 0	& `v'_credit < 0	
+replace `v'_debit = `v'_debit + totnet_`v'*ratio_`v'_debit if totnet_`v' > 0 & `v'_debit > 0		
+replace `v'_debit = `v'_debit - totnet_`v'*ratio_`v'_debit if totnet_`v' > 0 & `v'_debit < 0			
 }
 drop ratio* net* tot* 
 

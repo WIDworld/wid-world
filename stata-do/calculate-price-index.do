@@ -51,6 +51,11 @@ replace currency = "USD" if iso == "PS"
 replace cpi_wb =. if iso == "HR"
 drop if mi(def_un) & iso == "HR"
 
+* we stick to UN for IQ
+replace cpi_wb = . if iso == "IQ" 
+replace def_wb = . if iso == "IQ" 
+drop if iso == "IQ" & year < 1970
+
 	*replace currency = "VEF" if iso == "VE"
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
