@@ -653,7 +653,8 @@ drop if missing(valuexlcusx999i)
 preserve
 	keep if currency == "EUR"
 	keep year valuexlcusx999i
-	duplicates drop year, force
+//	duplicates drop year, force
+	collapse (mean) valuexlcusx999i, by(year)
 	rename valuexlcusx999i EURUSD
 	
 	tempfile eurusd

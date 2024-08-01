@@ -2,6 +2,7 @@
 
 // Import all the PPP data
 use "$work_data/ppp-oecd.dta", clear
+drop if iso == "HR"
 merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
 	assert(master using match match_update)
 		replace currency = "EUR" if iso == "HR"
