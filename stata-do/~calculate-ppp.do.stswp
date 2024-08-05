@@ -1,34 +1,23 @@
 * Remark: Some codes that fetched 2011 are kept with * to switch back to 2011 PPP if we wanted to!
 
 // Import all the PPP data
-use "$work_data/ppp-oecd.dta", clear
-drop if iso == "HR"
-merge 1:1 iso year using "$work_data/ppp-wb.dta", nogenerate update ///
-	assert(master using match match_update)
+use "$work_data/ppp-wb.dta", clear
+
 		replace currency = "EUR" if iso == "HR"
 		drop if iso == "VE"
 		append using "$work_data/imf-ven-pppex" 
 		replace currency = "VES" if iso == "VE"
-		replace ppp_wb = ppp_imf if iso == "VE"
-		append using "$work_data/imf-ad-pppex"
-		replace currency = "EUR" if iso == "AD"
-		replace ppp_wb = ppp_imf if iso == "AD"
-		drop ppp_imf
-		
-// For Lithuania and Latvia, OECD PPPs are expressed in their old currency
-/*
-replace ppp_oecd = ppp_oecd/3.4528 if iso == "LT"
-replace ppp_oecd = ppp_oecd/0.702804 if iso == "LV"
-*/ // ! No longer the case, they are now expressed in EUR, with the 2017 PPP update
+		append using "$work_data/imf-tw-pppex" 
+		replace currency = "TWD" if iso == "TW"
 
-// Keep OECD in priority
+// Keep WB in priority
 generate ppp = .
 generate ppp_src = ""
-foreach v of varlist ppp_oecd ppp_wb {
+foreach v of varlist ppp_wb ppp_imf {
 	replace ppp_src = "`v'" if (ppp >= .) & (`v' < .)
 	replace ppp = `v' if (ppp >= .) & (`v' < .)
 }
-drop ppp_oecd ppp_wb
+drop ppp_wb ppp_imf
 drop if ppp >= .
 
 replace ppp_src = ///
@@ -41,22 +30,11 @@ if (ppp_src == "ppp_oecd")
 
 replace ppp_src = ///
 `"[URL][URL_LINK]https://www.imf.org/external/datamapper/PPPEX@WEO/OEMDC[/URL_LINK][URL_TEXT]International Monetary Fund[/URL_TEXT][/URL]; "' ///
-if (ppp_src == "ppp_wb")
+if (ppp_src == "ppp_imf")
 
 generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(year) + ") using the evolution of the price index relative to the reference country"
 
-// Add one data from the IMF for Taiwan (only source available)
-local nobs = _N + 1
-set obs `nobs'
-replace iso = "TW" in l
-replace year = 2017 in l
-replace ppp = 14.7 in l
-replace ppp_method = "We extrapolate the PPP from its 2017 value using the evolution of the price index relative to the reference country" in l
-replace ppp_src = ///
-`"[URL][URL_LINK]http://www.imf.org/external/pubs/ft/weo/$pastyear/01/weodata/index.aspx/[/URL_LINK]"' + ///
-`"[URL_TEXT]IMF World Economic Outlook (04/$pastyear)[/URL_TEXT][/URL]; "' in l
 
-replace currency = "TWD" in l
 
 // Add one estimate for North Korea using GDP in USD PPP From CIA Factbook (40 billon) https://www.cia.gov/the-world-factbook/countries/korea-north/#economy
 preserve 
@@ -91,6 +69,13 @@ drop newobs
 expand 2 if (iso == "CZ"), generate(newobs)
 replace iso = "CS" if newobs
 replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for the Czech Republic from the latest ICP", 1) if newobs
+drop newobs
+
+// For East Germany, use Germany after 1991
+expand 2 if (iso == "DE"), generate(newobs)
+replace iso = "DD" if newobs
+replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for Germany from the latest ICP", 1) if newobs
+replace ppp_method = ppp_method + " for Germany" if newobs
 drop newobs
 
 // For Channel Islands, use the same as UK
@@ -142,27 +127,6 @@ replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the lates
 replace ppp_method = ppp_method + " for Curacao" if newobs
 drop newobs
 
-// For the Faroe Island, use the same as Denmark
-expand 2 if (iso == "DK"), generate(newobs)
-replace iso = "FO" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for Denmark from the latest ICP", 1) if newobs
-replace ppp_method = ppp_method + " for Denmark" if newobs
-drop newobs
-
-// For US Virgin Islands, use the same as US
-expand 2 if (iso == "US"), generate(newobs)
-replace iso = "VI" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for the United States from the latest ICP", 1) if newobs
-replace ppp_method = ppp_method + " for the United States" if newobs
-drop newobs
-
-// For East Germany, use Germany after 1991
-expand 2 if (iso == "DE"), generate(newobs)
-replace iso = "DD" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for Germany from the latest ICP", 1) if newobs
-replace ppp_method = ppp_method + " for Germany" if newobs
-drop newobs
-
 // For Liechtenstein, use Switzerland 
 expand 2 if (iso == "CH"), generate(newobs)
 replace iso = "LI" if newobs
@@ -187,13 +151,6 @@ drop newobs
 // For Monaco, use France 
 expand 2 if (iso == "FR"), generate(newobs)
 replace iso = "MC" if newobs
-replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for France from the latest ICP", 1) if newobs
-replace ppp_method = ppp_method + " for France" if newobs
-drop newobs
-
-// For Greenland, use Denmark 
-expand 2 if (iso == "DK"), generate(newobs)
-replace iso = "GL" if newobs
 replace ppp_method = subinstr(ppp_method, "We extrapolate the PPP from the latest ICP", "We extrapolate the PPP for France from the latest ICP", 1) if newobs
 replace ppp_method = ppp_method + " for France" if newobs
 drop newobs
@@ -330,4 +287,3 @@ replace currency = "MRU" if currency == "MRO"
 
 label data "Generated by calculate-ppp.do"
 save "$work_data/ppp.dta", replace
-
