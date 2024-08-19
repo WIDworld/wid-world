@@ -86,7 +86,7 @@ save "`meta'"
 use iso year p widcode value author using "`researchers'", clear
 // append using "$work_data/aggregate-regions-output.dta", generate(oldobs)
 // append using "$work_data/add-populations-output.dta", generate(oldobs)
-append using "$work_data/merge-historical-aggregates (11)", generate(oldobs)
+append using "$work_data/merge-historical-aggregates (18)", generate(oldobs)
 
 // France 2017: drop specific widcodes
 drop if (inlist(widcode, "ahwbol992j", "ahwbus992j", "ahwcud992j", "ahwdeb992j", "ahweal992j") ///
