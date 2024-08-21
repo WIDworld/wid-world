@@ -51,6 +51,7 @@ append using "`EUR'"
 tempfile merged
 save "`merged'" 
 
+replace lcu_to_usd = 89500 if iso == "LB" & year == $pastyear & $pastyear == 2023 // temporary using the exchange rate lately published by the Lebanese central bank
 keep if year == $pastyear
 
 
