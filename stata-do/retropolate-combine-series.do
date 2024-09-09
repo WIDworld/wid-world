@@ -37,6 +37,9 @@ drop if iso == "BF" & series == 10
 foreach wx in comrx compx comnx fsubx ftaxx taxnx { 
 	replace `wx' = . if `wx' == 0 | abs(`wx') < 4e-6
 }
+foreach wx in comrx compx fsubx ftaxx { 
+	replace `wx' = . if `wx' < 0
+}
 replace taxnx = fsubx - ftaxx 
 replace comnx = comrx - compx 
 

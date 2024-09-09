@@ -68,17 +68,26 @@ gen mconfc_gdp = mconfc/mgdpro
 // checking that aggregates by core territories add up
 	   
 u "$work_data/merge-historical-aggregates.dta",	clear 
-   
-keep if inlist(iso, "RU", "OA")  | ///
-	    inlist(iso, "CN", "JP", "OB")  | ///
-	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
-	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC")  | ///
-	    inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
-	    inlist(iso, "DZ", "EG", "TR", "OE")  | ///
-	    inlist(iso, "CA", "US")  | ///
-	    inlist(iso, "AU", "NZ", "OH")  | ///
-	    inlist(iso, "IN", "ID", "OI")  | ///
-	    inlist(iso, "ZA", "OJ", "WO")  
+keep if (corecountry == 1 & year >= 1970) 
+keep if year >= 1970
+
+keep if inlist(substr(widcode, 1, 6), "mnnfin", "mfinrx", "mfinpx", "mcomnx", "mpinnx", "mnwnxa", "mnwgxa", "mnwgxd") ///
+	   | inlist(substr(widcode, 1, 6), "mnwoff", "mconfc", "mcomnx", "mcomrx", "mcompx", "mpinrx", "mpinpx", "mfdinx") ///
+	   | inlist(substr(widcode, 1, 6), "mptfxa", "mptfxd", "mfdixa", "mfdixd", "mfdirx", "mfdipx", "mptfnx", "mptfrx") /// 
+	   | inlist(substr(widcode, 1, 6), "mptfpx", "mncanx", "mtbnnx", "mtbxrx", "mtbmpx", "mopinx", "mscinx", "mopirx") /// 
+	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx", "inyixx", "xlcusx", "xlceux") 
+
+drop p currency	  
+greshape wide value, i(iso year) j(variable) string
+renvars value*, pred(5)
+	   
+gen mnnfin_idx = mnnfin999i*inyixx // current Local Currency Unit
+gen mnnfin_usd = mnnfin_idx/xlcusx // current USD 
+gen mnnfin_eux = mnnfin_idx/xlceux // current Euro 
+
+bys year : egen totmnnfin_usd = total(mnnfin_usd) // should be very close to zero
+
 
 keep if widcode == "mnninc999i" ///
 	   | inlist(substr(widcode, 1, 6), "xlceup") 
