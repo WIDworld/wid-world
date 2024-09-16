@@ -107,7 +107,7 @@ keep if inrange(year, 1970, $pastyear )
 
 //Express all variables as share of GDP
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit exports imports tradebalance capital_credit capital_debit {
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit exports imports tradebalance capital_credit capital_debit {
 replace `v' = `v'/gdp_usd
 }
 
@@ -260,8 +260,29 @@ drop av*
 replace otherpinc_credit =. if year < 1991
 replace otherpinc_debit =. if year < 1991
 
+preserve 
+	gen net_trade = trade_credit - trade_debit 
+	keep iso year trade_credit trade_debit net_trade gdp_us
+save "$work_data/bop_tradeusd.dta", replace
+restore 
+
+// Separating trade in services and trade in goods
+ren (exports imports tradebalance) (tgxrx tgmpx tgnnx)
+
+gen tsxrx = trade_credit - tgxrx
+gen tsmpx = trade_debit - tgmpx
+
+// if trade in goods is bigger than total trade then assuming that trade in services = 0 and total trade is trade in goods
+replace trade_credit = tgxrx if tsxrx < 0 
+replace trade_debit = tgmpx if tsmpx < 0 
+replace tsxrx = 0 if tsxrx < 0 
+replace tsmpx = 0 if tsmpx < 0
+
+// ren (tgxrx tgmpx) (goods_credit goods_debit)
+ren (tsxrx tsmpx) (service_credit service_debit)
+
 *allocating the difference proportionally
-foreach v in compemp otherpinc secinc trade capital {
+foreach v in compemp otherpinc secinc trade service capital {
 	replace `v'_credit = `v'_credit*gdp_usd
 	replace `v'_debit = `v'_debit*gdp_usd
 	gen net_`v' = `v'_credit - `v'_debit
@@ -280,8 +301,11 @@ gen totnet_compemp = totcompemp_credit - totcompemp_debit
 gen totnet_otherpinc = tototherpinc_credit - tototherpinc_debit 
 gen totnet_secinc = totsecinc_credit - totsecinc_debit 
 gen totnet_capital = totcapital_credit - totcapital_debit 
+gen totnet_trade = tottrade_credit - tottrade_debit 
+// gen totnet_goods = totgoods_credit - totgoods_debit
+gen totnet_service = totservice_credit - totservice_debit 
 
-foreach v in compemp otherpinc secinc capital {
+foreach v in compemp otherpinc secinc capital service {
 	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
 	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
 	
@@ -292,16 +316,22 @@ replace `v'_debit = `v'_debit - totnet_`v'*ratio_`v'_debit if totnet_`v' > 0 & `
 }
 drop ratio* net* tot* 
 
-foreach x in compemp otherpinc secinc capital {
+replace trade_credit = (tgxrx)*gdp_usd + service_credit 
+replace trade_debit = (tgmpx)*gdp_usd + service_debit 
+
+foreach x in compemp otherpinc secinc capital trade service {
 	gen net_`x' = `x'_credit - `x'_debit
 }
 
-keep iso year exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital gdp_us
+ren (trade_credit trade_debit net_trade) (exports imports tradebalance)
+// ren (goods_credit goods_debit) (tgxrx tgmpx)
+ren (service_credit service_debit net_service) (tsxrx tsmpx tsnnx)
+keep iso year exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tgxrx tgmpx tgnnx tsxrx tsmpx tsnnx gdp_us
 
-foreach v in otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital {
+foreach v in exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tsxrx tsmpx tsnnx {
 	replace `v' = `v'/gdp_us
 }
-drop gdp_us
+
 
 ren exports 			tbxrx
 ren imports 			tbmpx
@@ -316,5 +346,28 @@ ren capital_credit 		fkarx
 ren capital_debit 		fkapx
 ren net_capital 		fkanx
 
-save "$work_data/bop_currentacc.dta", replace
+drop otherpinc_credit otherpinc_debit net_otherpinc
 
+enforce (tbxrx = tgxrx + tsxrx) ///
+		(tbmpx = tgmpx + tsmpx) ///
+		(tbnnx = tgnnx + tsnnx) ///
+		(tbnnx = tbxrx - tbmpx) ///
+		(tgnnx = tgxrx - tgmpx) ///
+		(tsnnx = tsxrx - tsmpx), fixed(tgxrx tgmpx) replace
+
+/* checking adding to zero
+foreach var in tbxrx tgxrx tsxrx tbmpx tgmpx tsmpx {
+	replace `var' = `var'*gdp_usd
+}
+collapse (sum) tbxrx tgxrx tsxrx tbmpx tgmpx tsmpx gdp_usd, by(year)
+gen tbnnx = tbxrx - tbmpx
+gen tgnnx = tgxrx - tgmpx
+gen tsnnx = tsxrx - tsmpx
+
+foreach var in tbnnx tgnnx tsnnx {
+	replace `var' = `var'/gdp_usd
+}
+*/
+
+drop gdp_us
+save "$work_data/bop_currentacc.dta", replace
