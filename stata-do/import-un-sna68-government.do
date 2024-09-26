@@ -16,6 +16,7 @@ replace widcode = "prpgo_p" if itemdescription == "Property income"
 replace widcode = "nsrgo" if itemdescription == "Operating surplus"
 
 replace widcode = "cfcgo" if itemdescription == "Consumption of fixed capital"
+replace widcode = "comgo" if itemdescription == "Compensation of employees"
 
 replace widcode = "tiwgo" if itemdescription == "Direct taxes"
 replace widcode = "sscgo" if itemdescription == "Social security contributions"

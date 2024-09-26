@@ -81,6 +81,7 @@ replace widcode = "ssbgo" if item == "Social benefits other than social transfer
 replace widcode = "congo" if item == "Final consumption expenditure"
 replace widcode = "indgo" if item == "Individual consumption expenditure"
 replace widcode = "colgo" if item == "Collective consumption expenditure"
+replace widcode = "comgo" if item == "Compensation of employees"
 
 append using "`func'"
 append using "`va'"

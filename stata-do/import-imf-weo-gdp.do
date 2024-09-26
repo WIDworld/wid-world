@@ -63,6 +63,16 @@ preserve
 	keep if year == $pastyear
 	sa "$work_data/imf-tw-pppex", replace
 restore 
+
+// keeping SS PPP
+preserve
+	keep if iso == "SS"
+	keep iso year valuePPPEX
+	ren valuePPPEX ppp_imf
+	keep if year == $pastyear
+	sa "$work_data/imf-ss-pppex", replace
+restore 
+
 drop valuePPPEX
 
 

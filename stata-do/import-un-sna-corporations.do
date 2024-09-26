@@ -24,6 +24,7 @@ replace widcode = "prp_fisi" if sub_group == "II.1.2 Allocation of primary incom
 replace widcode = "gsr" if item == "OPERATING SURPLUS, GROSS"
 replace widcode = "prg" if item == "BALANCE OF PRIMARY INCOMES"
 replace widcode = "cfc" if item == "Less: Consumption of fixed capital"
+replace widcode = "com" if item == "Compensation of employees"
 
 replace widcode = "tax" if item == "Current taxes on income, wealth, etc."
 replace widcode = "ssc" if item == "Social contributions"

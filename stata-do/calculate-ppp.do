@@ -9,7 +9,10 @@ use "$work_data/ppp-wb.dta", clear
 		replace currency = "VES" if iso == "VE"
 		append using "$work_data/imf-tw-pppex" 
 		replace currency = "TWD" if iso == "TW"
-
+		drop if iso == "SS"
+		append using "$work_data/imf-ss-pppex" 
+		replace currency = "SSP" if iso == "SS"
+		
 // Keep WB in priority
 generate ppp = .
 generate ppp_src = ""
