@@ -1,11 +1,22 @@
-import delimited "$current_account/BOP_05-13-2024 14-41-48-35.csv", clear
+global EURO `" "AD" "AL" "AT" "BA" "BE" "BG" "CH" "CY" "CZ" "DE" "DK" "EE" "ES" "FI" "FR" "GB" "GG" "GI" "GR" "HR" "HU" "IE" "IM" "IS" "IT" "JE" "KS" "LI" "LT" "LU" "LV" "MC" "MD" "ME" "MK" "MT" "NL" "NO" "PL" "PT" "RO" "RS" "SE" "SI" "SK" "SM" "'
+global NAOC `" "AU" "BM" "CA" "FJ" "FM" "GL" "KI" "MH" "NC" "NR" "NZ" "PF" "PG" "PW" "SB" "TO" "TV" "US" "VU" "WS" "'
+global LATA `" "AG" "AI" "AR" "AW" "BB" "BO" "BQ" "BR" "BS" "BZ" "CL" "CO" "CR" "CU" "CW" "DM" "DO" "EC" "GD" "GT" "GY" "HN" "HT" "JM" "KN" "KY" "LC" "MS" "MX" "NI" "PA" "PE" "PR" "PY" "SR" "SV" "SX" "TC" "TT" "UY" "VC" "VE" "VG" "'
+global MENA `" "AE" "BH" "DZ" "EG" "IL" "IQ" "IR" "JO" "KW" "LB" "LY" "MA" "OM" "PS" "QA" "SA" "SY" "TN" "TR" "YE" "'
+global SSAF `" "AO" "BF" "BI" "BJ" "BW" "CD" "CF" "CG" "CI" "CM" "CV" "DJ" "ER" "ET" "GA" "GH" "GM" "GN" "GQ" "GW" "KE" "KM" "LR" "LS" "MG" "ML" "MR" "MU" "MW" "MZ" "NA" "NE" "NG" "RW" "SC" "SD" "SL" "SN" "SO" "SS" "ST" "SZ" "TD" "TG" "TZ" "UG" "ZA" "ZM" "ZW" "'
+global RUCA `" "AM" "AZ" "BY" "GE" "KG" "KZ" "RU" "TJ" "TM" "UA" "UZ" "'
+global EASA `" "CN" "HK" "JP" "KP" "KR" "MN" "MO" "TW" "'
+global SSEA `" "AF" "BD" "BN" "BT" "ID" "IN" "KH" "LA" "LK" "MM" "MV" "MY" "NP"  "PH" "PK" "SG" "TH" "TL" "VN" "'
 
+
+
+import delimited "$current_account/BOP_05-13-2024 14-41-48-35.csv", clear
 
 //Keep Current accounts variables 
 
 keep if inlist(indicatorcode, "BXIPCE_BP6_USD", "BMIPCE_BP6_USD", "BMCA_BP6_USD", "BXCA_BP6_USD") | ///
 inlist(indicatorcode, "BXIPO_BP6_USD", "BMIPO_BP6_USD", "BXIS_BP6_USD", "BMIS_BP6_USD") | ///     
-		inlist(indicatorcode, "BOP_BP6_USD","BMGS_BP6_USD", "BXGS_BP6_USD", "BKA_CD_BP6_USD", "BKA_DB_BP6_USD", "BKT_CD_BP6_USD", "BKT_DB_BP6_USD")
+		inlist(indicatorcode, "BOP_BP6_USD","BMGS_BP6_USD", "BXGS_BP6_USD", "BKA_CD_BP6_USD", "BKA_DB_BP6_USD", "BKT_CD_BP6_USD", "BKT_DB_BP6_USD") | /// 
+		inlist(indicatorcode, "BXISG_BP6_USD", "BXISOPT_BP6_USD", "BXISOOT_BP6_USD", "BMISG_BP6_USD", "BMISOPT_BP6_USD", "BMISOOT_BP6_USD" )
 		
 *Current Account, Primary Income, Compensation of Employees, Credit, US Dollars BXIPCE_BP6_USD 
 *Current Account, Primary Income, Compensation of Employees, Debit, US Dollars BMIPCE_BP6_USD
@@ -17,8 +28,13 @@ inlist(indicatorcode, "BXIPO_BP6_USD", "BMIPO_BP6_USD", "BXIS_BP6_USD", "BMIS_BP
 
 *Current Account, Primary Income, Other Primary Income, Credit, US Dollars	BXIPO_BP6_USD
 *Current Account, Primary Income, Other Primary Income, Debit, US Dollars	BMIPO_BP6_USD
+
 *Current Account, Secondary Income, Credit, US Dollars	BXIS_BP6_USD
 *Current Account, Secondary Income, Debit, US Dollars	BMIS_BP6_USD
+
+*Current Account, Secondary Income, Financial Corporations, Nonfinancial Corporations, Households, and NPISHs, Credit, US Dollars BXISOPT_BP6_USD
+*Current Account, Secondary Income, Financial Corporations, Nonfinancial Corporations, Households, and NPISHs, Other Current Transfers, Credit, US Dollars BXISOOT_BP6_USD
+*Current Account, Secondary Income, General Government, Credit, US Dollars BXISG_BP6_USD
 
 *Net Errors and Omissions, US Dollars	BOP_BP6_USD
 *Supplementary Items, Errors and Omissions (with Fund Record), US Dollars	BOPFR_BP6_USD
@@ -27,8 +43,8 @@ inlist(indicatorcode, "BXIPO_BP6_USD", "BMIPO_BP6_USD", "BXIS_BP6_USD", "BMIS_BP
 *BXGS_BP6_USD Current Account, Goods and Services, Credit, US Dollars
 *BGS_BP6_USD Current Account, Goods and Services, Net, US Dollars
 
-//Rename the variables
 
+//Rename the variables
 replace indicatorname = "trade_credit" if indicatorcode == "BXGS_BP6_USD"
 replace indicatorname = "trade_debit" if indicatorcode == "BMGS_BP6_USD"
 replace indicatorname = "compemp_debit" if indicatorcode == "BMIPCE_BP6_USD"
@@ -38,7 +54,13 @@ replace indicatorname = "compemp_credit" if indicatorcode == "BXIPCE_BP6_USD"
 replace indicatorname = "otherpinc_credit" if indicatorcode == "BXIPO_BP6_USD"
 replace indicatorname = "otherpinc_debit" if indicatorcode == "BMIPO_BP6_USD"
 replace indicatorname = "secinc_credit" if indicatorcode == "BXIS_BP6_USD"
+replace indicatorname = "foreignaid_credit" if indicatorcode == "BXISG_BP6_USD"
+replace indicatorname = "remittances_credit" if indicatorcode == "BXISOPT_BP6_USD"
+replace indicatorname = "othtrans_credit" if indicatorcode == "BXISOOT_BP6_USD"
 replace indicatorname = "secinc_debit" if indicatorcode == "BMIS_BP6_USD"
+replace indicatorname = "foreignaid_debit" if indicatorcode == "BMISG_BP6_USD"
+replace indicatorname = "remittances_debit" if indicatorcode == "BMISOPT_BP6_USD"
+replace indicatorname = "othtrans_debit" if indicatorcode == "BMISOOT_BP6_USD"
 replace indicatorname = "errors_net" if indicatorcode == "BOP_BP6_USD"
 replace indicatorname = "capital_credit" if indicatorcode == "BKA_CD_BP6_USD" | indicatorcode == "BKT_CD_BP6_USD"
 replace indicatorname = "capital_debit" if indicatorcode == "BKA_DB_BP6_USD" | indicatorcode == "BKT_DB_BP6_USD"
@@ -68,17 +90,16 @@ drop if mi(iso)
 drop countrycode
 
 //Netherlands Antilles split
-
 merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
 
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit { 
+ otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 bys year : gen aux`v' = `v' if iso == "AN" & year<2011
 bys year : egen `v'AN = mode(aux`v')
 }
 
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit { 
+ otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 	foreach c in CW SX {
 		replace `v' = `v'AN*ratio`c'_ANusd if iso == "`c'" & missing(`v')
 	}
@@ -105,9 +126,10 @@ drop gdp
 sort iso year 
 keep if inrange(year, 1970, $pastyear )
 
+
 //Express all variables as share of GDP
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit exports imports tradebalance capital_credit capital_debit {
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit exports imports tradebalance capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit {
 replace `v' = `v'/gdp_usd
 }
 
@@ -121,7 +143,7 @@ drop net_trade
 
 //Interpolate missing values within the series 
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit  { 
+ otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit remittances_debit othtrans_credit foreignaid_debit othtrans_debit { 
 	replace `v' =. if `v' == 0
 	bys iso : egen tot`v' = total(abs(`v')), missing
 	gen flagcountry`v' = 1 if tot`v' == .
@@ -131,7 +153,7 @@ foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total
 
 so iso year
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit  { 
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 	by iso : ipolate `v' year if corecountry == 1 & flagcountry`v' == 0, gen(x`v') 
 	replace `v' = x`v' if missing(`v') 
 	drop x`v'
@@ -170,7 +192,7 @@ gen other = 1 if inlist(iso, "ER", "EH", "CS", "CZ", "SK", "SD", "SS", "TL") ///
 			   
 //Carryforward 
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit  { 
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 so iso year
 by iso: carryforward `v' if corecountry == 1, replace 
 
@@ -203,26 +225,27 @@ foreach v in compemp_credit compemp_debit total_debit total_credit otherpinc_cre
 replace `v'= 0.001 if iso == "CU" | iso=="KP"
 }
 */
-//Fill missing with regional averages for non-tax havens countries 
+//Fill missing with regional medians for non-tax havens countries 
 foreach v in compemp_credit compemp_debit otherpinc_credit ///  total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit  { 
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 	
  foreach level in undet un {
 		
-  bys geo`level' year : egen av`level'`v' = mean(`v') if corecountry == 1 & TH == 0 
+  bys geo`level' year : egen med`level'`v' = median(`v') if corecountry == 1 // & TH == 0 
 
   }
-replace `v' = avundet`v' if missing(`v') & flagcountry`v' == 1 
-replace `v' = avun`v' if missing(`v') & flagcountry`v' == 1
+replace `v' = medundet`v' if missing(`v') & flagcountry`v' == 1 
+replace `v' = medun`v' if missing(`v') & flagcountry`v' == 1
 }
-drop av*
+drop med*
 *issues with TL in other_pinc 
 bys geoundet year : egen avundetotherpinc_credit = mean(otherpinc_credit) if corecountry == 1 & TH == 0 & iso != "TL" & flagcountryotherpinc_credit == 0
 bys year : egen aux = mode(avundetotherpinc_credit)
 replace otherpinc_credit = aux if flagcountryotherpinc_credit == 1 & geoundet == "South-Eastern Asia"
 drop aux* 
 
-*issues with KW in secinc 1991 
+/* debit is raw data so I'm leaving unchanged for now
+*issues with KW in secinc 1991
 bys geoundet year : egen avundetsecinc_credit = mean(secinc_credit) if corecountry == 1 & TH == 0 & iso != "KW" & flagcountrysecinc_credit == 0 & year == 1991
 bys year : egen aux = mode(avundetsecinc_credit)
 replace secinc_credit = aux if flagcountrysecinc_credit == 1 & geoundet == "Western Asia" & year == 1991
@@ -232,6 +255,7 @@ bys geoundet year : egen avundetsecinc_debit = mean(secinc_debit) if corecountry
 bys year : egen aux = mode(avundetsecinc_debit)
 replace secinc_debit = aux if flagcountrysecinc_debit == 1 & geoundet == "Western Asia" & year == 1991
 drop aux* 
+*/
 drop av*
 
 *issues with NA in otherpinc 2009 onward 
@@ -246,16 +270,18 @@ replace otherpinc_debit= aux if flagcountryotherpinc_debit == 1 & geoundet == "S
 drop aux* 
 drop av*
 
+/*
 //Fill missing with TH average for TH
 foreach v in compemp_credit compemp_debit otherpinc_credit /// total_debit total_credit errors_net
- otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit  { 
+ otherpinc_debit secinc_credit secinc_debit trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debit { 
 	
-bys year : egen av`v' = mean(`v') if corecountry == 1 & TH == 1 
+bys year : egen med`v' = median(`v') if corecountry == 1 & TH == 1 
 
-replace `v' = av`v' if missing(`v') & flagcountry`v' == 1
+replace `v' = med`v' if missing(`v') & flagcountry`v' == 1
 
 }
-drop av*
+drop med*
+*/
 
 replace otherpinc_credit =. if year < 1991
 replace otherpinc_debit =. if year < 1991
@@ -293,7 +319,7 @@ ren (tsxrx tsmpx) (service_credit service_debit)
 drop tgnnx
 
 *allocating the difference proportionally
-foreach v in compemp otherpinc secinc trade service capital goods {
+foreach v in compemp otherpinc secinc foreignaid remittances othtrans trade service capital goods {
 	replace `v'_credit = `v'_credit*gdp_usd
 	replace `v'_debit = `v'_debit*gdp_usd
 	gen net_`v' = `v'_credit - `v'_debit
@@ -310,13 +336,16 @@ drop aux*
 
 gen totnet_compemp = totcompemp_credit - totcompemp_debit 
 gen totnet_otherpinc = tototherpinc_credit - tototherpinc_debit 
-gen totnet_secinc = totsecinc_credit - totsecinc_debit 
+gen totnet_secinc = totsecinc_credit - totsecinc_debit
+gen totnet_foreignaid = totforeignaid_credit - totforeignaid_debit
+gen totnet_remittances = totremittances_credit - totremittances_debit
+gen totnet_othtrans = totothtrans_credit - totothtrans_debit
 gen totnet_capital = totcapital_credit - totcapital_debit 
 gen totnet_trade = tottrade_credit - tottrade_debit 
 gen totnet_goods = totgoods_credit - totgoods_debit
 gen totnet_service = totservice_credit - totservice_debit 
 
-foreach v in compemp otherpinc secinc capital service goods {
+foreach v in compemp otherpinc secinc foreignaid remittances othtrans capital service goods {
 	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
 	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
 	
@@ -330,20 +359,25 @@ drop ratio* net* tot*
 replace trade_credit = goods_credit + service_credit 
 replace trade_debit = goods_debit + service_debit 
 
-foreach x in compemp otherpinc secinc capital trade service goods {
+//	adjusting secinc
+replace secinc_debit = foreignaid_debit + remittances_debit + othtrans_debit
+replace secinc_credit = foreignaid_credit + remittances_credit + othtrans_credit
+
+foreach x in compemp otherpinc secinc foreignaid remittances othtrans capital trade service goods {
 	gen net_`x' = `x'_credit - `x'_debit
 }
 
 ren (trade_credit trade_debit net_trade) (exports imports tradebalance)
 ren (goods_credit goods_debit net_goods) (tgxrx tgmpx tgnnx)
 ren (service_credit service_debit net_service) (tsxrx tsmpx tsnnx)
-keep iso year exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tgxrx tgmpx tgnnx tsxrx tsmpx tsnnx gdp_us
+keep iso year exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tgxrx tgmpx tgnnx tsxrx tsmpx tsnnx foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debi net_foreignaid net_remittances net_othtrans gdp_us
 
-foreach v in exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tgxrx tgmpx tgnnx tsxrx tsmpx tsnnx {
+foreach v in exports imports tradebalance otherpinc_credit otherpinc_debit net_otherpinc secinc_credit secinc_debit net_secinc capital_credit capital_debit net_capital tgxrx tgmpx tgnnx tsxrx tsmpx tsnnx foreignaid_credit remittances_credit othtrans_credit foreignaid_debit remittances_debit othtrans_debi net_foreignaid net_remittances net_othtrans {
 	replace `v' = `v'/gdp_us
 }
 
-
+      
+ 
 ren exports 			tbxrx
 ren imports 			tbmpx
 ren tradebalance 		tbnnx
@@ -353,6 +387,15 @@ ren tradebalance 		tbnnx
 ren secinc_credit 		scirx
 ren secinc_debit 		scipx
 ren net_secinc 			scinx
+ren foreignaid_debit	scgpx
+ren foreignaid_credit	scgrx
+ren net_foreignaid		scgnx
+ren remittances_debit	scrpx
+ren remittances_credit	scrrx
+ren net_remittances		scrnx
+ren othtrans_debit		scopx
+ren othtrans_credit		scorx
+ren net_othtrans		sconx
 ren capital_credit 		fkarx
 ren capital_debit 		fkapx
 ren net_capital 		fkanx
@@ -364,6 +407,10 @@ enforce (tbxrx = tgxrx + tsxrx) ///
 		(tbnnx = tgnnx + tsnnx) ///
 		(tbnnx = tbxrx - tbmpx) ///
 		(tgnnx = tgxrx - tgmpx) ///
+		(scgnx = scgrx - scgpx) ///
+		(scrnx = scrrx - scrpx) ///
+		(sconx = scorx - scopx) /// 
+		(scinx = scgnx + scrnx + sconx) /// 
 		(tsnnx = tsxrx - tsmpx), fixed(tbxrx tbmpx) replace
 
 /* checking adding to zero
@@ -380,5 +427,5 @@ foreach var in tbnnx tgnnx tsnnx {
 }
 */
 
-drop gdp_us
+*drop gdp_us
 save "$work_data/bop_currentacc.dta", replace

@@ -1,5 +1,14 @@
-use "$work_data/ppp.dta", clear
+// Bringing net national income to weight the EUR
+u "$work_data/national-accounts.dta" if widcode == "mnninc999i" & currency == "EUR", clear
+drop if iso == "DD"
+ren value nninc
 
+keep iso year nninc currency
+tempfile eurnninc
+sa `eurnninc'
+
+// PPP
+use "$work_data/ppp.dta", clear
 // Add exchage rate with EUR and CNY
 // New round does not have EA, we take an average of Euro countries
 /*
@@ -12,11 +21,21 @@ save "`ppp_ea'"
 restore
 */
 
-preserve 
+*preserve 
 keep if currency == "EUR"
+
+drop if iso == "DD"
+merge 1:1 iso year using `eurnninc', nogen 
+drop if mi(ppp)
+
+/* for weight table
+bys year : egen totalincome = total(nninc)
+gen weight = nninc/totalincome
+drop if mi(ppp)
+*/
 drop iso
 rename ppp ppp_ea
-collapse (mean) ppp_ea, by(year)
+collapse (mean) ppp_ea [aweight=nninc], by(year)
 tempfile ppp_ea
 save "`ppp_ea'" 
 restore

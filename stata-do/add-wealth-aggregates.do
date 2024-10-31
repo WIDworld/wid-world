@@ -13,7 +13,8 @@ reshape wide value, i(iso year) j(widcode) string
 // merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
 
 merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
-foreach var in nwnxa nwgxd nwgxa nwoff {
+drop nwoff 
+foreach var in nwnxa nwgxd nwgxa {
 	replace `var' =. if year >= 1970
 }
 // Netherlands
