@@ -28,7 +28,7 @@
 ***        PART Main.1  :  + wb-metadata.dta                   (World Bank Data)
 ***        PART Main.2  :  + `Somalia'                                 (Somalia)
 ***        PART Main.3  :  + `ves'+ + New Ouguiya, IslandUSD and missings (Venezuela)
-***        PART Main.4  :  + `merged'                                (currencys of most recent year)
+***        PART Main.4  :  + `merged'            (currencies of most recent year)
 ***        PART Main.5  :  + `exrateyu'                             (Yugoslavia)
 ***        PART Main.6  :  + `exratesu'                           (Soviet Union)
 ***        PART Main.7  :  + `xrateunsna'
@@ -187,13 +187,15 @@ tempfile ves
 sa `ves'
 
 // *************** PART E : retropolate-gdp.dta + price-index.dta + gdp_usd_YUratio --> exrateyu 
+
 //---------------> Former Yugoslavia
 //	Former Yugoslavia
 // We have 1990 ratio of GDP_USD from UN SNA, and applied that backward to former yugoslavan countries
 // We have gdp_lcu in real terms from Blanchet, Chancel & Gethin (2018)
 // We ued Yugoslavian price index for former countries, and get gdp_lcu in nominal terms
 // Will divide gdp_lcu in nominal terms/GDP_USD to get an estimate of the exchange rate
-u "$work_data/retropolate-gdp.dta", clear
+
+u "$input_data_dir/snapshots/snapshot-SUYU-retropolate-gdp-output.dta",clear // Modif: Loop Solution
 merge 1:1 iso year using "$work_data/price-index.dta", nogen
 gen yugosl = 1 if inlist(iso, "BA", "HR", "MK", "RS", "YU", "KS", "SI", "ME")
 keep if yugosl == 1 & year >= 1970
@@ -218,7 +220,7 @@ sa `exrateyu', replace
 	// We ued USSR price index for former countries, and get gdp_lcu in nominal terms
 	// Will divide gdp_lcu in nominal terms/GDP_USD to get an estimate of the exchange rate
 
-u "$work_data/retropolate-gdp.dta", clear
+u "$input_data_dir/snapshots/snapshot-SUYU-retropolate-gdp-output.dta",clear // Modif: Loop Solution
 merge 1:1 iso year using "$work_data/price-index.dta", nogen
 gen soviet = 1 if iso == "AM"
 replace soviet = 1 if inlist(iso, "AZ", "BY", "KG", "KZ", "TJ", "TM")

@@ -41,7 +41,8 @@ generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(ye
 
 // Add one estimate for North Korea using GDP in USD PPP From CIA Factbook (40 billon) https://www.cia.gov/the-world-factbook/countries/korea-north/#economy
 preserve 
-	use "$work_data/retropolate-gdp.dta", clear
+	use "$work_data/gdp.dta", clear // Modif for solving loop: Before retropolate-gdp.dta; 
+									//change possible because for the $lastyear, is already available in gdp.dta 
 	keep if iso == "KP"
 	keep if year == $pastyear
 	merge 1:m iso year using "$work_data/exchange-rates.dta", keep(matched)

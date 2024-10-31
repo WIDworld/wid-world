@@ -8,52 +8,52 @@
 etime, start
 
 do "~/Documents/GitHub/wid-world/stata-do/setup.do"
-/*
+
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-
-// do "$do_dir/import-country-codes.do"
+/*
+ do "$do_dir/import-country-codes.do"
 //
 // // -------------------------------------------------------------------------- //
 // // Import, clean, and convert to the new format the old WTID
 // // -------------------------------------------------------------------------- //
 //
 // // Import original Excel file to Stata
-// do "$do_dir/import-wtid-from-excel-to-stata.do"
+ do "$do_dir/import-wtid-from-excel-to-stata.do"
 //
 // // Import the conversion table from the old to the new WID codes
-// do "$do_dir/import-conversion-table.do"
+ do "$do_dir/import-conversion-table.do"
 //
 // // Add the new WID variable codes
-// do "$do_dir/add-new-wid-codes.do"
+ do "$do_dir/add-new-wid-codes.do"
 //
 // // Correct the metadata
-// do "$do_dir/correct-wtid-metadata.do"
+ do "$do_dir/correct-wtid-metadata.do"
 //
 // // Identify and harmonize units from the old database
-// do "$do_dir/harmonize-units.do"
+ do "$do_dir/harmonize-units.do"
 //
 // // Convert currency amounts to nominal
-// do "$do_dir/convert-to-nominal.do"
+ do "$do_dir/convert-to-nominal.do"
 //
 // // Calculate income averages from shares
-// do "$do_dir/calculate-averages.do"
+ do "$do_dir/calculate-averages.do"
 //
 // // Add some macroeconomic data from Piketty & Zucman (2013)
-// do "$do_dir/add-macro-data.do"
+ do "$do_dir/add-macro-data.do"
 //
 // // -------------------------------------------------------------------------- //
 // // Calculate new variables for the new database
 // // -------------------------------------------------------------------------- //
 //
 // // Calculate income in each category from the composition variables
-// do "$do_dir/calculate-income-categories.do"
+ do "$do_dir/calculate-income-categories.do"
 //
 // // Calculate o- variables
-// do "$do_dir/calculate-average-over.do"
-*/
+ do "$do_dir/calculate-average-over.do"
 
+*/
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -65,8 +65,8 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
-/* */
-
+ 
+*
 
 // -------------------------------------------------------------------------- //
 // Import external GDP data
@@ -152,11 +152,22 @@ do "$do_dir/import-un-sna-populations.do"
 do "$do_dir/calculate-populations.do" 
 
 // -------------------------------------------------------------------------- //
-// Calculate PPPs & exchange rates and deflators
+// Calculate deflactors
 // -------------------------------------------------------------------------- //
 
 // Price index
 do "$do_dir/calculate-price-index.do"
+
+// -------------------------------------------------------------------------- //
+// Generate harmonized series for GDP
+// -------------------------------------------------------------------------- //
+
+// GDP
+do "$do_dir/calculate-gdp.do"
+
+// -------------------------------------------------------------------------- //
+// Calculate PPPs & exchange rates
+// -------------------------------------------------------------------------- //
 
 // Import exchange rates from Open Exchange rates
 do "$do_dir/import-exchange-rate.do" 
@@ -171,14 +182,12 @@ do "$do_dir/import-ppp-wb.do"
 do "$do_dir/calculate-ppp.do"
 
 // -------------------------------------------------------------------------- //
-// Generate harmonized series for GDP
+// Complete harmonized series for GDP
 // -------------------------------------------------------------------------- //
-
-// GDP
-do "$do_dir/calculate-gdp.do"
-
+                          
 // Finalize GDP
 do "$do_dir/retropolate-gdp.do"
+
 
 // -------------------------------------------------------------------------- //
 // Import and extend external wealth series from LMF
@@ -232,7 +241,7 @@ do "$do_dir/adjust-series.do"
 
 // Combine decomposition with totals
 do "$do_dir/calculate-national-accounts.do"
-**/
+*/
 
 // -------------------------------------------------------------------------- //
 // Add PPP/exchange rates to the database
