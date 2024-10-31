@@ -81,7 +81,7 @@ gen gdp_idx = gdp*index
 		save "$work_data/ratios.dta", replace
 
 
-u "$current_account\Gravity_V202211", clear
+u "$current_account/Gravity_V202211", clear
 keep if year >= 1970
 drop if year > 2020
 
@@ -127,7 +127,7 @@ replace iso_d ="TK" if iso3_d=="TKL"
 
 collapse (sum) tradeflow_comtrade_o tradeflow_comtrade_d tradeflow_baci manuf_tradeflow_baci tradeflow_imf_o tradeflow_imf_d, by(iso_o iso_d year)
 
-append using "$current_account\Gravity_update"
+append using "$current_account/Gravity_update"
 
 foreach var in tradeflow_comtrade_o tradeflow_comtrade_d tradeflow_baci manuf_tradeflow_baci tradeflow_imf_o tradeflow_imf_d {
 	replace `var' =. if `var' == 0 
@@ -506,4 +506,4 @@ assert !mi(tradebalance)
 drop tot* check* // exports imports
 
 ren iso_o iso
-sa "$current_account\tradebalances.dta", replace
+sa "$current_account/tradebalances.dta", replace
