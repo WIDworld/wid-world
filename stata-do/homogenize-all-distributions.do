@@ -287,6 +287,8 @@ replace value = round(value, 0.0001) if inlist(substr(widcode, 1, 1), "s")
 
 drop if missing(year)
 keep iso year p widcode value 
+save "$work_data/homogenize-all-distributions-output.dta", replace
+
 
 rename iso Alpha2
 rename p   perc

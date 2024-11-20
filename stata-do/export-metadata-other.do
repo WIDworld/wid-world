@@ -1,11 +1,13 @@
 // List variables in the database
 use "$work_data/merge-historical-main.dta", clear
 append using "$work_data/add-carbon-series-output.dta"
-merge 1:1 iso year widcode p using "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (16).dta", update replace nogen
+// merge 1:1 iso year widcode p using "/Users/rowaidamoshrif/Downloads/merge-historical-aggregates (21).dta", update replace nogen
 
 generate fivelet = substr(widcode, 2, 5)
 keep fivelet
 gduplicates drop
+drop if inlist(fivelet, "fkfiw", "ptfon", "ptfop", "ptfor", "scinx", "scipx", "scirx")
+drop if inlist(fivelet, "comco", "comfc", "comnf", "comgo")
 
 tempfile fivelet
 save "`fivelet'", replace
