@@ -56,7 +56,10 @@ replace cpi_wb = . if iso == "IQ"
 replace def_wb = . if iso == "IQ" 
 drop if iso == "IQ" & year < 1970
 
-	*replace currency = "VEF" if iso == "VE"
+* we stick to wid( Novokmet, Piketty & Zucman (2018)) for RU
+replace def_east = . if iso == "RU" 
+
+*replace currency = "VEF" if iso == "VE"
 // Sanity check: one currency by country
 egen ncu = nvals(currency), by(iso)
 assert ncu == 1 if (ncu < .)
@@ -101,12 +104,6 @@ foreach v of varlist cpi_* def_* {
 replace cpi_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 replace def_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 
-// For Russia: we adjust the deflator to eliminate the junks
-replace def_wid = round(def_wid, 0.000000000001)     if iso == "RU"
-replace def_wid = round(def_wid * 1.3, 0.0000000001) if year <= 1991 & iso == "RU"
-replace def_wid = def_wid * 1.225 					 if year == 1992 & iso == "RU"
-replace def_wid = def_wid * 1.15 					 if year == 1993 & iso == "RU"
-replace def_wid = def_wid * 1.075 					 if year == 1994 & iso == "RU"
 
 // Put everything in log scale and calculate inflation rate
 sort iso year
@@ -289,16 +286,16 @@ gen aux_rus = delta_index if iso == "RU"
 bys year : egen index_rus = max(aux_rus)
 gen aux_rus_src = index_source if iso == "RU" 
 bys year : egen index_source_rus = mode(aux_rus_src)
-replace index_rus = . if year == 1970
+replace index_rus = . if year == 1970 
 
 *replace delta_index =. if iso == "GE" & year <= 1991 & year >= 1970
 
 replace index_source = index_source_rus + "_ru" if inlist(iso, "AZ", "AM", "BY", "KG", "KZ") & year <= 1991 & missing(delta_index)
 replace index_source = index_source_rus + "_ru" if inlist(iso, "TJ", "MD", "TM", "UA", "UZ") & year <= 1991 & missing(delta_index)	
 *replace index_source = index_source_rus + "_ru" if inlist(iso, "GE") & year <= 1991 & missing(delta_index)	
-	replace delta_index = index_rus if inlist(iso, "AZ", "AM", "BY", "KG", "KZ") & year <= 1991 & missing(delta_index)
-	replace delta_index = index_rus if inlist(iso, "TJ", "MD", "TM", "UA", "UZ") & year <= 1991 & missing(delta_index)
-	*replace delta_index = index_rus if inlist(iso, "GE") & year <= 1991 & missing(delta_index)
+replace delta_index = index_rus if inlist(iso, "AZ", "AM", "BY", "KG", "KZ") & year <= 1991 & missing(delta_index)
+replace delta_index = index_rus if inlist(iso, "TJ", "MD", "TM", "UA", "UZ") & year <= 1991 & missing(delta_index)
+*replace delta_index = index_rus if inlist(iso, "GE") & year <= 1991 & missing(delta_index)
 
 drop aux_rus index_rus aux_rus_src index_source_rus
 
@@ -310,7 +307,7 @@ bys year : egen aux_ee = mean(delta_index) if inlist(iso, "AT", "BE", "CY", "DE"
 								| inlist(iso, "SM", "RU")
 bys year : egen index_ee = max(aux_ee)
 
-replace index_ee = . if year == 1970
+replace index_ee = . if year == 1970 
 replace index_source = "Average Russia and EU" if inlist(iso, "EE", "LT", "LV") & year <= 1990 & missing(delta_index)
 	replace delta_index = index_ee if inlist(iso, "EE", "LT", "LV") & year <= 1990 & missing(delta_index)
 drop aux_ee index_ee
