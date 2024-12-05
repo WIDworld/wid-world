@@ -85,6 +85,14 @@ drop if (oldcode == "30101004") ///
 drop if (oldcode == "30101005") ///
 	& (variable == "Private saving. Personal and non profit saving. Gross personal and non-profit saving")
 
+// Correct "_fiw" wid-codes:
+replace widcode="mcwfix" if widcode=="mcwfiw"
+replace widcode="mgwfix" if widcode=="mgwfiw"
+replace widcode="mhwfix" if widcode=="mhwfiw"
+replace widcode="miwfix" if widcode=="miwfiw"
+replace widcode="mpwfix" if widcode=="mpwfiw"
+// ---------------------
+
 // Store the current data while we deal with variables without codes
 // (income composition variables)
 tempfile all
@@ -99,6 +107,7 @@ keep if widcode == ""
 
 // Merge old composition variables into new WID categories
 keep if substr(oldcode, 1, 3) == "102"
+
 replace subvariable = "Interest income" if subvariable == "Interest Income"
 tempfile without_widcodes
 save "`without_widcodes'"

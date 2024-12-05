@@ -1,6 +1,6 @@
 // Identify "wealth" (actually, macro) and "income" (actually, micro) variables
 import excel "$codes_dictionary", ///
-	sheet("Wealth_Macro_Variables") cellrange(D4:D152) clear allstring
+	sheet("Wealth_Macro_Variables") cellrange(D4:D140) clear allstring
 rename D widcode
 replace widcode = subinstr(widcode, "*", "", 1)
 replace widcode = substr(widcode, 2, 5) if strlen(widcode) == 6
@@ -9,7 +9,7 @@ tempfile types
 save "`types'"
 
 import excel "$codes_dictionary", ///
-	sheet("Income_Macro_Variables") cellrange(D4:D137) clear allstring
+	sheet("Income_Macro_Variables") cellrange(D4:D138) clear allstring
 rename D widcode
 replace widcode = subinstr(widcode, "*", "", 1)
 replace widcode = substr(widcode, 2, 5) if strlen(widcode) == 6
@@ -18,7 +18,7 @@ append using "`types'"
 save "`types'", replace 
 
 import excel "$codes_dictionary", ///
-	sheet("Income_Distributed_Variables") cellrange(D4:D87) clear allstring
+	sheet("Income_Distributed_Variables") cellrange(D4:D123) clear allstring
 rename D widcode
 replace widcode = subinstr(widcode, "*", "", 1)
 replace widcode = substr(widcode, 2, 5) if strlen(widcode) == 6
@@ -70,6 +70,36 @@ replace type = "income" if substr(widcode, 1, 3) == "tax"
 replace type = "income" if substr(widcode, 1, 3) == "cpi"
 replace type = "wealth" if substr(widcode, 1, 3) == "nyi"
 replace type = "wealth" if (widcode == "nninc")
+
+// Complete types for the variables coming from Old_codesWTID:
+replace type = "wealth" if (widcode =="isgro") // var="Private saving. Non-profit saving. Gross non-profit saving", new: sagnp
+replace type = "wealth" if (widcode =="isdep") // var="Private saving. Non-profit saving. Non-profit capital depreciation", new: cfcnp
+replace type = "wealth" if (widcode =="isavi") // var="Private saving. Non-profit saving. Net non-profit saving", new: savnp
+replace type = "wealth" if (widcode =="nsgro") // var="National saving. Gross national saving", new: savig
+replace type = "wealth" if (widcode =="nsavi") // var="National saving. Net national saving", new : savin
+replace type = "wealth" if (widcode =="nsdep") //  var="National saving. National capital depreciation", new : (?)
+
+replace type = "wealth" if (widcode =="gsavi") // var="Public saving. Net public saving", new : savgo
+replace type = "wealth" if (widcode =="gsdep") // var="Public saving. Public capital depreciation", new : cfcgo
+replace type = "wealth" if (widcode =="gsgro") // var="Public saving. Gross public saving", new :  saggo
+replace type = "wealth" if (widcode =="csgro") // var="Private saving. Corporate saving. Gross corporate saving", new: segco
+replace type = "wealth" if (widcode =="csavi") // var="Private saving. Corporate saving. Net corporate saving", new: secco
+replace type = "wealth" if (widcode =="csdep") // var="Private saving. Corporate saving. Corporate capital depreciation", new: cfcco
+replace type = "wealth" if (widcode =="hsavi") // var="Private saving. Personal saving. Net personal saving", new: savho
+replace type = "wealth" if (widcode =="hsdep") // var="Private saving. Personal saving. Personal capital depreciation", new: cfcho
+replace type = "wealth" if (widcode =="hsgro") // var="Private saving. Personal saving. Gross personal saving", new: sagho
+
+replace type = "wealth" if (widcode =="psgro") // var="Private saving. Gross private saving", new: 
+replace type = "wealth" if (widcode =="psdep") // var="Private saving. Private capital depreciation", new: 
+replace type = "wealth" if (widcode =="psavi") // var="Private saving. Net private saving", new: 
+replace type = "wealth" if (widcode =="dsavi") // var="National saving. Domestic investment", new: (?)
+replace type = "wealth" if (widcode =="fsavi") // var="National saving. Net foreign saving", new:  (?)
+replace type = "wealth" if (widcode =="cwfix") // var="Corporate cash, deposits, bonds & loans"
+replace type = "wealth" if (widcode =="gwfix") // var="Government cash, deposits, bonds & loans"
+replace type = "wealth" if (widcode =="iwfix") // var="Non-profit currency, deposits, bonds & loans"
+replace type = "wealth" if (widcode =="pwfix") // var="Private currency, deposits, bonds & loans"
+replace type = "wealth" if (widcode =="hwfix") // var="Personal cash, bonds & deposits"
+//--------------------------
 assert type != ""
 
 // Extract source for inflation
