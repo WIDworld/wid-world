@@ -1,4 +1,4 @@
-import excel using "$wtid_data/CFCNFIGDP_WID.xls", firstrow clear
+import excel using "$wtid_data/CFCNFIGDP_WID2024.xls", firstrow clear // Modif in UK dropping 1920a
 
 reshape long GDP CFC NFI SCFC, i(TIME) j(iso) string
 
