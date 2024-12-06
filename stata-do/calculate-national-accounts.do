@@ -15,11 +15,7 @@ use "$work_data/sna-series-adjusted.dta", clear
 
 drop gdpro series_* gdp_idx *_gdp
 
-ren (ptfrx_deb ptfrx_eq ptfrx_res ptfxa_deb ptfxa_eq ptfxa_res) (ptdrx pterx ptrrx ptdxa ptexa ptrxa)
-ren (ptfpx_deb ptfpx_eq ptfxd_deb ptfxd_eq) (ptdpx ptepx ptdxd ptexd)
-replace ptdxa = ptdxa + ptfxa_fin
-replace ptdxd = ptdxd + ptfxd_fin
-drop ptfxa_fin ptfxd_fin miss* TH
+drop TH
 
 //	current account
 merge 1:1 iso year using "$work_data/bop_currentacc.dta", nogenerate
@@ -59,6 +55,9 @@ greshape wide value, i(iso year p) j(widcode) string
 foreach v in ndpro999i gdpro999i nnfin999i finrx999i finpx999i comnx999i pinnx999i nwnxa999i nwgxa999i nwgxd999i comhn999i fkpin999i confc999i comrx999i compx999i pinrx999i pinpx999i fdinx999i fdirx999i fdipx999i ptfnx999i ptfrx999i ptfpx999i flcin999i flcir999i flcip999i ncanx999i tbnnx999i scinx999i tbxrx999i tbmpx999i tgxrx999i tgmpx999i tgnnx999i tsxrx999i tsmpx999i tsnnx999i scirx999i scipx999i fkarx999i fkapx999i fkanx999i taxnx999i fsubx999i ftaxx999i expgo999i gpsge999i defge999i polge999i ecoge999i envge999i houge999i heage999i recge999i eduge999i edpge999i edsge999i edtge999i sopge999i spige999i sacge999i sakge999i revgo999i pitgr999i citgr999i scogr999i pwtgr999i intgr999i ottgr999i {
 	gen valuew`v' = valuem`v'/valuemnninc999i
 }
+
+// dropping original foreign portfolio 
+drop valuemptfon999i valuemptfop999i valuemptfor999i
 
 // extrapolating based on nninc 
 sort iso year 

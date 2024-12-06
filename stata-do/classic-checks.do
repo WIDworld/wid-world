@@ -68,6 +68,8 @@ gen mconfc_gdp = mconfc/mgdpro
 // checking that aggregates by core territories add up
 	   
 u "$work_data/merge-historical-aggregates.dta",	clear 
+merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keep(1 3)
+
 keep if (corecountry == 1 & year >= 1970) 
 keep if year >= 1970
 
@@ -75,12 +77,20 @@ keep if inlist(substr(widcode, 1, 6), "mnnfin", "mfinrx", "mfinpx", "mcomnx", "m
 	   | inlist(substr(widcode, 1, 6), "mnwoff", "mconfc", "mcomnx", "mcomrx", "mcompx", "mpinrx", "mpinpx", "mfdinx") ///
 	   | inlist(substr(widcode, 1, 6), "mptfxa", "mptfxd", "mfdixa", "mfdixd", "mfdirx", "mfdipx", "mptfnx", "mptfrx") /// 
 	   | inlist(substr(widcode, 1, 6), "mptfpx", "mncanx", "mtbnnx", "mtbxrx", "mtbmpx", "mopinx", "mscinx", "mopirx") /// 
-	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx") /// 
-	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx", "inyixx", "xlcusx", "xlceux") 
+	   | inlist(substr(widcode, 1, 6), "mopipx", "mscirx", "mscipx", "mfkarx", "mfkapx", "mfkanx", "mtgnnx", "mtsnnx") /// 
+	   | inlist(substr(widcode, 1, 6), "mtaxnx", "mfsubx", "mftaxx", "inyixx", "xlcusx", "xlceux", "mgdpro") 
 
 drop p currency	  
-greshape wide value, i(iso year) j(variable) string
-renvars value*, pred(5)
+greshape wide value, i(iso year) j(widcode) string
+renvars value*, postd(4)
+renvars value*, pred(6)
+	   
+	   
+foreach var in nnfin comnx pinnx nwnxa fkanx scinx tbnnx tgnnx tsnnx gdpro {
+	replace `var' = `var'*nyixx/lcusx
+}
+
+collapse (sum) nnfin comnx pinnx nwnxa fkanx scinx tbnnx tgnnx tsnnx gdpro, by(year)
 	   
 gen mnnfin_idx = mnnfin999i*inyixx // current Local Currency Unit
 gen mnnfin_usd = mnnfin_idx/xlcusx // current USD 
