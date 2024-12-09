@@ -320,7 +320,7 @@ if missing(source) & strpos(sixlet, "hweal")
 tempfile meta
 save `meta'
 
-use "$work_data/add-wealth-aggregates-metadata.dta", clear
+use "$work_data/add-researchers-data-real-metadata.dta", clear
 
 drop if sixlet == "ohweal"
 merge 1:1 iso sixlet using "`meta'", nogenerate update replace
