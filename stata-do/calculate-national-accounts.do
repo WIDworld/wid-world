@@ -2,6 +2,9 @@
 // Generate final national accounts series (totals + decomposition)
 // -------------------------------------------------------------------------- //
 
+//-------------- 1. Aux tables -------------------------------------------------
+
+//--------------------- 1.1 GDP ------------------------------------------------
 use "$work_data/retropolate-gdp.dta", clear
 
 keep iso year gdp currency
@@ -11,6 +14,24 @@ generate widcode = "gdpro"
 tempfile gdp
 save "`gdp'"
 
+//--------------------- 1.2 Public Finance ------------------------------------------------
+use "$wid_dir/Country-Updates/publicfinance/wid-gethinpublicfinance-2024-11-15.dta", clear
+drop extrapolation data_points data_quality source method author p
+
+// Note: widcodes= "m" + widcode + "999i"; so we can remove the sufix and prefix and later, 
+//       re-insert them
+* Remove prefix "m" and sufix "999i"
+replace widcode = substr(widcode, 2, .) if substr(widcode, 1, 1) == "m"
+replace widcode = subinstr(widcode, "999i", "", .)
+
+* Reshape to wide
+reshape wide value, i(iso year) j(widcode) string
+rename value* *
+
+tempfile public_finance
+save "`public_finance'"
+
+//-------------- 2. Main table -------------------------------------------------
 use "$work_data/sna-series-adjusted.dta", clear
 
 drop gdpro series_* gdp_idx *_gdp
@@ -22,6 +43,11 @@ merge 1:1 iso year using "$work_data/bop_currentacc.dta", nogenerate
 egen ncanx = rowtotal(pinnx tbnnx comnx taxnx scinx)
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp currency)
+
+// Merging Public Finance data
+
+merge 1:1 iso year using "`public_finance'", nogenerate
+
 
 ds iso year gdp currency, not
 local varlist = r(varlist)
@@ -42,11 +68,8 @@ replace widcode = "m" + widcode + "999i"
 
 // Kosovo: use KV rather than KS
 
-// appending Public Finance data
-append using "$wid_dir/Country-Updates/publicfinance/wid-gethinpublicfinance.dta"
-drop extrapolation data_points data_quality source method author 
 
-replace p = "pall"
+gen p = "pall"
 
 // national income ratios
 drop currency 
@@ -71,6 +94,7 @@ replace valuem`v' = valuew`v'*valuemnninc999i if year == $pastyear & mi(valuem`v
 greshape long value, i(iso year p) j(widcode) string
 merge m:1 iso year using "$work_data/retropolate-gdp.dta", nogen keepusing(currency)
 
+
 save "$work_data/national-accounts.dta", replace
 
 // -------------------------------------------------------------------------- //
@@ -81,9 +105,16 @@ use "$work_data/sna-series-adjusted.dta", clear
 
 // Only keep data with GDP too
 merge 1:n iso year using "$work_data/retropolate-gdp.dta", nogenerate keep(match) keepusing(gdp)
-drop gdp
-
+drop gdp  
 drop gdpro
+//---------------- Modif:
+*drop gdpro series_* gdp_idx *_gdp
+ren (ptfrx_deb ptfrx_eq ptfrx_res ptfxa_deb ptfxa_eq ptfxa_res) (ptdrx pterx ptrrx ptdxa ptexa ptrxa)
+ren (ptfpx_deb ptfpx_eq ptfxd_deb ptfxd_eq) (ptdpx ptepx ptdxd ptexd)
+replace ptdxa = ptdxa + ptfxa_fin
+replace ptdxd = ptdxd + ptfxd_fin
+drop ptfxa_fin ptfxd_fin miss* TH gdp_idx *_gdp
+//-----------------------
 
 ds iso year series_*, not
 local varlist = r(varlist)
@@ -297,5 +328,6 @@ replace sixlet = "m" + sixlet
 append using "`pfgethin_metadata'"
 
 sort iso sixlet
+
 
 save "$work_data/na-metadata.dta", replace
