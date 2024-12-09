@@ -21,7 +21,7 @@ save "`ppp_ea'"
 restore
 */
 
-*preserve 
+preserve 
 keep if currency == "EUR"
 
 drop if iso == "DD"
