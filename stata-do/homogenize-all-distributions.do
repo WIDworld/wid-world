@@ -99,9 +99,9 @@ by iso year widcode: generate ts = sum(s)
 by iso year widcode: generate ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i) & inlist(widcode, "ptinc992j")
 by iso year widcode: replace  ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i) | !missing(average) ) & inlist(widcode, "hweal992j")
 by iso year widcode: generate bs = 1-ts
-by iso year widcode: generate ba = (bs/(1-p/1e5))*anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
-by iso year widcode: replace  ba = (bs/(1-p/1e5))*ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
-by iso year widcode: replace  ba = (bs/(1-p/1e5))*average    if inlist(widcode, "hweal992j") & (!missing(average))
+by iso year widcode: generate ba = (bs/(1-p/1e7))*anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
+by iso year widcode: replace  ba = (bs/(1-p/1e7))*ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
+by iso year widcode: replace  ba = (bs/(1-p/1e7))*average    if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
@@ -270,15 +270,41 @@ save "`mid40_pretax_wealth'"
 use "`full_pretax_wealth'", clear
 merge 1:1 iso year p widcode using "`decile_pretax_wealth'", nogen
 merge 1:1 iso year p widcode using "`mid40_pretax_wealth'", nogen
+
  
 tempfile full
 save "`full'"
 
+
 use "$work_data/merge-historical-main.dta", clear
+
+//------------- Generating the trasnparency index ----//
+// Generate a folder for the output (FOR ALL)
+capture mkdir "$output_dir/$time"
+
+preserve
+	// Extract relevant observations
+	rename iso Alpha2
+	rename p   perc
+	order Alpha2 year perc widcode
+	keep if widcode=="iquali999i"
+	
+	// Export
+	export delim "$output_dir/$time/wid-data-$time-iquali2024Update.csv", delimiter(";") replace
+restore
+//------------------------------------------------------//
+
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j", "ahweal992j", "shweal992j", "thweal992j")
 merge 1:1 iso year widcode p using "`full'", nogen update replace
 
 save "$work_data/full-distributions-pretax-wealth.dta", replace
+
+// -------------------------------------------------------------------------- //
+// Export to CSV
+// -------------------------------------------------------------------------- //
+
+use "`full'", clear
+
 /**/
  *** Export csv
 replace value = round(value, 0.1)    if inlist(substr(widcode, 1, 1), "a", "t")
@@ -293,13 +319,19 @@ save "$work_data/homogenize-all-distributions-output.dta", replace
 rename iso Alpha2
 rename p   perc
 order Alpha2 year perc widcode
-capture mkdir "$output_dir/$time"
 
-export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
+//------------- Generating pretax income data -------//
+preserve
+	keep if strpos(widcode,"ptinc")
+	export delim "$output_dir/$time/wid-data-$time-ptinc2024Update.csv", delimiter(";") replace
+restore
+//----------------------------------------------------//
+
+*export delim "$output_dir/$time/wid-data-$time.csv", delimiter(";") replace
 /**/
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
-
+/*
 use "$work_data/full-distributions-pretax-wealth.dta", clear
 
 keep if inlist(iso, "RU", "OA")  | ///
