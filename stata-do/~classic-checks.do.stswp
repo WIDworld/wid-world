@@ -13,8 +13,7 @@ gen `var'_idx = `var'*index
 
 u "$work_data/merge-historical-aggregates.dta",	clear 
 
-keep if widcode == "mnninc999i" ///
-	   | inlist(substr(widcode, 1, 6), "xlceup", "xlcusx", "xlcusp", "mgdpro", "inyixx") | widcode == "npopul999i"
+keep if | inlist(substr(widcode, 1, 6), "xlceup", "xlcusx", "xlcusp", "mgdpro", "inyixx") | widcode == "npopul999i"
 
 merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keep(1 3)
 keep if (corecountry == 1 & year >= 1970) | iso == "WO"
