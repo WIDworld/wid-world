@@ -52,9 +52,13 @@ generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
 gen flagnninc = 1 if nninc < .5 & (flagpinrx == 1 | flagpinpx == 1) 
 replace flagnninc = 0 if mi(flagnninc)
 gen difnninc = .5 - nninc if flagnninc == 1 
-gen sh_ptfrx = ptfrx/pinrx 
+gen sh_ptfrx_deb = ptfrx_deb/pinrx 
+gen sh_ptfrx_eq = ptfrx_eq/pinrx 
+gen sh_ptfrx_res = ptfrx_res/pinrx 
 gen sh_fdirx = fdirx/pinrx 
-replace ptfrx = ptfrx + sh_ptfrx*difnninc if flagnninc == 1 
+replace ptfrx_deb = ptfrx_deb + sh_ptfrx_deb*difnninc if flagnninc == 1 
+replace ptfrx_eq = ptfrx_eq + sh_ptfrx_eq*difnninc if flagnninc == 1 
+replace ptfrx_res = ptfrx_res + sh_ptfrx_res*difnninc if flagnninc == 1 
 replace fdirx = fdirx + sh_fdirx*difnninc if flagnninc == 1 
 drop flagnninc difnninc sh_*
 
