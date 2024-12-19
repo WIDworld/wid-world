@@ -26,6 +26,16 @@ merge 1:1 iso year using "$work_data/maddison-wu-gdp.dta", ///
 merge 1:1 iso year using "$input_data_dir/taxhavens-data/GDP-selected_countries.dta", ///
 	nogenerate update assert(using master match) keepusing(gdp*)
 	
+// from WDI, somehow the 1970 year of NZ is missing in the file	
+expand 2 if iso == "NZ" & year == 1971, gen(exp)
+replace year = 1970 if iso == "NZ" & exp == 1 
+foreach var in gdp_lcu_un2 gdp_usd_un2 gdp_lcu_wb gdp_usd_wb {
+	replace `var'=. if iso == "NZ" & exp == 1 
+}
+drop exp
+replace gdp_lcu_wb = 5799926258 if iso == "NZ" & year == 1970
+so iso year 
+
 // Drop problematic data in UN data for Yugoslavia
 replace gdp_lcu_un2 = . if iso == "YU" & year > 1990
 replace gdp_usd_un2 = . if iso == "YU" & year > 1990
@@ -35,6 +45,10 @@ replace gdp_usd_un2 = . if iso == "YU" & year > 1990
 
 // Palestine we use the USD as UN SNA and WB
 replace gdp_lcu_un2 = gdp_usd_un2 if iso == "PS"
+
+// Zimbabwe we use the UN
+replace gdp_lcu_wb = . if iso == "ZW" & year >= 2017
+replace gdp_usd_wb = . if iso == "ZW" & year >= 2017
 
 // drop WB gdp for CU so that the level is UN
 replace gdp_lcu_wb = . if iso == "CU" & year >= 2021 & $pastyear == 2023
@@ -54,14 +68,14 @@ replace gdp_lcu_wb = . if iso == "VE"
 replace gdp_usd_wb = . if iso == "VE" 
 
 // Identify reference year (and reference GDP level)
-// First case: we use the last UN one
+// First case: we use the last WB one
 sort iso year
-egen hasun = total(gdp_lcu_un < .), by(iso)
-egen refyear = lastnm(year) if hasun & (gdp_lcu_un < .), by(iso)
+egen hasun = total(gdp_lcu_un2 < .), by(iso)
+egen refyear = lastnm(year) if hasun & (gdp_lcu_un2 < .), by(iso)
 egen refyear2 = mode(refyear) if hasun, by(iso)
 drop refyear
 rename refyear2 refyear
-generate reflev = log(gdp_lcu_un) if (year == refyear)
+generate reflev = log(gdp_lcu_un2) if (year == refyear)
 generate notelev = "the UN SNA main tables" if (year == refyear)
 // Other case: there are no WID values, we use the last value available from
 // Maddison & Wu (China only), the UN, the World Bank or the IMF

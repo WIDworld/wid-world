@@ -56,6 +56,10 @@ replace cpi_wb = . if iso == "IQ"
 replace def_wb = . if iso == "IQ" 
 drop if iso == "IQ" & year < 1970
 
+* we stick to WB for ML
+replace def_un = . if iso == "ML" 
+replace def_un = . if iso == "ML" 
+
 * we stick to wid( Novokmet, Piketty & Zucman (2018)) for RU
 replace def_east = . if iso == "RU" 
 

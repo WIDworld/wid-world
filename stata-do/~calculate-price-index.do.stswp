@@ -56,6 +56,10 @@ replace cpi_wb = . if iso == "IQ"
 replace def_wb = . if iso == "IQ" 
 drop if iso == "IQ" & year < 1970
 
+* we stick to WB for ML
+replace cpi_wb = . if iso == "ML" 
+replace def_wb = . if iso == "ML" 
+
 * we stick to wid( Novokmet, Piketty & Zucman (2018)) for RU
 replace def_east = . if iso == "RU" 
 
@@ -95,7 +99,7 @@ foreach v of varlist cpi_* def_* {
 	replace `v' = . if ("`v'" == "def_wid") & (iso == "CN")
 }
 
-//* For Argentine: only keep ARKLEMS data from 1994 to 2013 (same problem)
+/* For Argentine: only keep ARKLEMS data from 1994 to 2013 (same problem)
 //foreach v of varlist cpi_* def_* {
 //	replace `v' = . if ("`v'" != "def_arklems") & (iso == "AR") & inrange(year, 1994, 2012)
 }

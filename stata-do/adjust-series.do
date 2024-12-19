@@ -99,14 +99,7 @@ gen `var'_idx = `var'*index
 	gen `var'usd = `var'_idx/exrate_usd
 }
 
-// combine reserves with debt
-gen ptdxar = ptdxa + ptrxa 
-gen ptdrxr = ptdrx + ptrrx 
-
-gen ratio_ptrxa = ptrxa/ptdxar
-gen ratio_ptrrx = ptrrx/ptdrxr
-
-foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd ptdxa ptrxa ptdxar ptdrxr ptdrx ptrrx ptdxd ptdpx ptexa ptexd pterx ptepx comrx compx ftaxx fsubx { 
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
 	replace `v' = `v'*gdpusd 
 	gen aux = abs(`v')
 	bys year : egen tot`v' = total(`v') if corecountry == 1
@@ -115,13 +108,9 @@ foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd ptdxa ptrxa ptdxar 
 }
 
 gen totfdinx = totfdirx - totfdipx 
-gen totptdnxr = totptdrxr - totptdpx
-gen totptenx = totpterx - totptepx
-*gen totptfnx = totptfrx - totptfpx 
+gen totptfnx = totptfrx - totptfpx 
 gen totfdixn = totfdixa - totfdixd 
-gen totptdxnr = totptdxar - totptdxd
-gen totptexn = totptexa - totptexd
-*gen totptfxn = totptfxa - totptfxd 
+gen totptfxn = totptfxa - totptfxd 
 gen totcomnx = totcomrx - totcompx
 gen tottaxnx = totfsubx - totftaxx
 
@@ -132,29 +121,12 @@ replace fdirx = fdirx + totfdinx*ratio_fdirx if totfdinx < 0 & corecountry == 1 
 replace fdipx = fdipx + totfdinx*ratio_fdipx if totfdinx > 0 & corecountry == 1 & fdipx > 0	
 replace fdipx = fdipx - totfdinx*ratio_fdipx if totfdinx > 0 & corecountry == 1 & fdipx < 0	
 
-gen ratio_ptdrxr = ptdrxr/totauxptdrxr
-gen ratio_ptdpx = ptdpx/totauxptdpx
-replace ptdrxr = ptdrxr - totptdnxr*ratio_ptdrxr if totptdnxr < 0 & corecountry == 1 & ptdrxr > 0
-replace ptdrxr = ptdrxr + totptdnxr*ratio_ptdrxr if totptdnxr < 0 & corecountry == 1 & ptdrxr < 0
-replace ptdpx = ptdpx + totptdnxr*ratio_ptdpx if totptdnxr > 0 & corecountry == 1 & ptdpx > 0	
-replace ptdpx = ptdpx - totptdnxr*ratio_ptdpx if totptdnxr > 0 & corecountry == 1 & ptdpx < 0	
-
-replace ptrrx = ratio_ptrrx*ptdrxr 
-replace ptdrx = ptdrxr - ptrrx
-
-gen ratio_pterx = pterx/totauxpterx
-gen ratio_ptepx = ptepx/totauxptepx
-replace pterx = pterx - totptenx*ratio_pterx if totptenx < 0 & corecountry == 1 & pterx > 0
-replace pterx = pterx + totptenx*ratio_pterx if totptenx < 0 & corecountry == 1 & pterx < 0
-replace ptepx = ptepx + totptenx*ratio_ptepx if totptenx > 0 & corecountry == 1 & ptepx > 0	
-replace ptepx = ptepx - totptenx*ratio_ptepx if totptenx > 0 & corecountry == 1 & ptepx < 0	
-
-//gen ratio_ptfrx = ptfrx/totauxptfrx
-//gen ratio_ptfpx = ptfpx/totauxptfpx
-//replace ptfrx = ptfrx - totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx > 0
-//replace ptfrx = ptfrx + totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx < 0
-//replace ptfpx = ptfpx + totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx > 0	
-//replace ptfpx = ptfpx - totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx < 0	
+gen ratio_ptfrx = ptfrx/totauxptfrx
+gen ratio_ptfpx = ptfpx/totauxptfpx
+replace ptfrx = ptfrx - totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx > 0
+replace ptfrx = ptfrx + totptfnx*ratio_ptfrx if totptfnx < 0 & corecountry == 1 & ptfrx < 0
+replace ptfpx = ptfpx + totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx > 0	
+replace ptfpx = ptfpx - totptfnx*ratio_ptfpx if totptfnx > 0 & corecountry == 1 & ptfpx < 0	
 
 gen ratio_fdixa = fdixa/totauxfdixa
 gen ratio_fdixd = fdixd/totauxfdixd
@@ -163,29 +135,12 @@ replace fdixa = fdixa + totfdixn*ratio_fdixa if totfdixn < 0 & corecountry == 1 
 replace fdixd = fdixd + totfdixn*ratio_fdixd if totfdixn > 0 & corecountry == 1 & fdixd > 0	
 replace fdixd = fdixd - totfdixn*ratio_fdixd if totfdixn > 0 & corecountry == 1 & fdixd < 0	
 
-gen ratio_ptdxar = ptdxar/totauxptdxar
-gen ratio_ptdxd = ptdxd/totauxptdxd
-replace ptdxar = ptdxar - totptdxnr*ratio_ptdxar if totptdxnr < 0 & corecountry == 1 & ptdxar > 0
-replace ptdxar = ptdxar + totptdxnr*ratio_ptdxar if totptdxnr < 0 & corecountry == 1 & ptdxar < 0
-replace ptdxd = ptdxd + totptdxnr*ratio_ptdxd if totptdxnr > 0 & corecountry == 1 & ptdxd > 0	
-replace ptdxd = ptdxd - totptdxnr*ratio_ptdxd if totptdxnr > 0 & corecountry == 1 & ptdxd < 0	
-
-replace ptrxa = ratio_ptrxa*ptdxar 
-replace ptdxa = ptdxar - ptrxa
-
-gen ratio_ptexa = ptexa/totauxptexa
-gen ratio_ptexd = ptexd/totauxptdxd
-replace ptexa = ptexa - totptexn*ratio_ptexa if totptexn < 0 & corecountry == 1 & ptexa > 0
-replace ptexa = ptexa + totptexn*ratio_ptexa if totptexn < 0 & corecountry == 1 & ptexa < 0
-replace ptexd = ptexd + totptexn*ratio_ptexd if totptexn > 0 & corecountry == 1 & ptexd > 0	
-replace ptexd = ptexd - totptexn*ratio_ptexd if totptexn > 0 & corecountry == 1 & ptexd < 0	
-
-//gen ratio_ptfxa = ptfxa/totauxptfxa
-//gen ratio_ptfxd = ptfxd/totauxptfxd
-//replace ptfxa = ptfxa - totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa > 0
-//replace ptfxa = ptfxa + totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa < 0
-//replace ptfxd = ptfxd + totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd > 0	
-//replace ptfxd = ptfxd - totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd < 0	
+gen ratio_ptfxa = ptfxa/totauxptfxa
+gen ratio_ptfxd = ptfxd/totauxptfxd
+replace ptfxa = ptfxa - totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa > 0
+replace ptfxa = ptfxa + totptfxn*ratio_ptfxa if totptfxn < 0 & corecountry == 1 & ptfxa < 0
+replace ptfxd = ptfxd + totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd > 0	
+replace ptfxd = ptfxd - totptfxn*ratio_ptfxd if totptfxn > 0 & corecountry == 1 & ptfxd < 0	
 
 gen ratio_comrx = comrx/totauxcomrx
 gen ratio_compx = compx/totauxcompx
@@ -199,13 +154,11 @@ gen ratio_ftaxx = ftaxx/totftaxx
 replace fsubx = fsubx - tottaxnx*ratio_fsubx if tottaxnx > 0 & corecountry == 1	
 replace ftaxx = ftaxx + tottaxnx*ratio_ftaxx if tottaxnx < 0 & corecountry == 1		
 
-drop ptdxar ptdrxr
-foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd ptdxa ptrxa ptdrx ptrrx ptdxd ptdpx ptexa ptexd pterx ptepx comrx compx ftaxx fsubx { 
+*drop ptdxar ptdrxr
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
 	replace `v' = `v'/gdpusd 
 }
 
-replace ptfrx = ptdrx + ptrrx + pterx
-replace ptfpx = ptdpx + ptepx
 replace ptfnx = ptfrx - ptfpx 
 replace fdinx = fdirx - fdipx 
 replace pinnx = fdinx + ptfnx
@@ -214,14 +167,38 @@ replace pinpx = fdipx + ptfpx
 replace comnx = comrx - compx 
 replace taxnx = fsubx - ftaxx
 
-replace ptfxa = ptdxa + ptrxa + ptexa
-replace ptfxd = ptdxd + ptexd
 gen ptfxn = ptfxa - ptfxd 
 gen fdixn = fdixa - fdixd 
 replace nwgxa = ptfxa + fdixa 
 replace nwgxd = ptfxd + fdixd 
 replace nwnxa = nwgxa - nwgxd 
 
+	*rescaling 
+	gen ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
+	foreach var in ptexa ptdxa ptrxa {
+		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	} 
+	drop ratiocheck 
+
+	gen ratiocheck = (ptexd + ptdxd)/ptfxd
+	foreach var in ptexd ptdxd {
+		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	} 
+	drop ratiocheck 
+
+	gen ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
+	foreach var in pterx ptdrx ptrrx {
+		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	} 
+	drop ratiocheck 
+
+	gen ratiocheck = (ptepx + ptdpx)/ptfpx
+	foreach var in ptepx ptdpx {
+		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	} 
+	drop ratiocheck 
+	
+	
 replace comnx = comrx - compx if corecountry == 1
 	replace series_comnx = -1 if mi(series_comnx) & !mi(comnx) & (series_comrx == -1 | series_compx == -1)
 	replace series_comnx = -2 if mi(series_comnx) & !mi(comnx) & (series_comrx == -2 | series_compx == -2)
