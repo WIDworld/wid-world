@@ -53,7 +53,7 @@ drop if iso == "QD-MER"
 // drop if iso == "CZ"
 drop if missing(value)
 bys iso year widcode: egen num = nvals(p)
-keep if num >= 120 // A few complete distributions lack a few percentiles
+keep if num >= 119 // A few complete distributions lack a few percentiles
 drop num
 
 keep iso year fivelet age pop onelet p value n
@@ -200,7 +200,7 @@ replace changes = changes + 1 if (age == "992") & (fivelet == "ptlin") & !missin
 assert changes <= 1
 
 // Make sure that every value has been adjusted, except for a few special cases
-assert changes > 0 if ///
+assert changes > 0  if ///
 	!(substr(fivelet, 1, 2) == "hw") & ///
 	!(fivelet == "fiinc") & ///
 	!(fivelet == "ptinc" & iso == "RU" & year < 1960) & ///
@@ -209,7 +209,8 @@ assert changes > 0 if ///
 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) & ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) & ///
-	!(fivelet == "cainc" & inlist(iso, "FR", "DD") & year <= 1990) // No overall income available, just shares
+	!(fivelet == "cainc" & inlist(iso, "FR", "DD") & year <= 1990)   ///  No overall income available, just shares
+
 
 //
 tab iso year if changes == 0  & ///
