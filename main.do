@@ -346,6 +346,9 @@ do "$do_dir/homogenize-all-distributions.do"
 // Import carbon series (independent) - to be activated when updated!
 // do "$do_dir/add-carbon-series.do"
 
+// Import gender series (independent) - to be activated when updated!
+// do "$do_dir/add-gender-series.do"
+
 // -------------------------------------------------------------------------- //
 // Export the database
 // -------------------------------------------------------------------------- //
