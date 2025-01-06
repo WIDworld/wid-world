@@ -45,6 +45,7 @@ append using "$wid_dir/Country-Updates/Chile/2018_October/chile-flores2018.dta"
 // Korea 2018 (Kim2018) - wealth & fiinc series / gdp & nni cstt LCU imported in add-researchers-real.do 
 append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 
+
 // India 2018 (Bharti2018) - wealth series
 append using "$wid_dir/Country-Updates/India/2018/November/india-bharti2018.dta"
 
@@ -75,29 +76,40 @@ append using "$wid_dir/Country-Updates/US_states/2021_April/us-states-Apr2021.dt
 append using "$wid_dir/Country-Updates/Norway/2021_August/Norway_fiscal2021.dta"
 
 // Middle East (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series - 
-append using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-data.dta"
+append using "$wid_dir/Country-Updates/Middle-East/2024/Data submission/DINA_MiddleEast_AUG2024_data.dta" //Modif: 10 Oct 2024 by Manuel Esteban
 
 // Asia (MCY 2020 & BM 2021 & SZ 2022 & SZ 2023) - many macro variables + fiinc + ptinc series - YES
-append using "$wid_dir/Country-Updates/Asia/2023_10/Asia-full-2023.dta"
+append using "$wid_dir/Country-Updates/Asia/2024_9/Data submission/Asia-full-2024.dta"                    //Modif: 11 Oct 2024 by Manuel
+drop if iso=="TH" & widcode=="rptinc992j"
 
 // Russia (Neef 2022) -  ptinc series - 
 append using "$wid_dir/Country-Updates/Russia/2022/Russia2022.dta"
 
 // Africa (ccgm & Robillard 2022) - ptinc - 
-append using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022.dta" // data_quality added in metadata do.file
+append using "$wid_dir/Country-Updates/Africa/2024_09/africa-ptinc-Sept2024.dta"                          //Modif: 10 Oct 2024 by Manuel Esteban
 drop if iso == "CI" & author == "ccgm2019&robi2020"
 drop if iso == "EG" & author == "ccgm2019&robi2020"
+* data_quality added in metadata do.file 
+drop if inlist(iso, "DZ", "MA", "TN") & author == "ccgm2019&robi2020"                                     //Modif: 10 Oct 2024 by Manuel Esteban
+* Note: The inclusion of new contries in MENA region implies duplicate data for 
+* Algeria, Marroco and Tunisia. The dupplicates (information from AFRICA dataset) 
+* are dropped so keeping only the information provided by MENA
 
+/*
 // India (Chancel 2020) - 
-append using "$wid_dir/Country-Updates/India/2020_10/India_all_2020.dta"
+append using "$wid_dir/Country-Updates/India/2024/India_all_2024.dta"                                    //Modif: 10 Oct 2024 by Manuel Esteban
 drop if iso == "IN" & author == "chancel2018" & inlist(widcode, "anninc992i", "mnninc999i")
 drop if iso == "IN" & author == "kumar2019"   & inlist(widcode, "npopul999i") & year>1947
+* Note: India was not included in Asia before. Since 2024 IN is included . The 
+*      amount of observations widcode-p were verified and Asia contains all the 
+*      combinations. As so, this file is no longer necessary.
+*/
 
 // Australia, New Zealand & Canada (Matt 2022 & Matt 2023) - ptinc & fiinc series - YES
-append using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023.dta"
+append using "$wid_dir/Country-Updates/North_America/2024_09/AUCANZ_all_2024.dta"                        //Modif: 10 Oct 2024 by Manuel Esteban
 
 // US (PSZ + BSZ 2022 + BSZ 2023) - YES
-append using "$wid_dir/Country-Updates/US/2023/US_2023_all.dta"
+append using "$wid_dir/Country-Updates/US/2024/US_all_2024.dta"                                          //Modif: 10 Oct 2024 by Manuel Esteban
 
 // South Africa 2020 (ccg2020) - wealth distribution series
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
@@ -130,11 +142,11 @@ drop if sixlet=="npopul" & strpos(source,"chancel")>0
 duplicates drop iso sixlet, force
 
 order iso sixlet source method
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2022/September/Asia-full-2022-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2022/september/DINA_MiddleEast_Jul2022-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2022_09/africa-ptinc-Sept2022-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2023_10/AUCANZ_all_2023-metadata.dta", update replace nogen
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2022/January/output/US_full_2022-metadata.dta", update replace nogen
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2024_9/Data submission/Asia-full-2024-metadata.dta", update replace nogen               //Modif: 11 Oct 2024 by Manuel Esteban
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2024/Data submission/DINA_MiddleEast_AUG2024_metadata.dta", update replace nogen //Modif: 10 Oct 2024 by Manuel Esteban
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2024_09/africa-ptinc-Sept2024-metadata.dta", update replace nogen                     //Modif: 10 Oct 2024 by Manuel Esteban
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2024_09/AUCANZ_all_2024-metadata.dta", update replace nogen                    //Modif: 10 Oct 2024 by Manuel Esteban
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2024/US_all_2024-metadata.dta", update replace nogen                                      //Modif: 10 Oct 2024 by Manuel Esteban
 merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
 
 duplicates drop
@@ -220,6 +232,7 @@ drop if missing(value)
 
 // // Remove carbon data (macro & distribution) as it will be performed separately
 // drop if substr(widcode, 1, 1) == "l" | substr(widcode, 1, 1) == "e" 
+
 
 label data "Generated by add-researchers-data.do"
 save "$work_data/add-researchers-data-output.dta", replace
