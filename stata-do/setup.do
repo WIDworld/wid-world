@@ -79,9 +79,10 @@ global france_data        "$input_data_dir/france-data"
 global us_data            "$input_data_dir/us-data"
 global us_states_data     "$input_data_dir/us-states-data"
 global china_pyz_data     "$input_data_dir/china-pyz-data"
-global federico_tena_data "$input_data_dir/federicotena-data"
 global forbes_data 		  "$wid_dir/Country-Updates/Forbes/2022"
 global historical 		  "$wid_dir/Country-Updates/Historical_series/2022_December"
+global federico_tena_data "$wid_dir/Population/federicotena-data"
+global pop_un_data        "$wid_dir/Population/un-data"
 
 // Files to helps matching countries & currencies between the different sources
 global country_codes  "$input_data_dir/country-codes"

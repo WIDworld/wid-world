@@ -6,7 +6,7 @@
 //  please refer to the setup.do file.
 
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
-import excel "$un_data/populations/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear	
 
 keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
@@ -14,7 +14,7 @@ keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulat
 // Adding estimated year - Medium Variant - 
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
 preserve
-		import excel "$un_data/populations/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
+		import excel "$pop_un_data/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 	keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
 	tempfile $year 
@@ -43,7 +43,7 @@ save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx
-import excel "$un_data/populations/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -64,7 +64,7 @@ foreach v of varlist l-af {
 // Adding estimated year - Medium Variant -
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx
 preserve
-import excel "$un_data/populations/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
 foreach v of varlist l-af {
@@ -122,7 +122,7 @@ save "`unpop'", replace
 // Men, age groups ---------------------------------------------------------- //
 
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx
-import excel "$un_data/populations/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -143,7 +143,7 @@ foreach v of varlist l-af {
 // Adding estimated year - Medium Variant - 
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx
 preserve
-import excel "$un_data/populations/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 		// Correct column names
 	foreach v of varlist l-af {
@@ -209,7 +209,7 @@ save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx
-	import excel "$un_data/populations/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+	import excel "$pop_un_data/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -230,7 +230,7 @@ foreach v of varlist l-af {
 // Adding estimated year - Medium Variant - 
 preserve
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx
-import excel "$un_data/populations/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+import excel "$pop_un_data/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 		// Correct column names
 	foreach v of varlist l-af {
