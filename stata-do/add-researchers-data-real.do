@@ -43,7 +43,7 @@ drop if inlist(iso, "XL", "XL-MER")
 append using "$wid_dir/Country-Updates/Latin_America/2024_10/LatinAmerica2024.dta"     //Modif: 10 Oct 2024 by Manuel Esteban
 
 // Post-tax series (Fisher-Post & Gethin 2023) 
-append using "$wid_dir/Country-Updates/posttax/12_2024/global-posttax-122024.dta"  //Modif: 11 Dec 2024 by Manuel Esteban
+append using "$wid_dir/Country-Updates/posttax/12_2024/global-posttax-012025.dta"  //Modif: 17 Jan 2025 by Manuel Esteban
 
 // 40 new additional countries accoding to the 2024 extension of the database
 append using "$wid_dir/Country-Updates/Historical_series/2024_May/forty_additional_countries_ptinc.dta"
@@ -69,7 +69,7 @@ merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Latin_America/2024_10/Latin
 drop if iso == "FR" & method == "" & inlist(sixlet, "scainc", "sdiinc", "tptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "ptinc")
 drop if iso == "FR" & method == "" & strpos(sixlet, "pllin")
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/posttax/12_2024/posttax-dic2024-metadata.dta", update replace nogen //Modif: 11 Dec 2024 by Manuel Esteban
+merge 1:1 iso sixlet using "$wid_dir/Country-Updates/posttax/12_2024/posttax-jan2025-metadata.dta", update replace nogen //Modif: 17 Jan 2025 by Manuel Esteban
 
 duplicates drop
 
