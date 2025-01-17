@@ -664,4 +664,8 @@ replace pinpx = auxpinpx if !missing(auxpinpx) & corecountry == 1
 replace pinnx = pinrx - pinpx
 drop aux* corecountry
 
+foreach var in fsubx ftaxx taxnx { 
+	replace `var' = 0 if year < 1991
+}
+
 save "$work_data/sna-combined-prefki.dta", replace

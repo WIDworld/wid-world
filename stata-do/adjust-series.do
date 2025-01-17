@@ -147,8 +147,11 @@ replace compx = compx - totcomnx*ratio_compx if totcomnx > 0 & corecountry == 1 
 
 gen ratio_fsubx = fsubx/totfsubx
 gen ratio_ftaxx = ftaxx/totftaxx
-replace fsubx = fsubx - tottaxnx*ratio_fsubx if tottaxnx > 0 & corecountry == 1	
-replace ftaxx = ftaxx + tottaxnx*ratio_ftaxx if tottaxnx < 0 & corecountry == 1		
+replace fsubx = fsubx - tottaxnx*ratio_fsubx if tottaxnx < 0 & corecountry == 1 & fsubx > 0	
+replace fsubx = fsubx + tottaxnx*ratio_fsubx if tottaxnx < 0 & corecountry == 1 & fsubx < 0	
+replace ftaxx = ftaxx + tottaxnx*ratio_ftaxx if tottaxnx > 0 & corecountry == 1 & ftaxx > 0			
+replace ftaxx = ftaxx - tottaxnx*ratio_ftaxx if tottaxnx > 0 & corecountry == 1 & ftaxx < 0			
+
 
 *drop ptdxar ptdrxr
 foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
