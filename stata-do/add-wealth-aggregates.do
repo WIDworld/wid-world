@@ -1,8 +1,7 @@
-
-
 // Add wealth Macro aggregates
 // Bauluz + W/I imputations and extrapolations provided by Thomas Blanchet 
 // dta file exist in BBM_wealthinequality
+
 
 use "$work_data/add-populations-output.dta", clear
 
@@ -10,10 +9,19 @@ keep if inlist(widcode, /* "mnweal999i", "mhweal999i", "mpweal999i", "mgweal999i
 drop p currency 
 reshape wide value, i(iso year) j(widcode) string
 
-// merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2022_September/wealth-aggregates.dta", nogen
+preserve
+	*merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
+	use "$wid_dir/Country-Updates/Wealth/2024_December/wealth-aggregates-2024.dta", clear
+	replace iso="KS" if iso=="XK"
+	
+	tempfile wealth_aggregates
+	save `wealth_aggregates'
+restore
 
-merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
-drop nwoff
+merge 1:1 iso year using "`wealth_aggregates'", nogen
+
+
+drop nwoff  
 foreach var in nwnxa nwgxd nwgxa {
 	replace `var' =. if year >= 1970
 }
@@ -25,15 +33,22 @@ foreach l in `r(varlist)' {
 	replace `l' = . if inrange(year, 1990, 1994) & iso == "RU"
 }
 
+
 foreach x in `r(varlist)' {
 	generate valuem`x'999i = `x'*valuemnninc999i if !missing(valuemnninc999i) & !missing(`x')
 	rename `x' valuew`x'999i
 }
+
 drop valuemnninc999i
 
-reshape long
+
+*reshape long
+reshape long value, i(iso year) j(widcode) string
 drop if missing(value)
 generate p = "pall"
+
+// Correting invalid widcodes and iso
+drop if strpos(widcode,"_type") 
 
 
 ****** to be revised 9/11/2023
@@ -51,9 +66,18 @@ ds year p widcode value , not
 keep `r(varlist)'
 duplicates drop iso sixlet, force
 
+
+generate fivelet = substr(sixlet, 2, 6)
+merge m:1 iso fivelet using "$wid_dir/Country-Updates/Wealth/2024_December/wealth-aggregates-metadata.dta", nogenerate
+drop fivelet
+
+replace method= method + " Additionally, this value was adjusted using Net National Income data." if substr(sixlet, 1, 1)=="m" & !missing(method)
+
+
+
 generate source = ///
-`"[URL][URL_LINK]"' + `"http://wid.world/document/revised-extended-national-wealth-series-australia-canada-france-germany-italy-japan-uk-usa-wid-world-technical-note-2017-23/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Piketty, Thomas; Zucman, Gabriel (2014). Capital is back: Wealth-Income ratios in Rich Countries 1700-2010; "' + `"[/URL_TEXT][/URL]; "' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/www-site/uploads/2019/09/WID_WORKING_PAPER_2017_23_Updates_Bauluz.pdf"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Balauz, Luis (2017). “Revised and extended national wealth series: Australia, Canada, France, Germany, Italy, Japan, the UK and the USA”"' + `"[/URL_TEXT][/URL]; "' ///
 if inlist(iso, "AU", "CA", "FR", "DE", "JP", "IT", "GB", "US") ///
 
 * Russia
@@ -86,22 +110,24 @@ replace source = source + ///
 `"[URL_TEXT]"' + `"Toussaint, S. et al. (2022). Household Wealth and its Distribution in the Netherlands, 1854–2019, Working Paper; "' + `"[/URL_TEXT][/URL]"' ///
 if iso == "NL" 
 
-** for those which are not imputed
+** for those which are not imputed (Technical notes on updates)
 replace source = ///
 source + ///
 `"[URL][URL_LINK]"' + `"https://wid.world/document/2020-wealth-aggregate-series-world-inequality-lab-technical-note-2020-14/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Updated by Bauluz, L. and Brassac, P. (2020). “2020 Wealth Aggregates series”"' + `"[/URL_TEXT][/URL]; "' + ///
 `"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/estimation-of-global-wealth-aggregates-in-wid-world-world-inequality-lab-technical-note-2021-13/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Updated by Bauluz, L., Blanchet, T., Martínez, I. Z. and Sodano, A. (2021). “Estimation of Global Wealth Aggregates in WID.world”[/URL_TEXT][/URL]; "' + ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/estimation-of-global-wealth-aggregates-in-wid-world-wid-world-technical-note-2023-10/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Updated by Bauluz, L., Blanchet, T., Brassac, P., Martínez, I. Z. and Sodano, A. (2023). "Estimation of Global Wealth Aggregates in WID.world: Methodology"[/URL_TEXT][/URL]; "' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/document/2024-update-for-wealth-inequality/"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Updated by Bauluz, L., Brassac, P., Martínez, I. Z. and Sodano, A. (2024). "Estimation of Global Wealth Aggregates in WID.world: Methodology"[/URL_TEXT][/URL]; "' ///
 if !missing(source)
 
 ** for those which are imputed
 replace source = ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-wid-world-technical-note-2023-11/"' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"http://wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-wid-world-technical-note-2023-11/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Chancel, L., Piketty, T. (2023). “Global Wealth Inequality on WID.world: Estimates and Imputations”"' + `"[/URL_TEXT][/URL]"' ///
 if missing(source)
+
+
 
 tempfile meta
 save `meta'
