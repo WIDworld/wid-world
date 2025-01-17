@@ -1,26 +1,28 @@
-*! TB 07/07/2016
+/****Import UN series.***/
 
-*! year(2020) was changed to pastpastyear(2019) in the import command, bcz there is still no WPP 2020
-* once it is published, we have to switch back to year 
+// Note: WPP population series are updated every two years (generally). Therefore,
+// updates in even years /could be made using the global ${year}, while in odd 
+// years, ${pasyear} should be used. To verify the current values of these globals,
+//  please refer to the setup.do file.
 
-// Both sexes, all ages ----------------------------------------------------- //
-
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
-	cellrange(B17) firstrow case(lower) clear
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
+import excel "$un_data/populations/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
+	cellrange(B17) firstrow case(lower) clear	
 
 keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
 
-// Adding estimated year - Medium Variant - 2022 and 2023
+// Adding estimated year - Medium Variant - 
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
 preserve
-	import excel "$un_data/populations/wpp/WPP${pastpastyear}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT_REV1.xlsx", ///
-			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
+		import excel "$un_data/populations/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
+			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 	keep regionsubregioncountryorar notes iso2alphacode type parentcode totalpopulationasof1july year
-	keep if year == $pastyear | year == $pastpastyear
-	tempfile $pastyear 
-	save `$pastyear'
+	tempfile $year 
+	save `$year'
+	tab year
 restore	
 
-append using `$pastyear'
+append using `$year'
 
 // Identify countries
 ren iso2alphacode iso
@@ -40,8 +42,8 @@ tempfile unpop
 save "`unpop'", replace
 
 // Both sexes, age groups --------------------------------------------------- //
-
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx
+import excel "$un_data/populations/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -58,9 +60,11 @@ foreach v of varlist l-af {
 		rename `v' value`age'
 	}
 }
-// Adding estimated year - Medium Variant - 2022 and 2023
+
+// Adding estimated year - Medium Variant -
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx
 preserve
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
+import excel "$un_data/populations/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 			cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
 		// Correct column names
 foreach v of varlist l-af {
@@ -77,13 +81,13 @@ foreach v of varlist l-af {
 		}
 	}
 
-	keep if year == $pastyear | year == $pastpastyear
+
 	
-	tempfile age_$pastyear
-	save `age_$pastyear'
+	tempfile age_$year
+	save `age_$year'
 restore	
 
-append using `age_$pastyear'
+append using `age_$year'
 
 // Identify countries
 ren iso2alphacode iso
@@ -117,7 +121,8 @@ save "`unpop'", replace
 
 // Men, age groups ---------------------------------------------------------- //
 
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx
+import excel "$un_data/populations/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -135,10 +140,11 @@ foreach v of varlist l-af {
 	}
 }
 
-// Adding estimated year - Medium Variant - 2022 and 2023
+// Adding estimated year - Medium Variant - 
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx
 preserve
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
-		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
+import excel "$un_data/populations/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
+		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 		// Correct column names
 	foreach v of varlist l-af {
 		destring `v', replace ignore("…")
@@ -154,13 +160,12 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_2_POPULATION_5
 		}
 	}
 
-	keep if year == $pastyear | year == $pastpastyear
 	
-	tempfile male_$pastyear
-	save `male_$pastyear'
+	tempfile male_$year
+	save `male_$year'
 restore	
 
-append using `male_$pastyear'
+append using `male_$year'
 
 // Identify countries
 ren iso2alphacode iso
@@ -203,8 +208,8 @@ append using "`unpop'"
 save "`unpop'", replace
 
 // Women, age groups -------------------------------------------------------- //
-
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx
+	import excel "$un_data/populations/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
 
 // Correct column names
@@ -222,10 +227,11 @@ foreach v of varlist l-af {
 	}
 }
 
-// Adding estimated year - Medium Variant - 2022 and 2023
+// Adding estimated year - Medium Variant - 
 preserve
-import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
-		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear
+*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx
+import excel "$un_data/populations/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
+		cellrange(B17) sheet("Medium variant") firstrow case(lower) clear		
 		// Correct column names
 	foreach v of varlist l-af {
 		destring `v', replace ignore("…")
@@ -241,19 +247,14 @@ import excel "$un_data/populations/wpp/WPP${pastpastyear}_POP_F02_3_POPULATION_5
 		}
 	}
 
-	keep if year == $pastyear | year == $pastpastyear
+// 	keep if year == $year | year == $pastyear
 	
-	tempfile female_$pastyear
-	save `female_$pastyear'
+	tempfile female_$year
+	save `female_$year'
 restore	
 
-append using `female_$pastyear'
+append using `female_$year'
 
-/*
-// Identify countries
-countrycode regionsubregioncountryorar, generate(iso) from("wpp")
-drop variant regionsubregioncountryorar notes countrycode
-*/
 // Identify countries
 ren iso2alphacode iso
 // Kosovo
@@ -297,8 +298,11 @@ save "`unpop'", replace
 drop locationcode iso3alphacode sdmxcode regionsubregioncountryorar notes
 drop if missing(iso)
 
+drop if year>$pastyear
+
 label data "Generated by import-un-populations.do"
 save "$work_data/un-population.dta", replace
+
 
 
 

@@ -1,3 +1,6 @@
+/****Import UN Systmem of National Accounts series.***/
+
+*Import from https://github.com/WIDworld/wid-world/tree/master/data-input/un-data/populations/sna
 import delimited "$un_data/populations/sna/unsd_snaAma-$pastyear.csv", ///
 	clear delimiter(",") encoding("utf8") 
 cap rename countryarea countryorarea
