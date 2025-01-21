@@ -144,8 +144,10 @@ replace indicatorname = "trans_debit" if indicatorcode == "BXSTR_BP6_USD"
 	replace indicatorname = "trans_pass_credit" if indicatorcode == "BXSTRPA_BP6_USD"
 	replace indicatorname = "trans_pass_debit" if indicatorcode == "BMSTRPA_BP6_USD"
 
-replace indicatorname = "otherservices_credit" if inlist(indicatorcode, "BXSOCN_BP6_USD", "BXSOFI_BP6_USD", "BXSOGGS_BP6_USD", "BXSM_BP6_USD", "BXSOPCR_BP6_USD", "BXSO_BP6_USD") | inlist(indicatorcode, "BXSOTCM_BP6_USD", "BXSORL_BP6_USD", "BXSOIN_BP6_USD", "BXSOOB_BP6_USD", "BXSR_BP6_USD")
-replace indicatorname = "otherservices_debit" if inlist(indicatorcode, "BMSOCN_BP6_USD", "BMSOFI_BP6_USD", "BMSOGGS_BP6_USD", "BMSM_BP6_USD", "BMSOPCR_BP6_USD", "BMSO_BP6_USD") | inlist(indicatorcode, "BMSOTCM_BP6_USD", "BMSORL_BP6_USD", "BMSOIN_BP6_USD", "BMSOOB_BP6_USD", "BMSR_BP6_USD")
+replace indicatorname = "otherservices_credit" if inlist(indicatorcode, "BXSO_BP6_USD", "BXSM_BP6_USD", "BXSR_BP6_USD")
+replace indicatorname = "otherservices_debit" if inlist(indicatorcode, "BMSO_BP6_USD", "BMSM_BP6_USD", "BMSR_BP6_USD") 
+
+drop if !inlist(indicatorname, "services_credit", "services_debit", "travel_credit", "travel_debit", "travel_pers_debit", "travel_pers_credit", "travel_bus_debit", "travel_bus_credit") & !inlist(indicatorname, "trans_credit", "trans_debit", "trans_fr_credit", "trans_fr_debit", "trans_pass_credit", "trans_pass_debit", "otherservices_credit", "otherservices_debit") 
 
 collapse (sum) value, by(countryname countrycode indicatorname timeperiod)
 ren timeperiod year
@@ -484,7 +486,7 @@ drop ratio*
 */
 
 *allocating the difference proportionally
-foreach v in compemp otherpinc secinc foreignaid remittances othtrans trade capital goods travel_pers travel_bus trans_fr trans_pass otherservices { // service
+foreach v in compemp otherpinc secinc foreignaid remittances othtrans trade capital goods travel trans otherservices { // service
 	replace `v'_credit = `v'_credit*gdp_usd
 	replace `v'_debit = `v'_debit*gdp_usd
 	gen net_`v' = `v'_credit - `v'_debit
@@ -499,51 +501,45 @@ foreach v in compemp otherpinc secinc foreignaid remittances othtrans trade capi
 }
 drop aux*
 
-gen totnet_compemp = totcompemp_credit - totcompemp_debit 
-gen totnet_otherpinc = tototherpinc_credit - tototherpinc_debit 
-gen totnet_secinc = totsecinc_credit - totsecinc_debit
-gen totnet_foreignaid = totforeignaid_credit - totforeignaid_debit
-gen totnet_remittances = totremittances_credit - totremittances_debit
-gen totnet_othtrans = totothtrans_credit - totothtrans_debit
-gen totnet_capital = totcapital_credit - totcapital_debit 
-gen totnet_trade = tottrade_credit - tottrade_debit 
-gen totnet_goods = totgoods_credit - totgoods_debit
-// gen totnet_service = totservice_credit - totservice_debit 
-gen totnet_travel_pers = tottravel_pers_credit - tottravel_pers_debit
-gen totnet_travel_bus = tottravel_bus_credit - tottravel_bus_debit
-gen totnet_trans_fr = tottrans_fr_credit - tottrans_fr_debit
-gen totnet_trans_pass = tottrans_pass_credit - tottrans_pass_debit
-gen totnet_otherservices = tototherservices_credit - tototherservices_debit
+gen totnet_compemp = (totcompemp_credit + totcompemp_debit)/2 
+gen totnet_otherpinc = (tototherpinc_credit + tototherpinc_debit)/2 
+gen totnet_secinc = (totsecinc_credit + totsecinc_debit)/2
+gen totnet_foreignaid = (totforeignaid_credit + totforeignaid_debit)/2
+gen totnet_remittances = (totremittances_credit + totremittances_debit)/2
+gen totnet_othtrans = (totothtrans_credit + totothtrans_debit)/2
+gen totnet_capital = (totcapital_credit + totcapital_debit)/2
+gen totnet_goods = (totgoods_credit + totgoods_debit)/2
+*gen totnet_services = (totservices_credit + totservices_debit)/2
+gen totnet_travel = (tottravel_credit + tottravel_debit)/2
+gen totnet_trans = (tottrans_credit + tottrans_debit)/2
+gen totnet_otherservices = (tototherservices_credit + tototherservices_debit)/2
 
-foreach v in compemp otherpinc secinc foreignaid remittances othtrans capital goods travel_pers travel_bus trans_fr trans_pass otherservices { // service
-	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
-	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
-	
-replace `v'_credit = `v'_credit - totnet_`v'*ratio_`v'_credit if totnet_`v' < 0	& `v'_credit > 0
-replace `v'_credit = `v'_credit + totnet_`v'*ratio_`v'_credit if totnet_`v' < 0	& `v'_credit < 0	
-replace `v'_debit = `v'_debit + totnet_`v'*ratio_`v'_debit if totnet_`v' > 0 & `v'_debit > 0		
-replace `v'_debit = `v'_debit - totnet_`v'*ratio_`v'_debit if totnet_`v' > 0 & `v'_debit < 0			
-}
 
 // unadjusted world
 preserve 
 	bys year : egen totgdpusd = total(gdp_usd)
-	ren (totnet_travel_pers tottravel_pers_credit tottravel_pers_debit) (tvpnx tvprx tvppx)
-	ren (totnet_travel_bus tottravel_bus_credit tottravel_bus_debit) (tvbnx tvbrx tvbpx)
-	ren (totnet_trans_fr tottrans_fr_credit tottrans_fr_debit) (ttfnx ttfrx ttfpx)
-	ren (totnet_trans_pass tottrans_pass_credit tottrans_pass_debit) (ttpnx ttprx ttppx)
+	ren (totnet_travel tottravel_credit tottravel_debit) (tsvnx tsvrx tsvpx)
+	ren (totnet_trans tottrans_credit tottrans_debit) (tstnx tstrx tstpx)
 	ren (totnet_otherservices tototherservices_credit tototherservices_debit) (tsonx tsorx tsopx)
-	collapse (mean) tvpnx tvprx tvppx tvbnx tvbrx tvbpx ttfnx ttfrx ttfpx ttpnx ttprx ttppx tsonx tsorx tsopx totgdpusd, by(year)
+	collapse (mean) tsvnx tsvrx tsvpx tstnx tstrx tstpx tsonx tsorx tsopx totgdpusd, by(year)
 	ren totgdpusd gdp_usd
 	gen iso = "UnadjustedWorld"
 	sa "$work_data/services_trade_unadj_world.dta", replace
 restore
-drop ratio* net* tot* 
 
-replace travel_credit = travel_pers_credit + travel_bus_credit
-replace travel_debit = travel_pers_debit + travel_bus_debit
-replace trans_credit = trans_fr_credit + trans_pass_credit
-replace trans_debit = trans_fr_debit + trans_pass_debit
+foreach v in secinc foreignaid remittances othtrans capital goods travel trans otherservices {
+	replace tot`v'_credit = totnet_`v' - tot`v'_credit
+	replace tot`v'_debit = totnet_`v' - tot`v'_debit
+}
+
+foreach v in secinc foreignaid remittances othtrans capital goods travel trans otherservices {
+	gen ratio_`v'_credit = `v'_credit/totaux`v'_credit
+	gen ratio_`v'_debit = `v'_debit/totaux`v'_debit
+	
+replace `v'_credit = `v'_credit + tot`v'_credit*ratio_`v'_credit 
+replace `v'_debit = `v'_debit + tot`v'_debit*ratio_`v'_debit 
+}
+drop ratio* net* tot* 
 
 gen service_credit = travel_credit + trans_credit + otherservices_credit
 gen service_debit = travel_debit + trans_debit + otherservices_debit
@@ -626,15 +622,7 @@ enforce (tbxrx = tgxrx + tsxrx) ///
 		(tbnnx = tgnnx + tsnnx) ///
 		(tbnnx = tbxrx - tbmpx) ///
 		(tgnnx = tgxrx - tgmpx) ///
-		(tsvrx = tvprx + tvbrx) /// 
-		(tsvpx = tvppx + tvbpx) ///
-		(tvpnx = tvprx - tvppx) ///
-		(tvbnx = tvbrx - tvbpx) ///
 		(tsvnx = tsvrx - tsvpx) ///
-		(tstrx = ttfrx + ttprx) ///		
-		(tstpx = ttfpx + ttppx) ///		
-		(ttfnx = ttfrx - ttfpx) ///		
-		(ttpnx = ttprx - ttppx) ///		
 		(tstnx = tstrx - tstpx) ///		
 		(tsonx = tsorx - tsopx) ///		
 		(tsxrx = tsvrx + tstrx + tsorx) ///
@@ -645,7 +633,7 @@ enforce (tbxrx = tgxrx + tsxrx) ///
 		(scinx = scgnx + scrnx + sconx) /// 
 		(scinx = scirx - scipx) /// 
 		(tsnnx = tsvnx + tstnx + tsonx) /// 
-		(tsnnx = tsxrx - tsmpx), fixed(tbxrx tbmpx) replace
+		(tsnnx = tsxrx - tsmpx), fixed(tgxrx tgmpx tsxrx tsmpx) replace force
 
 /* checking adding to zero
 foreach var in tbxrx tgxrx tsxrx tbmpx tgmpx tsmpx {
