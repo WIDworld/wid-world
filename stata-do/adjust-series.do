@@ -90,6 +90,11 @@ merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keep(master mat
 merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
 merge 1:1 iso year using "$work_data/USS-exchange-rates.dta", nogen keepusing(exrate_usd) keep(master matched)
 
+
+// completing time series
+so iso year
+by iso : carryforward fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx if year == $pastyear, replace
+
 foreach var in gdp {
 gen `var'_idx = `var'*index
 	gen `var'usd = `var'_idx/exrate_usd
@@ -151,8 +156,8 @@ gen ratio_compx = compx/totauxcompx
 replace comrx = comrx + totcomrx*ratio_comrx 
 replace compx = compx + totcompx*ratio_compx 
 
-gen ratio_fsubx = fsubx/totfsubx
-gen ratio_ftaxx = ftaxx/totftaxx
+gen ratio_fsubx = fsubx/totauxfsubx
+gen ratio_ftaxx = ftaxx/totauxftaxx
 replace fsubx = fsubx + totfsubx*ratio_fsubx 	
 replace ftaxx = ftaxx + totftaxx*ratio_ftaxx 			
 
@@ -199,7 +204,8 @@ replace nwnxa = nwgxa - nwgxd
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
-	
+
+so iso year 	
 	
 replace comnx = comrx - compx if corecountry == 1
 	replace series_comnx = -1 if mi(series_comnx) & !mi(comnx) & (series_comrx == -1 | series_compx == -1)
@@ -228,11 +234,11 @@ replace finpx = compx + pinpx + ftaxx if corecountry == 1
 replace taxnx = fsubx - ftaxx if corecountry == 1
 	replace series_taxnx = -1 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -1 | series_flcip == -1)
 	replace series_taxnx = -2 if mi(series_taxnx) & !mi(taxnx) & (series_ftaxx == -2 | series_flcip == -2)
-
-replace nnfin = flcin + taxnx if corecountry == 1
+	
+replace nnfin = flcin + cond(missing(taxnx), 0, taxnx) if corecountry == 1
 	replace series_nnfin = -1 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -1 | series_taxnx == -1)
 	replace series_nnfin = -2 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -2 | series_taxnx == -2)
-
+	
 *replace nnfin = pinnx if mi(nnfin)
 drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag*
 

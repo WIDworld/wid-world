@@ -652,6 +652,6 @@ foreach var in tbnnx tgnnx tsnnx {
 *drop gdp_us
 save "$work_data/bop_currentacc_complete.dta", replace
 
-drop gdp* tsvrx tsvpx tsvnx tvprx tvppx tvpnx tvbrx tvbpx tvbnx tstrx tstpx tstnx ttfrx ttfpx ttfnx ttppx ttprx ttpnx tsorx tsopx tsonx
+drop gdp* tvprx tvppx tvpnx tvbrx tvbpx tvbnx ttfrx ttfpx ttfnx ttppx ttprx ttpnx 
 
 save "$work_data/bop_currentacc.dta", replace
