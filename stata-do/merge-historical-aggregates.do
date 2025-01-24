@@ -288,6 +288,14 @@ save `full'
 use "$work_data/calculate-per-capita-series-output.dta", clear
 merge 1:1 iso year p widcode using "`full'", nogen update replace
 
+
+//---- Drop variables no longer included in the WID Dictionary
+drop if strpos(widcode, "fkfiw") 
+drop if strpos(widcode, "ptfor") | strpos(widcode, "ptfon") | strpos(widcode, "ptfop")                                                      
+drop if strpos(widcode, "comco") | strpos(widcode, "comfc") | strpos(widcode, "comnf") | strpos(widcode, "comgo")                         
+//-------------------------
+
+** Saving
 save "$work_data/merge-historical-aggregates.dta", replace
 
 
