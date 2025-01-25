@@ -38,8 +38,13 @@ save `mhweal'
 
 
 // Merging with the data corrected by Forbes (BBM + Correction)
+** Historical Wealth distribution 
 use "$wid_dir/Country-Updates/Wealth/2023_December/wealth-distributions-corrected.dta", clear
-
+keep if year<1995
+** Update 2024
+append using "$wid_dir/Country-Updates/Wealth/2024_December/wealth-distributions-corrected-2024-lcu-complete.dta"
+replace iso="KS" if iso=="XK"
+drop country region regioncode corecountry
 
 /*
 // Adding Chinese wealth data
@@ -244,7 +249,7 @@ if iso == "IN"
 replace source = source + ///
 `"[URL][URL_LINK]"' + `"http://wid.world/document/t-piketty-l-yang-and-g-zucman-capital-accumulation-private-property-and-inequality-in-china-1978-2015-2016/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015; "' + `"[/URL_TEXT][/URL]"' + ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/2022-dina-regional-update-for-east-asia-world-inequality-lab-technical-note-2022-04/"' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"http://wid.world/document/2022-dina-regional-update-for-east-asia-world-inequality-lab-technical-note-2022-04/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Updated by Sehyun, H., Zhexun, M. (2022), "2022 Regional DINA Update for Asia"; "' + `"[/URL_TEXT][/URL]"'  ///
 if iso == "CN" 
 
@@ -268,7 +273,7 @@ if iso == "DE"
 
 * Italy
 replace source = source + ///
-`"[URL][URL_LINK]"' + `""' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"https://prod.wid.world/www-site/uploads/2021/04/WorldInequalityLab_WP2021_14_Italy_Wealth.pdf"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Acciari, Paolo, Facundo Alvaredo, and Salvatore Morelli (2020). “The concentration of personal wealth in Italy 1995-2016” WID.world WP 14/2021; "' + `"[/URL_TEXT][/URL]"' ///
 if iso == "IT" 
 
@@ -307,13 +312,13 @@ if iso == "PL"
 
 * Recent wealth data
 replace source = source + ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/distributional-financial-accounts-in-europe-world-inequality-lab-technical-note-2021-12/"' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"http://wid.world/document/distributional-financial-accounts-in-europe-world-inequality-lab-technical-note-2021-12/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Blanchet, T., Martinez-Toledano, C. (2021), Distributional Financial Accounts in Europe; "' + `"[/URL_TEXT][/URL]"' ///
 if strpos("AT BE BG CH CY CZ DK DE EE FI FR GB GR HU HR IS IE IT LV LT LU MT NL NO PL PT RO SK SI ES SE", iso) != 0 & strpos(sixlet, "hweal")
 
 * The rest of the world - imputed
 replace source = source + ///
-`"[URL][URL_LINK]"' + `"http://wordpress.wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-world-inequality-lab-technical-note-2021-16/"' + `"[/URL_LINK]"' + ///
+`"[URL][URL_LINK]"' + `"http://wid.world/document/global-wealth-inequality-on-wid-world-estimates-and-imputations-world-inequality-lab-technical-note-2021-16/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Bajard, F., Chancel, L., Moshrif, R., Piketty, T. (2021). “Global Wealth Inequality on WID.world: Estimates and Imputations”"' + `"[/URL_TEXT][/URL]"' ///
 if missing(source) & strpos(sixlet, "hweal")
 
