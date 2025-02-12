@@ -74,6 +74,7 @@ replace pinnx = fdinx + ptfnx
 replace pinrx = fdirx + ptfrx 
 replace pinpx = fdipx + ptfpx 
 
+
 // -------------------------------------------------------------------------- //
 // Ensure aggregate 0 for pinnx fdinx ptfnx nwnxa fdixn ptfxn comnx and taxnx
 // -------------------------------------------------------------------------- //
@@ -85,6 +86,15 @@ drop ptfxa_fin ptfxd_fin miss*
 
 merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
 replace corecountry = 0 if year < 1970
+
+// -------------------------------------------------------------------------- //
+// Ensure no negative values
+// -------------------------------------------------------------------------- //
+so iso year
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx ptexa ptdxa ptrxa ptexd ptdxd ptrrx ptdrx pterx ptepx ptdpx {
+	replace `v' =. if `v' < 0
+	carryforward `v' if corecountry == 1, replace	
+}
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keep(master matched)
 merge 1:1 iso year using "$work_data/price-index.dta", nogen keep(master matched)
@@ -240,7 +250,7 @@ replace nnfin = flcin + cond(missing(taxnx), 0, taxnx) if corecountry == 1
 	replace series_nnfin = -2 if mi(series_nnfin) & !mi(nnfin) & (series_flcin == -2 | series_taxnx == -2)
 	
 *replace nnfin = pinnx if mi(nnfin)
-drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag*
+drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag* neg*
 
 // Remove useless variables
 drop cap?? cag?? nsmnp

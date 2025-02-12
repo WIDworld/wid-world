@@ -110,6 +110,156 @@ keep iso year widcode value
 greshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
+// whenever gross flows are negative, adding them to their counterpart gross flow to ensure everything is positive
+foreach v in ptfrx_res ptfrx_oth ptfpx_oth ptfrx_eq ptfpx_eq ptfrx_deb ptfpx_deb fdirx fdipx fsubx ftaxx comrx compx {
+	gen neg`v' = 1 if `v' < 0
+	replace neg`v' = 0 if mi(neg`v')	
+}
+
+replace finrx = . if finrx < 0
+replace finpx = . if finpx < 0 
+ 
+replace pinrx = pinrx - ptfrx_res if ptfrx_res < 0
+replace ptfrx = ptfrx - ptfrx_res if ptfrx_res < 0
+replace finrx = finrx - ptfrx_res if ptfrx_res < 0
+replace ptfrx_res = 0 if ptfrx_res < 0 
+
+*adding the negative values to the other gross aggregated component
+replace pinrx = pinrx - ptfrx_oth if negptfrx_oth == 1
+replace pinrx = pinrx - ptfpx_oth if negptfpx_oth == 1
+replace pinpx = pinpx - ptfpx_oth if negptfpx_oth == 1
+replace pinpx = pinpx - ptfrx_oth if negptfrx_oth == 1
+
+replace ptfrx = ptfrx - ptfrx_oth if negptfrx_oth == 1
+replace ptfrx = ptfrx - ptfpx_oth if negptfpx_oth == 1
+replace ptfpx = ptfpx - ptfpx_oth if negptfpx_oth == 1
+replace ptfpx = ptfpx - ptfrx_oth if negptfrx_oth == 1
+
+replace finrx = finrx - ptfrx_oth if negptfrx_oth == 1
+replace finrx = finrx - ptfpx_oth if negptfpx_oth == 1
+replace finpx = finpx - ptfpx_oth if negptfpx_oth == 1
+replace finpx = finpx - ptfrx_oth if negptfrx_oth == 1
+
+gen aux = 1 if negptfrx_oth == 1 & negptfpx_oth == 1
+replace negptfrx_oth = 0 if aux == 1 
+replace negptfpx_oth = 0 if aux == 1 
+cap swapval ptfrx_oth ptfpx_oth if aux == 1 
+replace ptfrx_oth = abs(ptfrx_oth) if aux == 1
+replace ptfpx_oth = abs(ptfpx_oth) if aux == 1
+replace ptfrx_oth = ptfrx_oth - ptfpx_oth if negptfpx_oth == 1
+replace ptfpx_oth = 0 if negptfpx_oth == 1 
+replace ptfpx_oth = ptfpx_oth - ptfrx_oth if negptfrx_oth == 1 
+replace ptfrx_oth = 0 if negptfrx_oth == 1
+drop aux 
+
+replace pinrx = pinrx - ptfrx_deb if negptfrx_deb == 1
+replace pinrx = pinrx - ptfpx_deb if negptfpx_deb == 1
+replace pinpx = pinpx - ptfpx_deb if negptfpx_deb == 1
+replace pinpx = pinpx - ptfrx_deb if negptfrx_deb == 1
+
+replace ptfrx = ptfrx - ptfrx_deb if negptfrx_deb == 1
+replace ptfrx = ptfrx - ptfpx_deb if negptfpx_deb == 1
+replace ptfpx = ptfpx - ptfpx_deb if negptfpx_deb == 1
+replace ptfpx = ptfpx - ptfrx_deb if negptfrx_deb == 1
+
+replace finrx = finrx - ptfrx_deb if negptfrx_deb == 1
+replace finrx = finrx - ptfpx_deb if negptfpx_deb == 1
+replace finpx = finpx - ptfpx_deb if negptfpx_deb == 1
+replace finpx = finpx - ptfrx_deb if negptfrx_deb == 1
+
+gen aux = 1 if negptfrx_deb == 1 & negptfpx_deb == 1
+replace negptfrx_deb = 0 if aux == 1 
+replace negptfpx_deb = 0 if aux == 1 
+cap swapval ptfrx_deb ptfpx_deb if aux == 1 
+replace ptfrx_deb = abs(ptfrx_deb) if aux == 1
+replace ptfpx_deb = abs(ptfpx_deb) if aux == 1
+replace ptfrx_deb = ptfrx_deb - ptfpx_deb if negptfpx_deb == 1
+replace ptfpx_deb = 0 if negptfpx_deb == 1 
+replace ptfpx_deb = ptfpx_deb - ptfrx_deb if negptfrx_deb == 1
+replace ptfrx_deb = 0 if negptfrx_deb == 1
+drop aux 
+
+replace pinrx = pinrx - ptfrx_eq if negptfrx_eq == 1
+replace pinrx = pinrx - ptfpx_eq if negptfpx_eq == 1
+replace pinpx = pinpx - ptfpx_eq if negptfpx_eq == 1
+replace pinpx = pinpx - ptfrx_eq if negptfrx_eq == 1
+
+replace ptfrx = ptfrx - ptfrx_eq if negptfrx_eq == 1
+replace ptfrx = ptfrx - ptfpx_eq if negptfpx_eq == 1
+replace ptfpx = ptfpx - ptfpx_eq if negptfpx_eq == 1
+replace ptfpx = ptfpx - ptfrx_eq if negptfrx_eq == 1
+
+replace finrx = finrx - ptfrx_eq if negptfrx_eq == 1
+replace finrx = finrx - ptfpx_eq if negptfpx_eq == 1
+replace finpx = finpx - ptfpx_eq if negptfpx_eq == 1
+replace finpx = finpx - ptfrx_eq if negptfrx_eq == 1
+
+gen aux = 1 if negptfrx_eq == 1 & negptfpx_eq == 1
+replace negptfrx_eq = 0 if aux == 1 
+replace negptfpx_eq = 0 if aux == 1 
+cap swapval ptfrx_eq ptfpx_eq if aux == 1 
+replace ptfrx_eq = abs(ptfrx_eq) if aux == 1
+replace ptfpx_eq = abs(ptfpx_eq) if aux == 1
+replace ptfrx_eq = ptfrx_eq - ptfpx_eq if negptfpx_eq == 1
+replace ptfpx_eq = 0 if negptfpx_eq == 1 
+replace ptfpx_eq = ptfpx_eq - ptfrx_eq if negptfrx_eq == 1
+replace ptfrx_eq = 0 if negptfrx_eq == 1
+drop aux 
+
+replace pinrx = pinrx - fdirx if negfdirx == 1
+replace pinrx = pinrx - fdipx if negfdipx == 1
+replace pinpx = pinpx - fdipx if negfdipx == 1
+replace pinpx = pinpx - fdirx if negfdirx == 1
+
+replace finrx = finrx - fdirx if negfdirx == 1
+replace finrx = finrx - fdipx if negfdipx == 1
+replace finpx = finpx - fdipx if negfdipx == 1
+replace finpx = finpx - fdirx if negfdirx == 1
+
+gen aux = 1 if negfdirx == 1 & negfdipx == 1
+replace negfdirx = 0 if aux == 1 
+replace negfdipx = 0 if aux == 1 
+cap swapval fdirx fdipx if aux == 1 
+replace fdirx = abs(fdirx) if aux == 1
+replace fdipx = abs(fdipx) if aux == 1
+replace fdirx = fdirx - fdipx if negfdipx == 1
+replace fdipx = 0 if negfdipx == 1 
+replace fdipx = fdipx - fdirx if negfdirx == 1
+replace fdirx = 0 if negfdirx == 1
+drop aux 
+
+replace finrx = finrx - fsubx if negfsubx == 1
+replace finrx = finrx - ftaxx if negftaxx == 1
+replace finpx = finpx - ftaxx if negftaxx == 1
+replace finpx = finpx - fsubx if negfsubx == 1
+gen aux = 1 if negfsubx == 1 & negftaxx == 1
+replace negfsubx = 0 if aux == 1 
+replace negftaxx = 0 if aux == 1 
+cap swapval fsubx ftaxx if aux == 1 
+replace fsubx = abs(fsubx) if aux == 1
+replace ftaxx = abs(ftaxx) if aux == 1
+replace fsubx = fsubx - ftaxx if negftaxx == 1
+replace ftaxx = 0 if negftaxx == 1 
+replace ftaxx = ftaxx - fsubx if negfsubx == 1
+replace fsubx = 0 if negfsubx == 1
+drop aux 
+
+replace finrx = finrx - comrx if negcomrx == 1
+replace finrx = finrx - compx if negcompx == 1
+replace finpx = finpx - compx if negcompx == 1
+replace finpx = finpx - comrx if negcomrx == 1
+gen aux = 1 if negcomrx == 1 & negcompx == 1
+replace negcomrx = 0 if aux == 1 
+replace negcompx = 0 if aux == 1 
+cap swapval comrx compx if aux == 1 
+replace comrx = abs(comrx) if aux == 1
+replace compx = abs(compx) if aux == 1
+replace comrx = comrx - compx if negcompx == 1
+replace compx = 0 if negcompx == 1 
+replace compx = compx - comrx if negcomrx == 1
+replace comrx = 0 if negcomrx == 1
+drop aux 
+
 replace ptfrx = ptfrx + cond(missing(ptfrx_oth), 0, ptfrx_oth) + cond(missing(ptfrx_res), 0, ptfrx_res)
 replace ptfpx = ptfpx + cond(missing(ptfpx_oth), 0, ptfpx_oth)
 replace ptfrx_deb = ptfrx_deb + cond(missing(ptfrx_oth), 0, ptfrx_oth)
@@ -170,20 +320,23 @@ foreach x in a d {
 gen share_fdix`x' = fdix`x'/nwgx`x'
 gen share_ptfx`x' = ptfx`x'/nwgx`x'
 }
-replace fdirx = pinrx*l.share_fdixa if missing(fdirx) | fdirx == 0
-replace ptfrx = pinrx*l.share_ptfxa if missing(ptfrx) | ptfrx == 0 
-replace fdipx = pinpx*l.share_fdixd if missing(fdipx) | fdipx == 0
-replace ptfpx = pinpx*l.share_ptfxd if missing(ptfpx) | ptfpx == 0 
+gen negptfrx = 1 if negptfrx_deb == 1 & negptfrx_eq == 1 
+gen negptfpx = 1 if negptfpx_deb == 1 & negptfpx_eq == 1 
 
-replace fdirx = pinrx*share_fdixa if (missing(fdirx) | fdirx == 0) & year == 1970
-replace ptfrx = pinrx*share_ptfxa if (missing(ptfrx) | ptfrx == 0) & year == 1970
-replace fdipx = pinpx*share_fdixd if (missing(fdipx) | fdipx == 0) & year == 1970
-replace ptfpx = pinpx*share_ptfxd if (missing(ptfpx) | ptfpx == 0) & year == 1970
+replace fdirx = pinrx*l.share_fdixa if missing(fdirx) | fdirx == 0 & negfdirx != 1
+replace ptfrx = pinrx*l.share_ptfxa if missing(ptfrx) | ptfrx == 0 & negptfrx != 1 
+replace fdipx = pinpx*l.share_fdixd if missing(fdipx) | fdipx == 0 & negfdipx != 1
+replace ptfpx = pinpx*l.share_ptfxd if missing(ptfpx) | ptfpx == 0 & negptfpx != 1 
 
-replace ptfrx = pinrx - fdirx if checkptfrx == 1
-replace fdirx = pinrx - ptfrx if checkfdirx == 1
-replace ptfpx = pinpx - fdipx if checkptfpx == 1
-replace fdipx = pinpx - ptfpx if checkfdipx == 1
+replace fdirx = pinrx*share_fdixa if (missing(fdirx) | fdirx == 0) & year == 1970 & negfdirx != 1
+replace ptfrx = pinrx*share_ptfxa if (missing(ptfrx) | ptfrx == 0) & year == 1970 & negptfrx != 1
+replace fdipx = pinpx*share_fdixd if (missing(fdipx) | fdipx == 0) & year == 1970 & negfdipx != 1
+replace ptfpx = pinpx*share_ptfxd if (missing(ptfpx) | ptfpx == 0) & year == 1970 & negptfpx != 1
+
+replace ptfrx = pinrx - fdirx if checkptfrx == 1 & pinrx > fdirx
+replace fdirx = pinrx - ptfrx if checkfdirx == 1 & pinrx > ptfrx
+replace ptfpx = pinpx - fdipx if checkptfpx == 1 & pinpx > fdipx
+replace fdipx = pinpx - ptfpx if checkfdipx == 1 & pinpx > ptfpx
 
 // for portfolio components
 foreach x in a d {
@@ -301,7 +454,7 @@ replace gdp = gdp_wid if missing(gdp)
 *issues with gdp
 replace gdp = gdp_usd_weo if inlist(iso, "GY", "EG", "HN", "SV", "SB", "LR") & !missing(gdp_usd_weo)
 
-ds iso year gdp* flag*, not //
+ds iso year gdp* flag* neg*, not //
 local varlist = r(varlist)
 foreach v of local varlist {
 	replace `v' = `v'/gdp
@@ -326,6 +479,10 @@ drop aux* ratio* *AN
 // variables in USD
 foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx nnfin pinpx pinrx ptfpx ptfrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	replace `v' = `v'*gdp_wid
+}
+
+foreach v in compx comrx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb fdirx fdipx fsubx ftaxx {
+	replace `v' = 0 if neg`v' == 1
 }
 
 // ensuring consistency
@@ -384,7 +541,7 @@ drop if missing(year)
 // Save USD version (for redistributing missing incomes later)
 save "$work_data/imf-usd.dta", replace
 
-ds iso year gdp* flag*, not
+ds iso year gdp* flag* neg*, not
 local varlist = r(varlist)
 foreach v of local varlist {
 	replace `v' = `v'/gdp_wid
