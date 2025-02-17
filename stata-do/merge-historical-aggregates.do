@@ -295,6 +295,10 @@ drop if strpos(widcode, "ptfor") | strpos(widcode, "ptfon") | strpos(widcode, "p
 drop if strpos(widcode, "comco") | strpos(widcode, "comfc") | strpos(widcode, "comnf") | strpos(widcode, "comgo")                         
 //-------------------------
 
+// Quality Checks
+assert value >= 0 if strpos(widcode, "nninc") > 0 | strpos(widcode, "gdpro") > 0
+
+
 ** Saving
 save "$work_data/merge-historical-aggregates.dta", replace
 
