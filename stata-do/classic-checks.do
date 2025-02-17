@@ -183,3 +183,15 @@ order iso year gdp_ppp_us_new mgdpro999i_ppp_us ratio_ppp_us_new_old gdp mgdpro9
 foreach v in gdp_ppp_us_new mgdpro999i_ppp_us gdp mgdpro999i {
 	replace `v' = `v'/1e06
 }
+
+// from WID command
+wid, ind(mgdpro inyixx xlcusx) clear
+keep country variable year value 
+reshape wide value, i(country year) j(variable) string
+
+renvars value*, postdrop(4)
+renvars value*, pred(5)
+
+gen gdp_usd = (mgdpro*inyixx)/xlcusx
+keep country year gdp_usd 
+
