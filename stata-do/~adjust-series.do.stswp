@@ -42,6 +42,14 @@ foreach v of varlist ptfnx pinnx flcin nnfin prpco prpnf prgco prgnf ///
 	replace `v' = `v' - ptfrp if !missing(ptfrp)
 }
 
+// CW 1998 generates too many problems
+so iso year
+foreach v in fdipx fdirx pinpx pinrx ptfpx ptfrx ptfrx_deb ptfrx_eq ptfrx_res ptfpx_deb ptfpx_eq {
+	replace `v' = . if (iso == "CW" & year == 1997) | (iso == "CW" & year == 1998)
+	carryforward `v' if (iso == "CW" & year == 1997) | (iso == "CW" & year == 1998), replace
+}
+
+
 
 // -------------------------------------------------------------------------- //
 // Ensure that imputations do not distort net national income
