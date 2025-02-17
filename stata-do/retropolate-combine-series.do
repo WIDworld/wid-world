@@ -673,6 +673,9 @@ enforce (comnx = comrx - compx) ///
 		/// Labor + capital income decomposition
 		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc fkpin comhn nmxhn) replace
 
+foreach v in compx comrx fdipx fdirx fsubx ftaxx pinpx pinrx ptfpx ptfrx ptfpx_deb ptfpx_eq ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `v' =. if `v' < 0
+}
 
 // Some early government sector data too problematic to do anything
 foreach v of varlist *go {
