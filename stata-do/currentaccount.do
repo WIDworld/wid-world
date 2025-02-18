@@ -717,6 +717,13 @@ foreach var in tbnnx tgnnx tsnnx {
 }
 */
 
+* Replacing the good accounts by the ones galculated in IMFBoB gravity do-file
+drop tgxrx tgmpx tgnnx
+merge 1:1 iso year using "$work_data/imfbop-tradegoods-gravity.dta", nogenerate
+gen net_goods = goods_credit - goods_debit
+rename (goods_credit goods_debit net_goods) (tgxrx tgmpx tgnnx)
+
+
 *drop gdp_us
 save "$work_data/bop_currentacc_complete.dta", replace
 
