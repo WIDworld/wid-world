@@ -101,7 +101,12 @@ replace corecountry = 0 if year < 1970
 so iso year
 foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx ptexa ptdxa ptrxa ptexd ptdxd ptrrx ptdrx pterx ptepx ptdpx {
 	replace `v' =. if `v' < 0
-	carryforward `v' if corecountry == 1, replace	
+by iso:	carryforward `v' if corecountry == 1, replace	
+}
+
+gsort iso -year 
+foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx ptexa ptdxa ptrxa ptexd ptdxd ptrrx ptdrx pterx ptepx ptdpx {
+by iso: carryforward `v' if corecountry == 1, replace	
 }
 
 merge 1:1 iso year using "$work_data/retropolate-gdp.dta", nogen keep(master matched)

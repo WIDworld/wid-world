@@ -220,8 +220,10 @@ do "$do_dir/import-oecd-data.do"
 
 // Import data from other sources
 do "$do_dir/import-imf-bop.do"
-do "$do_dir/import-imf-dottrade.do"
-do "$do_dir/import-combine-gravityimftrade.do"
+//do "$do_dir/import-imf-dottrade.do"
+//do "$do_dir/import-combine-gravityimftrade.do"
+do "$do_dir/importing-gravity-trade.do"
+do "$do_dir/imfbop-trade-gravity.do"
 do "$do_dir/currentaccount.do"
 do "$do_dir/import-income-researchers.do"
 do "$do_dir/reformat-wid-data.do"
