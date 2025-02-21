@@ -616,6 +616,11 @@ replace trade_credit = goods_credit + service_credit
 replace trade_debit = goods_debit + service_debit 
 
 //	adjusting secinc
+* Replacing the remittance accounts by the ones galculated in IMFBoP remittances do-file
+drop remittances_credit remittances_debit
+merge 1:1 iso year using "$work_data/imfbop-remittances.dta", nogenerate
+drop net_remittances 
+
 replace secinc_debit = foreignaid_debit + remittances_debit + othtrans_debit
 replace secinc_credit = foreignaid_credit + remittances_credit + othtrans_credit
 
@@ -717,7 +722,7 @@ foreach var in tbnnx tgnnx tsnnx {
 }
 */
 
-* Replacing the good accounts by the ones galculated in IMFBoB gravity do-file
+* Replacing the good accounts by the ones galculated in IMFBoP gravity do-file
 drop tgxrx tgmpx tgnnx
 merge 1:1 iso year using "$work_data/imfbop-tradegoods-gravity.dta", nogenerate
 gen net_goods = goods_credit - goods_debit
