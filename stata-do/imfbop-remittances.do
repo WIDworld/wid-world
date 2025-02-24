@@ -176,10 +176,15 @@ replace `v'_debit = `v'_debit + tot`v'_debit*ratio_`v'_debit
 }
 drop ratio* net* tot* 
 
+/*
 foreach v in remittances_credit remittances_debit {
 	replace `v' = `v'/gdp_usd
 }
+// Note: These values are included in the calculation of the current account before 
+// they are recalculated as a share of GDP_USD. This calculation will be done later 
+// in main.do, so they are not necessary yet.
 
+*/
 keep iso year remittances_credit remittances_debit 
 gen net_remittances = remittances_credit - remittances_debit 
 so iso year 
