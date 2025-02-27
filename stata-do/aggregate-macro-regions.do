@@ -16,7 +16,7 @@ save `combined', emptyok
 * 	1. Get regions decomposition
 // -------------------------------------------------------------------------- //
 
-// --------- 1.1 Get Regions definitons ------------------------------------- //
+// --------- 1.1 Get Regions definitions ------------------------------------- // 
 use "$work_data/import-core-country-codes-output.dta", clear
 drop if strpos(iso, "-")
 drop titlename shortname
