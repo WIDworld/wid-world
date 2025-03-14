@@ -115,7 +115,7 @@ preserve
 	* keep historical population estimates
 	* Note: this data, generated in calculate-populations comes from FT_IHS_1800_1949.dta
 	keep if year < 1950
-	keep if inlist(widcode, "npopul999i", "npopul991i", "npopul992i")
+	keep if inlist(widcode, "npopul999i", "npopul991i", "npopul992i", "npopul997i")
 	
 	/*
 	* 57 extended core-territories 

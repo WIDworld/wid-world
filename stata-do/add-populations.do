@@ -36,7 +36,7 @@ foreach var in "992i" "999i" {
 
 // clean Data
 duplicates tag iso widcode p year, generate(duplicate)
-drop if duplicate & newobs
+drop if duplicate & newobs==0
 drop duplicate newobs
 
 *replace value = . if iso == "DE" & inrange(year, 1937, 1944) & substr(widcode,1,6) == "npopul" 
@@ -132,7 +132,7 @@ reshape long value, i(iso year p) j(widcode) string
 drop if missing(value)
 
 //-------------  3.  Append non adjusted nopopul series and other WID data -----
-// Note: the Data befroe 1950 for specific variables is re-added here to 
+// Note: the Data before 1950 for specific variables is re-added here to 
 //       recover the information that was not calculated in the section 2.
 
 // Append npopul before 1950
