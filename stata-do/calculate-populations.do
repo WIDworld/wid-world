@@ -545,6 +545,7 @@ foreach gender in i f m{
 }
 reshape long value, i(iso year) j(widcode) string
 
+append using "$federico_tena_data/FT_IHS_1800_1949.dta"
 
 //------- Temporary section 
 replace iso="CN_RU" if iso=="CN-RU"
@@ -603,7 +604,7 @@ replace iso="CN-UR" if iso=="CN_UR"
 drop if inlist(iso,"OA","OB","OC","OD","OE","OH","OI","OJ","QM")
 
 //---------------------
-append using "$federico_tena_data/FT_IHS_1800_1949.dta"
+
 sort year iso 
 tab year if widcode=="npopul999i"
 drop p
