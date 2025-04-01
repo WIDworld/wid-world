@@ -1,69 +1,94 @@
-*****************************************
-*		What the dofile does			*
-*****************************************
+********************************************************************************
+*	         	Add wealth distribution .do-file	                    	   *
+********************************************************************************
 
-// Add historical wealth series with corrected forbes wealth series from 1995 onwards
-// Complete replace of the series we have!
-// to double check 2021 when aggregate HH wealth is updated in October 2022
+// What it does: Add historical wealth series with corrected forbes wealth series
+// from 1995 onwards Complete replace of the series we have!  to double check 2021
+//  when aggregate HH wealth is updated in October 2022.
 
-*****************************************
-*		How the dofile works			*
-*****************************************
-// "$work_data/add-wealth-aggregates-output.dta" adds the variables mhweal999i and npopul992i, which are used to calculate ahweal992i -> "a" variable
-// "wealth-gperc-all.dta" brings the variables p s ts a n 
+//------------------------------------------------------------------------------
+//		             Index                 		
+//------------------------------------------------------------------------------
+// I.   Data
+//.        I.1  Add Macro Wealth aggregates
+//         I.2  Add Macro Historical Wealth aggregates
+//         I.3 Add data corrected by Forbes (BBM + Correction)
+//         I.4  Adding Chinese wealth data
+//         I.5 Adding Netherlands wealth data
+//         I.6 Adding Hong Kong wealth data
+// II.  Formatting	 
+// III. Homogenise series	
+//		   III.1 calculate top percentiles
+//         III.2 calculate bottom percentiles
+//         III.3 appending Polish 1923 data (Already in final format)
+//         III.4 appending historical grouped percentiles
+//         III.5 Clean table
+// IV.  Metadata	
+// V.   Integrate with WID
+// VI.  Export
 
-// new data included should come with variables -> iso year p n bracket_average average (average = mhweal999i/npopul992i) bracket_share threshold. 
-// new data should come in wide format: iso year variables (with the variables included in previous point)
-// If data included has this format then adding it after the last one (currently Hong Kong) will allow for all the calculations to happen
+//------------------------------------------------------------------------------
+//	    I. Data			
+//------------------------------------------------------------------------------
 
-// Poland 1923 data is added at the very end because it is already in the final format
-
-*****************************
-*	     I. Data			*
-*****************************
-
-// Add Macro Wealth aggregates
+//--------------- I.1  Add Macro Wealth aggregates -----------------------------
+/*
 use "$work_data/add-researchers-data-real-output.dta", clear
-
+keep if year< 1995
 keep if inlist(widcode, "mhweal999i", "npopul992i")
 drop p currency 
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, pred(5)
 drop if missing(mhweal999i)
-generate ahweal992i = mhweal999i/npopul992i if !missing(mhweal999i)
+generate average = mhweal999i/npopul992i if !missing(mhweal999i)
 
 tempfile mhweal
 save `mhweal' 
+*/
 
-
-
-// Merging with the data corrected by Forbes (BBM + Correction)
+//--------------- I.2  Add Macro Historical Wealth aggregates ------------------
 ** Historical Wealth distribution 
-use "$wid_dir/Country-Updates/Wealth/2023_December/wealth-distributions-corrected.dta", clear
-keep if year<1995
-** Update 2024
-append using "$wid_dir/Country-Updates/Wealth/2024_December/wealth-distributions-corrected-2024-lcu-complete.dta"
+use  "$wid_dir/Country-Updates/wealth/Historical_data/hweal_distr_hist.dta", clear
 replace iso="KS" if iso=="XK"
-drop country region regioncode corecountry
+drop if iso=="NL"
+*merge m:1 iso year using "`mhweal'", keep(master matched) nogenerate
+
+tempfile hist
+save `hist' 
+
+// -------------- I.3 Add data corrected by Forbes (BBM + Correction) ----------
+// 
+** calling updated data:
+use "$wid_dir/Country-Updates/Wealth/2024_December/wealth-distributions-corrected-2024.dta", clear
+append using "`hist'"
+
+duplicates tag iso year p, gen(dup)
+assert dup<=1
+drop if dup==1 & historical==1
+
+duplicates tag iso year p, gen(dup1)
+assert dup1==0
+drop dup*  country region regioncode corecountry historical 
 
 /*
-// Adding Chinese wealth data
+// -------------- I.4  Adding Chinese wealth data ------------------------------
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen 
 
-// Adding Netherlands wealth data 
+// -------------- I.5 Adding Netherlands wealth data ---------------------------
 // drop if iso == "NL" & year == 1993 // Netherlands sent data with only 1993 overlapping. If data update arrives check if this is needed 
 // merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_11/nl-wealth", update replace nogen
 // replace bracket_average = a if iso == "NL" & missing(bracket_average)
 // replace threshold = t if iso == "NL" & missing(threshold)
 // drop t 
 
-// Adding Hong Kong wealth data
+// -------------- I.6 Adding Hong Kong wealth data -----------------------------
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/hk-wealth.dta", update replace nogen
+*/
 
-*****************************
-*	 II. Computations		*
-*****************************
-
+//------------------------------------------------------------------------------
+//	                 II. Formatting	                                           	 
+//------------------------------------------------------------------------------
+/*
 keep iso year p n s a average bracket_average bracket_share mhweal999i npopul992i threshold
 
 replace n = n*1e5 if year >= 1995 & !inrange(n, 1, 1000)
@@ -114,15 +139,23 @@ assert dup == 0
 drop dup 
 
 // Merge topshare wealth for NL prior 1995 - TEMPORARY
-** merge 1:1 iso year p using "$wid_dir/Country-Updates/Netherlands/2022_12/NL-wealth-ts-rm.dta", update replace nogen
+/*
+preserve 
+	use "$wid_dir/Country-Updates/Netherlands/2022_12/NL-wealth-ts-rm.dta", clear
+	*keep if year<1995
 
+	tempfile hist_NL
+	save   "`hist_NL'"
+restore
+*merge 1:1 iso year p using "`hist_NL'", update replace nogen
+*/
 
 tempfile all
 save `all'
 
-*****************************
-*	   III. Export			*
-*****************************
+//------------------------------------------------------------------------------
+//	                III. Homogenise series		
+//------------------------------------------------------------------------------
 
 keep year iso p a s t
 
@@ -140,7 +173,7 @@ rename perc p
 
 reshape long value, i(iso year p) j(widcode) string
 
-// top
+//------- III.1 calculate top percentiles --------------------------------------
 preserve
 	use `all', clear
 	keep year iso p ts ta 
@@ -156,7 +189,7 @@ preserve
 	tempfile top
 	save `top'
 restore
-// bottom
+//------- III.2 calculate bottom percentiles -----------------------------------
 preserve
 	use `all', clear
 	keep year iso p bs ba
@@ -176,9 +209,17 @@ restore
 append using `top'
 append using `bottom'
 
-// appending Polish 1923 data. Already in final format
+//------- III.3 appending Polish 1923 data. Already in final format ------------
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
 
+//------- III.4 appending historical grouped percentiles -----------------------
+append using "$wid_dir/Country-Updates/Wealth/Historical_data/hweal_distr_hist_group.dta"
+
+duplicates tag iso year widcode p, gen(dup)
+drop if dup>=1 & historical==1
+drop dup   historical 
+
+//------- III.5 Clean table ----------------------------------------------------
 /// test
 /// tsline value if iso == "NL" & p == "p99p100" & widcode == "shweal992j", xlabel(1900(10)2020)
 
@@ -194,14 +235,13 @@ drop dup*
 // drop if iso == "VE"
 ******
 
-
 compress
 tempfile final
 save `final'
 
-*****************************
-*	   IV. Metadata			*
-*****************************
+// -----------------------------------------------------------------------------
+//	                 IV. Metadata			
+// -----------------------------------------------------------------------------
 
 generate sixlet = substr(widcode, 1, 6)
 ds year p widcode value , not
@@ -339,13 +379,13 @@ drop duplicate
 label data "Generated by add-wealth-distribution.do"
 save "$work_data/add-wealth-distribution-metadata.dta", replace
 
-*****************************
-*	V. Integrate with WID	*
-*****************************
-
+// -----------------------------------------------------------------------------
+//               	V. Integrate with WID	
+// -----------------------------------------------------------------------------
 use "$work_data/add-researchers-data-real-output.dta", clear
 
 drop if inlist(widcode, "ahweal992j", "ohweal992j", "bhweal992j", "shweal992j", "thweal992j") & year>=1995
+gen core=1
 append using "`final'"
 drop if p == "p0p0"
 
@@ -355,18 +395,48 @@ replace currency = currency_2 if inlist(substr(widcode, 1, 1), "a", "t", "m")
 replace currency = "" if !inlist(substr(widcode, 1, 1), "a", "t", "m")
 drop currency_2
 
-gduplicates drop 
+*gduplicates drop 
 so iso year p widcode value 
-quietly by iso year p widcode : gen dup = cond(_N==1,0,_n) // this is to drop duplicated observations in iso year p widcode. In order to be replicable it's better to keep the min value instead of duplicates drop, force. It is not the most efficient way to do it in terms of computational time but it allows for replicability
+
+/*
+quietly by iso year p widcode : gen dup = cond(_N==1,0,_n) // this is to drop duplicated observations in 
+iso year p widcode. In order to be replicable it's better to keep the min value instead of duplicates drop, 
+force. It is not the most efficient way to do it in terms of computational time but it allows for replicability
 drop if dup > 1
+*/
+
+duplicates tag iso year p widcode, gen(dup)
+drop if dup==1 & core!=1
+
 duplicates tag iso year p widcode, gen(dup2)
 assert dup2 == 0
-drop dup* 
+drop dup* core
 
-
+// -----------------------------------------------------------------------------
+//	                  VI. Export
+// -----------------------------------------------------------------------------
 compress
 label data "Generated by add-wealth-distribution.do"
 save "$work_data/add-wealth-distribution-output.dta", replace
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* questions

@@ -65,4 +65,4 @@ rename iso Alpha2
 rename p   perc
 order Alpha2 year perc widcode
 
-export delim "$output_dir/$time/wid-data-$time-wealth-update2023.csv", delimiter(";") replace
+export delim "$output_dir/$time/wid-data-$time-wealth-aggr-update2024.csv", delimiter(";") replace
