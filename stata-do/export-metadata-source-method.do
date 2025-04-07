@@ -144,7 +144,7 @@ preserve
 		"of income and wealth surveys and tax data in the country considered. See " + ///
 		"http://wid.world/transparency/ for more information ."
 	gen source = `"[URL][URL_LINK]http://wid.world/transparency/[/URL_LINK][URL_TEXT]Inequality Transparency Index Methodology[/URL_TEXT][/URL]"' + ///
-				 `"[URL][URL_LINK]http://wordpress.wid.world/document/inequality-transparency-index-update-world-inequality-lab-technical-note-2020-12/[/URL_LINK]"' + ///
+				 `"[URL][URL_LINK]http://wid.world/document/inequality-transparency-index-update-world-inequality-lab-technical-note-2020-12/[/URL_LINK]"' + ///
 				 `"[URL_TEXT]; Burq, François and Chancel, Lucas. Inequality transaprency index update (2020)[/URL_TEXT][/URL]"'
 	tempfile temp
 	save `temp'
@@ -214,36 +214,75 @@ keep alpha2 twolet threelet method source data_quality imputation extrapolation 
 order alpha2 twolet threelet method source data_quality imputation extrapolation data_points
 
 // Historical Metadata
-replace extrapolation = "[[1820, 2000], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "CL", "CO", "BR", "MX")
-replace extrapolation = "[[1820, 1980], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "ES", "GB")
-replace extrapolation = "[[1820, 1980], [2020, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DE"
-replace extrapolation = "[[1820, 1920], [2020, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CA"
-replace extrapolation = "[[1820, 1900], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "FR"
-replace extrapolation = "[[1820, 1905], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "RU"
-replace extrapolation = "[[1820, 1910], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AU"
-replace extrapolation = "[[1820, 1920], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "NZ"
-replace extrapolation = "[[1820, 1934], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "SE"
-replace extrapolation = "[[1820, 1978], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CN"
-replace extrapolation = "[[1820, 1980], [2012, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ZA"
-replace extrapolation = "[[1820, 1980], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "IT"
-replace extrapolation = "[[1820, 1984], [2018, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ID"
-replace extrapolation = "[[1820, 1987], [2019, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "TR"
-replace extrapolation = "[[1820, 1988], [2011, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DZ"
-replace extrapolation = "[[1820, 1991], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "EG"
-replace extrapolation = "[[1820, 2000], [2021, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AR"
-replace extrapolation = "[[1820, 1980], [2017, 2022]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "JP"
-replace extrapolation = "[[1820, 1910]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "US"
+* This is a modification of 2022. In some part of the main do excecusions the medata 
+* is often damaged. This section correct the metadata. However this has to be suprresed 
+* once the reson of the problem in the metadata is corrected.
+
+*Latin America
+replace extrapolation = "[[1820,2001], [2010,2011], [2022,2023]]"  if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "BR")   
+replace extrapolation = "[[1820,2002], [2006,2008], [2021,2023]]"  if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "CO")   
+replace extrapolation = "[[1820,2000], [2015,2017], [2022,2023]]"  if (twolet == "pt") & (threelet == "inc") & alpha2 == "AR"         
+replace extrapolation = "[[1820,2023]]"                            if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "MX","CL")
+
+replace data_points= "[2000,2003,2006,2009,2011,2013,2015,2017,2020]"            if alpha2=="CL"
+replace data_points = "[2002,2004,2006,2008,2010,2012,2014,2016,2018,2020,2022]" if alpha2=="MX"
+
+*Europe                 
+replace extrapolation = "[[1820, 1981], [2013, 2014], [2021, 2023]]"     if (twolet == "pt") & (threelet == "inc") & inlist(alpha2, "ES","GB") 
+replace extrapolation = "[[1820, 1980], [2021, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DE" 
+replace extrapolation = "[[1820, 1900], [2022, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "FR" 
+replace extrapolation = "[[1820, 1905], [2018, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "RU" 
+replace extrapolation = "[[1820, 1934], [2021, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "SE" 
+replace extrapolation = "[[1820, 2024], [2016, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "IT" 
+
+replace data_points = "[2014]"                         if alpha2 == "ES"
+* Asia
+replace extrapolation = "[[1820, 1978], [2016, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CN" 
+replace extrapolation = "[[1820, 2023]]"               if (twolet == "pt") & (threelet == "inc") & alpha2 == "JP" 
+replace extrapolation = "[[1820, 1984], [2018, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ID" 
+
+*NAOC
+replace extrapolation = "[[1820, 1910]]"               if (twolet == "pt") & (threelet == "inc") & alpha2 == "US"  
+replace extrapolation = "[[1820, 1950], [2020, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "CA" 
+replace extrapolation = "[[1820, 1950], [2020, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "AU" 
+replace extrapolation = "[[1820, 1920],       [2023]"  if (twolet == "pt") & (threelet == "inc") & alpha2 == "NZ" 
+
+replace data_points = "[1910, 1930, 1940, 1950]"       if alpha2 == "AU"
+replace data_points = "[1920, 1930, 1940, 1950]"       if alpha2 == "CA"
+
+* Middle East
+replace extrapolation = "[[1820, 1987], [1988, 1994], [1996, 2006]]"     if (twolet == "pt") & (threelet == "inc") & alpha2 == "TR" 
+replace extrapolation = "[[1820, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "DZ" 
+replace extrapolation = "[[1820, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "EG" 
+
+replace data_points = "[2006, 2011, 2013]" 											 if alpha2 == "DZ"
+replace data_points = "[1987, 1994, 2006]" 											 if alpha2 == "TR"
+replace data_points = "[1990, 1995, 1999, 2004, 2008, 2010, 2012, 2015, 2017, 2019]" if alpha2 == "EG"
+
+*Africa
+replace extrapolation = "[[1820, 2023]]" if (twolet == "pt") & (threelet == "inc") & alpha2 == "ZA"
+
+replace data_points = "[1993, 2000, 2005, 2008, 2010, 2014]" if alpha2 =="ZA"
 
 replace source = source + ///
-`"[URL][URL_LINK]http://wordpress.wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]http://wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
 if (twolet == "pt") & (threelet == "inc") & strpos(extrapolation, "[1820,") 
 
  replace source = source + ///
-`"[URL][URL_LINK]http://wordpress.wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]http://wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/[/URL_LINK][URL_TEXT] ; Chancel, L., Moshrif, R., Piketty, T., Xuereb, S., (2023),  "Historical Inequality Series on WID.world - Updates"[/URL_TEXT][/URL]"' ///
 if (inlist(alpha2, "OA", "OB", "OC", "OD", "OE", "OI") | inlist(alpha2, "OJ", "QE", "QF", "QL", "QM", "QP") | inlist(alpha2, "WO", "XF", "XL", "XN", "XR", "XS"))
 
-
+replace alpha2= "KS" if alpha2=="KV"
 save "$work_data/metadata-final.dta", replace
+/*
+gen fivelet= twolet+threelet	
+drop if inlist(fivelet, "fdimp", "fdion", "fdiop", "fdior", "fdixn", "fkfiw", "nwoff") | ///
+		inlist(fivelet, "ptfor", "ptfxn", "ptfhr", "ptfon", "ptfop", "comco", "tgmpx") | ///
+		inlist(fivelet,"tgxrx", "tgnnx", "tsmpx", "tsxrx", "tsnnx", "scogr", "scgpx") | ///
+		inlist(fivelet,"scgrx", "scgnx", "sconx", "scopx", "scorx", "scinx", "scipx") | ///
+		inlist(fivelet,"scirx", "scrnx", "scrpx", "scrrx") 
+drop fivelet
+*/
 
 export delimited "$output_dir/$time/metadata/var-notes-$time.csv", replace delimiter(";") quote
 
