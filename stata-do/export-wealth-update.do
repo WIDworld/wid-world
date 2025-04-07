@@ -36,7 +36,7 @@ inlist(widcode, "wnwnat999i", "wnwnfa999i", "wnwnxa999i", "wnwodk999i", "wpwagr9
 inlist(widcode, "wpwbus999i", "wpwcud999i", "wpwdeb999i", "wpwdwe999i", "wpweal999i", "wpweqi999i") | ///
 inlist(widcode, "wpwfie999i", "wpwfin999i", "wpwfiw999i", "wpwhou999i", "wpwlan999i", "wpwnat999i") | ///
 inlist(widcode, "wpwnfa999i", "wpwodk999i", "wpwoff999i", "wpwpen999i") | ///
-inlist(widcode, "ahweal992j", "shweal992j", "thweal992j", "bhweal992j", "ghweal992j")
+(inlist(widcode, "ahweal992j", "shweal992j", "thweal992j", "bhweal992j", "ghweal992j") & p=="p0p100")
 
 
 // replace widcode = "mcwfix999i" if widcode == "mcwfiw999i"

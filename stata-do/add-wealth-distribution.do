@@ -10,18 +10,18 @@
 //		             Index                 		
 //------------------------------------------------------------------------------
 // I.   Data
-//.        I.1  Add Macro Wealth aggregates
-//         I.2  Add Macro Historical Wealth aggregates
+//.        I.1  Add Macro Wealth aggregates                       (desactivated)
+//         I.2  Add Macro Historical Wealth aggregates            (desactivated)
 //         I.3 Add data corrected by Forbes (BBM + Correction)
-//         I.4  Adding Chinese wealth data
-//         I.5 Adding Netherlands wealth data
-//         I.6 Adding Hong Kong wealth data
+//         I.4  Adding Chinese wealth data                        (desactivated)
+//         I.5 Adding Netherlands wealth data                     (desactivated)
+//         I.6 Adding Hong Kong wealth data                       (desactivated)
 // II.  Formatting	 
 // III. Homogenise series	
-//		   III.1 calculate top percentiles
-//         III.2 calculate bottom percentiles
+//		   III.1 Format top percentiles
+//         III.2 Format bottom percentiles
 //         III.3 appending Polish 1923 data (Already in final format)
-//         III.4 appending historical grouped percentiles
+//         III.4 appending historical grouped percentiles         (desactivated)
 //         III.5 Clean table
 // IV.  Metadata	
 // V.   Integrate with WID
@@ -48,6 +48,7 @@ save `mhweal'
 
 //--------------- I.2  Add Macro Historical Wealth aggregates ------------------
 ** Historical Wealth distribution 
+/*
 use  "$wid_dir/Country-Updates/wealth/Historical_data/hweal_distr_hist.dta", clear
 replace iso="KS" if iso=="XK"
 drop if iso=="NL"
@@ -55,13 +56,16 @@ drop if iso=="NL"
 
 tempfile hist
 save `hist' 
-
+*/
 // -------------- I.3 Add data corrected by Forbes (BBM + Correction) ----------
 // 
 ** calling updated data:
-use "$wid_dir/Country-Updates/Wealth/2024_December/wealth-distributions-corrected-2024.dta", clear
-append using "`hist'"
+use "$wid_dir/Country-Updates/Wealth/2025_March/wealth-distributions-2024-lcu-final.dta", clear
+*append using "`hist'"
 
+**Ensure Kosovo is well formatted
+replace iso="KS" if iso=="XK"
+/*
 duplicates tag iso year p, gen(dup)
 assert dup<=1
 drop if dup==1 & historical==1
@@ -69,7 +73,7 @@ drop if dup==1 & historical==1
 duplicates tag iso year p, gen(dup1)
 assert dup1==0
 drop dup*  country region regioncode corecountry historical 
-
+*/
 /*
 // -------------- I.4  Adding Chinese wealth data ------------------------------
 merge 1:1 iso year p using "$wid_dir/Country-Updates/Asia/2022/September/cn-wealth.dta", update replace nogen 
@@ -173,7 +177,7 @@ rename perc p
 
 reshape long value, i(iso year p) j(widcode) string
 
-//------- III.1 calculate top percentiles --------------------------------------
+//------- III.1 Format top percentiles --------------------------------------
 preserve
 	use `all', clear
 	keep year iso p ts ta 
@@ -189,7 +193,7 @@ preserve
 	tempfile top
 	save `top'
 restore
-//------- III.2 calculate bottom percentiles -----------------------------------
+//------- III.2 Format bottom percentiles -----------------------------------
 preserve
 	use `all', clear
 	keep year iso p bs ba
@@ -213,12 +217,13 @@ append using `bottom'
 append using "$wid_dir/Country-Updates/Poland/2022_February/poland_hweal_1923.dta"
 
 //------- III.4 appending historical grouped percentiles -----------------------
+/*
 append using "$wid_dir/Country-Updates/Wealth/Historical_data/hweal_distr_hist_group.dta"
 
 duplicates tag iso year widcode p, gen(dup)
 drop if dup>=1 & historical==1
 drop dup   historical 
-
+*/
 //------- III.5 Clean table ----------------------------------------------------
 /// test
 /// tsline value if iso == "NL" & p == "p99p100" & widcode == "shweal992j", xlabel(1900(10)2020)
@@ -227,6 +232,7 @@ duplicates drop iso year p widcode value, force // p0p1  p99.999p100 for a & s
 so iso year p widcode value 
 quietly by iso year p widcode : gen dup = cond(_N==1,0,_n) // this is to drop duplicated observations in iso year p widcode. In order to be replicable it's better to keep the min value instead of duplicates drop, force. It is not the most efficient way to do it in terms of computational time but it allows for replicability
 drop if dup > 1
+
 duplicates tag iso year p widcode, gen(dup2)
 assert dup2 == 0
 drop dup* 
@@ -234,6 +240,7 @@ drop dup*
 ****** to be revised 9/11/2023
 // drop if iso == "VE"
 ******
+drop if missing(value)
 
 compress
 tempfile final
@@ -406,7 +413,8 @@ drop if dup > 1
 */
 
 duplicates tag iso year p widcode, gen(dup)
-drop if dup==1 & core!=1
+assert inlist(dup,0,1)
+drop if dup==1 & core==1 // We want to retain the new observations
 
 duplicates tag iso year p widcode, gen(dup2)
 assert dup2 == 0
