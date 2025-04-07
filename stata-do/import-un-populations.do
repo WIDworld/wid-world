@@ -1,11 +1,15 @@
-/****Import UN series.***/
+/******************************************************************************/
+/***************           Import UN series                     ***************/
+/******************************************************************************/
 
 // Note: WPP population series are updated every two years (generally). Therefore,
 // updates in even years /could be made using the global ${year}, while in odd 
 // years, ${pasyear} should be used. To verify the current values of these globals,
 //  please refer to the setup.do file.
 
-*Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
+// 1.     ----------------------------------------------------------------------
+// Adding Demographic indicators
+* Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/1_General/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx
 import excel "$pop_un_data/wpp/WPP${year}_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear	
 
@@ -38,10 +42,11 @@ replace value = 1e3*value
 generate age = "all"
 generate sex = "both"
 
+// Save
 tempfile unpop
 save "`unpop'", replace
 
-// Both sexes, age groups --------------------------------------------------- //
+// 2. Both sexes, age groups ---------------------------------------------------
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx
 import excel "$pop_un_data/wpp/WPP${year}_POP_F02_1_POPULATION_5-YEAR_AGE_GROUPS_BOTH_SEXES.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
@@ -115,11 +120,12 @@ drop if value >= .
 replace value = 1e3*value
 
 generate sex = "both"
-	
+
+// Save and append previus data	
 append using "`unpop'"
 save "`unpop'", replace
 
-// Men, age groups ---------------------------------------------------------- //
+// 3. Men, age groups ----------------------------------------------------------
 
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx
 import excel "$pop_un_data/wpp/WPP${year}_POP_F02_2_POPULATION_5-YEAR_AGE_GROUPS_MALE.xlsx", ///
@@ -203,11 +209,12 @@ reshape long value, i(iso year) j(age) string
 drop if value >= .
 replace value = 1e3*value
 generate sex = "men"
-	
+
+// Save and append previus data		
 append using "`unpop'"
 save "`unpop'", replace
 
-// Women, age groups -------------------------------------------------------- //
+// 4. Women, age groups --------------------------------------------------------
 *Import data from https://population.un.org/wpp/Download/Files/1_Indicator%20(Standard)/EXCEL_FILES/2_Population/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx
 	import excel "$pop_un_data/wpp/WPP${year}_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx", ///
 	cellrange(B17) firstrow case(lower) clear
@@ -292,13 +299,87 @@ drop if value >= .
 replace value = 1e3*value
 generate sex = "women"
 
+// Save and append previus data	
 append using "`unpop'"
 save "`unpop'", replace
 
+// cleaning
 drop locationcode iso3alphacode sdmxcode regionsubregioncountryorar notes
 drop if missing(iso)
 
 drop if year>$pastyear
+
+tab year // it has data from 1950 to 2021
+tab iso // it has 237 countries
+tab type
+
+// 5. Formatting the data for the WID integration   ----------------------------
+
+// Generate proper widcodes
+generate widcode = "npopul"
+
+replace widcode = widcode + "999" if (age == "all")
+replace widcode = widcode + "991" if (age == "children")
+replace widcode = widcode + "992" if (age == "adults")
+replace widcode = widcode + "993" if (age == "20_39")
+replace widcode = widcode + "994" if (age == "40_59")
+replace widcode = widcode + "995" if (age == "60")
+replace widcode = widcode + "996" if (age == "20_64")
+replace widcode = widcode + "997" if (age == "65")
+replace widcode = widcode + "998" if (age == "80")
+
+replace widcode = widcode + "001" if (age == "0_4")
+replace widcode = widcode + "051" if (age == "5_9")
+replace widcode = widcode + "101" if (age == "10_14")
+replace widcode = widcode + "151" if (age == "15_19")
+replace widcode = widcode + "201" if (age == "20_24")
+replace widcode = widcode + "251" if (age == "25_29")
+replace widcode = widcode + "301" if (age == "30_34")
+replace widcode = widcode + "351" if (age == "35_39")
+replace widcode = widcode + "401" if (age == "40_44")
+replace widcode = widcode + "451" if (age == "45_49")
+replace widcode = widcode + "501" if (age == "50_54")
+replace widcode = widcode + "551" if (age == "55_59")
+replace widcode = widcode + "601" if (age == "60_64")
+replace widcode = widcode + "651" if (age == "65_69")
+replace widcode = widcode + "701" if (age == "70_74")
+replace widcode = widcode + "751" if (age == "75_79")
+replace widcode = widcode + "801" if (age == "80_84")
+replace widcode = widcode + "851" if (age == "85_89")
+replace widcode = widcode + "901" if (age == "90_94")
+replace widcode = widcode + "951" if (age == "95_99")
+replace widcode = widcode + "111" if (age == "100")
+
+replace widcode = widcode + "202" if (age == "20_29")
+replace widcode = widcode + "302" if (age == "30_39")
+replace widcode = widcode + "402" if (age == "40_49")
+replace widcode = widcode + "502" if (age == "50_59")
+replace widcode = widcode + "602" if (age == "60_69")
+replace widcode = widcode + "702" if (age == "70_79")
+replace widcode = widcode + "802" if (age == "80_89")
+replace widcode = widcode + "902" if (age == "90_99")
+
+
+
+replace widcode = widcode + "i" if (sex == "both")
+replace widcode = widcode + "m" if (sex == "men")
+replace widcode = widcode + "f" if (sex == "women")
+
+
+
+assert strlen(widcode) == 10
+drop age sex type parentcode
+format value %12.0f
+
+*Generate new age gender breakdowns (0-14,15-64)
+reshape wide value, i(iso year) j(widcode) string
+foreach gender in i f m {
+	gen valuenpopul014`gender'=valuenpopul001`gender'+valuenpopul051`gender'+valuenpopul101`gender' 
+	gen valuenpopul156`gender'=valuenpopul999`gender'-valuenpopul997`gender'-(valuenpopul001`gender'+valuenpopul051`gender'+valuenpopul101`gender') 
+}
+reshape long value, i(iso year) j(widcode) string
+duplicates report iso widcode year
+
 
 label data "Generated by import-un-populations.do"
 save "$work_data/un-population.dta", replace

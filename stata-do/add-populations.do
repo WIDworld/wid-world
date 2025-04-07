@@ -5,7 +5,7 @@
 //-------------   1. Prepare Data   --------------------------------------------
 // Call population data
 use "$work_data/populations.dta", clear
-
+/*
 tempfile popul
 save "`popul'"
 
@@ -19,7 +19,7 @@ generate newobs = 0
 append using "`popul'"
 replace newobs = 1 if (newobs >= .)
 
-///* SWEDEN - 992i: Bauluz estimates end in 2016, 2017 WID value (WID extrapolated with UN's growth rate) is too low (drop between 2016 and 2017)
+/// SWEDEN - 992i: Bauluz estimates end in 2016, 2017 WID value (WID extrapolated with UN's growth rate) is too low (drop between 2016 and 2017)
 * take Bauluz's 2016 value and apply growth rate of WID between 2016 and 2017 
 /*
 foreach var in "992i" "999i" {
@@ -57,6 +57,7 @@ drop currency
 compress
 
 // Keep the population data before 1950 aside
+ */
 preserve 
 	keep if year<1950
 	gen old=1
@@ -65,6 +66,7 @@ preserve
 	save "`npopul_1949'"
 restore
 
+ */
 
 //-------------  2.  Harmonize subcategories with 999i and 992i aggregates -----
 reshape wide value, i(iso year p) j(widcode) string
@@ -87,8 +89,8 @@ replace ratio = newratio
 * generate missing i variables based on m and f
 forvalues n = 2/9 {
 	cap gen valuenpopul`n'01i = valuenpopul`n'01f + valuenpopul`n'01m
-	cap gen valuenpopul`n'02i = valuenpopul`n'02f + valuenpopul`n'02m
-	cap gen valuenpopul`n'51i = valuenpopul`n'51f + valuenpopul`n'51m
+	cap gen valuenpopul`n'02i = valuenpopul`n'02f + valuenpopul`n'02m 
+	cap gen valuenpopul`n'51i = valuenpopul`n'51f + valuenpopul`n'51m 
 }
 
 * apply ratios to subcategories to make them consistent with new 999i and 992i aggregates
@@ -106,7 +108,7 @@ forvalues n = 3/8 {
 	// 		  empeach the calculation the "adults" and therfore of the "ratio" 
 	//		  variable. As so, no new data will be adjusted before 1950.
 	foreach sex in "f" "m" "i" {
-		replace valuenpopul99`n'`sex' = valuenpopul99`n'`sex' * ratio
+		replace valuenpopul99`n'`sex' = valuenpopul99`n'`sex' * ratio 
 	}
 }
 
@@ -131,6 +133,11 @@ reshape long value, i(iso year p) j(widcode) string
 
 drop if missing(value)
 
+*drop p currency
+replace value=round(value,1)  
+
+sort iso year widcode p
+
 //-------------  3.  Append non adjusted nopopul series and other WID data -----
 // Note: the Data before 1950 for specific variables is re-added here to 
 //       recover the information that was not calculated in the section 2.
@@ -145,8 +152,39 @@ assert inlist(dup,0,1)
 drop if dup==1 & old==1
 drop dup old
 
-// Append the rest of WID Data
-append using "`nopopul'"
+// Save
+tempfile popul
+save "`popul'"
+
+
+// Call WID data
+use "$work_data/add-national-accounts-output.dta", clear
+*drop if substr(widcode,1,6) == "npopul"
+generate newobs = 0
+
+// Append population data to the wID data
+append using "`popul'"
+replace newobs = 1 if (newobs >= .)
+
+duplicates tag iso year widcode p, gen(dup)
+drop if dup==1 & newobs==0
+
+duplicates tag iso year widcode p, gen(dup2)
+assert dup2==0
+drop dup* refyear newobs
+
+
+sort iso year widcode p
+
+drop if mi(value)
+
+*Correction of US states
+//
+//
+//
+//
+//
+
 
 compress
 

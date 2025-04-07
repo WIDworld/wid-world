@@ -148,6 +148,9 @@ do "$do_dir/import-un-populations.do"
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
 
+// Import historical series from FedericoTena and IHS population datasets
+do "$do_dir/import-ft-ihs-populations.do"
+
 // Calculate the population series
 do "$do_dir/calculate-populations.do" 
 
