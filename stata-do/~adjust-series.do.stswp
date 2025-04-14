@@ -315,6 +315,7 @@ foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {
 }
 
 
+asd
 // world average rate of return 
 preserve
 keep if corecountry == 1
@@ -349,7 +350,7 @@ gen nwnxa_new = (nwgxa_new - nwgxd_new)
 replace nwgxa = nwgxa_new if iso == "PR"  
 replace nwgxd = nwgxd_new if iso == "PR" 
 replace nwnxa = nwnxa_new if iso == "PR" 
-drop *_new ra rd
+drop *_new 
 
 foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {  
 	replace `v' = `v'/gdpusd 
