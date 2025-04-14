@@ -310,7 +310,7 @@ foreach c of global SSEA {
 replace coreterritory="OI" if country=="`c'" & coreterritory==""
 }
 
-foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {  
+foreach v in ptfxa fdixa ptfrx fdirx ptfpx ptfnx fdipx fdinx ptfxd ptfxn fdixd fdixn {  
 	replace `v' = `v'*gdpusd 
 }
 
@@ -318,47 +318,63 @@ foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {
 // world average rate of return 
 preserve
 keep if corecountry == 1
-	collapse (sum) nwgxa nwgxd pinrx pinpx, by(year)
-	replace nwgxa =. if nwgxa == 0
-	replace nwgxd =. if nwgxd == 0
-	replace pinrx =. if pinrx == 0
-	replace pinpx =. if pinpx == 0
-	gen ra = pinrx/nwgxa 
-	gen rd = pinpx/nwgxd
-	keep year ra rd 
+	collapse (sum) ptfxa fdixa ptfrx fdirx, by(year)
+	replace ptfxa =. if ptfxa == 0
+	replace fdixa =. if fdixa == 0
+	replace ptfrx =. if ptfrx == 0
+	replace fdirx =. if fdirx == 0
+	gen rpa = ptfrx/ptfxa 
+	gen rfa = fdirx/fdixa
+	keep year rpa rfa 
 	tempfile world
 	sa `world'
 restore 
 merge m:1 year using `world'
 	
 // rescaling fki for problematic caribbean TH
-gen pinrx_new = ra*nwgxa
-gen pinpx_new = pinrx_new - pinnx
-gen pinnx_new = (pinrx_new - pinpx_new)
+gen ptfrx_new = rpa*ptfxa
+gen ptfpx_new = ptfrx_new - ptfnx
+gen ptfnx_new = (ptfrx_new - ptfpx_new)
 
-replace pinrx = pinrx_new if coreterritory == "OD" & TH == 1 & iso != "PR"
-replace pinpx = pinpx_new if coreterritory == "OD" & TH == 1 & iso != "PR" 
-replace pinnx = pinnx_new if coreterritory == "OD" & TH == 1 & iso != "PR" 
+gen fdirx_new = rfa*fdixa
+gen fdipx_new = fdirx_new - fdinx
+gen fdinx_new = (fdirx_new - fdipx_new)
+
+replace ptfrx = ptfrx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & ptfpx_new > 0
+replace ptfpx = ptfpx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & ptfpx_new > 0 
+replace ptfnx = ptfnx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & ptfpx_new > 0 
+
+replace fdirx = fdirx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & fdipx_new > 0
+replace fdipx = fdipx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & fdipx_new > 0 
+replace fdinx = fdinx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & fdipx_new > 0 
 drop *_new 
 
 // rescaling NWGXA for PR 
-gen nwgxa_new = pinrx/ra
-gen nwgxd_new = nwgxa_new - nwnxa
-gen nwnxa_new = (nwgxa_new - nwgxd_new)
+gen ptfxa_new = ptfrx/rpa
+gen ptfxd_new = ptfxa_new - ptfxn
+gen ptfxn_new = (ptfxa_new - ptfxd_new)
 
-replace nwgxa = nwgxa_new if iso == "PR"  
-replace nwgxd = nwgxd_new if iso == "PR" 
-replace nwnxa = nwnxa_new if iso == "PR" 
-drop *_new ra rd
+gen fdixa_new = fdirx/rpa
+gen fdixd_new = fdixa_new - fdixn
+gen fdixn_new = (fdixa_new - fdixd_new)
 
-foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {  
+replace ptfxa = ptfxa_new if iso == "PR" & ptfxd_new > 0  
+replace ptfxd = ptfxd_new if iso == "PR" & ptfxd_new > 0 
+replace ptfxn = ptfxn_new if iso == "PR" & ptfxd_new > 0 
+
+replace fdixa = fdixa_new if iso == "PR" & fdixd_new > 0  
+replace fdixd = fdixd_new if iso == "PR" & fdixd_new > 0 
+replace fdixn = fdixn_new if iso == "PR" & fdixd_new > 0 
+drop *_new rpa rfa
+
+foreach v in ptfxa fdixa ptfrx fdirx ptfpx ptfnx fdipx fdinx ptfxd ptfxn fdixd fdixn {  
 	replace `v' = `v'/gdpusd 
 }
 
 	*rescaling 
 	gen ratiocheck = (ptfxa + fdixa)/nwgxa
-	foreach var in ptfxa fdixa {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	foreach var in nwgxa {
+		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
@@ -369,8 +385,8 @@ foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {
 	drop ratiocheck 
 
 	gen ratiocheck = (ptfxd + fdixd)/nwgxd
-	foreach var in ptfxd fdixd {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	foreach var in nwgxd {
+		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
@@ -381,8 +397,8 @@ foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {
 	drop ratiocheck 
 
 	gen ratiocheck = (ptfrx + fdirx)/pinrx
-	foreach var in ptfrx fdirx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	foreach var in pinrx {
+		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
@@ -393,8 +409,8 @@ foreach v in nwgxa nwgxd nwnxa pinrx pinpx pinnx {
 	drop ratiocheck 
 
 	gen ratiocheck = (ptfpx + fdipx)/pinpx
-	foreach var in ptfrx fdirx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+	foreach var in pinpx {
+		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
