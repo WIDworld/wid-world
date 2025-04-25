@@ -14,6 +14,8 @@ use "$work_data/merge-historical-main.dta", clear
 *drop if strpos(iso, "-")
 drop if iso=="XX"
 
+
+
 keep if inlist(widcode, "ahweal992i", "anninc992i")
 keep if p == "p0p100"
 drop p currency
@@ -40,6 +42,7 @@ keep if strpos(widcode, "aptinc992j") > 0 | ///
 		strpos(widcode, "tdiinc992j") > 0 
 tab widcode  
 
+
 preserve
 	// Note: Germany's Data before 1980 was collected only for Top shares so when homogenization
 	//       process tend to drop them. We will reinsert them before the export
@@ -60,6 +63,12 @@ preserve
 	tempfile unprocessed
 	save "`unprocessed'"
 restore
+
+//------ Transformation 1 -----------
+// Note: Stata does not manage properly the decimals. By doing this we keep as 
+//       posible the share values unchanged
+replace value= value*1000 if substr(widcode,1,1)=="s"
+//-----------------------------------
 
 *-------------* 2.1 Parsing the percentiles *-------------*  
 generate long p_min = round(1000*real(regexs(1))) if regexm(p, "^p([0-9\.]+)p([0-9\.]+)$")
@@ -112,8 +121,10 @@ bys iso year widcode : replace n = cond(_N == _n, 100000 - p, p[_n + 1] - p)
 tab widcode // wealth & post tax are not fully complete is not complete 
 rename (valueahweal992i valueanninc992i) (ahweal992i anninc992i) 
 
+*save "aux.dta", replace
+*u "aux.dta", clear
 *---------* 2.3 Filling Missing Values & Producing Top and Bottom Groups *---------*  
-egen average = total(a*n/1e5) if !missing(a), by(iso year widcode)
+egen double average = total(a*n/1e5) if !missing(a), by(iso year widcode)
 replace average = . if average == 0
 
 *------------ India special case ------------
@@ -122,20 +133,43 @@ replace average= anninc992i if iso=="IN" & inlist(year,1930,1940,1950) & widcode
 *--------------------------------------------
 
 * Pre-Tax Income: 
-replace a = a/average*anninc992i if !missing(a) & inlist(widcode, "ptinc992j") & !missing(anninc992i)
-replace a = (s/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "ptinc992j") & !missing(anninc992i)
+replace a = a/average*anninc992i        if !missing(a) & inlist(widcode, "ptinc992j") & !missing(anninc992i)
+replace a = ((s/1000)/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "ptinc992j") & !missing(anninc992i)
 
 * Post-Tax Income: 
-replace a = a/average*anninc992i if !missing(a) & inlist(widcode, "diinc992j") & !missing(anninc992i)
-replace a = (s/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "diinc992j") & !missing(anninc992i)
+replace a = a/average*anninc992i        if !missing(a) & inlist(widcode, "diinc992j") & !missing(anninc992i)
+replace a = ((s/1000)/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "diinc992j") & !missing(anninc992i)
 
 * Household Wealth: 
-replace a = a/average*ahweal992i if !missing(a) & inlist(widcode, "hweal992j") & !missing(ahweal992i)
-replace a = (s/n*1e5)*ahweal992i if missing(a)  & inlist(widcode, "hweal992j") & !missing(ahweal992i)
+replace a = a/average*ahweal992i        if !missing(a) & inlist(widcode, "hweal992j") & !missing(ahweal992i)
+replace a = ((s/1000)/n*1e5)*ahweal992i if missing(a)  & inlist(widcode, "hweal992j") & !missing(ahweal992i)
+
+sort iso year widcode p
+by iso year widcode: replace t = (a[_n - 1] + a)/2 if missing(t)
+by iso year widcode: replace t = min(0, 2*a)       if missing(t) & p == 0 
+
+gsort iso year widcode -p
+by iso year widcode: generate double ts = sum(s)
+					 replace         ts = 1000               if p==0 // This ensure that ptinc and diinc p0p100 will be equivalent.
+by iso year widcode: generate double ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j")
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "diinc992j")
+* This ensure that ptinc and diinc p0p100 will be equivalent.
+                     *replace         ta = anninc992i         if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j", "diinc992j") & p==0 
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i) | !missing(average) ) & inlist(widcode, "hweal992j")
+
+*by iso year widcode: generate double bs = 1 - ts
+by iso year widcode: generate double bs = 1000 - ts
+by iso year widcode: generate double ba = ((bs/1000) / (1 - p / 1e7)) * anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
+by iso year widcode: replace         ba = ((bs/1000) / (1 - p / 1e7)) * anninc992i if inlist(widcode, "diinc992j") & !missing(anninc992i)
+by iso year widcode: replace         ba = ((bs/1000) / (1 - p / 1e7)) * ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
+by iso year widcode: replace         ba = ((bs/1000) / (1 -p  / 1e7)) * average    if inlist(widcode, "hweal992j") & (!missing(average))
+
 
 //------------------- A last cleanning -----------------------------------------
-replace a = a*1000
-replace t = t*1000
+//------ Transformation 2 -----------
+replace a = a * 1000
+replace t = t * 1000
+//-----------------------------------
 
 // Dropping observations not behaving as expected
 * Generating a lag
@@ -143,19 +177,22 @@ sort iso year widcode p
 by iso year widcode (p): gen double for_a = a[_n+1]
 by iso year widcode (p): gen double for_t = t[_n+1]
 
-* Anticipating possible value drops in more than 1 percentile continouisly
-gen double max_a = a 
-bysort iso year widcode (p): replace max_a = max(max_a[_n-1], a) if _n > 1
-gen double max_t = t if _n==1 
-bysort iso year widcode (p): replace max_t = max(max_t[_n-1], t) if _n > 1
-
-
-* Dropping observations not behaving as expected
 gen double dif1 = a - for_a 
-gen double dif2 = max_a - a 
 gen double dif3 = a - for_t 
+
+* Anticipating possible value drops in more than 1 percentile continouisly
+gen double max_a_aux=a
+replace    max_a_aux=. if dif1>0.01 
+
+gen double max_a = a 
+bysort iso year widcode (p): replace max_a = max(max_a[_n-1], max_a_aux) if _n > 1
+gen double max_t = t if _n==1 
+bysort iso year widcode (p): replace max_t = max(max_t[_n-1], t) if _n > 1 
+
+gen double dif2 = max_a - a 
 gen double dif4 = max_t - t 
 
+* Dropping observations not behaving as expected
 gen double  a2=a
 replace a2=. if dif1>0.01 & !missing(for_a) & p!=0 & round(a,0.01)!=0  // we need a_t>a_t-1  
 replace a2=. if dif2>0.01 & !missing(max_a) & !missing(for_a) & p!=0 // we need a>=Max_a
@@ -185,32 +222,26 @@ replace t = t2 if missing(t)
 replace t = min(0, 2*a) if p == 0 & missing(t) & !missing(a)
 drop t2
 
-replace a=a/1000
-replace t=t/1000
+//------ Transformation 2 -----------
+replace a = a / 1000
+replace t = t / 1000
+//-----------------------------------
 //------------------------------------------------------------------------------
 
-sort iso year widcode p
-by iso year widcode: replace t = (a[_n - 1] + a)/2 if missing(t)
-by iso year widcode: replace t = min(0, 2*a)       if missing(t) & p == 0 
 
-gsort iso year widcode -p
-by iso year widcode: generate ts = sum(s)
-by iso year widcode: generate ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j")
-by iso year widcode: replace  ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "diinc992j")
-by iso year widcode: replace  ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i) | !missing(average) ) & inlist(widcode, "hweal992j")
+//------ Transformation 1 -----------
+* Bring back the values of shares to normal scale
+replace s  = s  / 1000
+replace ts = ts / 1000
+replace bs = bs / 1000
+//-----------------------------------
 
-by iso year widcode: generate bs = 1 - ts
-by iso year widcode: generate ba = (bs / (1 - p / 1e7)) * anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
-by iso year widcode: replace  ba = (bs / (1 - p / 1e7)) * anninc992i if inlist(widcode, "diinc992j") & !missing(anninc992i)
-by iso year widcode: replace  ba =       (bs/(1-p/1e7)) * ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
-by iso year widcode: replace  ba =       (bs/(1-p/1e7)) * average    if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
 replace a = . if miss_t == 1
 replace t = . if miss_t == 1
 drop test_t miss_t
-
 
 tempfile final
 save `final'
@@ -249,15 +280,10 @@ preserve
 	use `final', clear
 	keep year iso widcode p ba bs t 
 	gsort iso year widcode p
-*	generate t_p0 = t if p == 0
-*	egen t_bottom2 = mode(t_p0), by(iso year widcode)
-//----------
-	* Complete bottom t
-	by iso year widcode: generate double t_bottom = (ba + ba[_n - 1])/2 
-//-----------
-	replace t_bottom = t if p==0
-	replace t = t_bottom
-	drop t_bottom //t_p0
+	generate double t_p0     = t if p == 0
+	egen     double t_bottom = mode(t_p0), by(iso year widcode)
+	replace         t        = t_bottom
+	drop t_bottom t_p0
 	replace p = p/1000
 	bys year iso widcode (p) : gen p2 = p[_n+1]
 	replace p2 = 100 if p2 == .
@@ -280,6 +306,7 @@ append using `bottom'
 drop if missing(value)
 duplicates drop iso year p widcode, force
 
+
 tempfile full_pretax_posttax_wealth 
 save "`full_pretax_posttax_wealth'"
 save "$work_data/full_pretax_posttax_wealth.dta", replace
@@ -290,15 +317,15 @@ use `final', clear
 gsort iso year widcode p
 
 generate decile = 1 if inrange(p, 0, 9000)
-replace decile = 2  if inrange(p, 10000, 19000)
-replace decile = 3  if inrange(p, 20000, 29000)
-replace decile = 4  if inrange(p, 30000, 39000)
-replace decile = 5  if inrange(p, 40000, 49000)
-replace decile = 6  if inrange(p, 50000, 59000)
-replace decile = 7  if inrange(p, 60000, 69000)
-replace decile = 8  if inrange(p, 70000, 79000)
-replace decile = 9  if inrange(p, 80000, 89000)
-replace decile = 10 if inrange(p, 90000, 99999)
+replace  decile = 2  if inrange(p, 10000, 19000)
+replace  decile = 3  if inrange(p, 20000, 29000)
+replace  decile = 4  if inrange(p, 30000, 39000)
+replace  decile = 5  if inrange(p, 40000, 49000)
+replace  decile = 6  if inrange(p, 50000, 59000)
+replace  decile = 7  if inrange(p, 60000, 69000)
+replace  decile = 8  if inrange(p, 70000, 79000)
+replace  decile = 9  if inrange(p, 80000, 89000)
+replace  decile = 10 if inrange(p, 90000, 99999)
 
 collapse (sum) s (min) anninc992i ahweal992i average t p , by(iso year widcode decile)
 
@@ -319,16 +346,16 @@ replace p2 = 100 if p2 == .
 gen perc = "p"+string(p)+"p"+string(p2)
 drop p p2 decile
 rename perc p
- 
+
 keep a s t iso year p widcode 
 reshape wide a s t, i(iso year p) j(widcode) string
 renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 greshape long value, i(iso year p) j(widcode) string
 drop if missing(value)
 
+
 tempfile deciles_pretax_posttax_wealth
 save "`deciles_pretax_posttax_wealth'"
-
 save "$work_data/full-deciles-pretax_posttax_wealth.dta", replace
 
 // ----------- 5.  Middle 40 ---------------------------------------------------
@@ -337,10 +364,10 @@ use `final', clear
 generate mid40 = inrange(p, 50000, 89000)
 drop if mid40 == 0
 collapse (sum) s (min) anninc992i ahweal992i average t p, by(iso year widcode mid40)
-generate a = s * anninc992i / 0.4 if inlist(widcode, "ptinc992j") & !missing(anninc992i)
-replace  a = s * anninc992i / 0.4 if inlist(widcode, "diinc992j") & !missing(anninc992i)
+generate a = s * anninc992i / 0.4 if inlist(widcode, "ptinc992j") &  !missing(anninc992i)
+replace  a = s * anninc992i / 0.4 if inlist(widcode, "diinc992j") &  !missing(anninc992i)
 replace  a = s * ahweal992i / 0.4 if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
-replace  a = s * average / 0.4 if inlist(widcode, "hweal992j") & (!missing(average))
+replace  a = s * average    / 0.4 if inlist(widcode, "hweal992j") & (!missing(average))
 
 generate test_t = missing(t)
 egen miss_t = mode(test_t), by(iso year widcode)
@@ -370,7 +397,6 @@ duplicates report // no duplicates
 
 tempfile full
 save "`full'"
-
 save "$work_data/world-full-distributions-pretax_posttax_wealth.dta", replace
 
 
@@ -389,14 +415,17 @@ order Alpha2 year perc widcode
 //------------- 7.1 Generating pretax income data .csv
 preserve
 	keep if strpos(widcode,"ptinc")
-	*export delim "$output_dir/$time/wid-data-$time-ptinc2024Update.csv", delimiter(";") replace
+	expand 2 if widcode == "sptinc992j", gen(exp)
+	replace widcode = "sptinc999j" if exp == 1 
+	drop exp 
+	export delim "$output_dir/$time/wid-data-$time-ptinc2024Update.csv", delimiter(";") replace
 restore
 
 
 //------------- 7.2 Generating posttax income data .csv
 preserve
 	keep if strpos(widcode,"diinc")
-	*export delim "$output_dir/$time/wid-data-$time-diinc2024Update.csv", delimiter(";") replace
+	export delim "$output_dir/$time/wid-data-$time-diinc2024Update.csv", delimiter(";") replace
 restore
 
 //------------- 7.3 Generating wealth distribution data .csv

@@ -138,7 +138,7 @@ bys iso year (p) : replace a = 0 if _n <= $plafond       & flag==1
 bys iso year (p) : replace t = . if inrange(p, 0, 20000) & flag==1
 
 // Compute Alpha
-bys iso year (p) : generate a_n = a if p == 20000
+bys iso year (p) : generate double  a_n = a if p == 20000
 bys iso year (p) : egen fill = mode(a_n)
 replace a_n = fill 
 drop fill
@@ -150,7 +150,7 @@ replace m = fill
 drop fill
 
 gsort year iso p
-generate alpha = (a_n/m)-1
+generate double alpha = (a_n/m)-1
 replace alpha = 1 if alpha<1
 
 bys iso year (p) : generate p_i  = order if inrange(p, 5000, 20000)
@@ -159,7 +159,7 @@ bys iso year (p) : generate p_k1 = .05
 bys iso year (p) : generate p_n  = .2
 
 
-generate m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p_n-p_k1)^alpha*(p_i1-p_i)) if inrange(p, 5000, 19000)
+generate double  m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p_n-p_k1)^alpha*(p_i1-p_i)) if inrange(p, 5000, 19000)
 
 replace a = m3 if !missing(m3) & flag==1
 
@@ -178,7 +178,7 @@ replace t = t/average*anninc
 // Compleating thresholds and ensuring series Match
 
 // 1. Generating limit to t
-gen t_20 = t if p==21000
+gen double t_20 = t if p==21000
 bysort iso year (p): egen t_max = max(t_20)  
 
 // 2. Inputing missing t
@@ -202,12 +202,12 @@ drop new flag_t t_20 t_max
 generate double s = a*(n/1e5)/anninc 
 
 gsort iso year -p
-by iso year : generate ts = sum(s)
-by iso year : generate ta = sum(a*n)/(1e5 - p)
-by iso year : generate bs = 1-ts
+by iso year : generate double ts = sum(s)
+by iso year : generate double ta = sum(a*n)/(1e5 - p)
+by iso year : generate double bs = 1-ts
 
 gsort iso year p
-by iso year : generate ba = bs*average/(0.5) if p == 50000
+by iso year : generate double ba = bs*average/(0.5) if p == 50000
 
 keep year iso p a s t ts ta bs ba was_miss
 
@@ -279,7 +279,7 @@ preserve
 	reshape wide bs, i(iso year) j(p) string
 	rename bsp50p51 valuep0p50
 	rename bsp90p91 valuep0p90
-	bys iso year : gen valuep50p90 = valuep0p90 - valuep0p50
+	bys iso year : gen double valuep50p90 = valuep0p90 - valuep0p50
 	reshape long value, i(iso year) j(p) string
 	gen widcode = "sptinc992j"
 

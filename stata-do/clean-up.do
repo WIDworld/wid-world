@@ -306,7 +306,7 @@ preserve
 	merge m:1 iso year widcode p using "`check_avg'", nogenerate keep(master match)
 	
 	// ------ 3. Generate aux. variables
-	gen value2= value
+	gen double value2= value
 	generate n = round(p_max - p_min, 1)
 	replace value2=. if !inlist(n, 1, 10, 100, 1000)
 	replace value2=. if n == 1000 & p_min >= 99000
@@ -314,10 +314,10 @@ preserve
 	replace value2=. if n == 10   & p_min >= 99990
 	
 	replace value2=. if substr(wid2, 1 , 1) != "t" 
-	gen s_t = value2*(n/1e5)/anninc if !missing(anninc)
+	gen double s_t = value2*(n/1e5)/anninc if !missing(anninc)
 	
 	// ------ 4. Calculate scaled thresholds
-	gen new_t = s_t*average/((p_max - p_min)/1e5) if !missing(value2) & !missing(average)
+	gen double new_t = s_t*average/((p_max - p_min)/1e5) if !missing(value2) & !missing(average)
 	bys iso year widcode p_min: egen new_t2 = mean(new_t)
 	replace value= new_t2 if inlist(wid2,"tptinc992j","tdiinc992j") & p!="p0p100" & !missing(new_t2)
 	
@@ -328,7 +328,7 @@ preserve
 												       (round(value,0.0001)>= round(a_check,0.0001) |         ///
 													    round(value,0.0001) < round(a_check[_n-1],0.0001)) &  ///
 												       round(a_check,0.0001)!=0	
-	bysort iso year wid2 (p_min): generate t2 = (a_check + a_check[_n - 1])/2
+	bysort iso year wid2 (p_min): generate double t2 = (a_check + a_check[_n - 1])/2
 	replace value = t2 if flag==1  & !missing(t2) 
 	*replace value = min(0, 2*a_check) if p_min == 0 & flag==1 & !missing(a_check) & top==0
 	

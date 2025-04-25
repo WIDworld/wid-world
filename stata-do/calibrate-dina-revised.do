@@ -76,7 +76,6 @@ foreach v of varlist iso year fivelet age pop {
 drop i _fillin
 renvars value*, predrop(5)
 
-
 //-------------  Ensuring the consistency  bracket averages - thresholds  -------
 replace a = a*1000
 replace t = t*1000
@@ -123,7 +122,7 @@ by iso year fivelet age pop (p):  replace t=. if (t>=a | t <a[_n-1])
 
 replace a = a/1000
 replace t = t/1000
-//------------ ------------------- ---------------------------------------------
+//------------------------------------------------------------------------------
 
 // Interpolate averages linearly in the gaps
 // Middle-East: estimate average from shares, assuming mean income = 1
@@ -139,8 +138,9 @@ drop t2
 // When missing, recalculate shares from averages
 sort iso year fivelet age pop p
 gegen tot = total(n*a/1e5) if !missing(a), by(iso year fivelet age pop)
-generate s2 = a*n/tot/1e5  if !missing(a)
-replace s = s2 if missing(s)
+
+generate double s2 = a*n/tot/1e5  if !missing(a)
+replace         s  = s2 if missing(s)
 
 // When necessary, adjust shares from averages
 bysort iso year fivelet (p): gen p_count=_N 
@@ -175,11 +175,11 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // Rescale some distributions to macro aggregates
 // -------------------------------------------------------------------------- //
 
-
 // Adjsutment coefficients
-generate coef_ptinc = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
-generate coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
-generate coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
+generate double coef_ptinc = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
+generate double coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
+generate double coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
+
 // China => extend coefficients to rural and urban
 preserve
 	keep if iso == "CN"
