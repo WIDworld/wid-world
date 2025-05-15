@@ -5,7 +5,7 @@
 //            the current widcodes.
 
 import excel using "$codes_dictionary", ///
-	sheet("Wealth_Macro_Variables") cellrange(D4:F140) clear allstring
+	sheet("Wealth_Macro_Variables") cellrange(D4:F125) clear allstring
 keep D F
 rename D widcode
 rename F oldcode

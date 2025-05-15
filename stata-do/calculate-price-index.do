@@ -1,6 +1,26 @@
-// Import all the data ------------------------------------------------------ //
+//--------------------------------------------------------------------------- //
+//--------------------------------------------------------------------------- //
+//                 Calculate Price Index
+//--------------------------------------------------------------------------- //
+//--------------------------------------------------------------------------- //
 
-// Start with WID price indices
+//--------------------- Index -------------------------------------------------
+//  1. Import all the data
+//       1.1 Import WID price indices 
+//       1.2. Add external data
+//             1.2.1 Merge External data (Priorise among soruces)
+//             1.2.2 Some data adjustments
+//  2. Combine the indices
+//  3. Adjust specific country cases (ZZ-TZ,UG,SC,AN-FO,VI-US,SU countries(special EE,LT,LV),YU countries,ET,ER,SI,CS-SK,SS-SD,GB antilles,AW-CW-BQ-CW,ID-TL,SX,MW).
+//  4. Making sure core countries are complete from 1970 onwards
+//  5. Combine and export notes 
+//------------------------------------------------------------------------------
+
+
+// 1. Import all the data ------------------------------------------------------
+
+//-------  1.1 Import WID price indices 
+// Import data from WID
 use "$work_data/correct-widcodes-output.dta", clear
 keep if inlist(widcode, "icpixx999i", "inyixx999i")
 drop p
@@ -18,7 +38,8 @@ rename valueinyixx999i def_wid
 // Correct issue in Indonesia
 replace cpi_wid = cpi_wid*10 if (iso == "ID") & (year <= 1965)
 
-// Add external data
+//------   1.2 Add external data
+//-------------   1.2.1 Merge External data 
 merge 1:1 iso year using "$work_data/wb-cpi.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/wb-deflator.dta", ///
@@ -46,8 +67,16 @@ merge 1:1 iso year using "$work_data/arklems-deflator.dta", ///
 	nogenerate update assert(using master match)
 merge 1:1 iso year using "$work_data/cbs-cpi.dta", ///
 	nogenerate update assert(using master match)
+merge 1:1 iso year using "$wid_dir/Country-Updates/WBOP_NP2025/NP2025WBOP-deflactor.dta", ///
+	nogenerate update assert(using master match)
+	
+order iso year def_np
+sort iso year
 
+//-------------   1.2.2 Some data adjustments
+* Change currency from PS	
 replace currency = "USD" if iso == "PS"	
+* Correct data from 
 replace cpi_wb =. if iso == "HR"
 drop if mi(def_un) & iso == "HR"
 
@@ -87,15 +116,14 @@ tab src
 egen nval = nvals(iso year)
 */
 
-// Combine the indices ------------------------------------------------------ //
-
 // Cuba we stick to UN
 replace def_wb = . if iso == "CU"
 
 // For China: we only keep the Maddison-Wu data before 1978, and the WID after
 foreach v of varlist cpi_* def_* {
-	replace `v' = . if ("`v'" != "def_mw")  & (iso == "CN") & (year < 1978)
-	//replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year > 1979)
+	replace `v' = . if inlist("`v'", "def_mw", "def_np") == 0 & iso == "CN" & year < 1978
+	*replace `v' = . if ("`v'" != "def_mw")  & (iso == "CN") & (year < 1978)
+	*replace `v' = . if ("`v'" != "def_wid") & (iso == "CN") & (year > 1979)
 	replace `v' = . if ("`v'" == "def_wid") & (iso == "CN")
 }
 
@@ -103,17 +131,19 @@ foreach v of varlist cpi_* def_* {
 //foreach v of varlist cpi_* def_* {
 //	replace `v' = . if ("`v'" != "def_arklems") & (iso == "AR") & inrange(year, 1994, 2012)
 }
-*/
+*/  
+
 // For Venezuela we keep UN
 replace cpi_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 replace def_wb =. if inrange(year, 1971, 2014) & iso == "VE"
 
+// 2. Combine the indices ------------------------------------------------------
 
 // Put everything in log scale and calculate inflation rate
 sort iso year
 foreach v of varlist cpi_* def_* {
 	replace `v' = log(`v')
-	by iso: generate delta_`v' = `v' - `v'[_n - 1]
+	by iso: generate double delta_`v' = `v' - `v'[_n - 1]
 }
 
 // For the IMF: separate forecasts from the rest
@@ -127,13 +157,13 @@ replace delta_def_un = delta_def_wid if iso == "RU" & !mi(delta_def_wid)
 // Select preferred inflation rates at each year
 generate delta_index = .
 generate index_source = ""
-foreach v of varlist delta_def_mw delta_def_east delta_def_un delta_def_wb ///
-	delta_def_weo /*delta_def_gem*/ delta_def_wid delta_cpi_wb delta_cpi_wid delta_cpi_gfd delta_cpi_fw delta_def_weo_pred delta_cpi_cbs {
-
+foreach v of varlist delta_def_np delta_def_mw delta_def_east delta_def_un delta_def_wb ///
+	delta_def_weo /*delta_def_gem*/ delta_def_wid delta_cpi_wb delta_cpi_wid delta_cpi_gfd ///
+	delta_cpi_fw delta_def_weo_pred delta_cpi_cbs {
 	replace index_source = "`v'" if (delta_index >= .) & (`v' < .)
 	replace delta_index = `v' if (delta_index >= .) & (`v' < .)
 }
-replace index_source = "delta_def_wid" if iso == "RU" & !mi(delta_def_wid)
+*replace index_source = "delta_def_wid" if iso == "RU" & !mi(delta_def_wid)
 
 // Identify the first year (for which we have no inflation rate by construction),
 // and drop all missing data that do not correspond to the first year. That way,
@@ -142,14 +172,14 @@ egen firstyear = min(year), by(iso)
 drop if (delta_index >= .) & (year != firstyear)
 
 // Add source for the first year
-foreach v of varlist def_mw def_east def_wb def_un def_weo /*def_gem*/ def_wid cpi_wid cpi_wb ///
+foreach v of varlist def_np def_mw def_east def_wb def_un def_weo /*def_gem*/ def_wid cpi_wid cpi_wb ///
 	cpi_gfd cpi_fw cpi_cbs {
 
 	replace index_source = "delta_`v'" if (year == firstyear) & (`v' < .) & (index_source == "")
 }
 assert index_source != ""
 
-
+// 3. Adjust specific country cases ------------------------------------------------------
 // In Zanzibar, use Tanzania to fill gap
 qui sum year if iso=="ZZ"
 expand 2 if (iso == "TZ") & (inrange(year, 1964, 1990) | year >`r(max)'), generate(newobs)
@@ -188,18 +218,20 @@ forvalues i = 1/10 {
 }
 
 // In Nigeria, use average inflation over period 1954-1966 (before the civil
-// war: inflation was stable then).
+// war: inflation was stable then).(Desactivated given that NG is core-country in NP20255)
+/*
 summarize delta_index if inrange(year, 1954, 1966), meanonly
 local inflation_nigeria = r(mean)
 local nobs = _N + 10
 set obs `nobs'
 forvalues i = 1/10 {
-	local year = 1944 + `i' - 1
+	local   year = 1944 + `i' - 1
 	replace year = `year' in -`i'
-	replace delta_index = `inflation_nigeria' in -`i'
-	replace index_source = "avg_nga" in -`i'
+	replace delta_index  = `inflation_nigeria' in -`i' 
+	replace index_source = "avg_nga" in -`i'           
 	replace iso = "NG" in -`i'
 }
+*/
 
 // Curacao: use the Netherland Antilles before 2005 (not useful anymore)
 /*
@@ -214,8 +246,8 @@ drop newobs
 
 // Idem for the Faroe Islands
 expand 2 if (iso == "AN") & inrange(year, 1998, 2004), generate(newobs)
-replace iso = "FO" if newobs
-replace currency = "DKK" if newobs
+replace iso          = "FO"                 if newobs
+replace currency     = "DKK"                if newobs
 replace index_source = index_source + "_xa" if newobs
 foreach v of varlist def_* cpi_* {
 	replace `v' = . if newobs
@@ -237,7 +269,7 @@ drop newobs
 // For the US Virgin Islands, use the US deflator to fill the missing
 // data: both indices are basically identical whe they overlap
 expand 2 if (iso == "US") & (year >= 1970), generate(newobs)
-replace iso = "VI" if newobs
+replace iso          = "VI"                 if newobs
 replace index_source = index_source + "_us" if newobs
 foreach v of varlist def_* cpi_* {
 	replace `v' = . if newobs
@@ -254,10 +286,10 @@ replace currency = "CZK" if (iso == "CS")
 replace currency = "RUB" if (iso == "SU")
 
 // Duplicate China for urban and rural China
-expand 2 if (iso == "CN"), generate(newobs)
+expand 2              if (iso == "CN"), generate(newobs)
 replace iso = "CN-UR" if newobs
 drop newobs
-expand 2 if (iso == "CN"), generate(newobs)
+expand 2              if (iso == "CN"), generate(newobs)
 replace iso = "CN-RU" if newobs
 drop newobs
 
@@ -275,26 +307,26 @@ forvalues y = 1991/`r(max)' {
 replace currency = "YUN" if iso == "YU"
 
 // For East Germany: use Germany price index after 1991
-expand 2 if (iso == "DE") & (year >= 1991), generate(newobs)
-replace iso = "DD" if newobs
+expand 2                                    if (iso == "DE") & (year >= 1991), generate(newobs)
+replace iso = "DD"                          if newobs
 replace index_source = index_source + "_de" if newobs
 foreach v of varlist def_* cpi_* {
 	replace `v' = . if newobs
 }
 drop newobs
 
-// Making sure core countries are complete from 1970 onwards
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry)
+// Bring observations for illing data from 1970
+merge 1:1 iso year using  "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry)
 replace currency = "GBP" if inlist(iso, "GG", "GI", "JE")
 replace currency = "USD" if inlist(iso, "BQ")
 
 // Since deltas are inflation rates we can simply copy the deltas
 // Soviet Union
-gen aux_rus = delta_index if iso == "RU" 
+gen aux_rus = delta_index                if iso == "RU" 
 bys year : egen index_rus = max(aux_rus)
-gen aux_rus_src = index_source if iso == "RU" 
+gen aux_rus_src = index_source           if iso == "RU" 
 bys year : egen index_source_rus = mode(aux_rus_src)
-replace index_rus = . if year == 1970 
+replace index_rus = .                    if year == 1970 
 
 *replace delta_index =. if iso == "GE" & year <= 1991 & year >= 1970
 
@@ -321,14 +353,14 @@ replace index_source = "Average Russia and EU" if inlist(iso, "EE", "LT", "LV") 
 drop aux_ee index_ee
 		
 // Yugoslavia/Serbia
-gen aux_yug = delta_index if iso == "YU" 
+gen aux_yug = delta_index                if iso == "YU" 
 bys year : egen index_yug = max(aux_yug)
-gen aux_yug_src = index_source if iso == "YU" 
+gen aux_yug_src = index_source           if iso == "YU" 
 bys year : egen index_source_yug = mode(aux_yug_src)
-replace index_yug = . if year == 1970
+replace index_yug = .                    if year == 1970
 
 replace index_source = index_source_yug + "_yu" if inlist(iso, "BA", "MK", "RS") & year <= 1990 & missing(delta_index)
-	replace delta_index = index_yug if inlist(iso, "BA", "MK", "RS") & year <= 1990 & missing(delta_index)
+replace delta_index = index_yug                 if inlist(iso, "BA", "MK", "RS") & year <= 1990 & missing(delta_index)
 	
 // Kosovo, Montenegro and Slovenia currency is euros
 // For price index we are going to use average of yugoslavia and the EU
@@ -431,6 +463,7 @@ replace index_source = index_source_gb + "_gb" if inlist(iso, "IM", "GG", "JE", 
 	replace delta_index = index_gb if inlist(iso, "IM", "GG", "JE", "GI") & year >= 1970 & missing(delta_index)
 drop aux_gb index_gb aux_gb_src index_source_gb
 
+// 4.  Making sure core countries are complete from 1970 onwards ---------------
 // Fill the panel with respect to the last values
 sort iso year
 encode2 iso
@@ -538,7 +571,7 @@ replace index_source = "interpolation" if (index >= .) & (index_full < .)
 replace index = exp(index_full)
 drop id index_full
 
-// Combine and export notes
+// 5. Combine and export notes -------------------------------------------------
 preserve
 
 	*tab index_source
@@ -578,6 +611,11 @@ preserve
 		+ `"Piketty, Thomas; Yang, Li and Zucman, Gabriel (2016). "' ///
 		+ `"Capital Accumulation, Private Property and Rising Inequality in China, 1978-2015[/URL_TEXT][/URL]; "' ///
 		if regexm(index_source, "_pyz")
+	
+	replace source = `"[URL][URL_LINK]______[/URL_LINK][URL_TEXT]"' ///
+		+ `"Nievas, Gaston and Piketty, Thomas (2025). "' ///
+		+ `"Unequal Exchange & North-South Relations: Evidence from Global Trade Flows and the World Balance of Payments, 1800-2025[/URL_TEXT][/URL]; "' ///
+		if regexm(index_source, "_np")
 
 	replace source = sourceicpixx999i if (index_source == "delta_cpi_wid")
 	replace source = sourceinyixx999i if (index_source == "delta_def_wid")
@@ -671,6 +709,8 @@ preserve
 		if index_source == "delta_def_east_cz"
 	replace index_source = "GDP deflator for the Russian Federation, provided by Filip Novokmet" ///
 		if index_source == "delta_def_east_ru"
+		replace index_source = "GDP deflator for Yugoslavia, provided by Filip Novokmet" ///
+		if index_source == "delta_def_east_yu"
 	replace index_source = "GDP deflator of the United States" ///
 		if index_source == "delta_def_wid_us"
 	replace index_source = "index frozen at its 1990 value" ///
@@ -679,6 +719,14 @@ preserve
 		if index_source == "delta_def_arklems"
 	replace index_source = "price index of Germany after 1991" ///
 		if regexm(index_source, "_de$")
+	replace index_source = "New series on price index (LCU) from  Nievas & Piketty (2025)" ///
+		if index_source == "delta_def_np"
+	replace index_source = "New series on price index (LCU) for Russia from  Nievas & Piketty (2025)" ///
+		if index_source == "delta_def_np_ru"
+	replace index_source = "New series on price index (LCU) for Great Britain from  Nievas & Piketty (2025)" ///
+		if index_source == "delta_def_np_gb"
+	replace index_source = "New series on price index (LCU) for Indonesia from  Nievas & Piketty (2025)" ///
+		if index_source == "delta_def_np_id"
 	sort iso year
 	by iso: generate categ = sum(index_source[_n - 1] != index_source)
 	egen firstyear = min(year), by(iso categ)

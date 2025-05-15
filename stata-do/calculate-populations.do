@@ -19,7 +19,8 @@ global un_countries "AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG
 // were added, along with the regions OK, OL, OO, OP, and OQ. These new regions 
 // are calculated only for population variables in this Do-file. The rest of the 
 // variables are calculated in aggregate-macro-regions.do. These regions should 
-// be deleted as soon as the new region definitions are launched.
+// be deleted as soon as the new region definitions are launched.-- In May 2025 
+// the new regiosn where incorporated, so the 10th section was dropped.
 
 //------ Index -----------------------------------------------------------------
 //  1. Import Population Data
@@ -840,7 +841,7 @@ use "$work_data/correct-widcodes-output.dta",clear
 keep if inlist(iso, "CN-RU","CN-UR") 
 tab widcode
 keep if widcode=="npopul992i"
-append using "`temp_popbreaks_1800_2100_long.dta'"
+append using "`temp_popbreaks_1800_2100_long'"
 misstable summarize
 sort iso year widcode
 save "`temp_popbreaks_1800_2100_long'",replace
@@ -876,7 +877,7 @@ sort iso widcode year
 keep if inrange(year,1800,$pastyear)
 
 //----- 10. Calculate Regions (temporary section) ------------------------------
-
+/*
 * Format for calculations
 replace iso="CN_RU" if iso=="CN-RU"
 replace iso="CN_UR" if iso=="CN-UR"
@@ -932,7 +933,7 @@ replace iso="CN-UR" if iso=="CN_UR"
 
 * Drop core regions since they will be calculated in the macro-regional-aggregation 
 drop if inlist(iso,"OA","OB","OC","OD","OE","OH","OI","OJ","QM")
-
+*/
 //------ 11. Export data -------------------------------------------------------
 sort iso widcode year p 
 order iso year widcode p value
@@ -993,7 +994,6 @@ save "$work_data/population-metadata.dta", replace
 
 
 
-**# Which countries do I have in the dataset that are not core countries
 // use "$work_data/temp_popbreaks_1800_2100_long.dta",clear
 // keep iso 
 // duplicates drop

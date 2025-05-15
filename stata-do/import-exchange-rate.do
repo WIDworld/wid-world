@@ -33,8 +33,9 @@
 ***        PART Main.6  :  + `exratesu'                           (Soviet Union)
 ***        PART Main.7  :  + `xrateunsna'
 ***        PART Main.8  :  + xratetwdusd'                               (Taiwan)
-***        PART Main.9  : Genrate valuexlceux999i and valuexlcyux999i 
-***        PART Main.10 : + import-country-codes-output.dta and Save
+***        PART Main.9  :  + NievasPiketty (2025) 
+***        PART Main.10 : Genrate valuexlceux999i and valuexlcyux999i (Un-active)
+***        PART Main.11 : + import-country-codes-output.dta and Save
 *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -205,7 +206,7 @@ gen `var'_idx = `var'*index
 }
 
 merge 1:1 iso year using "$input_data_dir/currency-rates/gdp_usd_YUratio", nogen keep(3)
-gen exrate_usd = gdp_idx/gdp_usd_YUratio
+gen double exrate_usd = gdp_idx/gdp_usd_YUratio
 drop if iso == "YU"
 keep iso year exrate_usd
 
@@ -213,7 +214,7 @@ tempfile exrateyu
 sa `exrateyu', replace 
 
 // *************** PART F : retropolate-gdp.dta + price-index.dta+ gdp_usd_SUratio --> `exratesu'
-//---------------> Soviert Union
+//---------------> Soviet Union
 	//	Former USSR. ONLY APPLIES TO GEORGIA. other countries using the evolution of USSR exrate below
 	// We have 1990 ratio of GDP_USD from UN SNA, and applied that backward to former USSR countries
 	// We have gdp_lcu in real terms from interpolating GDP 1990 to GDP 1973 from Madisson. Before 1973 comes by applying shares
@@ -281,7 +282,7 @@ destring amaxrt, replace force
 // Soviet
 foreach xr in ama imf {
 xtset i year
-gen growth_`xr'_soviet = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former USSR"
+gen double growth_`xr'_soviet = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former USSR"
 	bys year : egen aux`xr'soviet = max(growth_`xr'_soviet) 
 }
 /*
@@ -305,7 +306,7 @@ forvalues i = 1989(-1)1970 {
 }
 
 foreach xr in ama imf {
-gen extrap_`xr'_soviet = 1 if missing(`xr'xrt) & soviet == 1
+gen double extrap_`xr'_soviet = 1 if missing(`xr'xrt) & soviet == 1
 replace extrap_`xr'_soviet = 0 if missing(extrap_`xr'_soviet)
 replace `xr'xrt = aux1`xr' if extrap_`xr'_soviet == 1
 }
@@ -314,14 +315,14 @@ drop aux* growth*
 // Yugoslavia
 foreach xr in ama imf {
 xtset i year
-gen growth_`xr'_yug = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former Yugoslavia"
+gen double growth_`xr'_yug = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Former Yugoslavia"
 	bys year : egen aux`xr'yug = max(growth_`xr'_yug) 
 }
 
 foreach xr in ama imf {
 
-gen aux1`xr' = `xr'xrt 
-gen aux2`xr' = aux1`xr'/(1+aux`xr'yug) if year == 1990 & yugosl == 1
+gen double aux1`xr' = `xr'xrt 
+gen double aux2`xr' = aux1`xr'/(1+aux`xr'yug) if year == 1990 & yugosl == 1
 
 xtset i year
 forvalues i = 1989(-1)1970 { 
@@ -331,7 +332,7 @@ forvalues i = 1989(-1)1970 {
 }
 
 foreach xr in ama imf {
-gen extrap_`xr'_yugosl = 1 if missing(`xr'xrt) & yugosl == 1
+gen double extrap_`xr'_yugosl = 1 if missing(`xr'xrt) & yugosl == 1
 replace extrap_`xr'_yugosl = 0 if missing(extrap_`xr'_yugosl)
 replace `xr'xrt = aux1`xr' if extrap_`xr'_yugosl == 1
 }
@@ -340,14 +341,14 @@ drop aux* growth*
 // Yemen 
 foreach xr in ama imf {
 xtset i year
-gen growth_`xr'_yem = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Yemen: Former Yemen Arab Republic"
+gen double growth_`xr'_yem = (`xr'xrt - l1.`xr'xrt)/l1.`xr'xrt if country == "Yemen: Former Yemen Arab Republic"
 	bys year : egen aux`xr'yem = max(growth_`xr'_yem) 
 }
 
 foreach xr in ama imf {
 
-gen aux1`xr' = `xr'xrt 
-gen aux2`xr' = aux1`xr'/(1+aux`xr'yem) if year == 1989 & country == "Yemen"
+gen double aux1`xr' = `xr'xrt 
+gen double aux2`xr' = aux1`xr'/(1+aux`xr'yem) if year == 1989 & country == "Yemen"
 
 xtset i year
 forvalues i = 1988(-1)1970 { 
@@ -357,7 +358,7 @@ forvalues i = 1988(-1)1970 {
 }
 
 foreach xr in ama imf {
-gen extrap_`xr'_yem = 1 if missing(`xr'xrt) & country == "Yemen"
+gen double extrap_`xr'_yem = 1 if missing(`xr'xrt) & country == "Yemen"
 replace extrap_`xr'_yem = 0 if missing(extrap_`xr'_yem)
 replace `xr'xrt = aux1`xr' if extrap_`xr'_yem == 1
 }
@@ -368,14 +369,14 @@ drop aux* growth*
 foreach xr in ama imf {
 bys year : egen avg_`xr'xrt = mean(`xr'xrt) if unit == "Euro"
 xtset i year
-gen growth_`xr'_eu = (avg_`xr'xrt - l1.avg_`xr'xrt)/l1.avg_`xr'xrt if unit == "Euro"
+gen double growth_`xr'_eu = (avg_`xr'xrt - l1.avg_`xr'xrt)/l1.avg_`xr'xrt if unit == "Euro"
 	bys year : egen aux`xr'eu = max(growth_`xr'_eu) 
 }
 
 foreach xr in ama imf {
 
-gen aux1`xr' = `xr'xrt 
-gen aux2`xr' = aux1`xr'/(1+aux`xr'eu) if year == 1990 & euro == 1
+gen double aux1`xr' = `xr'xrt 
+gen double aux2`xr' = aux1`xr'/(1+aux`xr'eu) if year == 1990 & euro == 1
 
 xtset i year
 forvalues i = 1989(-1)1970 { 
@@ -385,7 +386,7 @@ forvalues i = 1989(-1)1970 {
 }
 
 foreach xr in ama imf {
-gen extrap_`xr'_eu = 1 if missing(`xr'xrt) & euro == 1
+gen double extrap_`xr'_eu = 1 if missing(`xr'xrt) & euro == 1
 replace extrap_`xr'_eu = 0 if missing(extrap_`xr'_eu)
 replace `xr'xrt = aux1`xr' if extrap_`xr'_eu == 1
 }
@@ -695,13 +696,13 @@ replace flagexrate = 0 if missing(flagexrate)
 	*/
 	
 replace valuexlcusx999i = amaxrt if missing(valuexlcusx999i)
-gen auxcsk = valuexlcusx999i if iso == "CS"
+gen double auxcsk = valuexlcusx999i if iso == "CS"
 bys year : egen maxauxcsk = max(auxcsk)
 replace valuexlcusx999i = maxauxcsk if iso == "CZ" & missing(valuexlcusx999i)
 drop imfxrt amaxrt flagexrate auxcsk maxauxcsk soviet yugosl
 
 *missing years for CW
-gen aux = valuexlcusx999i if iso == "SX"
+gen double aux = valuexlcusx999i if iso == "SX"
 bys year : egen aux2 = mode(aux)
 replace valuexlcusx999i = aux2 if iso == "CW" & mi(valuexlcusx999i)
 
@@ -747,10 +748,26 @@ drop _m
 replace valuexlcusx999i = xrate_twd_usd if missing(valuexlcusx999i)
 drop xrate_twd_usd 
 
+// *************** PART Main.9 : + NievasPiketty (2025)  ********
+merge 1:1 iso year using "$wid_dir/Country-Updates/WBOP_NP2025/NP2025WBOP-xrate.dta", nogenerate keepusing(xrate_usd)
+replace valuexlcusx999i= xrate_usd if !missing(xrate_usd)
+drop xrate_usd
+
 drop if missing(valuexlcusx999i)
 
-// *************** PART Main.9 : Genrate valuexlceux999i and valuexlcyux999i ***
+// fill p and currency
+sort iso year
+replace p = "pall" if missing(p)
+egen currency2 = mode(currency), by(iso)
+replace currency = currency2 if missing(currency)
+drop currency2
 
+//--------------------
+drop valuexlceux999i valuexlcyux999i
+//--------------------
+
+// *************** PART Main.10 : Genrate valuexlceux999i and valuexlcyux999i ***
+/*
 preserve 
 	keep if currency == "EUR" ///	
 						& (inlist(iso, "DE", "AT", "BE", "ES", "FI", "FR") | ///
@@ -783,9 +800,9 @@ replace valuexlceux999i = valuexlcusx999i/EURUSD
 replace valuexlcyux999i = valuexlcusx999i/CNYUSD
 
 drop EURUSD CNYUSD
-
+*/
 replace p = "pall" if iso=="HR" // Little adjusment for filling the data
-
+/*
 replace valuexlceux999i = round(valuexlceux999i) if currency == "EUR" & year >= 1999 ///
 & ( ///
     (inlist(iso, "AT","BE","DD","DE","ES","FI") & year >= 1999) | ///
@@ -806,8 +823,7 @@ replace valuexlceux999i = round(valuexlceux999i) if currency == "EUR" & year >= 
 //assert valuexlceux999i == 1 if currency == "EUR" & year > 1999
 assert valuexlcyux999i == 1 if currency == "CNY"
 assert valuexlcusx999i == 1 if currency == "USD"
-
-
+*/
 
 
 greshape long value, i(iso year p currency) j(widcode) string
@@ -818,9 +834,10 @@ fillin iso widcode year
 
 
 
-// *************** PART Main.10 : + import-country-codes-output.dta and Save ****
+// *************** PART Main.11 : + import-country-codes-output.dta and Save ****
 
-merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen keep(1 3)
+merge m:1 iso using "$work_data/import-country-codes-output.dta", nogen 
+*drop titlename shortname region1 region2 region3 region4 region5 TH
 drop if _fillin == 1 & corecountry != 1 
 drop if _fillin == 1 & year < 1970 
 
@@ -839,8 +856,8 @@ save "$work_data/exchange-rates.dta", replace
 
 
 
-	keep if widcode == "xlcusx999i"
-	ren value exrate_usd
+keep   if widcode == "xlcusx999i"
+rename    value exrate_usd
 save "$work_data/USS-exchange-rates.dta", replace
 
 

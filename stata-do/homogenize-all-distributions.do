@@ -418,14 +418,14 @@ preserve
 	expand 2 if widcode == "sptinc992j", gen(exp)
 	replace widcode = "sptinc999j" if exp == 1 
 	drop exp 
-	export delim "$output_dir/$time/wid-data-$time-ptinc2024Update.csv", delimiter(";") replace
+	*export delim "$output_dir/$time/wid-data-$time-ptinc2024Update.csv", delimiter(";") replace
 restore
 
 
 //------------- 7.2 Generating posttax income data .csv
 preserve
 	keep if strpos(widcode,"diinc")
-	export delim "$output_dir/$time/wid-data-$time-diinc2024Update.csv", delimiter(";") replace
+	*export delim "$output_dir/$time/wid-data-$time-diinc2024Update.csv", delimiter(";") replace
 restore
 
 //------------- 7.3 Generating wealth distribution data .csv

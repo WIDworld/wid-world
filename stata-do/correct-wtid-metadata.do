@@ -1,6 +1,6 @@
 // Identify "wealth" (actually, macro) and "income" (actually, micro) variables
 import excel "$codes_dictionary", ///
-	sheet("Wealth_Macro_Variables") cellrange(D4:D140) clear allstring
+	sheet("Wealth_Macro_Variables") cellrange(D4:D125) clear allstring
 rename D widcode
 replace widcode = subinstr(widcode, "*", "", 1)
 replace widcode = substr(widcode, 2, 5) if strlen(widcode) == 6

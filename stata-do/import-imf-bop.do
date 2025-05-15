@@ -461,7 +461,7 @@ foreach v of local varlist {
 }
 
 // adding corecountry dummy and Tax Haven dummy
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH) 
 
 // computing for Curaçao and Sint Maarten based on Netherland Antilles GDP
 merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 

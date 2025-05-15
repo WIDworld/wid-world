@@ -67,7 +67,7 @@ drop aux* *AN *ANlcu
 drop if mi(iso)
 
 //Keep core countries only
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen 
 keep if corecountry == 1
 
 keep iso year remittances_credit remittances_debit

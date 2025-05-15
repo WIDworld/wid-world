@@ -7,7 +7,9 @@ u "$work_data/sna-combined-prefki.dta", clear
 keep iso year pinrx pinpx fdirx ptfrx* fdipx ptfpx* nnfin pinnx fdinx ptfnx flag* neg*
 
 // adding corecountry dummy and Tax Haven dummy
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(country corecountry TH) 
+*merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(country corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output", nogen keepusing(shortname corecountry TH) 
+rename shortname countryname
 keep if corecountry == 1
 
 merge 1:1 iso year using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen

@@ -127,7 +127,7 @@ replace ftaxx =. if iso == "KR"
 replace fsubx =. if iso == "KR"
 
 // adding corecountry dummy and Tax Haven dummy
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH) 
 *keep if corecountry == 1 
 
 // interpolating foreign capital income variables

@@ -12,9 +12,9 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
- do "$do_dir/import-country-codes.do"
 //
+ do "$do_dir/import-country-codes.do"
+/*
 // // -------------------------------------------------------------------------- //
 // // Import, clean, and convert to the new format the old WTID
 // // -------------------------------------------------------------------------- //
@@ -52,8 +52,8 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
  do "$do_dir/calculate-average-over.do"
-
 */
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -296,8 +296,6 @@ do "$do_dir/calculate-per-capita-series.do"
 
 // Merge historical aggregates to WID
 do "$do_dir/merge-historical-aggregates.do"
-
-
 
 // -------------------------------------------------------------------------- //
 // END OF MACRO PART

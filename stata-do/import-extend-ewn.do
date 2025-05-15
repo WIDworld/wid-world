@@ -208,7 +208,7 @@ foreach v in nwgxa_lm nwgxd_lm fdixa fdixd ptfxa ptfxd {
 }	
 drop aux* *AN *ANlcu ratio*
 
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH)
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH)
 keep if corecountry == 1 & year >= 1970
 
 ren gdp gdp_lm 

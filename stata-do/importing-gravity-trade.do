@@ -258,7 +258,7 @@ replace `x' = `x'AN*ratio_AN if iso == "`c'" & missing(`x')
 
 keep iso year exports imports 
 //Keep core countries only
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen 
 keep if corecountry == 1
 
 foreach x in exports imports {

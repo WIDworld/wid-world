@@ -1,5 +1,116 @@
+*Import Exchange rates
+**# Bookmark #2
 use "$work_data/exchange-rates.dta", clear
-cap drop _fillin titlename shortname region1 region2 region3 region4 region5 corecountry TH
+cap drop _fillin titlename shortname region1 region2 region3 region4 region5 region6 corecountry TH
+
+
+
+
+// ----------- Genrate valuexlceux999i and valuexlcyux999i ---------------------
+*Note: This is the former PART Main.10  of the file import-exchange-rate.do
+drop widcode
+rename value xlcusx999i
+* call nninc
+preserve
+   // Bringing net national income to weight the EUR
+	use "$work_data/national-accounts.dta" if widcode == "mnninc999i" & currency == "EUR", clear
+	drop if iso == "DD"
+	rename value nninc
+
+	keep iso year nninc currency
+	
+	tempfile eurnninc
+	save `eurnninc'
+restore
+
+* Generate ratios to EUR pre-1999
+preserve 
+	keep if year<1999
+	keep if currency == "EUR" ///	
+						& (inlist(iso, "DE", "AT", "BE", "ES", "FI", "FR") | ///
+							inlist(iso,"IE", "IT", "LU", "NL", "PT", "ES"))
+
+	merge 1:1 iso year using `eurnninc', nogen keep( master match)
+	
+//	duplicates drop year, force
+	collapse (mean) xlcusx999i [aweight=nninc], by(year)
+	rename xlcusx999i EURUSDpre
+	
+	tempfile eurusdpre99
+	save "`eurusdpre99'"
+restore
+
+* Generate ratios to EUR post-1999
+preserve 
+	keep if year>=1999
+	keep if currency == "EUR" ///	
+						& (inlist(iso, "DE", "AT", "BE", "ES", "FI", "FR") | ///
+							inlist(iso,"IE", "IT", "LU", "NL", "PT", "ES"))
+
+//	duplicates drop year, force
+	collapse (mean) xlcusx999i, by(year)
+	rename xlcusx999i EURUSDpos
+	
+	tempfile eurusdpos99
+	save "`eurusdpos99'"
+restore
+
+* Generate ratios to CNY
+preserve
+	keep if currency == "CNY"
+	keep year xlcusx999i
+	duplicates drop year, force
+	rename xlcusx999i CNYUSD
+	
+	tempfile cnyusd
+	save "`cnyusd'"
+restore
+
+
+* Merge ratios
+merge n:1 year using "`eurusdpre99'", keep(master match) nogenerate
+merge n:1 year using "`eurusdpos99'", keep(master match) nogenerate 
+merge n:1 year using "`cnyusd'", keep(master match) nogenerate
+
+*Compile ratios of EUR
+gen     EURUSD = EURUSDpos 
+replace EURUSD = EURUSDpre if missing(EURUSD)
+
+
+* Triangulate exchange rate to EUR
+gen xlceux999i = xlcusx999i/EURUSD
+gen xlcyux999i = xlcusx999i/CNYUSD
+
+drop EURUSD* CNYUSD
+
+* Check that eur is behaving as expected 
+replace xlceux999i = round(xlceux999i) if currency == "EUR" & year >= 1999 ///
+& ( ///
+    (inlist(iso, "AT","BE","DD","DE","ES","FI") & year >= 1999) | ///
+    (inlist(iso, "FR","IE","IT","LU","NL","PT") & year >= 1999) | ///
+    (iso == "GR" & year >= 2001) | ///
+    (inlist(iso, "AD","MC","ME","MF","SM") & year >= 2002) | ///
+    (iso == "SI" & year >= 2007) | ///
+    (inlist(iso, "CY","MT") & year >= 2008) | ///
+    (iso == "SK" & year >= 2009) | ///
+    (iso == "EE" & year >= 2011) | ///
+    (iso == "LV" & year >= 2014) | ///
+    (iso == "LT" & year >= 2015) | ///
+    (iso == "HR" & year >= 2023) ///
+)
+
+* check that currencies are consistent to theirselves.
+//assert xlceux999i == 1 if currency == "EUR" & year > 1999
+assert xlcyux999i == 1 if currency == "CNY"
+assert xlcusx999i == 1 if currency == "USD"
+
+*format for adding to the WID
+rename (xlcusx999i xlceux999i xlcyux999i)(valuexlcusx999i valuexlceux999i valuexlcyux999i)
+reshape long value, i(iso year p currency) j(widcode) string
+
+sort iso widcode year
+
+//---------------Append the rest of the WID Data -------------------------------
 append using "$work_data/add-ppp-output.dta"
 
 // Add Chinese exchange rates to urban and rural China

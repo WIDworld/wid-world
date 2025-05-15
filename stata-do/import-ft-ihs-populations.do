@@ -1,13 +1,62 @@
 *-------------------------------------------------------------------------------
-**# Import Federico-Tena 1991 Borders Total Population data (1800-1938)      #**
 *-------------------------------------------------------------------------------
 
 *---- 1. Import country-codes --------------------------------------------------
+/*
+*Old source
 import excel "$country_codes/country-codes-new.xlsx", clear firstrow
 ren shortname country
 keep if country!=""
 drop if inlist(code, "US-GA","QT")
 replace country = subinstr(country, " ", "",.) 
+*/
+
+
+*New Source
+use "$work_data/import-country-codes-output.dta", clear
+rename (iso shortname) (code country)
+
+drop TH corecountry
+drop if strpos(code,"-")
+replace country = subinstr(country, " ", "",.) 
+order code titlename country region1 region2 region3 region4 region5
+
+*Change name to make it consistent with FT
+replace country="Coted'Ivoire" 					if code=="CI"
+replace country="BoliviaPlurinationalStateof" 	if code=="BO"
+replace country="BritishVirginIslands" 		    if code=="VG"
+replace country="CapeVerde" 					if code=="CV"
+replace country="ChinaHongKongSAR" 			    if code=="HK"
+replace country="ChinaMacaoSAR" 				if code=="MO"
+replace country="DemPeoplesRepublicofKorea" 	if code=="KP"
+replace country="DemocraticRepublicoftheCongo"  if code=="CD"
+replace country="FaeroeIslands" 				if code=="FO"
+replace country="FalklandIslandsMalvinas" 		if code=="FK"
+replace country="FrenchGuiana" 				    if code=="GF"
+replace country="GuineaBissau" 				    if code=="GW"
+replace country="IranIslamicRepublicof" 		if code=="IR"
+replace country="LaoPeoplesDemocraticRepublic"  if code=="LA"
+replace country="LibyanArabJamahiriya" 		    if code=="LY"
+replace country="MicronesiaFedStatesof" 		if code=="FM"
+replace country="OccupiedPalestinianTerritory"   if code=="PS"
+replace country="RepublicofKorea" 				if code=="KR"
+replace country="RepublicofMoldova" 			if code=="MD"
+replace country="TFYRMacedonia" 				if code=="MK"
+replace country="TimorLeste" 					if code=="TL"
+replace country="UnitedRepublicofTanzania"   	if code=="TZ"
+replace country="UnitedStatesVirginIslands" 	if code=="VI"
+replace country="UnitedStatesofAmerica" 		if code=="US"
+replace country="VenezuelaBolivarianRepublico"  if code=="VE"
+replace country="WallisandFutunaIslands" 		if code=="WF"
+replace country="Réunion" 						if code=="RE"
+
+replace country="RepublicofKorea" 				if code=="KR"
+replace country="CzechRepublic" 				if code=="CZ"
+replace country="Swaziland" 					if code=="SZ"
+replace country="SyrianArabRepublic" 			if code=="SY"
+replace country="Turkey" 						if code=="TR"
+replace country="RussianFederation" 			if code=="RU"
+
 
 tempfile countrycodes
 save "`countrycodes'",replace
@@ -26,37 +75,13 @@ ren popyear year
 *---- 3. Correct country names  ------------------------------------------------
 reshape long pop, i(year) j(country) string
 
-*Change name to make it consistent with the WID
-replace country="Bolivia"               if country=="BoliviaPlurinationalStateof"
-replace country="VirginIslands,British" if country=="BritishVirginIslands"
-replace country="CaboVerde"             if country=="CapeVerde"
-replace country="HongKong"              if country=="ChinaHongKongSAR"
-replace country="Macao"                 if country=="ChinaMacaoSAR"
+*A little adjustment
 replace country="Coted'Ivoire"          if country=="CôtedIvoire"
-replace country="NorthKorea"            if country=="DemPeoplesRepublicofKorea"
-replace country="DRCongo"               if country=="DemocraticRepublicoftheCongo"
-replace country="FaroeIslands"          if country=="FaeroeIslands"
-replace country="FalklandIslands"       if country=="FalklandIslandsMalvinas"
-replace country="FrenchGuiana"          if country=="FrenchGuiana"
-replace country="Guinea-Bissau"         if country=="GuineaBissau"
-replace country="Iran"                  if country=="IranIslamicRepublicof"
-replace country="LaoPDR"                if country=="LaoPeoplesDemocraticRepublic"
-replace country="Libya"                 if country=="LibyanArabJamahiriya"
-replace country="Micronesia"            if country=="MicronesiaFedStatesof"
-replace country="Palestine"             if country=="OccupiedPalestinianTerritory"
-replace country="Korea"                 if country=="RepublicofKorea"
-replace country="Moldova"               if country=="RepublicofMoldova"
-replace country="NorthMacedonia"        if country=="TFYRMacedonia"
-replace country="Timor-Leste"           if country=="TimorLeste"
-replace country="Tanzania"              if country=="UnitedRepublicofTanzania"
-replace country="VirginIslands,US"      if country=="UnitedStatesVirginIslands"
-replace country="USA"                   if country=="UnitedStatesofAmerica"
-replace country="Venezuela"             if country=="VenezuelaBolivarianRepublico"
-replace country="WallisandFutuna"       if country=="WallisandFutunaIslands"
-replace country="Reunion"               if country=="Réunion"
 
 *----- 4. Merge with WID country names -----------------------------------------
 merge m:1 country using "`countrycodes'"
+
+* Compleating the territories
 replace code="GF" if country=="FrenchGuiana"
 
 *---- 5. Cleanning and formatting ----------------------------------------------

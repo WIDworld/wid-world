@@ -330,7 +330,7 @@ drop aux* *AN *ANlcu
 drop if mi(iso)
 
 //Keep core countries only
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH)
 keep if corecountry == 1
 
 // merge with tradebalances 
@@ -728,6 +728,74 @@ merge 1:1 iso year using "$work_data/imfbop-tradegoods-gravity.dta", nogenerate
 gen net_goods = goods_credit - goods_debit
 rename (goods_credit goods_debit net_goods) (tgxrx tgmpx tgnnx)
 
+//--------  Import data from Nievas Piketty 2025 ---------------------------- //
+preserve
+	* Import Data
+	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	
+	* Generate Fivelets as defined in the Wid-Dictionary
+	gen      fivelet= "tgxrx"  if origin =="B1b"
+	replace  fivelet= "tgmpx"  if origin =="B1c"
+	replace  fivelet= "tgxcx"  if origin =="B2b"
+	replace  fivelet= "tgmcx"  if origin =="B2c"
+	replace  fivelet= "tgxmx"  if origin =="B3b" 
+	replace  fivelet= "tgmmx"  if origin =="B3c"
+	replace  fivelet= "tsxrx"  if origin =="C1b"
+	replace  fivelet= "tsmpx"  if origin =="C1c"
+	replace  fivelet= "tbxrx"  if origin =="C1e"
+	replace  fivelet= "tbmpx"  if origin =="C1f"
+	replace  fivelet= "scirx"  if origin =="E1b"
+	replace  fivelet= "scipx"  if origin =="E1c"
+	
+	*Format for importing
+	drop if mi(fivelet)
+	drop origin concept
+	reshape wide value, i(iso year) j(fivelet) string
+	rename value* *
+	
+	* Calculate net values
+	gen double tgnnx = tgxrx - tgmpx
+	gen double tgncx = tgxcx - tgmcx
+	gen double tgnmx = tgxmx - tgmmx
+	gen double tsnnx = tsxrx - tsmpx
+	gen double tbnnx = tbxrx - tbmpx
+	gen double scinx = scirx - scipx
+	
+	ds year iso, not
+	tempfile np2025
+	save `np2025'
+restore
+
+*merge NP2025
+merge 1:1 iso year using "`np2025'", update replace nogenerate
+
+
+// Second calibration
+enforce (tbxrx = tgxrx + tsxrx) ///
+		(tbmpx = tgmpx + tsmpx) ///	
+		(tbnnx = tgnnx + tsnnx) ///
+		(tgxrx = tgxcx + tgxmx) /// New from NievasPiketty2025
+		(tgmpx = tgmcx + tgmmx) /// New from NievasPiketty2025
+		(tgnnx = tgncx + tgnmx) /// New from NievasPiketty2025
+		(tbnnx = tbxrx - tbmpx) ///
+		(tgnnx = tgxrx - tgmpx) ///
+		(tgncx = tgxcx - tgmcx) /// New from NievasPiketty2025
+	    (tgnmx = tgxmx - tgmmx) /// New from NievasPiketty2025
+		(tsvnx = tsvrx - tsvpx) ///
+		(tstnx = tstrx - tstpx) ///		
+		(tsonx = tsorx - tsopx) ///		
+		(tsxrx = tsvrx + tstrx + tsorx) ///
+		(tsmpx = tsvpx + tstpx + tsopx) ///
+		(scgnx = scgrx - scgpx) ///
+		(scrnx = scrrx - scrpx) ///
+		(sconx = scorx - scopx) /// 
+		(scinx = scgnx + scrnx + sconx) /// 
+		(scinx = scirx - scipx) /// 
+		(tsnnx = tsvnx + tstnx + tsonx) /// 
+		(tsnnx = tsxrx - tsmpx), fixed( scipx  tbmpx  tgmcx  tgmpx  tgxmx  tsmpx  tgnnx  tgnmx  tbnnx scirx  tbxrx  tgmmx  tgxcx  tgxrx  tsxrx  tgncx  tsnnx  scinx) replace force
+
+//---------------------------------------------------------------------------- //
 
 *drop gdp_us
 save "$work_data/bop_currentacc_complete.dta", replace
