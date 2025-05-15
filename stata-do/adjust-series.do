@@ -427,8 +427,10 @@ preserve
 	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
 	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
 	* Generate Fivelets as defined in the Wid-Dictionary
-	gen      fivelet= "pinrx"  if origin =="D1b"
-	replace  fivelet= "pinpx"  if origin =="D1c"
+	gen      fivelet= "finrx"  if origin =="D1b" 
+	replace  fivelet= "finpx"  if origin =="D1c" 
+	*gen  fivelet= "nnfin"  if origin =="D1c"
+	
 	replace  fivelet= "nwgxa"  if origin =="G1b"
 	replace  fivelet= "nwgxd"  if origin =="G1c"
 
@@ -440,7 +442,7 @@ preserve
 	rename value* *
 	
 	*calculate net values
-	gen double pinnx = pinrx - pinpx
+	gen double nnfin = finrx - finpx
 	gen double nwnxa = nwgxa - nwgxd
 	
 	tempfile np2025
@@ -458,7 +460,7 @@ drop cap?? cag?? nsmnp
 
 // Finally calculate net national income
 replace         gdpro = 1 if missing(gdpro)
-generate double nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
+generate double nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin) 
 generate double ndpro = gdpro - confc
 generate double gninc = gdpro + cond(missing(nnfin), 0, nnfin)
 
