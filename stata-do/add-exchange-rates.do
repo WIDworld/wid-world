@@ -12,28 +12,26 @@ drop widcode
 rename value xlcusx999i
 * call nninc
 preserve
-   // Bringing net national income to weight the EUR
-	use "$work_data/national-accounts.dta" if widcode == "mnninc999i" & currency == "EUR", clear
+   // Bringing net gdp to weight the EUR
+	use "$work_data/retropolate-gdp.dta" if currency == "EUR", clear
 	drop if iso == "DD"
-	rename value nninc
 
-	keep iso year nninc currency
+	keep iso year gdp currency
 	
-	tempfile eurnninc
-	save `eurnninc'
+	tempfile eurgdp
+	save `eurgdp'
 restore
 
 * Generate ratios to EUR pre-1999
 preserve 
 	keep if year<1999
 	keep if currency == "EUR" ///	
-						& (inlist(iso, "DE", "AT", "BE", "ES", "FI", "FR") | ///
-							inlist(iso,"IE", "IT", "LU", "NL", "PT", "ES"))
-
-	merge 1:1 iso year using `eurnninc', nogen keep( master match)
+						& (inlist(iso, "DE", "ES", "FR", "IT", "NL")) 
+						
+	merge 1:1 iso year using `eurgdp', nogen keep( master match)
 	
 //	duplicates drop year, force
-	collapse (mean) xlcusx999i [aweight=nninc], by(year)
+	collapse (mean) xlcusx999i [aweight=gdp], by(year)
 	rename xlcusx999i EURUSDpre
 	
 	tempfile eurusdpre99
@@ -44,8 +42,7 @@ restore
 preserve 
 	keep if year>=1999
 	keep if currency == "EUR" ///	
-						& (inlist(iso, "DE", "AT", "BE", "ES", "FI", "FR") | ///
-							inlist(iso,"IE", "IT", "LU", "NL", "PT", "ES"))
+						& (inlist(iso, "DE", "ES", "FR", "IT", "NL")) 
 
 //	duplicates drop year, force
 	collapse (mean) xlcusx999i, by(year)
