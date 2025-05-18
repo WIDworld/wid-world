@@ -1,4 +1,4 @@
-#include stcolor_alt
+#include s2color
 color background white
 anglestyle vertical_tick horizontal
 yesno draw_major_hgrid yes
