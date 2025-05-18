@@ -4,10 +4,12 @@
 
 u "$work_data/sna-combined-prefki.dta", clear
 
-keep iso year pinrx pinpx fdirx ptfrx* fdipx ptfpx* nnfin pinnx fdinx ptfnx flag*
+keep iso year pinrx pinpx fdirx ptfrx* fdipx ptfpx* nnfin pinnx fdinx ptfnx flag* neg*
 
 // adding corecountry dummy and Tax Haven dummy
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(country corecountry TH) 
+*merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(country corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output", nogen keepusing(shortname corecountry TH) 
+rename shortname countryname
 keep if corecountry == 1
 
 merge 1:1 iso year using "$input_data_dir/ewn-data/foreign-wealth-total-EWN_new.dta", nogen
@@ -42,8 +44,8 @@ replace fdipx = 0 if fdixd == 0 & (flagfdipx == 1 | flagimffdipx == 1 | missing(
 replace ptfrx = 0 if ptfxa == 0 & (flagptfrx == 1 | flagimfptfrx == 1 | missing(flagimfptfrx)) 
 replace ptfpx = 0 if ptfxd == 0 & (flagptfpx == 1 | flagimfptfpx == 1 | missing(flagimfptfpx))
 
-replace fdirx =. if fdirx == 0 & abs(fdixa) > 0
-replace fdipx =. if fdipx == 0 & abs(fdixd) > 0
+replace fdirx =. if fdirx == 0 & abs(fdixa) > 0 & negfdirx != 1
+replace fdipx =. if fdipx == 0 & abs(fdixd) > 0 & negfdipx != 1
 replace ptfrx =. if ptfrx == 0 & abs(ptfxa) > 0
 replace ptfpx =. if ptfpx == 0 & abs(ptfxd) > 0
 
@@ -185,10 +187,10 @@ so iso year
 }
 
 foreach x in eq deb {
-	replace ptfrx_`x' = . if ptfrx == .
-	replace ptfpx_`x' = . if ptfpx == .
+	replace ptfrx_`x' = . if ptfrx == . & negptfrx_`x' != 1
+	replace ptfpx_`x' = . if ptfpx == . & negptfpx_`x' != 1
 }
-	replace ptfrx_res = . if ptfrx == .
+	replace ptfrx_res = . if ptfrx == . & negptfrx_res != 1
 
 foreach v in fdirx fdipx ptfrx ptfpx ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
 	gsort iso year

@@ -82,6 +82,7 @@ global china_pyz_data     "$input_data_dir/china-pyz-data"
 global forbes_data 		  "$wid_dir/Country-Updates/Forbes/2022"
 global historical 		  "$wid_dir/Country-Updates/Historical_series/2022_December"
 global federico_tena_data "$wid_dir/Population/federicotena-data"
+global ihs_data           "$wid_dir/Population/IHS"
 global pop_un_data        "$wid_dir/Population/un-data"
 
 // Files to helps matching countries & currencies between the different sources

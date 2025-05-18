@@ -27,7 +27,7 @@ use "$work_data/calibrate-dina-revised-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"
-drop if strpos(iso, "-")
+drop if strpos(iso, "-") &  !strpos(iso, "CN-") 
 drop if iso == "WO"
 
 keep if inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j")
@@ -126,13 +126,19 @@ restore
 keep if exception == 1
 drop exception 	
 replace order = (order - 1)/100
+//------- Start of Intervention ------------------------------------------------
+*gen back_t=t
+// Create a flag for values less than 0
+gen flag_0 = (a < 0)  
+bysort iso year (p): egen flag = max(flag)  
+
 
 replace a = 0 if a<0 
-bys iso year (p) : replace a = 0 if _n <= $plafond 
-bys iso year (p) : replace t = . if inrange(p, 0, 20000)
+bys iso year (p) : replace a = 0 if _n <= $plafond       & flag==1
+bys iso year (p) : replace t = . if inrange(p, 0, 20000) & flag==1
 
 // Compute Alpha
-bys iso year (p) : generate a_n = a if p == 20000
+bys iso year (p) : generate double  a_n = a if p == 20000
 bys iso year (p) : egen fill = mode(a_n)
 replace a_n = fill 
 drop fill
@@ -144,7 +150,7 @@ replace m = fill
 drop fill
 
 gsort year iso p
-generate alpha = (a_n/m)-1
+generate double alpha = (a_n/m)-1
 replace alpha = 1 if alpha<1
 
 bys iso year (p) : generate p_i  = order if inrange(p, 5000, 20000)
@@ -153,9 +159,9 @@ bys iso year (p) : generate p_k1 = .05
 bys iso year (p) : generate p_n  = .2
 
 
-generate m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p_n-p_k1)^alpha*(p_i1-p_i)) if inrange(p, 5000, 19000)
+generate double  m3 = a_n*(((p_i1-p_k1)^(1+alpha))-((p_i-p_k1)^(1+alpha)))/((1+alpha)*(p_n-p_k1)^alpha*(p_i1-p_i)) if inrange(p, 5000, 19000)
 
-replace a = m3 if !missing(m3)
+replace a = m3 if !missing(m3) & flag==1
 
 // append using "`exception'"
 
@@ -165,20 +171,43 @@ egen average = total(a*n/1e5), by(iso year)
 
 replace anninc = average if missing(anninc) // only for years & countries where there are no anninc, but we still want to keep the topshares
 
+// Calibrate the values to the macro calculated anninc scale
 replace a = a/average*anninc 
+replace t = t/average*anninc 
 
+// Compleating thresholds and ensuring series Match
+
+// 1. Generating limit to t
+gen double t_20 = t if p==21000
+bysort iso year (p): egen t_max = max(t_20)  
+
+// 2. Inputing missing t
 bys iso year (p) : replace t = ((a - a[_n - 1] )/2) + a[_n - 1] if missing(t)
 bys iso year (p) : replace t = min(0, 2*a) if missing(t) 
 
-generate s = a*(n/1e5)/anninc 
+// 3. Ensuring series Match
+//-----  3.1. Dropping values if the calculated t is >= to the first non-modified t
+bys iso year (p) : gen flag_t = 1 if round(t,0.00001)>=round(t_max,0.00001) & flag==1 & inrange(p, 5000, 20000)
+bys iso year (p) : replace t = . if flag_t==1
+
+//-----  3.2. Interpolate dropped values
+by iso year: ipolate t p, gen(new)
+
+//-----  3.3. Input interpolated values and clean-up
+replace t = new if missing(t) & flag_t == 1
+drop new flag_t t_20 t_max
+
+
+//-------- End of Intervention--------------------------------------------------
+generate double s = a*(n/1e5)/anninc 
 
 gsort iso year -p
-by iso year : generate ts = sum(s)
-by iso year : generate ta = sum(a*n)/(1e5 - p)
-by iso year : generate bs = 1-ts
+by iso year : generate double ts = sum(s)
+by iso year : generate double ta = sum(a*n)/(1e5 - p)
+by iso year : generate double bs = 1-ts
 
 gsort iso year p
-by iso year : generate ba = bs*average/(0.5) if p == 50000
+by iso year : generate double ba = bs*average/(0.5) if p == 50000
 
 keep year iso p a s t ts ta bs ba was_miss
 
@@ -250,7 +279,7 @@ preserve
 	reshape wide bs, i(iso year) j(p) string
 	rename bsp50p51 valuep0p50
 	rename bsp90p91 valuep0p90
-	bys iso year : gen valuep50p90 = valuep0p90 - valuep0p50
+	bys iso year : gen double valuep50p90 = valuep0p90 - valuep0p50
 	reshape long value, i(iso year) j(p) string
 	gen widcode = "sptinc992j"
 

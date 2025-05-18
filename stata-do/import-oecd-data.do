@@ -84,6 +84,47 @@ replace taxnx_p2 = -taxnx_p2
 egen taxnx = rowtotal(taxnx_r1 taxnx_r2 taxnx_p1 taxnx_p2) if inlist(location, "ZAF")
 drop taxnx_*
 
+// whenever gross flows are negative, adding them to their counterpart gross flow to ensure everything is positive
+foreach v in compx comrx pinpx pinrx fsubx ftaxx {
+	gen neg`v' = 1 if `v' < 0
+	replace neg`v' = 0 if mi(neg`v')	
+}
+gen aux = 1 if negpinrx == 1 & negpinpx == 1
+replace negpinrx = 0 if aux == 1 
+replace negpinpx = 0 if aux == 1 
+cap swapval pinrx pinpx if aux == 1 
+replace pinrx = abs(pinrx) if aux == 1
+replace pinpx = abs(pinpx) if aux == 1
+replace pinrx = pinrx - pinpx if negpinpx == 1
+replace pinpx = 0 if negpinpx == 1 
+replace pinpx = pinpx - pinrx if negpinrx == 1 
+replace pinrx = 0 if negpinrx == 1
+drop aux 
+
+gen aux = 1 if negcomrx == 1 & negcompx == 1
+replace negcomrx = 0 if aux == 1 
+replace negcompx = 0 if aux == 1 
+cap swapval comrx compx if aux == 1 
+replace comrx = abs(comrx) if aux == 1
+replace compx = abs(compx) if aux == 1
+replace comrx = comrx - compx if negcompx == 1
+replace compx = 0 if negcompx == 1 
+replace compx = compx - comrx if negcomrx == 1 
+replace comrx = 0 if negcomrx == 1
+drop aux 
+
+gen aux = 1 if negfsubx == 1 & negftaxx == 1
+replace negfsubx = 0 if aux == 1 
+replace negftaxx = 0 if aux == 1 
+cap swapval fsubx ftaxx if aux == 1 
+replace fsubx = abs(fsubx) if aux == 1
+replace ftaxx = abs(ftaxx) if aux == 1
+replace fsubx = fsubx - ftaxx if negftaxx == 1
+replace ftaxx = 0 if negftaxx == 1 
+replace ftaxx = ftaxx - fsubx if negfsubx == 1 
+replace fsubx = 0 if negfsubx == 1
+drop aux 
+
 replace taxnx = fsubx - ftaxx if missing(taxnx)
 
 generate comnx = comrx - compx

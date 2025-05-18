@@ -137,8 +137,8 @@ replace indicatorname = "travel_debit" if indicatorcode == "BMSTV_BP6_USD"
 	replace indicatorname = "travel_bus_debit" if indicatorcode == "BMSTVB_BP6_USD"
 	replace indicatorname = "travel_bus_credit" if indicatorcode == "BXSTVB_BP6_USD"
 
-replace indicatorname = "trans_credit" if indicatorcode == "BMSTR_BP6_USD"
-replace indicatorname = "trans_debit" if indicatorcode == "BXSTR_BP6_USD"
+replace indicatorname = "trans_credit" if indicatorcode == "BXSTR_BP6_USD"
+replace indicatorname = "trans_debit" if indicatorcode == "BMSTR_BP6_USD" 
 	replace indicatorname = "trans_fr_credit" if indicatorcode == "BXSTRFR_BP6_USD" | indicatorcode == "BXSTROPC_BP6_USD"
 	replace indicatorname = "trans_fr_debit" if indicatorcode == "BMSTRFR_BP6_USD" | indicatorcode == "BMSTROPC_BP6_USD"
 	replace indicatorname = "trans_pass_credit" if indicatorcode == "BXSTRPA_BP6_USD"
@@ -176,6 +176,120 @@ greshape wide v, i(countryname countrycode year) j(indicatorname)
 
 renpfix value
 
+foreach v in capital_credit capital_debit compemp_credit compemp_debit foreignaid_credit foreignaid_debit goods_credit goods_debit otherpinc_credit otherpinc_debit otherservices_credit otherservices_debit othtrans_credit othtrans_debit remittances_credit remittances_debit secinc_credit secinc_debit trade_credit trade_debit trans_credit trans_debit trans_fr_credit trans_fr_debit trans_pass_credit trans_pass_debit travel_bus_credit travel_bus_debit travel_credit travel_debit travel_pers_credit travel_pers_debit {
+	gen neg`v' = 1 if `v' < 0
+	replace neg`v' = 0 if mi(neg`v')	
+}
+
+*adding the negative values to the other gross aggregated component
+gen aux = 1 if negcapital_credit == 1 & negcapital_debit == 1
+replace negcapital_credit = 0 if aux == 1 
+replace negcapital_debit = 0 if aux == 1 
+cap swapval capital_credit capital_debit if aux == 1 
+replace capital_credit = abs(capital_credit) if aux == 1
+replace capital_debit = abs(capital_debit) if aux == 1
+replace capital_credit = capital_credit - capital_debit if negcapital_debit == 1
+replace capital_debit = 0 if negcapital_debit == 1 
+replace capital_debit = capital_debit - capital_credit if negcapital_credit == 1 
+replace capital_credit = 0 if negcapital_credit == 1
+drop aux 
+
+gen aux = 1 if neggoods_credit == 1 & neggoods_debit == 1
+replace neggoods_credit = 0 if aux == 1 
+replace neggoods_debit = 0 if aux == 1 
+cap swapval goods_credit goods_debit if aux == 1 
+replace goods_credit = abs(goods_credit) if aux == 1
+replace goods_debit = abs(goods_debit) if aux == 1
+replace goods_credit = goods_credit - goods_debit if neggoods_debit == 1
+replace goods_debit = 0 if neggoods_debit == 1 
+replace goods_debit = goods_debit - goods_credit if neggoods_credit == 1 
+replace goods_credit = 0 if neggoods_credit == 1
+drop aux 
+
+gen aux = 1 if negtrans_credit == 1 & negtrans_debit == 1
+replace negtrans_credit = 0 if aux == 1 
+replace negtrans_debit = 0 if aux == 1 
+cap swapval trans_credit trans_debit if aux == 1 
+replace trans_credit = abs(trans_credit) if aux == 1
+replace trans_debit = abs(trans_debit) if aux == 1
+replace trans_credit = trans_credit - trans_debit if negtrans_debit == 1
+replace trans_debit = 0 if negtrans_debit == 1 
+replace trans_debit = trans_debit - trans_credit if negtrans_credit == 1 
+replace trans_credit = 0 if negtrans_credit == 1
+drop aux 
+
+gen aux = 1 if negtravel_credit == 1 & negtravel_debit == 1
+replace negtravel_credit = 0 if aux == 1 
+replace negtravel_debit = 0 if aux == 1 
+cap swapval travel_credit trans_debit if aux == 1 
+replace travel_credit = abs(travel_credit) if aux == 1
+replace travel_debit = abs(travel_debit) if aux == 1
+replace travel_credit = travel_credit - travel_debit if negtravel_debit == 1
+replace travel_debit = 0 if negtravel_debit == 1 
+replace travel_debit = travel_debit - travel_credit if negtravel_credit == 1 
+replace travel_credit = 0 if negtravel_credit == 1
+drop aux 
+
+gen aux = 1 if negotherservices_credit == 1 & negotherservices_debit == 1
+replace negotherservices_credit = 0 if aux == 1 
+replace negotherservices_debit = 0 if aux == 1 
+cap swapval otherservices_credit otherservices_debit if aux == 1 
+replace otherservices_credit = abs(otherservices_credit) if aux == 1
+replace otherservices_debit = abs(otherservices_debit) if aux == 1
+replace otherservices_credit = otherservices_credit - otherservices_debit if negotherservices_debit == 1
+replace otherservices_debit = 0 if negotherservices_debit == 1 
+replace otherservices_debit = otherservices_debit - otherservices_credit if negotherservices_credit == 1 
+replace otherservices_credit = 0 if negotherservices_credit == 1
+drop aux 
+
+gen aux = 1 if negremittances_credit == 1 & negremittances_debit == 1
+replace negremittances_credit = 0 if aux == 1 
+replace negremittances_debit = 0 if aux == 1 
+cap swapval remittances_credit remittances_debit if aux == 1 
+replace remittances_credit = abs(remittances_credit) if aux == 1
+replace remittances_debit = abs(remittances_debit) if aux == 1
+replace remittances_credit = remittances_credit - remittances_debit if negremittances_debit == 1
+replace remittances_debit = 0 if negremittances_debit == 1 
+replace remittances_debit = remittances_debit - remittances_credit if negremittances_credit == 1 
+replace remittances_credit = 0 if negremittances_credit == 1
+drop aux 
+
+gen aux = 1 if negforeignaid_credit == 1 & negforeignaid_debit == 1
+replace negforeignaid_credit = 0 if aux == 1 
+replace negforeignaid_debit = 0 if aux == 1 
+cap swapval foreignaid_credit foreignaid_debit if aux == 1 
+replace foreignaid_credit = abs(foreignaid_credit) if aux == 1
+replace foreignaid_debit = abs(foreignaid_debit) if aux == 1
+replace foreignaid_credit = foreignaid_credit - foreignaid_debit if negforeignaid_debit == 1
+replace foreignaid_debit = 0 if negforeignaid_debit == 1 
+replace foreignaid_debit = foreignaid_debit - foreignaid_credit if negforeignaid_credit == 1 
+replace foreignaid_credit = 0 if negforeignaid_credit == 1
+drop aux 
+
+gen aux = 1 if negothtrans_credit == 1 & negothtrans_debit == 1
+replace negothtrans_credit = 0 if aux == 1 
+replace negothtrans_debit = 0 if aux == 1 
+cap swapval othtrans_credit othtrans_debit if aux == 1 
+replace othtrans_credit = abs(othtrans_credit) if aux == 1
+replace othtrans_debit = abs(othtrans_debit) if aux == 1
+replace othtrans_credit = othtrans_credit - othtrans_debit if negothtrans_debit == 1
+replace othtrans_debit = 0 if negothtrans_debit == 1 
+replace othtrans_debit = othtrans_debit - othtrans_credit if negothtrans_credit == 1 
+replace othtrans_credit = 0 if negothtrans_credit == 1
+drop aux 
+
+gen aux = 1 if negsecinc_credit == 1 & negsecinc_debit == 1
+replace negsecinc_credit = 0 if aux == 1 
+replace negsecinc_debit = 0 if aux == 1 
+cap swapval secinc_credit secinc_debit if aux == 1 
+replace secinc_credit = abs(secinc_credit) if aux == 1
+replace secinc_debit = abs(secinc_debit) if aux == 1
+replace secinc_credit = secinc_credit - secinc_debit if negsecinc_debit == 1
+replace secinc_debit = 0 if negsecinc_debit == 1 
+replace secinc_debit = secinc_debit - secinc_credit if negsecinc_credit == 1 
+replace secinc_credit = 0 if negsecinc_credit == 1
+drop aux 
+
 kountry countrycode, from(imfn) to(iso2c)
 ren _ISO2C_ iso 
 
@@ -192,6 +306,7 @@ replace iso="PS" if countryname=="West Bank and Gaza"
 drop if mi(iso)
 drop countrycode
 
+fillin iso year
 //Netherlands Antilles split
 merge m:1 iso using "$work_data/ratioCWSX_AN.dta", nogen 
 
@@ -215,7 +330,7 @@ drop aux* *AN *ANlcu
 drop if mi(iso)
 
 //Keep core countries only
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH)
 keep if corecountry == 1
 
 // merge with tradebalances 
@@ -252,7 +367,7 @@ drop net_trade
 foreach v in compemp_credit compemp_debit otherpinc_credit goods_credit goods_debit /// total_debit total_credit errors_net
  otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit remittances_debit othtrans_credit foreignaid_debit othtrans_debit /// 
  travel_credit travel_debit travel_pers_debit travel_pers_credit travel_bus_debit travel_bus_credit trans_credit trans_debit trans_fr_credit trans_fr_debit trans_pass_credit trans_pass_debit otherservices_credit otherservices_debit {
-	replace `v' =. if `v' == 0
+	replace `v' =. if `v' == 0 & neg`v' != 1
 	bys iso : egen tot`v' = total(abs(`v')), missing
 	gen flagcountry`v' = 1 if tot`v' == .
 	replace flagcountry`v' = 0 if missing(flagcountry`v')
@@ -261,54 +376,7 @@ foreach v in compemp_credit compemp_debit otherpinc_credit goods_credit goods_de
 	replace flag`v' = 0 if missing(flag`v')
 
 }
-
-// completing whenever we have the aggregate component
-gen checktransport = 1 if !mi(trans_fr_credit) & !mi(trans_pass_credit)
-replace checktransport = 0 if mi(checktransport) 
-foreach var in trans_fr_credit trans_pass_credit {
-	gen sh`var' = `var'/trans_credit if checktransport == 1 
-}
-
-gen checktransport2 = 1 if !mi(trans_fr_debit) & !mi(trans_pass_debit)
-replace checktransport2 = 0 if mi(checktransport2) 
-foreach var in trans_fr_debit trans_pass_debit {
-	gen sh`var' = `var'/trans_debit if checktransport == 1 
-}
-
-gen checktravel = 1 if !mi(travel_pers_credit) & !mi(travel_bus_credit)
-replace checktravel = 0 if mi(checktravel) 
-foreach var in travel_pers_credit travel_bus_credit {
-	gen sh`var' = `var'/travel_credit if checktransport == 1 
-}
-
-gen checktravel2 = 1 if !mi(travel_pers_debit) & !mi(travel_bus_debit)
-replace checktravel2 = 0 if mi(checktravel2) 
-foreach var in travel_pers_debit travel_bus_debit {
-	gen sh`var' = `var'/travel_debit if checktransport == 1 
-}
-
-so iso year 
-by iso : carryforward sh* ,replace 
-
-gsort iso -year 
-by iso : carryforward sh* ,replace 
-
-foreach var in trans_fr_credit trans_pass_credit {
-	replace `var' = sh`var'*trans_credit if mi(`var')
-}
-
-foreach var in trans_fr_debit trans_pass_debit {
-	replace `var' = sh`var'*trans_debit if mi(`var')
-}
-
-foreach var in travel_pers_credit travel_bus_credit {
-	replace `var' = sh`var'*travel_credit if mi(`var')
-}
-
-foreach var in travel_pers_debit travel_bus_debit {
-	replace `var' = sh`var'*travel_debit if mi(`var')
-}
-drop check* sh*
+drop neg* 
 
 so iso year
 foreach v in compemp_credit compemp_debit otherpinc_credit goods_credit goods_debit /// total_debit total_credit errors_net
@@ -375,20 +443,20 @@ bys iso : egen aux2 = mode(aux)
 replace secinc_credit = aux2 if iso == "KW" & year < 1992
 drop aux*
 
-//Fill missing with regional medians for non-tax havens countries 
+//Fill missing with regional means 
 foreach v in compemp_credit compemp_debit otherpinc_credit goods_credit goods_debit ///  total_debit total_credit errors_net
  otherpinc_debit secinc_credit secinc_debit  trade_credit trade_debit capital_credit capital_debit foreignaid_credit remittances_credit remittances_debit othtrans_credit foreignaid_debit othtrans_debit /// 
  travel_credit travel_debit travel_pers_debit travel_pers_credit travel_bus_debit travel_bus_credit trans_credit trans_debit trans_fr_credit trans_fr_debit trans_pass_credit trans_pass_debit otherservices_credit otherservices_debit {
 	
  foreach level in undet un {
 		
-  bys geo`level' year : egen med`level'`v' = median(`v') if corecountry == 1 // & TH == 0 
+  bys geo`level' year : egen av`level'`v' = mean(`v') if corecountry == 1 // & TH == 0 
 
   }
-replace `v' = medundet`v' if missing(`v') & flagcountry`v' == 1 
-replace `v' = medun`v' if missing(`v') & flagcountry`v' == 1
+replace `v' = avundet`v' if missing(`v') & flagcountry`v' == 1 
+replace `v' = avun`v' if missing(`v') & flagcountry`v' == 1
 }
-drop med*
+drop av*
 *issues with TL in other_pinc 
 bys geoundet year : egen avundetotherpinc_credit = mean(otherpinc_credit) if corecountry == 1 & TH == 0 & iso != "TL" & flagcountryotherpinc_credit == 0
 bys year : egen aux = mode(avundetotherpinc_credit)
@@ -548,6 +616,11 @@ replace trade_credit = goods_credit + service_credit
 replace trade_debit = goods_debit + service_debit 
 
 //	adjusting secinc
+* Replacing the remittance accounts by the ones galculated in IMFBoP remittances do-file
+drop remittances_credit remittances_debit
+merge 1:1 iso year using "$work_data/imfbop-remittances.dta", nogenerate
+drop net_remittances 
+
 replace secinc_debit = foreignaid_debit + remittances_debit + othtrans_debit
 replace secinc_credit = foreignaid_credit + remittances_credit + othtrans_credit
 
@@ -648,6 +721,81 @@ foreach var in tbnnx tgnnx tsnnx {
 	replace `var' = `var'/gdp_usd
 }
 */
+
+* Replacing the good accounts by the ones galculated in IMFBoP gravity do-file
+drop tgxrx tgmpx tgnnx
+merge 1:1 iso year using "$work_data/imfbop-tradegoods-gravity.dta", nogenerate
+gen net_goods = goods_credit - goods_debit
+rename (goods_credit goods_debit net_goods) (tgxrx tgmpx tgnnx)
+
+//--------  Import data from Nievas Piketty 2025 ---------------------------- //
+preserve
+	* Import Data
+	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	
+	* Generate Fivelets as defined in the Wid-Dictionary
+	gen      fivelet= "tgxrx"  if origin =="B1b"
+	replace  fivelet= "tgmpx"  if origin =="B1c"
+	replace  fivelet= "tgxcx"  if origin =="B2b"
+	replace  fivelet= "tgmcx"  if origin =="B2c"
+	replace  fivelet= "tgxmx"  if origin =="B3b" 
+	replace  fivelet= "tgmmx"  if origin =="B3c"
+	replace  fivelet= "tsxrx"  if origin =="C1b"
+	replace  fivelet= "tsmpx"  if origin =="C1c"
+	replace  fivelet= "tbxrx"  if origin =="C1e"
+	replace  fivelet= "tbmpx"  if origin =="C1f"
+	replace  fivelet= "scirx"  if origin =="E1b"
+	replace  fivelet= "scipx"  if origin =="E1c"
+	
+	*Format for importing
+	drop if mi(fivelet)
+	drop origin concept
+	reshape wide value, i(iso year) j(fivelet) string
+	rename value* *
+	
+	* Calculate net values
+	gen double tgnnx = tgxrx - tgmpx
+	gen double tgncx = tgxcx - tgmcx
+	gen double tgnmx = tgxmx - tgmmx
+	gen double tsnnx = tsxrx - tsmpx
+	gen double tbnnx = tbxrx - tbmpx
+	gen double scinx = scirx - scipx
+	
+	ds year iso, not
+	tempfile np2025
+	save `np2025'
+restore
+
+*merge NP2025
+merge 1:1 iso year using "`np2025'", update replace nogenerate
+
+
+// Second calibration
+enforce (tbxrx = tgxrx + tsxrx) ///
+		(tbmpx = tgmpx + tsmpx) ///	
+		(tbnnx = tgnnx + tsnnx) ///
+		(tgxrx = tgxcx + tgxmx) /// New from NievasPiketty2025
+		(tgmpx = tgmcx + tgmmx) /// New from NievasPiketty2025
+		(tgnnx = tgncx + tgnmx) /// New from NievasPiketty2025
+		(tbnnx = tbxrx - tbmpx) ///
+		(tgnnx = tgxrx - tgmpx) ///
+		(tgncx = tgxcx - tgmcx) /// New from NievasPiketty2025
+	    (tgnmx = tgxmx - tgmmx) /// New from NievasPiketty2025
+		(tsvnx = tsvrx - tsvpx) ///
+		(tstnx = tstrx - tstpx) ///		
+		(tsonx = tsorx - tsopx) ///		
+		(tsxrx = tsvrx + tstrx + tsorx) ///
+		(tsmpx = tsvpx + tstpx + tsopx) ///
+		(scgnx = scgrx - scgpx) ///
+		(scrnx = scrrx - scrpx) ///
+		(sconx = scorx - scopx) /// 
+		(scinx = scgnx + scrnx + sconx) /// 
+		(scinx = scirx - scipx) /// 
+		(tsnnx = tsvnx + tstnx + tsonx) /// 
+		(tsnnx = tsxrx - tsmpx), fixed( scipx  tbmpx  tgmcx  tgmpx  tgxmx  tsmpx  tgnnx  tgnmx  tbnnx scirx  tbxrx  tgmmx  tgxcx  tgxrx  tsxrx  tgncx  tsnnx  scinx) replace force
+
+//---------------------------------------------------------------------------- //
 
 *drop gdp_us
 save "$work_data/bop_currentacc_complete.dta", replace

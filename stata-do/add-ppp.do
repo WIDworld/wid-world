@@ -1,11 +1,11 @@
 // Bringing net national income to weight the EUR
-u "$work_data/national-accounts.dta" if widcode == "mnninc999i" & currency == "EUR", clear
-drop if iso == "DD"
-ren value nninc
+	use "$work_data/retropolate-gdp.dta" if currency == "EUR", clear
+	drop if iso == "DD"
 
-keep iso year nninc currency
-tempfile eurnninc
-sa `eurnninc'
+	keep iso year gdp currency
+	
+	tempfile eurgdp
+	save `eurgdp'
 
 // PPP
 use "$work_data/ppp.dta", clear
@@ -22,10 +22,11 @@ restore
 */
 
 preserve 
-keep if currency == "EUR"
+keep if currency == "EUR" ///	
+						& (inlist(iso, "DE", "ES", "FR", "IT", "NL")) 
 
 drop if iso == "DD"
-merge 1:1 iso year using `eurnninc', nogen 
+merge 1:1 iso year using `eurgdp', nogen 
 drop if mi(ppp)
 
 /* for weight table
@@ -35,7 +36,7 @@ drop if mi(ppp)
 */
 drop iso
 rename ppp ppp_ea
-collapse (mean) ppp_ea [aweight=nninc], by(year)
+collapse (mean) ppp_ea [aweight=gdp], by(year)
 tempfile ppp_ea
 save "`ppp_ea'" 
 restore

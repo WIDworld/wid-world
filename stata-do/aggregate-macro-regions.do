@@ -1,29 +1,42 @@
-// ---------------------------------------------------- //
-* 	Aggregates macro variables
-// ---------------------------------------------------- //
+// -----------------------------------------------------------------------------
+// -------------------------------------------------------------------------- //
+* 	           Aggregates macro variables to Regions
+// -------------------------------------------------------------------------- //
+// -----------------------------------------------------------------------------
+
+// Note: The purpose of this do-file is to aggregate some of the macro variables 
+// in order to calculate estimates for the well-defined regions and world estimates.
+
 clear all
 tempfile combined
 save `combined', emptyok
 
 
-// ---------------------------------------------------- //
-* 	Get regions decomposition
-// ---------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+* 	1. Get regions decomposition
+// -------------------------------------------------------------------------- //
 
+// --------- 1.1 Get Regions definitions ------------------------------------- // 
+
+*Note: This section is no longer necessary given that the sincronisation of the WIDDictionary and the main.do provides a file that already includes region codes.
+
+* Import Countries and regions
+/*
+*use "/Users/manuelestebanarias/Documents/GitHub/wid-world/work-data_14APR/import-core-country-codes-output.dta", clear
 use "$work_data/import-core-country-codes-output.dta", clear
-
 drop if strpos(iso, "-")
 drop titlename shortname
 generate region6 = "Middle East" if strpos("AE BH EG IQ IR JO KW OM PS QA SA TR YE", iso) != 0
 replace region6 = "Asia (excl. Middle East)" if strpos("AF BD BN BT CN HK ID IN KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP", iso) != 0
 replace region5 = "Latin America" if iso == "BQ" & mi(region5)
 replace region5 = "Europe" if inlist(iso, "GG", "JE", "KS") & mi(region5)
-// generate region7 = "World"
+// generate regionw = "World"
 reshape long region, i(iso) j(type) 
 drop if missing(region)
 gsort region iso
 rename region shortname
 rename iso iso_country
+
 merge m:1 shortname using "$work_data/import-region-codes-output.dta", keep(matched) nogen
 keep iso_country iso type
 rename iso region
@@ -46,13 +59,17 @@ replace region2 = "XX" if region2 == "QM"
 
 tempfile region
 save "`region'"
+*/
 
 
-// Store PPP and exchange rates as an extra variable
+// -------------------------------------------------------------------------- //
+* 	2. Prepare data for calculations
+// -------------------------------------------------------------------------- //
+
+// --------- 2.1  Store PPP and exchange rates as an extra variable --------- //
 
 use "$work_data/add-wealth-aggregates-output.dta", clear
 
-drop refyear
 keep if substr(widcode, 1, 3) == "xlc"
 keep if year == $pastyear
 // keep if year == 2022
@@ -73,11 +90,12 @@ drop if inlist(iso, "CN-UR", "CN-RU")
 tempfile pppexc
 save "`pppexc'"
 
-// Only keep data to aggregate
+// --------- 2.2 Get Macro Variables to be aggregated ----------------------- //
 
+* Call Data
 use "$work_data/add-wealth-aggregates-output.dta", clear
 
-drop refyear
+* Keep desired variables
 keep if p == "pall"
 keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i", "f", "m")) ///		
 	   | widcode == "mnninc999i" ///
@@ -98,29 +116,65 @@ keep if (substr(widcode, 1, 6) == "npopul" & inlist(substr(widcode, 10, 1), "i",
 	   | inlist(substr(widcode, 1, 6), "msakge", "mrevgo", "mpitgr", "mcitgr", "mscogr", "mpwtgr", "mintgr", "mottgr") /// 
 	   | inlist(substr(widcode, 1, 6), "mntrgr", "mpsugo", "mretgo", "inyixx", "xlcusx", "xlcusp", "xlceux", "xlceup") ///  
 	   | inlist(substr(widcode, 1, 6), "xlcyux", "xlcyup")  
+//     | (substr(widcode, 1, 1) == "m")
+// ------------------ 2.2.1 Get historical npopul to be aggregated ------- //
+/*
+preserve
+	* keep historical population estimates
+	* Note: this data, generated in calculate-populations comes from FT_IHS_1800_1949.dta
+	keep if year < 1950
+	keep if inlist(widcode, "npopul999i", "npopul991i", "npopul992i", "npopul997i")
+	
+	/*
+	* 57 extended core-territories 
+	keep if inlist( iso,  "AE",  "AR",	"AU",	"BD",	"BR",	"CA",	"CD",	"CI",	"CL") 	| ///
+			inlist( iso,  "CN",  "CO",	"DE",	"DK",	"DZ",	"EG",	"ES",	"ET",	"FR") 	| ///
+			inlist( iso,  "GB",  "ID",   "IN",	"IR",	"IT",	"JP",	"KE",	"KR",	"MA") 	| ///
+			inlist( iso,  "ML",  "MM",	"MX",   "NE",	"NG",	"NL",	"NO",	"NZ",	"OA") 	| ///
+			inlist( iso,  "OK",  "OL",	"OD",	"OO",   "OH",	"OP",	"OQ",	"PH",	"PK")   | ///
+			inlist( iso,  "QM",  "RU",	"RW",	"SA",	"SD",   "SE",	"TH",	"TR",	"TW")   | ///
+			inlist( iso,  "US",  "VN",	"ZA") 
+	*/	
+	* Keep 33 core-territories (not all the countries have historical population data)
+	keep if inlist(iso, "RU",  "OA",  "CN",  "JP",  "OB",  "DE",  "ES",  "FR",  "GB") | ///
+			inlist(iso, "IT",  "SE",  "OC",  "QM",  "AR",  "BR",  "CL",  "CO",  "MX") | ///
+			inlist(iso, "OD",  "DZ",  "EG",  "TR",  "OE",  "CA",  "US",  "AU",  "NZ") | ///
+			inlist(iso, "OH",  "IN",  "ID",  "OI",  "ZA",  "OJ" )
+	*Format
+	greshape wide value, i(iso year p) j(widcode) string
+	renvars value*, pred(5)
+	
+	tempfile hist_countries_npopul
+	save   `hist_countries_npopul' 
+restore
+*/
 
-	   
-//       | (substr(widcode, 1, 1) == "m")	   
-drop if year < 1950
+
+* Keep only desired years 
+*drop if year < 1950
+
+* Formating
 drop currency
 greshape wide value, i(iso year p) j(widcode) string
 renvars value*, pred(5)
-
-// Add PPP and exchange rates
+	
+// --------- 2.3 Generate constant, current and XR comparable values -------- //
+// Add PPP and exchange rates 
 merge n:1 iso using "`pppexc'", nogenerate
 ds iso year p npopul* inyixx ppp* exc* xlc*, not
 
+// Calculate convert LCU constant values to PPP and MER values
 foreach v in `r(varlist)' {
 	foreach l of varlist ppp* exc* {
-		generate `v'_`l' = `v'/`l' 
+		generate double `v'_`l' = `v'/`l' 
 	}
 }
 
-// Current values
+// Calculate nninc in current prices in MER and PPP currencies
 foreach l in x p {
-	generate mnninc999i_nomus`l' = (mnninc999i*inyixx)/xlcus`l'
-	generate mnninc999i_nomeu`l' = (mnninc999i*inyixx)/xlceu`l'
-	generate mnninc999i_nomyu`l' = (mnninc999i*inyixx)/xlcyu`l'
+	generate double mnninc999i_nomus`l' = (mnninc999i*inyixx)/xlcus`l'
+	generate double mnninc999i_nomeu`l' = (mnninc999i*inyixx)/xlceu`l'
+	generate double mnninc999i_nomyu`l' = (mnninc999i*inyixx)/xlcyu`l'
 
 }
 
@@ -129,7 +183,20 @@ drop mcitgr999i-mtaxnx999i pppeur-exccny inyixx999i xlc*
 tempfile countries
 save `countries'  
 
-merge m:1 iso using "`region'", nogen keep(matched)
+
+
+// -------------------------------------------------------------------------- //
+* 	3. Generate Regional Aggregations
+// -------------------------------------------------------------------------- //
+merge m:1 iso using "$work_data/import-core-country-codes-output.dta", nogen keep(matched)
+drop titlename shortname TH corecountry
+
+//------ Some corrections:
+*Note: some regions exist in 2 difference region group so the create problems for the aggregation. We will ensure that thes is only one of them
+replace region2="" if region1=="QE" & region2=="QE" // Europe, both region(standard) & region(continental)
+replace region3="" if region1=="QL" & region3=="QL" // East Asia, both region(standard) & sub-region  
+replace region5="" if region3=="QM" & region5=="QM" // Eastern Europe, both sub-region & region (other)
+//-----------------
 
 preserve
 	collapse (firstnm) region*, by(iso year)
@@ -138,6 +205,7 @@ preserve
 	drop j
 	drop if region == ""
 	generate value = 1
+	duplicates drop
 	greshape wide value, i(region year) j(iso)
 	foreach v of varlist value* {
 		replace `v' = 0 if missing(`v')
@@ -170,6 +238,9 @@ append using  "`combined'"
 use "`combined'", clear
 gsort region year 
 
+// -------------------------------------------------------------------------- //
+* 	4. Generate World Aggregations
+// -------------------------------------------------------------------------- //
 /*
 preserve
 	keep if inlist(region , "QE", "QL", "XB", "XF", "XL") |  inlist(region , "XN", "XR", "XS") 
@@ -181,11 +252,20 @@ preserve
 	save `world'
 restore
 */
-
+** Note: here the program sum all the values available for each avariables. For 
+**       the 2016 core countries after 1950 this will lead to world aggregates. 
+**       Before 1950, hist_countries_npopul will lead to a world estimation based
+**       on the core terrotiories, for which we have full estimates.
 preserve
+	* Call country data from 1950
 	use "`countries'", clear
-	merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry) 
+	* Get Regional Defintions
+	merge m:1 iso using "$work_data/import-core-country-codes-output.dta", nogen keepusing(corecountry) 
+	* keep only core countries
 	keep if corecountry == 1
+	* Call core-terriotires data npopul999i before 1950
+	*append using "`hist_countries_npopul'"
+	* Calculate world sum for all the years and variables included
 	ds year iso p, not
 	collapse (sum) npopul001f-mnninc999i_nomyup, by(year)
 	generate region = "WO"
@@ -193,19 +273,36 @@ preserve
 	tempfile world_iso
 	save `world_iso'
 restore
+
 *append using "`world'"
 append using "`world_iso'"
 
-renvars npopul001f-mnninc999i_nomyup, pref("value")
+// -------------------------------------------------------------------------- //
+* 	5. Generate values in EUR , USD and CNY for the regions calculated.
+// -------------------------------------------------------------------------- //
 
+// --------- 5.1 Generate W of the regional variables ------------------------ //
+* Format
+renvars npopul001f-mnninc999i_nomyup, pref("value")
+* Calcualte W values for the macro variables ( variables as shares of nninc)
 foreach v in ndpro999i gdpro999i nnfin999i finrx999i finpx999i comnx999i pinnx999i nwnxa999i nwgxa999i nwgxd999i comhn999i fkpin999i confc999i comrx999i compx999i pinrx999i pinpx999i fdinx999i fdirx999i fdipx999i ptfnx999i ptfrx999i ptfpx999i flcin999i flcir999i flcip999i ncanx999i tbnnx999i scinx999i tbxrx999i tbmpx999i scirx999i scipx999i fkarx999i fkapx999i fkanx999i taxnx999i fsubx999i ftaxx999i expgo999i gpsge999i defge999i polge999i ecoge999i envge999i houge999i heage999i recge999i eduge999i edpge999i edsge999i edtge999i sopge999i spige999i sacge999i sakge999i revgo999i pitgr999i citgr999i scogr999i pwtgr999i intgr999i ottgr999i {
-	gen valuew`v'_pppeur = valuem`v'_pppeur/valuemnninc999i_pppeur
+	gen double valuew`v'_pppusd = valuem`v'_pppusd/valuemnninc999i_pppusd
 }
 
+
+** Formating
+duplicates tag year region, gen(dup)
+duplicates tag , gen(dup1)
+
+
+duplicates drop
 greshape long value, i(year region) j(widcode) string
 
-drop if value == 0
 
+drop if value == 0 &  strpos(widcode, "npopul") & year<1950 
+drop if value == 0 & !strpos(widcode, "npopul") // if value=0, no countries has data for that variable
+
+// --------- 5.2 Use mnninc values for estimating regional price indexes and XR //
 preserve
 	keep if strpos(widcode, "mnninc999i")
 	reshape wide value, i(year region) j(widcode) string
@@ -216,9 +313,9 @@ preserve
 	//generate valuexlcusp999i = mnninc999i_pppeur/mnninc999i_pppusd 
 	//generate valuexlcyup999i = mnninc999i_pppeur/mnninc999i_pppcny 
 	*nominal 
-	generate valuexlceup999i = mnninc999i_nomeup/mnninc999i_nomeup 
-	generate valuexlcusp999i = mnninc999i_nomeup/mnninc999i_nomusp 
-	generate valuexlcyup999i = mnninc999i_nomeup/mnninc999i_nomyup 
+	generate double valuexlceup999i = mnninc999i_nomusp/mnninc999i_nomeup 
+	generate double valuexlcusp999i = mnninc999i_nomusp/mnninc999i_nomusp 
+	generate double valuexlcyup999i = mnninc999i_nomusp/mnninc999i_nomyup 
 	
 	// MERs
 	*constant
@@ -226,15 +323,15 @@ preserve
 	//generate valuexlcusx999i = mnninc999i_exceur/mnninc999i_excusd 
 	//generate valuexlcyux999i = mnninc999i_exceur/mnninc999i_exccny 
 	*nominal 
-	generate valuexlceux999i = mnninc999i_nomeux/mnninc999i_nomeux 
-	generate valuexlcusx999i = mnninc999i_nomeux/mnninc999i_nomusx 
-	generate valuexlcyux999i = mnninc999i_nomeux/mnninc999i_nomyux 
+	generate double valuexlceux999i = mnninc999i_nomusx/mnninc999i_nomeux 
+	generate double valuexlcusx999i = mnninc999i_nomusx/mnninc999i_nomusx 
+	generate double valuexlcyux999i = mnninc999i_nomusx/mnninc999i_nomyux 
 	
 	// Price index 
-	generate valueinyixx999i = mnninc999i_nomeux/mnninc999i_exceur
-	generate valueinyixx999i_exc = mnninc999i_nomeup/mnninc999i_pppeur
-	*generate valueinyusx999i = mnninc999i_nomusx/mnninc999i_excusd
-	*generate valueinyusp999i = mnninc999i_nomusp/mnninc999i_pppusd
+	generate double valueinyixx999i = mnninc999i_nomusx/mnninc999i_excusd
+	generate double valueinyixx999i_exc = mnninc999i_nomusp/mnninc999i_pppusd
+	*generate        valueinyusx999i = mnninc999i_nomusx/mnninc999i_excusd
+	*generate        valueinyusp999i = mnninc999i_nomusp/mnninc999i_pppusd
 	*generate valueinyyux999i = mnninc999i_nomyux/mnninc999i_exccny
 	*generate valueinyyup999i = mnninc999i_nomyup/mnninc999i_pppcny
 	
@@ -247,6 +344,8 @@ preserve
 	save "`ppp'"
 restore
 
+
+// --------- 5.3 Generate -MER regions -------------------------------------- //
 drop if inlist(widcode, "mnninc999i_nomeup", "mnninc999i_nomeux", "mnninc999i_nomusp", "mnninc999i_nomusx", "mnninc999i_nomyup", "mnninc999i_nomyux")
 generate currency = upper(substr(widcode, -3, 3)) if !strpos(widcode, "npopul")
 generate type     = upper(substr(widcode, -6, 3)) if !strpos(widcode, "npopul")
@@ -254,12 +353,26 @@ replace type = "-MER" if type == "EXC"
 
 replace region = region + type if !missing(type) & type == "-MER"
 drop type
-drop if inlist(currency, "CNY", "USD")
+drop if inlist(currency, "CNY", "EUR")
 replace widcode = substr(widcode, 1, 10)
+
+* Call ppp data
 append using "`ppp'"
 
 replace region = region + "-MER" if inlist(widcode, "xlceux999i", "xlcusx999i", "xlcyux999i", "inyixx999i_exc") 
 replace widcode = "inyixx999i" if widcode == "inyixx999i_exc"
+
+** Dropping non MER observations
+gen region2=substr(region,1,2)
+sort region2  year widcode  region
+duplicates tag region2 year widcode, gen(dup3)
+drop if dup3==1 & !strpos(region,"-MER")
+drop region
+rename region2 region
+
+// -------------------------------------------------------------------------- //
+* 	6. Final Formating and export
+// -------------------------------------------------------------------------- //
 
 rename region iso
 keep iso year widcode value currency
@@ -277,7 +390,6 @@ tempfile regions
 save "`regions'"
 
 append using "$work_data/add-wealth-aggregates-output.dta"
-drop refyear
 
 duplicates tag iso year widcode p, gen(dup)
 *br if dup
@@ -285,11 +397,18 @@ assert dup == 0
 drop dup
 /* */
 compress
+
+sort iso year widcode p
 label data "Generated by aggregate-regions.do"
+
+// incorporating regions, improve later on
+drop if (inlist(iso, "XF", "XR", "XA", "XS", "WO", "QE", "XB", "XL", "XN") | inlist(iso, "OA", "OB", "OC", "OD", "OE", "OH", "OI", "OJ") | inlist(iso, "QM")) & year < 1970 & !(substr(widcode, 1, 6) == "npopul")
+append using "/Users/g.nievas/Dropbox/WIL/W2ID/Country-Updates/WBOP_NP2025/NievasPiketty2025_hist_regionsonly.dta" 
+
 save "$work_data/aggregate-regions-output.dta", replace
 
 // -------------------------------------------------------------------------- //
-// Create metadata
+* 7. Create metadata
 // -------------------------------------------------------------------------- //
 
 use "`regions'", clear
@@ -301,5 +420,6 @@ generate source = "WID.world (see individual countries for more details)"
 generate method = "WID.world aggregations of individual country data"
 
 append using "$work_data/add-wealth-aggregates-metadata.dta"
-save "$work_data/aggregate-regions-metadata-output.dta", replace
 
+
+save "$work_data/aggregate-regions-metadata-output.dta", replace

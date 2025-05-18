@@ -23,7 +23,7 @@ gen `var'_idx = `var'*index
 	gen `var'_usd = `var'_idx/exrate_usd
 }
 
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry) 
 keep if corecountry == 1
 
 keep iso year gdp_usd
@@ -199,7 +199,7 @@ foreach v in ptf_asset ptf_liabi fdi_asset fdi_liabi {
 }	
 drop aux* *AN *ANlcu
 
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry) 
 keep if corecountry == 1
 
 sort iso year
@@ -331,7 +331,7 @@ foreach v in secco {
 }	
 drop aux* *AN *ANlcu
 
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH) 
 keep if corecountry == 1
 
 // Extrapolate the value of net corporate savings

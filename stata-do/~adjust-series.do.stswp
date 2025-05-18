@@ -22,21 +22,21 @@ merge 1:1 iso year using "$work_data/reinvested-earnings-portfolio.dta", nogener
 // merge 1:1 iso year using "$work_data/wealth-tax-havens.dta", nogenerate update replace keepusing(nwgxa nwgxd ptfxa ptfxd fdixa fdixd)
 
 // Foreign portfolio income officially recorded
-generate double ptfor = ptfrx
-generate double ptfop = ptfpx
-generate double ptfon = ptfnx
+generate ptfor = ptfrx
+generate ptfop = ptfpx
+generate ptfon = ptfnx
 
-generate double series_ptfor = series_ptfrx
-generate double series_ptfop = series_ptfpx
-generate double series_ptfon = series_ptfnx
+generate series_ptfor = series_ptfrx
+generate series_ptfop = series_ptfpx
+generate series_ptfon = series_ptfnx
 
-generate double series_ptfhr = -3
-generate double series_ptfrr = -3
-generate double series_ptfrp = -3
-generate double series_ptfrn = -3
+generate series_ptfhr = -3
+generate series_ptfrr = -3
+generate series_ptfrp = -3
+generate series_ptfrn = -3
 
 // External wealth officially recorded and hidden in Tax Havens
-generate double nwnxa = nwgxa - nwgxd
+generate nwnxa = nwgxa - nwgxd
 
 // Distribute reinvested earnings on portfolio investment to
 // non-financial corporations
@@ -68,25 +68,25 @@ foreach v in fdipx fdirx pinpx pinrx ptfpx ptfrx ptfrx_deb ptfrx_eq ptfrx_res pt
 // -------------------------------------------------------------------------- //
 // Ensure that imputations do not distort net national income
 // -------------------------------------------------------------------------- //
-replace         gdpro = 1 if missing(gdpro)
-generate double nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
+replace gdpro = 1 if missing(gdpro)
+generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
 
-gen        flagnninc = 1 if nninc < .5 & (flagpinrx == 1 | flagpinpx == 1) 
-replace    flagnninc = 0 if mi(flagnninc)
-gen        difnninc = .5 - nninc if flagnninc == 1 
-gen double sh_ptfrx = ptfrx/pinrx 
-gen double sh_fdirx = fdirx/pinrx 
-replace    ptfrx = ptfrx + sh_ptfrx*difnninc if flagnninc == 1 
-replace    fdirx = fdirx + sh_fdirx*difnninc if flagnninc == 1 
+gen flagnninc = 1 if nninc < .5 & (flagpinrx == 1 | flagpinpx == 1) 
+replace flagnninc = 0 if mi(flagnninc)
+gen difnninc = .5 - nninc if flagnninc == 1 
+gen sh_ptfrx = ptfrx/pinrx 
+gen sh_fdirx = fdirx/pinrx 
+replace ptfrx = ptfrx + sh_ptfrx*difnninc if flagnninc == 1 
+replace fdirx = fdirx + sh_fdirx*difnninc if flagnninc == 1 
 drop flagnninc difnninc sh_*
 
-gen        flagnninc = 1 if nninc > 1.5 & (flagpinrx == 1 | flagpinpx == 1) 
-replace    flagnninc = 0 if mi(flagnninc)
-gen        difnninc = nninc - 1.5 if flagnninc == 1 
-gen double sh_ptfpx = ptfpx/pinpx 
-gen double sh_fdipx = fdipx/pinpx 
-replace    ptfpx = ptfpx + sh_ptfpx*difnninc if flagnninc == 1 
-replace    fdipx = fdipx + sh_fdipx*difnninc if flagnninc == 1 
+gen flagnninc = 1 if nninc > 1.5 & (flagpinrx == 1 | flagpinpx == 1) 
+replace flagnninc = 0 if mi(flagnninc)
+gen difnninc = nninc - 1.5 if flagnninc == 1 
+gen sh_ptfpx = ptfpx/pinpx 
+gen sh_fdipx = fdipx/pinpx 
+replace ptfpx = ptfpx + sh_ptfpx*difnninc if flagnninc == 1 
+replace fdipx = fdipx + sh_fdipx*difnninc if flagnninc == 1 
 drop flagnninc difnninc sh_*
 drop nninc 
 
@@ -106,7 +106,7 @@ replace ptdxa = ptdxa + ptfxa_fin
 replace ptdxd = ptdxd + ptfxd_fin
 drop ptfxa_fin ptfxd_fin miss*
 
-merge m:1 iso using "$work_data/import-core-country-codes-output.dta", nogen keepusing(corecountry TH) 
+merge m:1 iso using "$work_data/country-codes-list-core.dta", nogen keepusing(corecountry TH) 
 replace corecountry = 0 if year < 1970
 
 // -------------------------------------------------------------------------- //
@@ -134,23 +134,23 @@ by iso : carryforward fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx comp
 
 foreach var in gdp {
 gen `var'_idx = `var'*index
-	gen double `var'usd = `var'_idx/exrate_usd
+	gen `var'usd = `var'_idx/exrate_usd
 }
 
 foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
 	replace `v' = `v'*gdpusd 
-	gen double aux = abs(`v')
-	bys year : egen double tot`v' = total(`v') if corecountry == 1
-	bys year : egen double totaux`v' = total(aux) if corecountry == 1
+	gen aux = abs(`v')
+	bys year : egen tot`v' = total(`v') if corecountry == 1
+	bys year : egen totaux`v' = total(aux) if corecountry == 1
 	drop aux
 }
 
-gen double totfdinx = (totfdirx + totfdipx)/2
-gen double totptfnx = (totptfrx + totptfpx)/2 
-gen double totfdixn = (totfdixa + totfdixd)/2 
-gen double totptfxn = (totptfxa + totptfxd)/2 
-gen double totcomnx = (totcomrx + totcompx)/2
-gen double tottaxnx = (totfsubx + totftaxx)/2
+gen totfdinx = (totfdirx + totfdipx)/2
+gen totptfnx = (totptfrx + totptfpx)/2 
+gen totfdixn = (totfdixa + totfdixd)/2 
+gen totptfxn = (totptfxa + totptfxd)/2 
+gen totcomnx = (totcomrx + totcompx)/2
+gen tottaxnx = (totfsubx + totftaxx)/2
 
 replace totfdirx = totfdinx - totfdirx
 replace totfdipx = totfdinx - totfdipx
@@ -168,35 +168,35 @@ replace totfsubx = tottaxnx - totfsubx
 replace totftaxx = tottaxnx - totftaxx
 
 
-gen double ratio_fdirx = fdirx/totauxfdirx
-gen double ratio_fdipx = fdipx/totauxfdipx
-replace    fdirx = fdirx + totfdirx*ratio_fdirx 
-replace    fdipx = fdipx + totfdipx*ratio_fdipx 	
+gen ratio_fdirx = fdirx/totauxfdirx
+gen ratio_fdipx = fdipx/totauxfdipx
+replace fdirx = fdirx + totfdirx*ratio_fdirx 
+replace fdipx = fdipx + totfdipx*ratio_fdipx 	
 
-gen double ratio_ptfrx = ptfrx/totauxptfrx
-gen double ratio_ptfpx = ptfpx/totauxptfpx
-replace    ptfrx = ptfrx + totptfrx*ratio_ptfrx  
-replace    ptfpx = ptfpx + totptfpx*ratio_ptfpx  
+gen ratio_ptfrx = ptfrx/totauxptfrx
+gen ratio_ptfpx = ptfpx/totauxptfpx
+replace ptfrx = ptfrx + totptfrx*ratio_ptfrx  
+replace ptfpx = ptfpx + totptfpx*ratio_ptfpx  
 
-gen double ratio_fdixa = fdixa/totauxfdixa
-gen double ratio_fdixd = fdixd/totauxfdixd
-replace    fdixa = fdixa + totfdixa*ratio_fdixa 
-replace    fdixd = fdixd + totfdixd*ratio_fdixd 
+gen ratio_fdixa = fdixa/totauxfdixa
+gen ratio_fdixd = fdixd/totauxfdixd
+replace fdixa = fdixa + totfdixa*ratio_fdixa 
+replace fdixd = fdixd + totfdixd*ratio_fdixd 
 
-gen double ratio_ptfxa = ptfxa/totauxptfxa
-gen double ratio_ptfxd = ptfxd/totauxptfxd
-replace    ptfxa = ptfxa + totptfxa*ratio_ptfxa 
-replace    ptfxd = ptfxd + totptfxd*ratio_ptfxd 
+gen ratio_ptfxa = ptfxa/totauxptfxa
+gen ratio_ptfxd = ptfxd/totauxptfxd
+replace ptfxa = ptfxa + totptfxa*ratio_ptfxa 
+replace ptfxd = ptfxd + totptfxd*ratio_ptfxd 
 
-gen double ratio_comrx = comrx/totauxcomrx
-gen double ratio_compx = compx/totauxcompx
-replace    comrx = comrx + totcomrx*ratio_comrx 
-replace    compx = compx + totcompx*ratio_compx 
+gen ratio_comrx = comrx/totauxcomrx
+gen ratio_compx = compx/totauxcompx
+replace comrx = comrx + totcomrx*ratio_comrx 
+replace compx = compx + totcompx*ratio_compx 
 
-gen double ratio_fsubx = fsubx/totauxfsubx
-gen double ratio_ftaxx = ftaxx/totauxftaxx
-replace    fsubx = fsubx + totfsubx*ratio_fsubx 	
-replace    ftaxx = ftaxx + totftaxx*ratio_ftaxx 			
+gen ratio_fsubx = fsubx/totauxfsubx
+gen ratio_ftaxx = ftaxx/totauxftaxx
+replace fsubx = fsubx + totfsubx*ratio_fsubx 	
+replace ftaxx = ftaxx + totftaxx*ratio_ftaxx 			
 
 *drop ptdxar ptdrxr
 foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
@@ -211,32 +211,32 @@ replace pinpx = fdipx + ptfpx
 replace comnx = comrx - compx 
 replace taxnx = fsubx - ftaxx
 
-gen double ptfxn = ptfxa - ptfxd 
-gen double fdixn = fdixa - fdixd 
-replace    nwgxa = ptfxa + fdixa 
-replace    nwgxd = ptfxd + fdixd 
-replace    nwnxa = nwgxa - nwgxd 
+gen ptfxn = ptfxa - ptfxd 
+gen fdixn = fdixa - fdixd 
+replace nwgxa = ptfxa + fdixa 
+replace nwgxd = ptfxd + fdixd 
+replace nwnxa = nwgxa - nwgxd 
 
 	*rescaling 
-	gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
+	gen ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
 	foreach var in ptexa ptdxa ptrxa {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (ptexd + ptdxd)/ptfxd
+	gen ratiocheck = (ptexd + ptdxd)/ptfxd
 	foreach var in ptexd ptdxd {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
+	gen ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
 	foreach var in pterx ptdrx ptrrx {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (ptepx + ptdpx)/ptfpx
+	gen ratiocheck = (ptepx + ptdpx)/ptfpx
 	foreach var in ptepx ptdpx {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
@@ -323,22 +323,22 @@ keep if corecountry == 1
 	replace fdixa =. if fdixa == 0
 	replace ptfrx =. if ptfrx == 0
 	replace fdirx =. if fdirx == 0
-	gen double rpa = ptfrx/ptfxa 
-	gen double rfa = fdirx/fdixa
+	gen rpa = ptfrx/ptfxa 
+	gen rfa = fdirx/fdixa
 	keep year rpa rfa 
 	tempfile world
 	sa `world'
 restore 
-merge m:1 year using `world', nogenerate
+merge m:1 year using `world'
 	
 // rescaling fki for problematic caribbean TH
-gen double ptfrx_new = rpa*ptfxa
-gen double ptfpx_new = ptfrx_new - ptfnx
-gen double ptfnx_new = (ptfrx_new - ptfpx_new)
+gen ptfrx_new = rpa*ptfxa
+gen ptfpx_new = ptfrx_new - ptfnx
+gen ptfnx_new = (ptfrx_new - ptfpx_new)
 
-gen double fdirx_new = rfa*fdixa
-gen double fdipx_new = fdirx_new - fdinx
-gen double fdinx_new = (fdirx_new - fdipx_new)
+gen fdirx_new = rfa*fdixa
+gen fdipx_new = fdirx_new - fdinx
+gen fdinx_new = (fdirx_new - fdipx_new)
 
 replace ptfrx = ptfrx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & ptfpx_new > 0
 replace ptfpx = ptfpx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & ptfpx_new > 0 
@@ -350,13 +350,13 @@ replace fdinx = fdinx_new if coreterritory == "OD" & TH == 1 & iso != "PR" & fdi
 drop *_new 
 
 // rescaling NWGXA for PR 
-gen double ptfxa_new = ptfrx/rpa
-gen double ptfxd_new = ptfxa_new - ptfxn
-gen double ptfxn_new = (ptfxa_new - ptfxd_new)
+gen ptfxa_new = ptfrx/rpa
+gen ptfxd_new = ptfxa_new - ptfxn
+gen ptfxn_new = (ptfxa_new - ptfxd_new)
 
-gen double fdixa_new = fdirx/rpa
-gen double fdixd_new = fdixa_new - fdixn
-gen double fdixn_new = (fdixa_new - fdixd_new)
+gen fdixa_new = fdirx/rpa
+gen fdixd_new = fdixa_new - fdixn
+gen fdixn_new = (fdixa_new - fdixd_new)
 
 replace ptfxa = ptfxa_new if iso == "PR" & ptfxd_new > 0  
 replace ptfxd = ptfxd_new if iso == "PR" & ptfxd_new > 0 
@@ -372,86 +372,55 @@ foreach v in ptfxa fdixa ptfrx fdirx ptfpx ptfnx fdipx fdinx ptfxd ptfxn fdixd f
 }
 
 	*rescaling 
-	gen double ratiocheck = (ptfxa + fdixa)/nwgxa
+	gen ratiocheck = (ptfxa + fdixa)/nwgxa
 	foreach var in nwgxa {
 		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
-	gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
+	gen ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
 	foreach var in ptexa ptdxa ptrxa {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (ptfxd + fdixd)/nwgxd
+	gen ratiocheck = (ptfxd + fdixd)/nwgxd
 	foreach var in nwgxd {
 		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
-	gen double ratiocheck = (ptexd + ptdxd)/ptfxd
+	gen ratiocheck = (ptexd + ptdxd)/ptfxd
 	foreach var in ptexd ptdxd {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (ptfrx + fdirx)/pinrx
+	gen ratiocheck = (ptfrx + fdirx)/pinrx
 	foreach var in pinrx {
 		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
+	gen ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
 	foreach var in pterx ptdrx ptrrx {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-	gen double ratiocheck = (ptfpx + fdipx)/pinpx
+	gen ratiocheck = (ptfpx + fdipx)/pinpx
 	foreach var in pinpx {
 		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 	
-	gen double ratiocheck = (ptepx + ptdpx)/ptfpx
+	gen ratiocheck = (ptepx + ptdpx)/ptfpx
 	foreach var in ptepx ptdpx {
 		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
 	} 
 	drop ratiocheck 
 
-
-//--------  Import data from Nievas Piketty 2025 ---------------------------- //
-preserve
-	* Import Data
-	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
-	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
-	* Generate Fivelets as defined in the Wid-Dictionary
-	gen      fivelet= "finrx"  if origin =="D1b" 
-	replace  fivelet= "finpx"  if origin =="D1c" 
-	*gen  fivelet= "nnfin"  if origin =="D1c"
 	
-	replace  fivelet= "nwgxa"  if origin =="G1b"
-	replace  fivelet= "nwgxd"  if origin =="G1c"
-
-	
-	*Format for importing
-	drop if mi(fivelet)
-	drop origin concept
-	reshape wide value, i(iso year) j(fivelet) string
-	rename value* *
-	
-	*calculate net values
-	gen double nnfin = finrx - finpx
-	gen double nwnxa = nwgxa - nwgxd
-	
-	tempfile np2025
-	save `np2025'
-restore
-
-//------------------------------------------------------------------------------
-merge 1:1 iso year using "`np2025'", nogen update replace
-
 *replace nnfin = pinnx if mi(nnfin)
 drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag* neg* coreterritory country
 
@@ -459,9 +428,9 @@ drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src
 drop cap?? cag?? nsmnp
 
 // Finally calculate net national income
-replace         gdpro = 1 if missing(gdpro)
-generate double nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin) 
-generate double ndpro = gdpro - confc
-generate double gninc = gdpro + cond(missing(nnfin), 0, nnfin)
+replace gdpro = 1 if missing(gdpro)
+generate nninc = gdpro - confc + cond(missing(nnfin), 0, nnfin)
+generate ndpro = gdpro - confc
+generate gninc = gdpro + cond(missing(nnfin), 0, nnfin)
 
 save "$work_data/sna-series-adjusted.dta", replace

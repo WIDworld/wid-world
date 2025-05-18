@@ -12,9 +12,9 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // -------------------------------------------------------------------------- //
 // Import country codes and regions
 // -------------------------------------------------------------------------- //
-/*
- do "$do_dir/import-country-codes.do"
 //
+ do "$do_dir/import-country-codes.do"
+/*
 // // -------------------------------------------------------------------------- //
 // // Import, clean, and convert to the new format the old WTID
 // // -------------------------------------------------------------------------- //
@@ -52,8 +52,8 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 //
 // // Calculate o- variables
  do "$do_dir/calculate-average-over.do"
-
 */
+
 // -------------------------------------------------------------------------- //
 // Add data from researchers
 // -------------------------------------------------------------------------- //
@@ -148,6 +148,9 @@ do "$do_dir/import-un-populations.do"
 // Prospects)
 do "$do_dir/import-un-sna-populations.do"
 
+// Import historical series from FedericoTena and IHS population datasets
+do "$do_dir/import-ft-ihs-populations.do"
+
 // Calculate the population series
 do "$do_dir/calculate-populations.do" 
 
@@ -220,8 +223,11 @@ do "$do_dir/import-oecd-data.do"
 
 // Import data from other sources
 do "$do_dir/import-imf-bop.do"
-do "$do_dir/import-imf-dottrade.do"
-do "$do_dir/import-combine-gravityimftrade.do"
+//do "$do_dir/import-imf-dottrade.do"
+//do "$do_dir/import-combine-gravityimftrade.do"
+do "$do_dir/importing-gravity-trade.do"
+do "$do_dir/imfbop-trade-gravity.do"
+do "$do_dir/imfbop-remittances.do"
 do "$do_dir/currentaccount.do"
 do "$do_dir/import-income-researchers.do"
 do "$do_dir/reformat-wid-data.do"
@@ -289,9 +295,7 @@ do "$do_dir/calculate-wealth-income-ratios.do"
 do "$do_dir/calculate-per-capita-series.do"
 
 // Merge historical aggregates to WID
-do "$do_dir/merge-historical-aggregates.do"
-
-
+//do "$do_dir/merge-historical-aggregates.do"
 
 // -------------------------------------------------------------------------- //
 // END OF MACRO PART

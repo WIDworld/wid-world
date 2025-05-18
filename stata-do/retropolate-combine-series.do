@@ -34,14 +34,16 @@ replace confc = . if iso == "GY" & year >= 1985
 replace confc = . if iso == "BD" & year == 2019
 drop if iso == "BF" & series == 10
 
-foreach wx in comrx compx comnx fsubx ftaxx taxnx { 
+foreach wx in comrx compx comnx fsubx ftaxx taxnx finpx finrx pinpx pinrx { 
 	replace `wx' = . if `wx' == 0 | abs(`wx') < 4e-6
 }
-foreach wx in comrx compx fsubx ftaxx { 
+foreach wx in comrx compx fsubx ftaxx finpx finrx pinpx pinrx { 
 	replace `wx' = . if `wx' < 0
 }
 replace taxnx = fsubx - ftaxx 
 replace comnx = comrx - compx 
+replace pinnx = pinrx - pinpx 
+replace nnfin = finrx - finpx 
 
 *br iso series year cfc?? confc if iso == "MX"
 *br iso year series cfcgo prggo prigo confc if iso == "IT"
@@ -115,6 +117,7 @@ replace confc = cfcgo + cfcco + cfchn if iso == "MX" & inrange(year, 1993, 1994)
 sa "$work_data/temp", replace 
 
 u "$work_data/temp", clear
+
 // -------------------------------------------------------------------------- //
 // Completing foreign income variables
 // -------------------------------------------------------------------------- //
@@ -124,7 +127,7 @@ replace ftaxx =. if iso == "KR"
 replace fsubx =. if iso == "KR"
 
 // adding corecountry dummy and Tax Haven dummy
-merge 1:1 iso year using "$work_data/country-codes-list-core-year.dta", nogen keepusing(corecountry TH) 
+merge 1:1 iso year using "$work_data/import-core-country-codes-year-output.dta", nogen keepusing(corecountry TH) 
 *keep if corecountry == 1 
 
 // interpolating foreign capital income variables
@@ -347,7 +350,7 @@ drop sh*
 // completing comrx compx fsubx ftaxx for corecountries
 // -------------------------------------------------------------------------- //
 foreach v in compx comrx fsubx ftaxx { 
-	replace `v' =. if `v' == 0
+	replace `v' =. if `v' == 0 & neg`v' != 1
 	bys iso : egen tot`v' = total(abs(`v')), missing
 	gen flagcountry`v' = 1 if tot`v' == .
 	replace flagcountry`v' = 0 if missing(flagcountry`v')
@@ -471,6 +474,11 @@ foreach v in comrx compx comnx fsubx ftaxx taxnx {
 
 drop TH flagcountryfdipx flagcountryfdirx flagcountryptfpx flagcountryptfrx flagcountrypinrx flagcountrypinpx flagcountrynnfin flagcountrypinnx soviet yugosl other gdp
 
+
+foreach v in compx comrx fdipx fdirx fsubx ftaxx pinpx pinrx ptfpx ptfrx ptfpx_deb ptfpx_eq ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `v' =. if `v' < 0
+}
+
 // -------------------------------------------------------------------------- //
 // Perform re-calibration
 // -------------------------------------------------------------------------- //
@@ -480,6 +488,31 @@ generate gdpro = 1
 		// (fsubx = fpsub + fosub) ///
 		// (ftaxx = fptax + fotax) ///
 		// (taxnx = prtxn + optxn) ///
+
+// Foreign income
+enforce (comnx = comrx - compx) ///
+		(pinnx = pinrx - pinpx) ///
+		(flcin = flcir - flcip) ///
+		(taxnx = fsubx - ftaxx) ///
+		(nnfin = finrx - finpx) ///
+		(finrx = comrx + pinrx + fsubx) ///
+		(finpx = compx + pinpx + ftaxx) ///
+		(nnfin = flcin + taxnx) ///
+		(flcir = comrx + pinrx) ///
+		(flcip = compx + pinpx) ///
+		(pinnx = fdinx + ptfnx) ///
+		(ptfrx = ptfrx_eq + ptfrx_deb + ptfrx_res) ///
+		(ptfpx = ptfpx_eq + ptfpx_deb) ///
+		(pinpx = fdipx + ptfpx) ///
+		(pinrx = fdirx + ptfrx) ///
+		(fdinx = fdirx - fdipx) ///
+		(ptfnx = ptfrx - ptfpx), fixed(nnfin) prefix(new) force
+
+foreach v in compx comrx fdipx fdirx finpx finrx fsubx ftaxx pinpx pinrx ptfpx ptfrx flcir flcip ptfrx_eq ptfrx_deb ptfrx_res ptfpx_eq ptfpx_deb {
+	replace `v' = new`v' if new`v' >= 0		
+	replace `v' = 0 if missing(`v') & !missing(new`v')
+}
+drop new*
 
 // Foreign income
 enforce (comnx = comrx - compx) ///
@@ -640,6 +673,9 @@ enforce (comnx = comrx - compx) ///
 		/// Labor + capital income decomposition
 		(fkpin = prphn + prico + nsrhn + prpgo), fixed(gdpro nnfin confc fkpin comhn nmxhn) replace
 
+foreach v in compx comrx fdipx fdirx fsubx ftaxx pinpx pinrx ptfpx ptfrx ptfpx_deb ptfpx_eq ptfrx_deb ptfrx_eq ptfrx_res {
+	replace `v' =. if `v' < 0
+}
 
 // Some early government sector data too problematic to do anything
 foreach v of varlist *go {

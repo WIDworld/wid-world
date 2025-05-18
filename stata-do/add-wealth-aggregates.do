@@ -11,7 +11,7 @@ reshape wide value, i(iso year) j(widcode) string
 
 preserve
 	*merge 1:1 iso year using "$wid_dir/Country-Updates/Wealth/2023_December/wealth-aggregates-2023.dta", nogen
-	use "$wid_dir/Country-Updates/Wealth/2024_December/wealth-aggregates-2024.dta", clear
+	use "$wid_dir/Country-Updates/Wealth/2025_March/wealth-aggregates-2024.dta", clear
 	replace iso="KS" if iso=="XK"
 	
 	tempfile wealth_aggregates
@@ -68,7 +68,7 @@ duplicates drop iso sixlet, force
 
 
 generate fivelet = substr(sixlet, 2, 6)
-merge m:1 iso fivelet using "$wid_dir/Country-Updates/Wealth/2024_December/wealth-aggregates-metadata.dta", nogenerate
+merge m:1 iso fivelet using "$wid_dir/Country-Updates/Wealth/2025_March/wealth-aggregates-metadata.dta", nogenerate
 drop fivelet
 
 replace method= method + " Additionally, this value was adjusted using Net National Income data." if substr(sixlet, 1, 1)=="m" & !missing(method)

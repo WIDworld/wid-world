@@ -40,6 +40,30 @@ replace confc = imputed_confc if (missing(confc) | toreplace2) & !missing(impute
 
 drop imputed_* toreplace toreplace2
 
+//--------  Import data from Nievas Piketty 2025 ---------------------------- //
+preserve
+	* Import Data
+	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	* Generate Fivelets as defined in the Wid-Dictionary
+	gen      fivelet= "confc"  if origin =="I2a"
+	
+	*Format for importing
+	drop if mi(fivelet)
+	drop origin concept
+	reshape wide value, i(iso year) j(fivelet) string
+	rename value* *
+	
+
+	tempfile np2025
+	save `np2025'
+restore
+
+*merge NP2025
+merge 1:1 iso year using "`np2025'",  update replace
+//------------------------------------------------------------------------------
+
+
 // -------------------------------------------------------------------------- //
 // Extrapolate net foreign income in the recent year
 // -------------------------------------------------------------------------- //

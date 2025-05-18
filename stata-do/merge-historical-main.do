@@ -1,8 +1,29 @@
+//------------------------------------------------------------------------------
+//              Merge Historical-Main Do-file
+//------------------------------------------------------------------------------
 
+* Objetive: To match the historical series estimates,
+*           with the series already generated in the main.do
 
-// Import historical data gpinterized
+//--------------- Index --------------------------------------------------------
+// A. Import Historical Series 
+//      1. Import Country series 
+//      2. Import Regions percapita data
+//      3. Import Regions Adult data
+//      4. Import World estimates
+// B. Merge Historical Series 
+//      1.  Merge Data
+//      2. Save
+// C. Change metadata to indicate extrapolation
+//------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//             A. Import Historical Series 
+// -----------------------------------------------------------------------------
+// --------- 1. Import Country series 
 ** Countries and Other regions distributiosn (we duplicate from per-adult to get per-capita) - 33 main territories and 8 or 9 other regions
-use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
+*use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
+use "$wid_dir/Country-Updates/Historical_series/2025_April/merge-gpinterized_2025.dta", clear
 replace iso = "QM" if iso == "OK"
 
 keep if inlist(iso, "RU", "OA")  | ///
@@ -16,6 +37,7 @@ keep if inlist(iso, "RU", "OA")  | ///
 	    inlist(iso, "ZA", "OJ")  
 
 keep if name == "historical_sptinc992j"
+
 expand 2, gen(exp)
 replace name = "sptinc999j" if exp == 1 
 replace name = "sptinc992j" if exp == 0 
@@ -28,7 +50,7 @@ drop exp
 tempfile all
 save `all'
 
-keep year iso widcode p a s t
+keep year iso widcode p a s t 
 
 replace p = p/1000
 bys year iso widcode (p) : gen p2 = p[_n+1]
@@ -59,7 +81,7 @@ preserve
 	tempfile bottom
 	save `bottom'	
 restore
-
+ 
 append using `top'
 append using `bottom'
 
@@ -75,9 +97,8 @@ replace iso = "QM" if iso == "OK"
 
 tempfile historical
 save `historical'
+// --------- 2. Import Regions percapita data
 
-// Regions
-// per capita
 use "$wid_dir/Country-Updates/Historical_series/2022_December/regions-percapita", clear
 
 gen widcode = "sptinc999j"
@@ -134,7 +155,7 @@ gduplicates drop
 tempfile percapita
 save `percapita'
 
-// per adults
+// --------- 3. Import Regions Adult data
 use "$wid_dir/Country-Updates/Historical_series/2022_December/regions-peradults", clear
 
 gen widcode = "sptinc992j"
@@ -189,7 +210,7 @@ gduplicates drop
 tempfile peradults
 save `peradults'
 
-// World
+// --------- 4. Import World estimates
 use "$wid_dir/Country-Updates/Historical_series/2022_December/WO", clear
 
 ren (top_share bottom_share bracket_share bracket_average y) (ts bs s a year)
@@ -258,12 +279,24 @@ duplicates drop iso year widcode p, force
 tempfile completehistorical
 save `completehistorical'
 
-// Merging into the database
+// -----------------------------------------------------------------------------
+//             B. Merge Historical Series 
+// -----------------------------------------------------------------------------
+// --------- 1.  Merge Data
 use "$work_data/calculate-gini-coef-output.dta", clear
-merge 1:m iso year widcode p using `completehistorical', update nogen
-merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Historical_series/2023_December/0H_OD_CL_ptinc_post1980.dta", nogen
+rename value value_base
+//------- Temporal
+* Note: Some extended regions will be integrated in the World Inquality database later. 
+*        The codes are OP, OO, OL, OQ, OK
+replace  iso = "othr_EASA" if iso == "OK"
+//-----------------
+merge 1:1 iso year widcode p using `completehistorical', nogen // This dataset adds top and bottom Top and bottom percentiles for shares. The 
+rename value value_comp
+merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Historical_series/2023_December/0H_OD_CL_ptinc_post1980.dta", nogen // This dataset contains data for OH and OD already existing in calculate-gini-coef-output.dta except for the bottom percentiles p0pXX in averages and shares , top percentiles pXXp100 in thresholds .
+rename value value_oocp
 
 *Return to WID region codes
+*gen corrected=1 if inlist(iso,"WC","WA","WB","WD","WE") | inlist(iso,"WG","WH","WI", "WJ","OK")
 replace iso = "QE" if iso == "WC"
 replace iso = "XR" if iso == "WA"
 replace iso = "QL" if iso == "WB"
@@ -275,9 +308,77 @@ replace iso = "XS" if iso == "WI"
 replace iso = "XF" if iso == "WJ" 
 replace iso = "QM" if iso == "OK"
 
+//------- Temporal
+replace iso = "OK" if iso == "othr_EASA"
+//-----------------
 
-duplicates drop iso year widcode p, force
+// Matching the historical series
 
+** Note: For the Historical_complete, this data (each decade) overlaps observations 
+**       for AU 1910, FR 1900-1970, IN in top percentiles 1930-1960 and full 
+**       distrbution 1960-1970, NZ 1920, US 1920-1960. For this countries we will
+**       only retain the years before the overlap. While this implies loosing 
+**       observations on of the p0pXX or pXXp100, this will be recalculated in 
+**       homogenize do-file.
+replace value_base= value_comp if mi(value_base)  & year< 1980 & !inlist(iso,"AU","FR","IN","NZ","US")
+replace value_base= value_comp if !mi(value_comp) & year< 1910 & iso=="AU"
+replace value_base= value_comp if !mi(value_comp) & year<= 1910 & iso=="FR"
+replace value_base= value_comp if !mi(value_comp) & year<=1950 & iso=="IN" // We replace the top percentiles in order to gain a complete distribution in the decade years.
+replace value_base= value_comp if !mi(value_comp) & year<1920  & iso=="NZ"
+replace value_base= value_comp if !mi(value_comp) & year<1920  & iso=="US"
+** Note: For the data from OH_OD_CL_ptinc_post1980, this data is no longer needed since the regions can be now calculated from the complete 2016 core countries.
+*replace value_base= value_oocp if mi(value_base)
+
+* Cleanning
+rename value_base value
+drop  value_comp value_oocp // dup corrected
+drop if missing(value)
+
+* Keep only one observation per iso-year-widcode-p
+duplicates tag iso year p widcode, gen (dup)
+assert dup==0
+drop dup
+*duplicates drop iso year widcode p, force
+
+/*
+//------------- Correction of the currencies
+sort iso year widcode p
+
+** Importing standard currencies
+preserve
+	import excel using "$codes_dictionary", ///
+	sheet("Currencies") cellrange(A2:B375) clear allstring
+	rename A iso
+	rename B currency_0
+
+	tempfile currencies
+	save"`currencies'"
+restore
+
+merge m:1 iso using "`currencies'"
+drop if _merge==2
+drop _merge
+
+** Filling missing currencies for selected widcodes
+replace currency=currency_0 if missing(currency) & inlist(substr(widcode, 1, 1), "a", "m", "t")
+
+** Dropping currencies for unselected widcodes
+tab widcode currency if !inlist(substr(widcode, 1, 1), "a", "m", "t")
+replace currency="" if !inlist(substr(widcode, 1, 1), "a", "m", "t")
+
+** Assertions
+**** NOTE: if the assertion fails , its recommended to compare the currencies in 
+****       the WID-Dicitonary and the ones existing in the current file and, if 
+****       effectively the currencies have changed, correct them in the WID-Dicitonary.
+*** No selected currency remains empty
+assert currency!="" if inlist(substr(widcode, 1, 1), "a", "m", "t") 
+*** The currencies in the widcodes as the same than the existing ones
+bysort iso: assert currency == currency_0[1] if inlist(substr(widcode, 1, 1), "a", "m", "t")
+drop currency_0
+// --------------------------------------------
+*/
+
+// --------- 2.  Save
 compress
 label data "Generated by merge-historical-main.do"
 save "$work_data/merge-historical-main.dta", replace
@@ -303,7 +404,7 @@ gr export "$wid_dir/Country-Updates/Historical_series/2022_December/temp/gr`c'`p
 */
 
 // -------------------------------------------------------------------------- //
-// Change metadata to indicate extrapolation
+// C. Change metadata to indicate extrapolation
 // -------------------------------------------------------------------------- //
 
 *Long-run metadata

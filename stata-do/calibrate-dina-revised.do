@@ -2,11 +2,12 @@
 // Recompute pre-tax and post-tax averages when there is full DINA data
 // -------------------------------------------------------------------------- //
 
+
 use "$work_data/distribute-national-income-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
 drop if (substr(iso, 1, 1) == "O") & iso != "OM"
-drop if strpos(iso, "-")
+drop if strpos(iso, "-") & !strpos(iso, "CN-") // Modif 04-03-2025
 drop if iso == "WO"
 
 // -------------------------------------------------------------------------- //
@@ -35,6 +36,7 @@ keep if inlist(n, 1, 10, 100, 1000)
 drop if n == 1000 & p_min >= 99000
 drop if n == 100  & p_min >= 99900
 drop if n == 10   & p_min >= 99990
+
 drop p p_max
 rename p_min p
 sort iso year widcode p
@@ -74,6 +76,40 @@ foreach v of varlist iso year fivelet age pop {
 drop i _fillin
 renvars value*, predrop(5)
 
+//-------------  Ensuring the consistency  bracket averages - thresholds  -------
+replace a = a*1000
+replace t = t*1000
+// Dropping observations not behaving as expected
+* Generating a lag
+sort iso year fivelet age pop p
+by iso year fivelet age pop (p): gen double for_a = a[_n+1]
+by iso year fivelet age pop (p): gen double for_t = t[_n+1]
+
+* Anticipating possible value drops in more than 1 percentile continouisly
+gen double max_a = a
+by iso year fivelet age pop (p): replace max_a = max(max_a[_n-1], a) if _n > 1
+gen double max_t = t
+by iso year fivelet age pop (p): replace max_t = max(max_t[_n-1], t) if _n > 1
+
+* Dropping observations not behaving as expected
+gen double dif1 = a - for_a 
+gen double dif2 = max_a - a 
+gen double dif3 = a - for_t 
+gen double dif4 = max_t - t 
+
+gen double a2=a
+replace a2=. if (a > for_a | abs(dif1)<0.02) & !missing(for_a) & p!=0 & round(a,2)!=0  // we need a_t>a_t-1  
+replace a2=. if dif2>0.02 & !missing(max_a)  & !missing(for_a) & p!=0 // we need a>=Max_a
+replace a2= max_a if a2< max_a & p== 99999
+
+gen double t2=t				
+replace t2=. if (t >= a | dif3 > 0.02) & p!=0  & a!=0    & !missing(for_t)  // we need t<a & t>=lag_a
+replace t2=. if dif4>0                 & !missing(max_t) & !missing(for_a) & p!=0
+replace t2= max_t if t2< max_t & p== 99999
+
+drop a t max_* for_* dif*
+rename (a2 t2) (a t)
+
 // Interpolate averages linearly in the gaps
 sort iso year fivelet age pop p
 foreach v of varlist a t {
@@ -81,13 +117,20 @@ foreach v of varlist a t {
 	replace `v' = new
 	drop new
 }
+// Correcting the tresholds overpassing the avarages
+by iso year fivelet age pop (p):  replace t=. if (t>=a | t <a[_n-1]) 
 
+replace a = a/1000
+replace t = t/1000
+//------------------------------------------------------------------------------
+
+// Interpolate averages linearly in the gaps
 // Middle-East: estimate average from shares, assuming mean income = 1
 // (will be rescaled to true value after)
 replace a = s/n*1e5 if inlist(iso, "XM-MER", "XM")
 
 // When thresholds totally missing, use midpoints between averages
-by iso year fivelet age pop: generate t2 = (a + a[_n - 1])/2
+by iso year fivelet age pop: generate double t2 = (a + a[_n - 1])/2
 replace t = t2 if missing(t)
 replace t = min(0, 2*a) if p == 0 & missing(t) & !missing(a)
 drop t2
@@ -95,9 +138,17 @@ drop t2
 // When missing, recalculate shares from averages
 sort iso year fivelet age pop p
 gegen tot = total(n*a/1e5) if !missing(a), by(iso year fivelet age pop)
-generate s2 = a*n/tot/1e5  if !missing(a)
-replace s = s2 if missing(s)
-drop s2
+
+generate double s2 = a*n/tot/1e5  if !missing(a)
+replace         s  = s2 if missing(s)
+
+// When necessary, adjust shares from averages
+bysort iso year fivelet (p): gen p_count=_N 
+bysort iso year fivelet (p): egen s_sum = sum(s)
+gen dif_s = abs(s_sum-1)
+replace s = s2 if p_count==127 & dif_s>0.0001 & !missing(a)
+
+drop p_count s_sum dif_s s2
 
 // Save the clean, "rectangular form" data
 tempfile rect
@@ -124,11 +175,11 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // Rescale some distributions to macro aggregates
 // -------------------------------------------------------------------------- //
 
-
 // Adjsutment coefficients
-generate coef_ptinc = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
-generate coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
-generate coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
+generate double coef_ptinc = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
+generate double coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
+generate double coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
+
 // China => extend coefficients to rural and urban
 preserve
 	keep if iso == "CN"
@@ -231,7 +282,8 @@ tab iso year if changes == 0  & ///
 // 	!(fivelet == "ptinc" & iso == "NZ" & year < 1950) & ///
 // 	!(fivelet == "ptinc" & iso == "CZ" & year < 1980) // No overall income available, just shares
 
-drop tot anninc* coef_* changes b
+
+drop tot anninc* coef_* changes b 
 
 // Make sure that labor + capital income sums to total income
 greshape wide a s t, i(iso year age pop p n) j(fivelet) string
