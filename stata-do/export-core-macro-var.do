@@ -58,12 +58,15 @@ foreach l in `fivelet' {
 	replace tokeep = 1 if fivelet == "`l'"
 }
 replace tokeep = 1 if inlist(substr(widcode, 1, 6), "npopul")
-replace tokeep = 1 if inlist(substr(widcode, 2, 5), "nyixx", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp")
+replace tokeep = 1 if inlist(substr(widcode, 2, 5), "nyixx", "ntlcu", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp")
 replace tokeep = 0 if inlist(substr(widcode, 1, 1), "s", "t", "o")
 replace tokeep = 0 if inlist(substr(widcode, 2, 5), "fdimp", "fdion", "fdiop", "fdior",           "fkfiw", "nwoff")
 replace tokeep = 0 if inlist(substr(widcode, 2, 5), "ptfor",           "ptfhr", "ptfon", "ptfop", "ptfop", "comco")
 replace tokeep = 0 if inlist(substr(widcode, 2, 5), "comgo", "comnf", "comfc")
-
+replace tokeep = 0 if inlist(substr(widcode, 2, 5), "gninc", "wealg", "wealh", "weali", "wealn") // Obsolet variables
+replace tokeep = 0 if inlist(substr(widcode, 2, 5), "gwass", "cwtoq", "icwto")  // new variables unincluded variables
+replace tokeep = 0 if inlist(substr(widcode, 2, 5), "cwequ", "gwequ","hwequ","iwequ","pwequ")
+replace tokeep = 1 if widcode=="icwtoq999i"
 
 *replace tokeep = 0 if inlist(substr(widcode, 2, 5), "fdimp", "fdion", "fdiop", "fdior", "fdixn", "fkfiw", "nwoff")
 *replace tokeep = 0 if inlist(substr(widcode, 2, 5), "ptfor", "ptfxn", "ptfxn", "ptfhr", "ptfon", "ptfop", "comco")
