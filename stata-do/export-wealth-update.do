@@ -53,7 +53,7 @@ inlist(widcode, "wpwnfa999i", "wpwodk999i", "wpwoff999i", "wpwpen999i") | ///
 //
 // replace widcode = "miwfix999i" if widcode == "miwfiw999i"
 // replace widcode = "wiwfix999i" if widcode == "wiwfiw999i"
-
+drop if inlist(substr(widcode, 2, 5), "cwequ", "gwequ","hwequ","iwequ","pwequ")
 
 
 replace iso = "KS" if iso == "KV"

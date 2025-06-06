@@ -43,7 +43,7 @@ clear all
 use "$work_data/merge-historical-aggregates.dta", clear
 *use "/Users/manuelestebanarias/Documents/merge-historical-aggregates (5).dta", clear
 *use "merge-historical-aggregates-2.dta", clear
-keep if (substr(widcode, 1, 1) == "m" | substr(widcode, 1, 1) == "w")
+keep if (substr(widcode, 1, 1) == "m" | substr(widcode, 1, 1) == "w" | substr(widcode, 1, 1) == "y")
 generate fivelet = substr(widcode, 2, 5)
 levelsof fivelet, local(fivelet)
 **
@@ -58,7 +58,7 @@ foreach l in `fivelet' {
 	replace tokeep = 1 if fivelet == "`l'"
 }
 replace tokeep = 1 if inlist(substr(widcode, 1, 6), "npopul")
-replace tokeep = 1 if inlist(substr(widcode, 2, 5), "nyixx", "ntlcu", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp")
+replace tokeep = 1 if inlist(substr(widcode, 2, 5), "nyixx", "ntlcu", "rerus", "lceux", "lceup", "lcyux", "lcyup", "lcusx", "lcusp")
 replace tokeep = 0 if inlist(substr(widcode, 1, 1), "s", "t", "o")
 replace tokeep = 0 if inlist(substr(widcode, 2, 5), "fdimp", "fdion", "fdiop", "fdior",           "fkfiw", "nwoff")
 replace tokeep = 0 if inlist(substr(widcode, 2, 5), "ptfor",           "ptfhr", "ptfon", "ptfop", "ptfop", "comco")
@@ -158,6 +158,16 @@ preserve
 	export delim "$output_dir/$time/wid-data-$time-macro-var-2024.csv", delimiter(";") replace
 restore
 
+/*
+preserve
+
+	keep if inlist(iso,"OK","OL") | (widcode=="xlcusp999i" | widcode=="xlceup999i" | widcode=="xlcyup999i")
+	rename iso Alpha2
+	rename p   perc
+	order Alpha2 year perc widcode
+	export delim "$output_dir/$time/wid-data-$time-macro-var-2024_OKOL_ppp.csv", delimiter(";") replace
+restore
+*/
 //------------------------------------------------------------------------------
 //  Macro update Metadata
 //------------------------------------------------------------------------------
