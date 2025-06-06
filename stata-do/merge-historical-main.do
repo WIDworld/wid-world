@@ -23,18 +23,18 @@
 // --------- 1. Import Country series 
 ** Countries and Other regions distributiosn (we duplicate from per-adult to get per-capita) - 33 main territories and 8 or 9 other regions
 *use "$wid_dir/Country-Updates/Historical_series/2022_December/gpinterize/merge-gpinterized", clear
-use "$wid_dir/Country-Updates/Historical_series/2025_April/merge-gpinterized_2025.dta", clear
-replace iso = "QM" if iso == "OK"
+*use "$wid_dir/Country-Updates/Historical_series/2025_April/merge-gpinterized_2025.dta", clear
+use "$wid_dir/Country-Updates/Historical_series/2025_May/merge-gpinterized_2025_extended.dta", clear
 
-keep if inlist(iso, "RU", "OA")  | ///
-	    inlist(iso, "CN", "JP", "OB")  | ///
-	    inlist(iso, "DE", "ES", "FR", "GB", "IT", "SE", "OC", "QM")  | ///
-	    inlist(iso, "AR", "BR", "CL", "CO", "MX", "OD")  | /// 
-	    inlist(iso, "DZ", "EG", "TR", "OE")  | ///
-	    inlist(iso, "CA", "US")  | ///
-	    inlist(iso, "AU", "NZ", "OH")  | ///
-	    inlist(iso, "IN", "ID", "OI")  | ///
-	    inlist(iso, "ZA", "OJ")  
+* Keep only the 48 countries + (9+2) residual regions = core-territories
+keep if ( inlist(iso, "AE", "AR", "AU", "BD", "BR", "CA", "CD", "CI", "CL") ///
+		| inlist(iso, "CN", "CO", "DE", "DK", "DZ", "EG", "ES", "ET", "FR") ///
+		| inlist(iso, "GB", "ID", "IN", "IR", "IT", "JP", "KE", "KR", "MA") /// 
+		| inlist(iso, "ML", "MM", "MX", "NE", "NG", "NL", "NO", "NZ", "OA") /// 
+		| inlist(iso, "OB", "OC", "OD", "OE", "OH", "OI", "OJ", "PH", "PK") /// 
+		| inlist(iso, "QE", "QM", "RU", "RW", "SA", "SD", "SE", "TH", "TR") ///
+		| inlist(iso, "TW", "US", "VN", "WO", "QL", "XB", "XF", "XL", "XN") ///
+		| inlist(iso, "XR", "XS", "ZA", "OK", "OL")) 
 
 keep if name == "historical_sptinc992j"
 
@@ -92,7 +92,7 @@ replace value = bs if !missing(bs)
 keep iso year widcode p value
 gduplicates drop 
 
-replace iso = "QM" if iso == "OK"
+*replace iso = "QM" if iso == "OK"
 
 
 tempfile historical
@@ -285,11 +285,7 @@ save `completehistorical'
 // --------- 1.  Merge Data
 use "$work_data/calculate-gini-coef-output.dta", clear
 rename value value_base
-//------- Temporal
-* Note: Some extended regions will be integrated in the World Inquality database later. 
-*        The codes are OP, OO, OL, OQ, OK
-replace  iso = "othr_EASA" if iso == "OK"
-//-----------------
+
 merge 1:1 iso year widcode p using `completehistorical', nogen // This dataset adds top and bottom Top and bottom percentiles for shares. The 
 rename value value_comp
 merge 1:1 iso year widcode p using "$wid_dir/Country-Updates/Historical_series/2023_December/0H_OD_CL_ptinc_post1980.dta", nogen // This dataset contains data for OH and OD already existing in calculate-gini-coef-output.dta except for the bottom percentiles p0pXX in averages and shares , top percentiles pXXp100 in thresholds .
@@ -306,11 +302,9 @@ replace iso = "QP" if iso == "WG"
 replace iso = "QF" if iso == "WH" 
 replace iso = "XS" if iso == "WI" 
 replace iso = "XF" if iso == "WJ" 
-replace iso = "QM" if iso == "OK"
+*replace iso = "QM" if iso == "OK"
 
-//------- Temporal
-replace iso = "OK" if iso == "othr_EASA"
-//-----------------
+
 
 // Matching the historical series
 
@@ -327,7 +321,7 @@ replace value_base= value_comp if !mi(value_comp) & year<=1950 & iso=="IN" // We
 replace value_base= value_comp if !mi(value_comp) & year<1920  & iso=="NZ"
 replace value_base= value_comp if !mi(value_comp) & year<1920  & iso=="US"
 ** Note: For the data from OH_OD_CL_ptinc_post1980, this data is no longer needed since the regions can be now calculated from the complete 2016 core countries.
-*replace value_base= value_oocp if mi(value_base)
+
 
 * Cleanning
 rename value_base value

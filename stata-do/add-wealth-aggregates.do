@@ -141,12 +141,47 @@ save "$work_data/add-wealth-aggregates-metadata.dta", replace
 // Save data & Export
 use "$work_data/add-populations-output.dta", clear
 replace widcode = subinstr(widcode, "fix", "fiw", .) 
-foreach l in `wealth_var' {
-	drop if widcode == "`l'" & !inlist(widcode, "mnwnxa999i", "mnwgxd999i", "mnwgxa999i", "mnwoff999i")
-}
-drop if inlist(widcode, "mnwnxa999i", "mnwgxd999i", "mnwgxa999i", "mnwoff999i") & year < 1970 
 
+/*
+foreach l in `wealth_var' {
+	drop if widcode == "`l'" & (!inlist(widcode, "mnwnxa999i", "mnwgxd999i", "mnwgxa999i", "mnwoff999i") 
+}
+*/
+/*
+drop if inlist(widcode, "mnwnxa999i", "mnwgxd999i", "mnwgxa999i", "mnwoff999i") & year < 1970 & ///
+		( !inlist(iso, "AE", "AR", "AU", "BD", "BR", "CA", "CD", "CI", "CL") ///
+		|  !inlist(iso, "CN", "CO", "DE", "DK", "DZ", "EG", "ES", "ET", "FR") ///
+		|  !inlist(iso, "GB", "ID", "IN", "IR", "IT", "JP", "KE", "KR", "MA") /// 
+		|  !inlist(iso, "ML", "MM", "MX", "NE", "NG", "NL", "NO", "NZ") /// 
+		|  !inlist(iso, "PH", "PK") /// 
+		|  !inlist(iso, "RU", "RW", "SA", "SD", "SE", "TH", "TR") ///
+		|  !inlist(iso, "TW", "US", "VN") ///
+		|  !inlist(iso, "ZA")) ///
+*/
+gen wid=1
 append using "`macro_weal'"
+
+duplicates tag iso year widcode p, gen(dup)
+
+
+* Retain observation from Nievas Piketty
+drop if dup==1 & missing(wid) & (inlist(substr(widcode,2,5), "confc","finpx","finrx","gdpro","ncanx","nnfin","nninc","nwgxa") | ///
+							     inlist(substr(widcode,2,5), "nwgxd","nwnxa","scinx","scipx","scirx","tbmpx","tbnnx","tbxrx") | ///
+							     inlist(substr(widcode,2,5), "tgmcx","tgmmx","tgmpx","tgncx","tgnmx","tgnnx","tgxcx","tgxmx") | ///
+							     inlist(substr(widcode,2,5), "tgxrx","tsmpx","tsnnx","tsxrx","ndpro")) & year<=2023 // Year of final data of NievasPiketty(2025)
+								 
+drop if dup==1 & wid==1 & (!inlist(substr(widcode,2,5), "confc","finpx","finrx","gdpro","ncanx","nnfin","nninc","nwgxa") & ///
+							!inlist(substr(widcode,2,5), "nwgxd","nwnxa","scinx","scipx","scirx","tbmpx","tbnnx","tbxrx") & ///
+							!inlist(substr(widcode,2,5), "tgmcx","tgmmx","tgmpx","tgncx","tgnmx","tgnnx","tgxcx","tgxmx") & ///
+							!inlist(substr(widcode,2,5), "tgxrx","tsmpx","tsnnx","tsxrx","ndpro")) & year<=2023 // Year of final data of NievasPiketty(2025)
+							
+drop if dup==1 & wid==1 & year>2023
+
+duplicates tag iso year widcode p, gen(dup2)
+
+assert dup2==0
+
+drop wid dup*
 
 // Fill in currency
 bys iso : egen currency_2 = mode(currency)

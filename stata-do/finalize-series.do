@@ -44,7 +44,7 @@ drop imputed_* toreplace toreplace2
 preserve
 	* Import Data
 	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
-	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QL","QM","WO","QE")
 	* Generate Fivelets as defined in the Wid-Dictionary
 	gen      fivelet= "confc"  if origin =="I2a"
 	

@@ -1,7 +1,7 @@
 *Import Exchange rates
 **# Bookmark #2
 use "$work_data/exchange-rates.dta", clear
-cap drop _fillin titlename shortname region1 region2 region3 region4 region5 region6 corecountry TH
+cap drop _fillin titlename shortname region* corecountry TH
 
 
 

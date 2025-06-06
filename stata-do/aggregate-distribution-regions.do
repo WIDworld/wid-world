@@ -1,4 +1,6 @@
-
+// -------------------------------------------------------------------------- //
+//    Aggregate Distribution Regions .do
+// -------------------------------------------------------------------------- //
 
 
 // World and regions Aggregates in Both PPP & MER
@@ -7,96 +9,30 @@
 clear all
 tempfile combined
 save `combined', emptyok
-/* */
-// *******List of World Regions************ //
-global QB  AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TN TZ UG ZA ZM ZW ZZ 
-global QC AG AI	AN AR AW BB BM BO BQ BR BS BZ CA CL CO CR CU CW	DM DO EC FK GD GL GT GY HN HT JM KN KY LC MS MX	NI PA PE PM PR PY SR SV SX TC TT US UY VC VE VG VI
-global QD  AE AF AM AZ BD BH BN BT BY CN GE HK ID IL IN IQ IR JO JP KG KH KP KR KW KZ LA LB LK MM MN MO MV MY NP OM PH PK PS QA RU SA SY SG TH TJ TL TM TR TW UA UZ VN YE  
-global QE  AL BA BG CY CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
-global QF  AU NZ PG 
-global QG  AU NZ
-global QH  AG AI AN AW BB BS CU CW DM DO GD HT JM KN KY LC MS PR SX TC TT VC VG VI
-global QI BZ CR GT HN MX NI PA SV
-global QJ  KG KZ TJ TM UZ 
-global QK  BI DJ ER ET KE KM MG MU MW MZ RW SC SO TZ UG ZM ZW ZZ
-global QL  CN HK JP KP KR MN MO TW
-global QM  AL BA BG CY CZ EE HR HU KS LT LV MD ME MK PL RO RS SI SK
-global QN  AO CD CF CG CM GA GQ ST TD
-global QO  DZ EG EH LY MA SD SS TN
-global QP  BM CA GL PM US 
-global QQ  AS CK FJ FM GU KI MH MP NC NR NU PF PG PW SB TK TO TV VU WF WS
-global QR  AR BO BR CL CO EC FK GY PE PY SR UY VE
-global QS  ID KH LA MM MY PH SG TH TL VN
-global QT  BW LS NA SZ ZA
-global QU  AF BD BT IN IR LK MV NP PK
-global QV  BF BJ CI CV GH GM GN GW LR ML MR NE NG SH SL SN TG
-global QW  AE AM AZ BH BY GE IL IQ JO KW LB OM PS QA RU SA
-global QX  AT BE FR DE IE IT LU NL GB CH DD PT ES IT GR MT CY SE NO FI DK IS
-global QY  AT BE BG CS CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IM IT JE LT LU LV MS MT NL PL PT RO SE SI SK XI YU 
-
-global XA  AF BD BN BT CN HK ID IN KG KH KZ LA LK MM MN MO MV MY NP PH PK SG TH TJ TL TM TW UZ VN KR JP
-global XB  AS AU BM CA CK FJ FM GL GU KI MH MP NC NR NU NZ PF PM PW SB TK TO TV US VU WF WS // NEW
-global XF  AO BF BI BJ BW CD CF CG CI CM CV DJ EH ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SH SL SN SO SS ST SZ TD TG TZ UG ZA ZM ZW ZZ 
-global XL  AG AI AN AR AW BB BO BR BS BZ CL CO CR CU CW DM DO EC FK GD GT GY HN HT JM KN KY LC MS MX NI PA PE PR PY SR SV SX TC TT UY VC VE VG VI 
-global XM  AE BH EG IQ IR JO KW OM PS QA SA TR YE
-global XN  AE BH DZ EG IL IQ IR JO KW LB LY MA OM PS QA SA SY TN TR YE 
-global XR  AM AZ BY GE KG KZ RU TJ TM UA UZ // NEW  
-global XS  AF BD BN BT ID IN KH LA LK MM MV MY NP PG PH PK SG TH TL VN // NEW  
-
-** Other regions 
-global OA  AM AZ BY GE KG KZ TJ TM UA UZ // NEW ** 
-global OB  HK KP KR MN MO TW // NEW **
-global OC  AD AT BE CH DK FI GG GI GR IE IM IS JE KS LI LU MC MT NL NO PT SM // NEW **
-global OD  AG AI AW AW BB BO BQ BS BZ CR CU CW DM DO EC GD GT GY HN HT JM KN KY LC MS NI PA PE PR PY SR SV SX TC TT UY VC VE VG // NEW **
-global OE  AE BH IL IQ IR JO KW LB LY MA OM PS QA SA SY TN YE // NEW **
-global OI  AF BD BN BT KH LA LK MM MV MY NP PH PK SG TH TL VN // NEW **
-global OJ  AO BF BI BJ BW CD CF CG CI CM CV DJ ER ET GA GH GM GN GQ GW KE KM LR LS MG ML MR MU MW MZ NA NE NG RW SC SD SL SN SO SS ST SZ TD TG TZ UG ZM ZW // NEW **
-global OH  BM CK FJ FM GL KI MH NC NR NU PF PG PM PW SB TK TO TV VU WF WS AS GU MP // NEW **
-
-global WO  AD AE AF AG AI AL AM AO AR AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CL CM CN CO CR CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FM FR GA GB GD GE GH GL GM GN GQ GR GT GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KS KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TL TM TN TO TR TT TV TW UA UG US UY UZ VC VE VG VI VN VU WS YE YU ZA ZM ZW //**
 
 
-*QB QD QE QF QJ QK QL QM QN QO QP QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ WO 
-/* We replace the R with interpolation codes
-* R path depending on OS
-if "`c(os)'"=="MacOSX" | "`c(os)'"=="UNIX" {
-    global Rpath "/usr/local/bin/R"
-
-else {  // windows, change version number if necerssary
-    global Rpath `"C:\Program Files\R\R-4.3.1\bin\R.exe"'
-}
-}
-
-if substr("`c(pwd)'",1,17)=="C:\Users\g.nievas"{
-    global Rpath "C:/Program Files/R/R-4.3.1/bin/R.exe"
-}
-*/
-
-// ******************************************* //
-global all  QB QD QE QF QG QH QI QJ QK QL QM QN QO QP QQ QR QS QT QU QV QW QX QY XA XB XF XL XM XN XR XS OA OB OC OD OE OI OJ OH WO 
- 
 
 // -------------------------------------------------------------------------- //
-// National income and prices by year
+// 1. Bring National income, wealth, population and prices by year
 // -------------------------------------------------------------------------- //
 use "$work_data/clean-up-output.dta", clear
 
-keep if inlist(widcode, "ahweal992i", "anninc992i", "npopul992i", "inyixx999i", "xlceup999i", "xlceux999i")
+keep if inlist(widcode, "ahweal992i", "anninc992i", "npopul992i", "inyixx999i", "xlcusp999i", "xlcusx999i")
 keep if p == "p0p100"
 
 reshape wide value, i(iso year) j(widcode) string
 renvars value*, predrop(5)
 
-replace xlceup999i = . if year != $pastyear
-replace xlceux999i = . if year != $pastyear
+replace xlcusp999i = . if year != $pastyear
+replace xlcusx999i = . if year != $pastyear
 
-egen xlceup999i2 = mean(xlceup999i), by(iso)
-egen xlceux999i2 = mean(xlceux999i), by(iso)
-drop xlceup999i xlceux999i
-rename xlceup999i2 xlceup999i
-rename xlceux999i2 xlceux999i
+egen xlcusp999i2 = mean(xlcusp999i), by(iso)
+egen xlcusx999i2 = mean(xlcusx999i), by(iso)
+drop xlcusp999i xlcusx999i
+rename xlcusp999i2 xlcusp999i
+rename xlcusx999i2 xlcusx999i
 
-replace xlceux999i = xlceup999i if iso == "CU"
+replace xlcusx999i = xlcusp999i if iso == "CU"
 
 drop p currency
 
@@ -104,8 +40,9 @@ tempfile aggregates
 save "`aggregates'"
 
 // -------------------------------------------------------------------------- //
-// World countries (pre-tax and wealth)
+// 2. Bring World countries distribution (pre-tax and wealth)
 // -------------------------------------------------------------------------- //
+* Import Distributions 
 use "$work_data/clean-up-output.dta", clear
 
 drop if (substr(iso, 1, 1) == "X" | substr(iso, 1, 1) == "Q") & iso != "QA"
@@ -141,8 +78,14 @@ rename p_min p
 duplicates drop iso year p widcode, force
 sort iso year widcode p
 
+// -------------------------------------------------------------------------- //
+// 3. Calculate aggregations
+// -------------------------------------------------------------------------- //
+
+// -------- 3.1 Pepare variables
 drop if iso == "VE" & strpos(widcode, "hweal992j") //// temporary!! until we resolve the issue with hyperinflation
 
+// Format
 reshape wide value, i(iso year p) j(widcode) string
 
 rename valueaptinc992j ai
@@ -152,8 +95,11 @@ rename valuesdiinc992j sd
 rename valueahweal992j aw
 rename valueshweal992j sw
 
+// Cal macroeconomic aggregates
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
+// Format
+* Macro aggregates
 rename anninc992i itot
 rename ahweal992i wtot
 generate dtot = itot
@@ -164,54 +110,58 @@ generate pop = n*npopul992i
 gen keep = 0
 
 
-// PPP
-rename xlceup999i PPP
-rename xlceux999i MER
+* Exchange rates to MER and PPP
+rename xlcusp999i PPP
+rename xlcusx999i MER
 
+// -------- 3.2 Calculate aggregations
+** Call the regions designation
+merge m:1 iso using "$work_data/import-core-country-codes-output.dta", nogenerate
+gen region7="WO" if corecountry==1
+drop titlename shortname TH corecountry 
 
 foreach z in i w d {
 
-foreach y in PPP MER {
-
+	foreach y in MER {
 	
-	foreach v of varlist a`z' `z'tot  {
-		gen `v'_`y' = `v'/`y'
-	}
+		foreach v of varlist a`z' `z'tot  {
+			gen `v'_`y' = `v'/`y'
+			}
+			
+		foreach x of varlist region* {
+			levelsof `x', local(regions)
+			
+			foreach r of local regions {
+				preserve
+					keep if `x' =="`r'"
+					levelsof iso
+					drop if missing(a`z')
+					gsort year -a`z'_`y' 
+					by year: generate rank = sum(pop)
+					by year: replace rank = 1e5*(1 - rank/rank[_N])
 
-	foreach x in  $all {
-	
-//
-preserve
+					egen bracket = cut(rank), at(0(1000)99000 99100(100)99900 99910(10)99990 99991(1)99999 200000)
 
-	foreach q in $`x' {
-		replace keep = 1 if iso == "`q'" & !missing(`y') // Silas added after & to remove KP
-	}
-	keep if keep == 1
+					collapse (mean) a`z'_`y' [pw=pop], by(year bracket)
 
-	levelsof iso
-	drop if missing(a`z')
-	gsort year -a`z'_`y' 
-	by year: generate rank = sum(pop)
-	by year: replace rank = 1e5*(1 - rank/rank[_N])
+					*generate iso = "`x'-`y'"
+					generate iso = "`r'"
+					levelsof iso  
+					
+					rename bracket p  
+					
+					rename a`z'_`y' a`z'
+					
+					*tempfile `x'_`y'_`z'
+					append using `combined'
+					save "`combined'", replace
+				restore
+			}
+			}
 
-	egen bracket = cut(rank), at(0(1000)99000 99100(100)99900 99910(10)99990 99991(1)99999 200000)
-
-	collapse (mean) a`z'_`y' [pw=pop], by(year bracket)
-
-	generate iso = "`x'-`y'"
-	levelsof iso
-	rename bracket p
-	rename a`z'_`y' a`z'
-
-	tempfile `x'_`y'_`z'
-	append using `combined'
-	save "`combined'", replace
-restore
 		}
 
 	}
-
-}
 
 use "`combined'", clear
 bys iso year p (aw): replace aw = aw[1]
@@ -324,7 +274,8 @@ drop if (p == "p0p50" | p == "p50p90") & substr(widcode,1,1) == "t"
 drop if year == . | value == .
 *drop p4
 
-replace iso = iso+"-"+upper(x) if x=="MER"
+*replace iso = iso+"-"+upper(x) if x=="MER"
+*drop if x=="PPP"
 drop x
 
 tempfile final

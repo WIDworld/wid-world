@@ -1,17 +1,40 @@
+//------------------------------------------------------------------------------
+//                    Calculate PPP.do
+//------------------------------------------------------------------------------
+
+* Objetive: Calcuate GDP for the full range of years.
+
+//----------------- Index ------------------------------------------------------
+// 1. Import PPP data
+//         1.1.  Estimate PPP for North Korea
+// 2. Complete data for former countries and missing jurisdiction
+// 3. Extrapolate the PPP to $pastyear 
+//         3.1. Bring price indices
+//         3.2. Add Eurozone deflator from Eurostat
+//         3.3. Keep only the US index
+// 4. Calculate the PPP for all the years
+// 5. Compile and export
+//------------------------------------------------------------------------------
+
+
+//------- 1. Import PPP data ---------------------------------------------------
 * Remark: Some codes that fetched 2011 are kept with * to switch back to 2011 PPP if we wanted to!
 
 // Import all the PPP data
+* World Bank
 use "$work_data/ppp-wb.dta", clear
-
-		replace currency = "EUR" if iso == "HR"
-		drop if iso == "VE"
-		append using "$work_data/imf-ven-pppex" 
-		replace currency = "VES" if iso == "VE"
-		append using "$work_data/imf-tw-pppex" 
-		replace currency = "TWD" if iso == "TW"
-		drop if iso == "SS"
-		append using "$work_data/imf-ss-pppex" 
-		replace currency = "SSP" if iso == "SS"
+replace currency = "EUR" if iso == "HR"
+drop if iso == "VE"
+* IMF for Venezuela
+append using "$work_data/imf-ven-pppex" 
+replace currency = "VES" if iso == "VE"
+* IMF for Taiwan
+append using "$work_data/imf-tw-pppex" 
+replace currency = "TWD" if iso == "TW"
+drop if iso == "SS"
+* IMF Sourth Soudan
+append using "$work_data/imf-ss-pppex" 
+replace currency = "SSP" if iso == "SS"
 		
 // Keep WB in priority
 generate ppp = .
@@ -23,6 +46,7 @@ foreach v of varlist ppp_wb ppp_imf {
 drop ppp_wb ppp_imf
 drop if ppp >= .
 
+// Fill metadata
 replace ppp_src = ///
 `"[URL][URL_LINK]http://data.worldbank.org/[/URL_LINK][URL_TEXT]World Bank[/URL_TEXT][/URL]; "' ///
 if (ppp_src == "ppp_wb")
@@ -38,7 +62,7 @@ if (ppp_src == "ppp_imf")
 generate ppp_method = "We extrapolate the PPP from the latest ICP (" + string(year) + ") using the evolution of the price index relative to the reference country"
 
 
-
+//------------- 1.1.  Estimate PPP for North Korea -----------------------------
 // Add one estimate for North Korea using GDP in USD PPP From CIA Factbook (40 billon) https://www.cia.gov/the-world-factbook/countries/korea-north/#economy
 preserve 
 	use "$work_data/gdp.dta", clear // Modif for solving loop: Before retropolate-gdp.dta; 
@@ -56,6 +80,7 @@ preserve
 restore	
 append using `kpppp'	
 
+//------- 2. Complete data for former countries and missing jurisdiction -------
 // For Zanzibar, use the same as Tanzania
 drop if (iso == "ZZ")
 expand 2 if (iso == "TZ"), generate(newobs)
@@ -193,16 +218,16 @@ keep iso year ppp ppp_src ppp_method currency
 
 append using "`ppp'"
 
-// Extrapolate the PPP to $pastyear
 save "`ppp'", replace
 
-// Temporary file with the other price indices
+//------- 3. Extrapolate the PPP to $pastyear ----------------------------------
+//------------- 3.1. Bring price indices
 use "$work_data/price-index.dta", clear
 keep iso year index currency
 tempfile index
 save "`index'"
 
-// Add Eurozone deflator from Eurostat
+//------------- 3.2.  Add Eurozone deflator from Eurostat
 // Fetch Eurozone GDP deflator from Eurostat
 import delimited "$eurostat_data/deflator/namq_10_gdp_1_Data-$pastyear.csv", ///
 	encoding("utf8") clear varnames(1) // 2021Q1 is included - it used to be $pastyear
@@ -223,12 +248,14 @@ generate iso = "EA"
 append using "`index'"
 save "`index'", replace
 
+//------------- 3.3.  Keep only the US index
 keep if iso == "US"
 drop iso
 rename index index_us
 tempfile index_us
 save "`index_us'"
 
+//------- 4. Calculate the PPP for all the years -------------------------------
 use "`ppp'", clear
 
 generate refyear = year
@@ -275,6 +302,8 @@ foreach sixlet in xlcusp xlceup xlcyup {
 	save "``sixlet''"
 	drop sixlet
 }
+
+//------- 5. Compile and export ------------------------------------------------
 use "`xlcusp'", clear
 append using "`xlceup'"
 append using "`xlcyup'"

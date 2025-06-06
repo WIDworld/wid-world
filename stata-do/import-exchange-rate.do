@@ -749,7 +749,7 @@ replace valuexlcusx999i = xrate_twd_usd if missing(valuexlcusx999i)
 drop xrate_twd_usd 
 
 // *************** PART Main.9 : + NievasPiketty (2025)  ********
-merge 1:1 iso year using "$wid_dir/Country-Updates/WBOP_NP2025/NP2025WBOP-xrate.dta", nogenerate keepusing(xrate_usd)
+merge 1:1 iso year using "$work_data/NP2025WBOP-xrate.dta", nogenerate keepusing(xrate_usd)
 replace valuexlcusx999i= xrate_usd if !missing(xrate_usd)
 drop xrate_usd
 

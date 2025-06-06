@@ -1,3 +1,8 @@
+clear all
+tempfile updates
+save `updates', emptyok
+
+
 * Call price index
 use "$work_data/price-index.dta", clear
 rename index value
@@ -9,19 +14,49 @@ save "`priceindex'"
 * Call Local currency unit change indicator 
 * Note: i.e. change in local currency unit: e.g. FF, DM, etc. become EUR in 1999, etc.)
 * Import Data
-use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
-drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+use "$work_data/NievasPiketty2025WBOP.dta", clear
+drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QL","QM","WO","QE")
 keep if origin =="I1d"
 generate p = "pall"
-
+ 
 drop origin concept
 * Generate Fivelets as defined in the Wid-Dictionary
 gen widcode = "intlcu999i"
+recast double value
+preserve
+	sort iso year 
+	* Keep the last year available in the NP2025 dataset
+	keep if year==2023
+
+	*Generate the number of duplicates needed
+	local n_dup =  ($pastyear - 2023) // $pastyear
+	
+	
+	if `n_dup'!=0 {  // Loop for filling missing recent years
+	* Expand 
+	expand `n_dup'
+	bysort iso widcode p: gen cnt=_n
+	replace year=year+cnt 
+
+	* Clean up
+	drop cnt
+
+	save "`updates'", replace
+
+restore
+
+append using "`updates'"
+** Manual Corrections if necessary
+	} 
+else { //* Loop in case NP2025 is up to the date
+restore
+	}
+sort iso year
 
 tempfile indexchange
 save "`indexchange'"
 	
-	
+
 *Call data from WID
 use "$work_data/convert-to-real-output.dta", clear
 drop if (widcode == "inyixx999i") | (widcode == "icpixx999i")
@@ -29,6 +64,7 @@ drop if (widcode == "inyixx999i") | (widcode == "icpixx999i")
 *Append price indexes
 append using "`priceindex'"
 append using "`indexchange'"
+
 sort iso widcode p year
 
 *complete currency by country

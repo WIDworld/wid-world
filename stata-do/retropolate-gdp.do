@@ -211,10 +211,10 @@ restore
 
 merge 1:1 iso year using `double', update replace nogen
 
-replace gdp = gdp-value_origin if iso == "SD" & year < 2012
-replace gdp = gdp-value_origin if iso == "ET" & year < 1993
+*replace gdp = gdp-value_origin if iso == "SD" & year < 2012 // Desactivated bec&use NievasPiketty2025 has the data
+*replace gdp = gdp-value_origin if iso == "ET" & year < 1993 // Desactivated bec&use NievasPiketty2025 has the data
 replace gdp = gdp-value_origin if iso == "RS" & year < 1990
-replace gdp = gdp-value_origin if iso == "ID" & year < 1990
+*replace gdp = gdp-value_origin if iso == "ID" & year < 1990 // Desactivated bec&use NievasPiketty2025 has the data
 *replace gdp = gdp-value_origin if iso == "NL" & year >= 2010
 *replace gdp = gdp-value_origin if iso == "TZ" & year < 1990
 

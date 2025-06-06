@@ -731,8 +731,8 @@ rename (goods_credit goods_debit net_goods) (tgxrx tgmpx tgnnx)
 //--------  Import data from Nievas Piketty 2025 ---------------------------- //
 preserve
 	* Import Data
-	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
-	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	use "$work_data/NievasPiketty2025WBOP.dta", clear
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QL","QM","WO","QE")
 	
 	* Generate Fivelets as defined in the Wid-Dictionary
 	gen      fivelet= "tgxrx"  if origin =="B1b"

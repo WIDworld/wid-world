@@ -137,6 +137,8 @@ gen `var'_idx = `var'*index
 	gen double `var'usd = `var'_idx/exrate_usd
 }
 
+
+
 foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx fsubx {  
 	replace `v' = `v'*gdpusd 
 	gen double aux = abs(`v')
@@ -203,6 +205,7 @@ foreach v in fdirx fdipx ptfrx ptfpx fdixa fdixd ptfxa ptfxd comrx compx ftaxx f
 	replace `v' = `v'/gdpusd 
 }
 
+
 replace ptfnx = ptfrx - ptfpx 
 replace fdinx = fdirx - fdipx 
 replace pinnx = fdinx + ptfnx
@@ -217,30 +220,30 @@ replace    nwgxa = ptfxa + fdixa
 replace    nwgxd = ptfxd + fdixd 
 replace    nwnxa = nwgxa - nwgxd 
 
-	*rescaling 
-	gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
-	foreach var in ptexa ptdxa ptrxa {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+*rescaling 
+gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
+foreach var in ptexa ptdxa ptrxa {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (ptexd + ptdxd)/ptfxd
-	foreach var in ptexd ptdxd {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptexd + ptdxd)/ptfxd
+foreach var in ptexd ptdxd {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
-	foreach var in pterx ptdrx ptrrx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
+foreach var in pterx ptdrx ptrrx {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (ptepx + ptdpx)/ptfpx
-	foreach var in ptepx ptdpx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptepx + ptdpx)/ptfpx
+foreach var in ptepx ptdpx {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
 so iso year 	
 	
@@ -371,61 +374,65 @@ foreach v in ptfxa fdixa ptfrx fdirx ptfpx ptfnx fdipx fdinx ptfxd ptfxn fdixd f
 	replace `v' = `v'/gdpusd 
 }
 
-	*rescaling 
-	gen double ratiocheck = (ptfxa + fdixa)/nwgxa
-	foreach var in nwgxa {
-		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+*rescaling 
+gen double ratiocheck = (ptfxa + fdixa)/nwgxa
+foreach var in nwgxa {
+	replace `var' = `var'*ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 	
-	gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
-	foreach var in ptexa ptdxa ptrxa {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptexa + ptdxa + ptrxa)/ptfxa
+foreach var in ptexa ptdxa ptrxa {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (ptfxd + fdixd)/nwgxd
-	foreach var in nwgxd {
-		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptfxd + fdixd)/nwgxd
+foreach var in nwgxd {
+	replace `var' = `var'*ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 	
-	gen double ratiocheck = (ptexd + ptdxd)/ptfxd
-	foreach var in ptexd ptdxd {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptexd + ptdxd)/ptfxd
+foreach var in ptexd ptdxd {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (ptfrx + fdirx)/pinrx
-	foreach var in pinrx {
-		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptfrx + fdirx)/pinrx
+foreach var in pinrx {
+	replace `var' = `var'*ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
-	foreach var in pterx ptdrx ptrrx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (pterx + ptdrx + ptrrx)/ptfrx
+foreach var in pterx ptdrx ptrrx {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
-	gen double ratiocheck = (ptfpx + fdipx)/pinpx
-	foreach var in pinpx {
-		replace `var' = `var'*ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
+gen double ratiocheck = (ptfpx + fdipx)/pinpx
+foreach var in pinpx {
+	replace `var' = `var'*ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 	
-	gen double ratiocheck = (ptepx + ptdpx)/ptfpx
-	foreach var in ptepx ptdpx {
-		replace `var' = `var'/ratiocheck if !mi(ratiocheck)
-	} 
-	drop ratiocheck 
-
+gen double ratiocheck = (ptepx + ptdpx)/ptfpx
+foreach var in ptepx ptdpx {
+	replace `var' = `var'/ratiocheck if !mi(ratiocheck)
+} 
+drop ratiocheck 
 
 //--------  Import data from Nievas Piketty 2025 ---------------------------- //
+foreach v in         fdinx ptfnx comnx taxnx {
+*            pinnx =             comnx taxnx
+	gen coef_`v'=`v'/nnfin
+}
+
 preserve
 	* Import Data
-	use "$wid_dir/Country-Updates/WBOP_NP2025/NievasPiketty2025WBOP.dta", clear
-	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QM","WO","QE")
+	use "$work_data/NievasPiketty2025WBOP.dta", clear
+	drop if inlist(substr(iso, 1, 1), "X", "O") | inlist(iso, "QL","QM","WO","QE")
 	* Generate Fivelets as defined in the Wid-Dictionary
 	gen      fivelet= "finrx"  if origin =="D1b" 
 	replace  fivelet= "finpx"  if origin =="D1c" 
@@ -445,12 +452,26 @@ preserve
 	gen double nnfin = finrx - finpx
 	gen double nwnxa = nwgxa - nwgxd
 	
+	*rename * *_paper
+	*rename (iso_paper year_paper) (iso year)
+	*gen nnfin_paper = nnfin
+	*replace nnfin=. if year>1970
+	
 	tempfile np2025
 	save `np2025'
 restore
 
-//------------------------------------------------------------------------------
 merge 1:1 iso year using "`np2025'", nogen update replace
+
+* Correction for ensuring that the nnfin match wiht the paper.
+foreach v in         fdinx ptfnx comnx taxnx {
+*            pinnx =             comnx taxnx
+	replace `v' = nnfin*coef_`v' if year>=1970 & !mi(coef_`v') // New nnfin 
+}
+
+replace pinnx = cond(missing(fdinx), 0, fdinx) + cond(missing(ptfnx), 0, ptfnx) if year>=1970 
+replace flcin = cond(missing(pinnx), 0, pinnx) + cond(missing(comnx), 0, comnx) if year>=1970 
+//------------------------------------------------------------------------------
 
 *replace nnfin = pinnx if mi(nnfin)
 drop ratio* tot* gdpusd corecountry gdp currency level_src level_year growth_src index exrate_usd flag* neg* coreterritory country

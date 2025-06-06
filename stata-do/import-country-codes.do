@@ -8,10 +8,11 @@ rename code iso
 */
 
 // ---------- 1. import core countries
-import excel "$codes_dictionary", sheet("Country_List") cellrange(A2:M219) firstrow clear
+import excel "$codes_dictionary", sheet("Country_List") cellrange(A2:K219) firstrow clear
 
 drop Alpha3  ISONumeric region region2 
 rename (Alpha2 TitleName ShortName) (iso titlename shortname)
+
 
 ds iso titlename shortname TH, not
 
@@ -24,13 +25,16 @@ foreach r in `r(varlist)' {
 
 gen corecountry=1
 
+* clean repeated subdivision denominations
+*replace region3="" if region2==region3
+
 order iso titlename shortname
 
 * Call the region's names
 ds iso titlename shortname corecountry TH, not
 preserve
 	* Generate a table with name-Alpha2 codes equivalences 
-	import excel "C:\Users\g.nievas\Dropbox\WIL\W2ID\Methodology\Codes_Dictionnary_WID.xlsx", sheet("Region_List") cellrange(A2:B43) firstrow clear	
+	import excel "$codes_dictionary", sheet("Region_List") cellrange(A2:B22) firstrow clear	
 	foreach r in `r(varlist)'{
 		gen `r' = ShortName
 	}
@@ -49,11 +53,11 @@ foreach r in `r(varlist)'{
 	rename code `r'
 }
 
-** Add a column for codes XA and XM ( Aisia Decompositons
-gen region6 = "XA" if region2 == "QD" & region1!="XN"
-replace region6 = "XM" if region2 == "QD" & region1=="XN"
+** Add a column for codes XA and XM  (Asia Decompositons)
+*gen region6 = "XA" if region2 == "QD" & region1!="XN"
+*replace region6 = "XM" if region2 == "QD" & region1=="XN"
 
-assert !missing(region6) if region2 == "QD" 
+*assert !missing(region6) if region2 == "QD" 
 
 // ---------- 2. import historical countries
 preserve
@@ -64,7 +68,7 @@ preserve
 restore
 // ---------- 3. import Regions
 preserve
-	import excel "$codes_dictionary", sheet("Region_List") cellrange(A2:B43) firstrow clear
+	import excel "$codes_dictionary", sheet("Region_List") cellrange(A2:B22) firstrow clear
 	rename (Alpha2 ShortName) (iso shortname)
 	drop if iso=="WO"
 	tempfile regions

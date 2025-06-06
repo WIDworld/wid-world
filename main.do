@@ -53,6 +53,11 @@ do "~/Documents/GitHub/wid-world/stata-do/setup.do"
 // // Calculate o- variables
  do "$do_dir/calculate-average-over.do"
 */
+// -------------------------------------------------------------------------- //
+// Import Macroeconomic Researchers  data
+// -------------------------------------------------------------------------- //
+// Import the WBoP data from Nievas & Piketty (2025) paper
+do "$do_dir/import-nievaspiketty2025.do" 
 
 // -------------------------------------------------------------------------- //
 // Add data from researchers
@@ -65,7 +70,6 @@ do "$do_dir/add-researchers-data.do"
 // changed: to be eventually integrated to the above files
 do "$do_dir/correct-widcodes.do"
 
- 
 *
 
 // -------------------------------------------------------------------------- //
@@ -153,6 +157,7 @@ do "$do_dir/import-ft-ihs-populations.do"
 
 // Calculate the population series
 do "$do_dir/calculate-populations.do" 
+
 
 // -------------------------------------------------------------------------- //
 // Calculate deflactors
@@ -284,6 +289,9 @@ do "$do_dir/add-wealth-aggregates.do"
 
 // Aggregate by regions
 do "$do_dir/aggregate-macro-regions.do" 
+
+// Generate the real exchange rate
+do "$do_dir/calculate-real-exchange-rate.do" 
 
 // Complete some missing variables for which we only have subcomponents
 do "$do_dir/complete-variables.do"

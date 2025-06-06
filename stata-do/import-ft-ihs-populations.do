@@ -19,7 +19,7 @@ rename (iso shortname) (code country)
 drop TH corecountry
 drop if strpos(code,"-")
 replace country = subinstr(country, " ", "",.) 
-order code titlename country region1 region2 region3 region4 region5
+order code titlename country region1 region2 region3
 
 *Change name to make it consistent with FT
 replace country="Coted'Ivoire" 					if code=="CI"
