@@ -8,6 +8,26 @@
 // in order to calculate estimates for the well-defined regions and world estimates.
 
 // --------------- 0.  Index -------------------------------------------------//
+// 	1. Get regions decomposition (obsolet)
+//       1.1 Get Regions definitions
+//  2. Prepare data for calculations
+//        2.1  Store PPP and exchange rates as extra variables
+//        2.2 Get Macro Variables to be aggregated
+//        2.3 Get historical series from NievasPiketty2025 to be aggregated
+//        2.4 Generate constant, current and XR comparable values
+// 3. Generate Regional Aggregations
+//        3.1  Call the region definitions
+//        3.2  Calculation: Population 1800-$pastyear
+//        3.2  Calculation: Macro variables 1800-1970(releying on NP2025) & 1970-$pastyear
+//            3.2.1 Expansion of the macro variables to the sub-regions OL and OK (not included in NP2025)
+// 4. Generate World Aggregations
+// 5. Generate currency values, price indexes and xrates .
+//        5.1 Generate W and Y of the regional variables
+//        5.2 Use mnninc values for estimating regional price indexes and XRate
+//        5.3 Retain only MER USD values of regions 
+//        5.4 Extend PPP before 1970
+// 6. Final Formating and export
+//------------------------------------------------------------------------------
 
 clear all
 tempfile regions_npopul
@@ -27,7 +47,7 @@ save `regions_rest', emptyok
 * 	2. Prepare data for calculations
 // -------------------------------------------------------------------------- //
 
-// --------- 2.1  Store PPP and exchange rates as an extra variable --------- //
+// --------- 2.1  Store PPP and exchange rates as extra variables ----------- //
 
 use "$work_data/add-wealth-aggregates-output.dta", clear
 
@@ -409,10 +429,10 @@ append using "`world_1800'"
 append using "`world_1970'"
 
 // -------------------------------------------------------------------------- //
-* 	5. Generate values in EUR , USD and CNY for the regions calculated.
+* 	5. Generate currency values, price indexes and xrates .
 // -------------------------------------------------------------------------- //
 
-// --------- 5.1 Generate W of the regional variables ------------------------ //
+// --------- 5.1 Generate W and Y of the regional variables ----------------- //
 * Format
 renvars npopul001f-mnninc999i_nomyup, pref("value")
 
@@ -483,7 +503,7 @@ preserve
 restore
 
 
-// --------- 5.3 Retain  -MER regions -------------------------------------- //
+// --------- 5.3 Retain only MER USD values of regions ---------------------- //
 // Note: Prior May 2025, the bydefault data of the regions was EUR PPP. Now the 
 //       data is presented, as all the other countries, in LCU in Constant prices, 
 //       wher the LCU is the USD.
