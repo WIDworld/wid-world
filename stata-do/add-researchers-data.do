@@ -80,11 +80,6 @@ append using "$wid_dir/Country-Updates/Netherlands/2019_05/netherlands-salverda2
 // UK 2021 (alvaredo2017&AST2021) -  fiinc series 
 append using "$wid_dir/Country-Updates/UK/2021_August/UK-fiinc-Aug2021.dta"
 
-// --------------------- New addition 22 Oct 2025: -----------------------------
-
-// Asia 2025 [Korea, Japan]  - fiinc series 
-append using "$wid_dir/Country-Updates/Asia/2025/asia-fiinc-2025.dta"
-
 assert !missing(iso, year, widcode)
 isid iso year p widcode
 
@@ -133,9 +128,6 @@ isid iso year p widcode, missok
 append using "$wid_dir/Country-Updates/Russia/2017/August/russia-npz2017.dta"
 drop if iso=="RU" & substr(widcode, 1,1)=="b" // b variables are generated at the end of main.do
 
-// Australia, New Zealand, Canada - macro series +  distributional series 
-append using "$wid_dir/Country-Updates/North_America/2025_10/aucanz-other-macro-dist-2025.dta"
-
 // South Africa 2020 (ccg2020) - macro series + distributional series 
 append using "$wid_dir/Country-Updates/South_Africa/2020/April/south-africa-wealth-Apr2020.dta"
 
@@ -148,14 +140,17 @@ append using "$wid_dir/Country-Updates/Korea/2018_10/korea-kim2018-current.dta"
 // dropping fiinc as there are newer versions of this data for KR added in Section (1.1) 
 drop if iso == "KR" & inlist(widcode, "afiinc992i", "sfiinc992i", "tfiinc992i") & author == "kim2018"
 
-// --------------------- Modified 22 Oct 2025: -----------------------------
+// --------------------- Modified 22 Oct 2026: -----------------------------
 
-// US - macro series +  distributional series 
-append using "$wid_dir/Country-Updates/US/2025/us-other-macro-dist-2025.dta"
+// Australia, New Zealand, Canada - legacy macro series +  distributional series 
+*append using "$wid_dir/Country-Updates/North_America/2025_10/aucanz-other-macro-dist-2025.dta"
+append using "$wid_dir/Country-Updates/North_America/2026_10/naoc-legacy-distributions-2026.dta"
+append using "$wid_dir/Country-Updates/North_America/2026_10/naoc-legacy-aggregates-2026.dta"
 
 // Asia (China, Hong Kong, Indonesia, Malaysia, Singapore, Thailand, Taiwan) 
-// 	-  macro series + distributional series
-append using "$wid_dir/Country-Updates/Asia/2025/asia-other-macro-dist-2025.dta" 
+// 	-  legacy macro series + distributional series
+append using "$wid_dir/Country-Updates/Asia/2026/asia-legacy-distributions-2026.dta" 
+append using "$wid_dir/Country-Updates/Asia/2026/asia-legacy-aggregates-2026.dta" 
 
 //======================= 1.4. Dropping wealth aggregates ======================
 
@@ -188,31 +183,29 @@ append using "$wid_dir/Country-Updates/Russia/2024/Russia2024_Feb2026.dta"
 // (extension of RU series following Neef 2022) -  ptinc series - 
 append using "$wid_dir/Country-Updates/OtherRussia_CentralAsia/2025/otherrussia-ptinct-8090-2025_Feb2026.dta"
 
-// --------- Main Pre-Tax Update: modified 20 Oct 2025 by Ana Van Der Ree: -----
+// --------- Main Pre-Tax Update: modified 16 Oct 2026 by Ana Van Der Ree: -----
 						  
-// Middle East (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series  
-append using "$wid_dir/Country-Updates/Middle-East/2025/mena-2025.dta"
+// Middle East & Northern Africa (AAP2017 § Moshrif 2020 & BM2021 & HM2022) - ptinc series  
+append using "$wid_dir/Country-Updates/Middle-East/2026/mena-ptinc-2026.dta"
 
 // Asia (MCY 2020 & BM 2021 & SZ 2022 & SZ 2023) - ptinc series 
-append using "$wid_dir/Country-Updates/Asia/2025/asia-ptinc-2025.dta"                    
-// Africa (CCGL & Robillard 2025) - ptinc series 
-append using "$wid_dir/Country-Updates/Africa/2025_09/africa-ptinc-2025.dta"
+append using "$wid_dir/Country-Updates/Asia/2026/asia-ptinc-2026.dta"  
 
-// Australia, New Zealand & Canada (Matt 2022 & Matt 2023 & Matt 2025) 
-// 				- ptinc series 
-// 				- updated macro series (nninc, inyxx)
-append using "$wid_dir/Country-Updates/North_America/2025_10/aucanz-2025.dta"
-// drop wealth aggs
-drop if widcode == "mhweal999i"
+// Asia 2025 [Korea, Japan]  - fiinc series 
+append using "$wid_dir/Country-Updates/Asia/2026/asia-fiinc-2026.dta"
+                  
+// Sub-Saharan Africa (CCGL & Robillard 2025) - ptinc series 
+append using "$wid_dir/Country-Updates/Africa/2026_10/africa-ptinc-2026.dta"
+
+// US, Australia, New Zealand & Canada (Matt 2022 & Matt 2023 & Matt 2025) 
+// 		- ptinc series 
+append using "$wid_dir/Country-Updates/North_America/2026_10/naoc-ptinc-2026.dta"
+// 		- macro aggregates (nninc, inyixx) for stability of macro section 
+append using "$wid_dir/Country-Updates/North_America/2026_10/naoc-macro-aggregates-2026.dta"
 
 // US (PSZ + BSZ 2022 + BSZ 2023 + Matt 2025) 
-// 				- ptinc series 
-// 				- fainc series 
-// 				- updated macro series (nninc, inyxx)
-append using "$wid_dir/Country-Updates/US/2025/us-2025.dta"
-drop if missing(year) & iso == "US"
-// drop wealth aggs
-drop if widcode == "mhweal999i"
+// 		- fainc series (ptinc series imported with the rest of NAOC)
+append using "$wid_dir/Country-Updates/US/2026/us-fainc-2026.dta"
 
 assert !missing(iso, year, widcode)
 isid iso year p widcode, missok 

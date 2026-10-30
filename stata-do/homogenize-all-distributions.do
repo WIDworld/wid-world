@@ -53,6 +53,7 @@ replace tokeep = 1 if inlist(widcode, "adiinc999j", "sdiinc999j", "tdiinc999j")
 replace tokeep = 1 if inlist(widcode, "ahweal999j", "shweal999j", "thweal999j")
 
 replace tokeep = 1 if inlist(widcode, "afainc992j", "sfainc992j", "tfainc992j")
+replace tokeep = 1 if inlist(widcode, "acainc992j", "scainc992j", "tcainc992j")
 
 
 keep if tokeep==1
@@ -160,7 +161,7 @@ foreach x in 992 999{
 	replace a = a/average*anninc`x'i        if !missing(a) & inlist(widcode, "ptinc`x'j") & !missing(anninc`x'i)
 	replace a = ((s/1000)/n*1e5)*anninc`x'i if missing(a)  & inlist(widcode, "ptinc`x'j") & !missing(anninc`x'i)
 
-	* Post-Tax Income: 
+	* Post-Tax National Income: 
 	replace a = a/average*anninc`x'i        if !missing(a) & inlist(widcode, "diinc`x'j") & !missing(anninc`x'i)
 	replace a = ((s/1000)/n*1e5)*anninc`x'i if missing(a)  & inlist(widcode, "diinc`x'j") & !missing(anninc`x'i)
 
@@ -169,9 +170,13 @@ foreach x in 992 999{
 	replace a = ((s/1000)/n*1e5)*ahweal`x'i if missing(a)  & inlist(widcode, "hweal`x'j") & !missing(ahweal`x'i)
 }
 
-* Factor income: 
-replace a = a/average*anninc992i        if !missing(a) & inlist(widcode, "fainc992j") & !missing(anninc992i)
-replace a = ((s/1000)/n*1e5)*ahweal992i if missing(a)  & inlist(widcode, "fainc992j") & !missing(anninc992i) // change ahweal to anninc? 
+	* Factor income: 
+	replace a = a/average*anninc992i        if !missing(a) & inlist(widcode, "fainc992j") & !missing(anninc992i)
+	replace a = ((s/1000)/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "fainc992j") & !missing(anninc992i) 
+	
+	* Post-Tax Disposable Income: 
+	replace a = a/average*anninc992i        if !missing(a) & inlist(widcode, "cainc992j") & !missing(anninc992i)
+	replace a = ((s/1000)/n*1e5)*anninc992i if missing(a)  & inlist(widcode, "cainc992j") & !missing(anninc992i)
 
 // correcting thresholds for observations where threshold is missing
 sort iso year widcode p
@@ -189,11 +194,12 @@ by iso year widcode: generate double ts = sum(s)
 by iso year widcode: generate double ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j")
 by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "diinc992j")
 by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "fainc992j")
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc992i)  & inlist(widcode, "cainc992j")
 by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc999i)  & inlist(widcode, "ptinc999j")
-by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc999i)  & inlist(widcode, "diinc999j") // This ensure that ptinc and diinc p0p100 will be equivalent.
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & !missing(anninc999i)  & inlist(widcode, "diinc999j") 
                      *replace         ta = anninc992i         if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j", "diinc992j") & p==0 
-by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i) | !missing(average) ) & inlist(widcode, "hweal992j")
-by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a ) & (!missing(ahweal999i) | !missing(average) ) & inlist(widcode, "hweal999j")
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a) & (!missing(ahweal992i)|!missing(average)) & inlist(widcode, "hweal992j")
+by iso year widcode: replace         ta = sum(a*n)/(1e5 - p) if !missing(a ) & (!missing(ahweal999i)|!missing(average)) & inlist(widcode, "hweal999j")
 
 *by iso year widcode: generate double bs = 1 - ts
 by iso year widcode: generate double bs = 1000 - ts
@@ -204,6 +210,7 @@ by iso year widcode: generate double bs = 1000 - ts
 // there was a previous mistake in calculating bottom averages. It used to be ba = anninc * bs/(1- p/1e5) 
 by iso year widcode: generate double ba = ((bs/1000) / (p / 1e5)) * anninc992i if inlist(widcode, "ptinc992j") & !missing(anninc992i)
 by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * anninc992i if inlist(widcode, "diinc992j") & !missing(anninc992i)
+by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * anninc992i if inlist(widcode, "cainc992j") & !missing(anninc992i)
 by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * anninc992i if inlist(widcode, "fainc992j") & !missing(anninc992i)
 by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * ahweal992i if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
 by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * average    if inlist(widcode, "hweal992j") & (!missing(average)) & missing(ba) // only if missing ba
@@ -227,6 +234,7 @@ by iso year widcode: replace         ba = ((bs/1000) / (p / 1e5)) * average    i
 sort iso year widcode p
 by iso year widcode: generate double ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc992i)  & inlist(widcode, "ptinc992j")
 by iso year widcode: replace         ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc992i)  & inlist(widcode, "diinc992j")
+by iso year widcode: replace         ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc992i)  & inlist(widcode, "cainc992j")
 by iso year widcode: replace         ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc992i)  & inlist(widcode, "fainc992j")
 by iso year widcode: replace         ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc999i)  & inlist(widcode, "ptinc999j")
 by iso year widcode: replace         ba2 = (sum(a*n) - a*n) / p if !missing(a) & !missing(anninc999i)  & inlist(widcode, "diinc999j")
@@ -242,7 +250,7 @@ drop ba2 baflag badif
 // to test if this changes shares (they should be the same because they are calibrated)
 gen double 	s2 = a*(n/1e5)/ahweal992i if widcode=="hweal992j"
 replace   	s2 = a*(n/1e5)/ahweal999i if widcode=="hweal999j"
-replace   	s2 = a*(n/1e5)/anninc992i if inlist(widcode, "ptinc992j", "diinc992j", "fainc992j") 
+replace   	s2 = a*(n/1e5)/anninc992i if inlist(widcode, "ptinc992j", "diinc992j", "fainc992j", "cainc992j") 
 replace   	s2 = a*(n/1e5)/anninc999i if inlist(widcode, "ptinc999j", "diinc999j") 
 replace s2=s2*1000
 
@@ -362,6 +370,8 @@ reshape wide a s t, i(iso year p) j(widcode) string
 renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 renvars adiinc999j sdiinc999j tdiinc999j ahweal999j shweal999j thweal999j aptinc999j sptinc999j tptinc999j, prefix(value)
 renvars afainc992j sfainc992j tfainc992j, prefix(value)
+renvars acainc992j scainc992j tcainc992j, prefix(value)
+
 greshape long value, i(iso year p) j(widcode) string
 drop if missing(value) // we dropping hweal from 1913 to 1962
 
@@ -377,6 +387,7 @@ preserve
 	renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 	renvars adiinc999j sdiinc999j tdiinc999j ahweal999j shweal999j thweal999j aptinc999j sptinc999j tptinc999j, prefix(value)
 	renvars afainc992j sfainc992j tfainc992j, prefix(value)
+	renvars acainc992j scainc992j tcainc992j, prefix(value)
 	greshape long value, i(iso year p) j(widcode) string
 	
 	tempfile top
@@ -403,6 +414,7 @@ preserve
 	renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 	renvars adiinc999j sdiinc999j tdiinc999j ahweal999j shweal999j thweal999j aptinc999j sptinc999j tptinc999j, prefix(value)
 	renvars afainc992j sfainc992j tfainc992j, prefix(value)
+	renvars acainc992j scainc992j tcainc992j, prefix(value)
 	greshape long value, i(iso year p) j(widcode) string
 	
 	tempfile bottom
@@ -441,6 +453,7 @@ collapse (sum) s (min) anninc992i ahweal992i anninc999i ahweal999i  average t p 
 generate double a  = s * anninc992i / 0.1 if inlist(widcode, "ptinc992j") & !missing(anninc992i)
 replace  a  = s * anninc992i / 0.1 if inlist(widcode, "diinc992j") & !missing(anninc992i)
 replace  a  = s * anninc992i / 0.1 if inlist(widcode, "fainc992j") & !missing(anninc992i)
+replace  a  = s * anninc992i / 0.1 if inlist(widcode, "cainc992j") & !missing(anninc992i)
 replace  a  = s * ahweal992i / 0.1 if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
 replace  a  = s * average / 0.1    if inlist(widcode, "hweal992j") & (!missing(average)) & missing(a) // only if missing a
 
@@ -467,6 +480,7 @@ reshape wide a s t, i(iso year p) j(widcode) string
 renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 renvars adiinc999j sdiinc999j tdiinc999j ahweal999j shweal999j thweal999j aptinc999j sptinc999j tptinc999j, prefix(value)
 renvars afainc992j sfainc992j tfainc992j, prefix(value)
+renvars acainc992j scainc992j tcainc992j, prefix(value)
 greshape long value, i(iso year p) j(widcode) string
 drop if missing(value)
 
@@ -484,6 +498,7 @@ collapse (sum) s (min) anninc992i ahweal992i anninc999i ahweal999i average t p, 
 generate a = s * anninc992i / 0.4 if inlist(widcode, "ptinc992j") &  !missing(anninc992i)
 replace  a = s * anninc992i / 0.4 if inlist(widcode, "diinc992j") &  !missing(anninc992i)
 replace  a = s * anninc992i / 0.4 if inlist(widcode, "fainc992j") &  !missing(anninc992i)
+replace  a = s * anninc992i / 0.4 if inlist(widcode, "cainc992j") &  !missing(anninc992i)
 replace  a = s * ahweal992i / 0.4 if inlist(widcode, "hweal992j") & (!missing(ahweal992i))
 replace  a = s * average    / 0.4 if inlist(widcode, "hweal992j") & (!missing(average))
 
@@ -509,6 +524,7 @@ reshape wide a s t, i(iso year p) j(widcode) string
 renvars adiinc992j sdiinc992j tdiinc992j ahweal992j shweal992j thweal992j aptinc992j sptinc992j tptinc992j, prefix(value)
 renvars adiinc999j sdiinc999j tdiinc999j ahweal999j shweal999j thweal999j aptinc999j sptinc999j tptinc999j, prefix(value)
 renvars afainc992j sfainc992j tfainc992j, prefix(value)
+renvars acainc992j scainc992j tcainc992j, prefix(value)
 greshape long value, i(iso year p) j(widcode) string
 drop if missing(value)
 
@@ -540,9 +556,15 @@ save "$work_data/world-full-distributions-pretax_posttax_wealth.dta", replace
 use "$work_data/World-and-regional-aggregates-output.dta", clear
 drop if iso=="XX"
 
-drop if  inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j", "ahweal992j", "shweal992j", "thweal992j", "adiinc992j", "sdiinc992j", "tdiinc992j") | ///
-		 inlist(widcode, "aptinc999j", "sptinc999j", "tptinc999j", "ahweal999j", "shweal999j", "thweal999j", "adiinc999j", "sdiinc999j", "tdiinc999j") | ///
-		(inlist(widcode, "afainc992j", "sfainc992j", "tfainc992j") & year>=1962)
+drop if  inlist(widcode, "aptinc992j", "sptinc992j", "tptinc992j", ///
+			"ahweal992j", "shweal992j", "thweal992j", /// 
+			"adiinc992j", "sdiinc992j", "tdiinc992j") | ///
+		 inlist(widcode, "aptinc999j", "sptinc999j", "tptinc999j", ///
+			"ahweal999j", "shweal999j", "thweal999j", ///
+			"adiinc999j", "sdiinc999j", "tdiinc999j") | ///
+		(inlist(widcode, "afainc992j", "sfainc992j", "tfainc992j") & year>=1962) | ///
+		inlist(widcode, "acainc992j", "scainc992j", "tcainc992j") 
+
 merge 1:1 iso year widcode p using "$work_data/world-full-distributions-pretax_posttax_wealth.dta", nogen //"`full'"
 duplicates report 
 duplicates drop

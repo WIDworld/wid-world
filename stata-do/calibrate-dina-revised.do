@@ -194,6 +194,7 @@ merge n:1 iso year using "`anninc'", keep(master match) nogenerate
 // Adjsutment coefficients
 generate double coef_ptinc = anninc992i/tot if (age == "992") & (fivelet == "ptinc")
 generate double coef_diinc = anninc992i/tot if (age == "992") & (fivelet == "diinc")
+generate double coef_cainc = anninc992i/tot if (age == "992") & (fivelet == "cainc")
 generate double coef_fainc = anninc992i/tot if (age == "992") & (fivelet == "fainc")
 
 // China => extend coefficients to rural and urban
@@ -234,9 +235,9 @@ replace t = t*coef_fainc      if (age == "992") & (fivelet == "fainc") & !missin
 replace changes = changes + 1 if (age == "992") & (fivelet == "fainc") & !missing(coef_fainc)
 
 // cainc (cash disposable income) => same coef as diinc
-replace a = a*coef_diinc      if (age == "992") & (fivelet == "cainc") & !missing(coef_diinc)
-replace t = t*coef_diinc      if (age == "992") & (fivelet == "cainc") & !missing(coef_diinc)
-replace changes = changes + 1 if (age == "992") & (fivelet == "cainc") & !missing(coef_diinc)
+replace a = a*coef_cainc      if (age == "992") & (fivelet == "cainc") & !missing(coef_cainc)
+replace t = t*coef_cainc      if (age == "992") & (fivelet == "cainc") & !missing(coef_cainc)
+replace changes = changes + 1 if (age == "992") & (fivelet == "cainc") & !missing(coef_cainc)
 
 // flinc (factor labor income) => same coef as ptinc
 replace a = a*coef_ptinc      if (age == "996") & (fivelet == "flinc") & !missing(coef_ptinc)
@@ -278,8 +279,6 @@ assert changes > 0  if ///
 	!(fivelet == "ptinc" & inlist(iso, "XR", "XR-MER") & year <= 1990) & ///
 	!(fivelet == "cainc" & inlist(iso, "FR", "DD") & year <= 1990)   ///  No overall income available, just shares
 
-
-//
 tab iso year if changes == 0  & ///
 	!(substr(fivelet, 1, 2) == "hw") & ///
 	!(fivelet == "fiinc") & ///

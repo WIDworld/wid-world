@@ -242,6 +242,7 @@ replace tokeep = 1 if inlist(widcode, "adiinc999j", "sdiinc999j", "tdiinc999j")
 replace tokeep = 1 if inlist(widcode, "ahweal999j", "shweal999j", "thweal999j")
 
 replace tokeep = 1 if inlist(widcode, "afainc992j", "sfainc992j", "tfainc992j")
+replace tokeep = 1 if inlist(widcode, "acainc992j", "scainc992j", "tcainc992j")
 
 drop if tokeep==1
 // ---------------------- 4.2 Keeping the g-percentiles ------------------------

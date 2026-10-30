@@ -245,6 +245,32 @@ if `dq_n' == 0 {
 di as text "`dq_message'"
 
 //==============================================================================
+// -------------------- PTINC data quality across years -------------------------
+//==============================================================================
+// Use the same retained distribution rows and country-fivelet grouping as above.
+// Missing grades count as not zero for the strict all-zero requirement.
+tempfile checks_ptinc_dq
+local dq_latest_year = 2025
+local dq_previous_year = 2024
+preserve
+keep if fivelet == "ptinc"
+keep if year >= 1980 & !missing(year)
+drop if strpos(iso, "-MER") | strpos(iso, "-PPP")
+bysort iso fivelet: egen byte has_zero = max(data_quality == 0)
+bysort iso fivelet: egen byte has_not_zero = max(data_quality != 0)
+bysort iso fivelet: egen byte has_low = max(inlist(data_quality, 1, 2))
+bysort iso fivelet: egen byte has_high = max(inlist(data_quality, 3, 4, 5))
+gen byte dq_zero_mixed = has_zero & has_not_zero
+gen byte dq_low_no_high = has_low & !has_high
+bysort iso fivelet (year data_quality): gen byte first_series = _n == 1
+local ptinc_n = _N
+capture assert dq_zero_mixed == 0 & dq_low_no_high == 0
+local ptinc_dq_rc = _rc
+if `ptinc_n' == 0 local ptinc_dq_rc = 2000
+save "`checks_ptinc_dq'", replace
+restore
+
+//==============================================================================
 // -------------------- Final summary of flagged cases -------------------------
 //==============================================================================
 // Temporary files survive use, clear and are removed when this do-file ends.
@@ -259,6 +285,34 @@ preserve
 noisily di as text _newline "SANITY CHECKS: FLAGGED CASES"
 noisily di as text _newline "DATA QUALITY"
 noisily di as text "`dq_message'"
+
+
+use "`checks_ptinc_dq'", clear
+noisily di as text _newline "PTINC DATA QUALITY: 1980 ONWARD, EXCLUDING -MER/-PPP REGIONS"
+if `ptinc_n' == 0 {
+    noisily di as error "NOT CHECKED: No retained ptinc observations."
+}
+else {
+    count if first_series & dq_zero_mixed
+    noisily di as text "Zero mixed with another grade (including missing): " as result r(N) as text " country-series case(s)."
+    if r(N) > 0 {
+        noisily di as text "Nonzero or missing grades in series that contain a zero:"
+        noisily list iso year fivelet data_quality if dq_zero_mixed & data_quality != 0, noobs sepby(iso) nolabel
+    }
+    count if first_series & dq_low_no_high
+    noisily di as text "Grade 1/2 without any grade 3/4/5 from 1980 onward: " as result r(N) as text " country-series case(s)."
+    if r(N) > 0 {
+        noisily list iso year fivelet data_quality if dq_low_no_high & inlist(data_quality, 1, 2), noobs sepby(iso) nolabel
+    }
+    if `ptinc_dq_rc' == 0 noisily di as text "PASS: Both ptinc checks across years passed."
+    else noisily di as error "FAIL: At least one ptinc check across years failed."
+}
+noisily di as text _newline "PTINC: country-year combinations with grade 3, 4 or 5 in `dq_previous_year' and `dq_latest_year'"
+count if inlist(year, `dq_previous_year', `dq_latest_year') & inlist(data_quality, 3, 4, 5)
+if r(N) > 0 {
+    noisily list iso year data_quality if inlist(year, `dq_previous_year', `dq_latest_year') & inlist(data_quality, 3, 4, 5), noobs sep(0) nolabel
+}
+else noisily di as text "No qualifying country-year combinations."
 
 foreach grid in g127 decile {
     use "`checks_`grid''", clear
@@ -344,6 +398,7 @@ restore
 }
 log close sanity_summary
 di as text "Summary saved to /Users/anavanderree/Documents/sanity-checks-summary.txt"
+if `ptinc_dq_rc' != 0 & `dq_rc' == 0 local dq_rc = `ptinc_dq_rc'
 if `dq_rc' != 0 {
     di as error "Data-quality check did not pass. See the summary above."
     exit `dq_rc'

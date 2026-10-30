@@ -504,10 +504,32 @@ restore
 
 merge m:1 iso fivelet using `maincountry', gen(maincountry)
 
+// add all 3 long run papers to main countries
 replace source = source + ///
+`"; For the series before 1980, refer to long run papers: First edition: "' + ///
+`"[URL][URL_LINK]"' + ///
+`"http://wid.world/document/countries-with-regional-income-imputations-on-wid-world-world-inequality-lab-technical-note-2021-15/"' + ///
+`"[/URL_LINK][URL_TEXT]"' + ///
+`"Chancel and Piketty (2021), Countries with Regional Income Imputations on WID.world"' + ///
+`"[/URL_TEXT][/URL]"' + ///
+`"; Second edition: "' + ///
+`"[URL][URL_LINK]"' + ///
+`"http://wid.world/document/longrunpaper/"' + ///
+`"[/URL_LINK][URL_TEXT]"' + ///
+`"Chancel, L., Piketty, T. "Global Income Inequality 1820-2020: The Persistence and Mutation of Extreme Inequality" (2021)"' + ///
+`"[/URL_TEXT][/URL]"' + ///
 `"; "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/wid-income-and-wealth-distributional-series-updated-and-extended-coverage-1800-2024-world-inequality-lab-technical-note-2025-10/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Arias-Osorio, M., Baulus, L., Brassac, P., Chancel, L., Martinez-Toledano, C., Moshrif, R., Piketty, T. (2026) "WID Income and Wealth Distributional Series Updated and Extended Coverage, 1800-2024" "' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + ///
+`"http://wid.world/document/historical-inequality-series-on-wid-world-updates-world-inequality-lab-technical-note-2023-01/"' + ///
+`"[/URL_LINK][URL_TEXT]"' + ///
+`"Chancel, L., Moshrif, R., Piketty, T., Xuereb, S. (2023), "Historical Inequality Series on WID.world - Updates""' + ///
+`"[/URL_TEXT][/URL]"' + ///
+`"; Latest edition: "' + ///
+`"[URL][URL_LINK]"' + ///
+`"https://wid.world/document/wid-income-and-wealth-distributional-series-updated-and-extended-coverage-1800-2024-world-inequality-lab-technical-note-2025-10/"' + ///
+`"[/URL_LINK][URL_TEXT]"' + ///
+`"Arias-Osorio, M., Baulus, L., Brassac, P., Chancel, L., Martinez-Toledano, C., Moshrif, R., Piketty, T. (2026) "WID Income and Wealth Distributional Series Updated and Extended Coverage, 1800-2024""' + ///
+`"[/URL_TEXT][/URL]"' ///
 if maincountry == 3
 
 

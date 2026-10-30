@@ -69,8 +69,8 @@ isid iso year p widcode
 // Europe (East & West) Countries and Aggregates
 // 		- ptinc series 2025 update
 // 		- cainc series pulled from 2023 update
-append using "$wid_dir/Country-Updates/Europe/2025_10/europe-ptinc-2025"
-append using "$wid_dir/Country-Updates/Europe/2025_10/europe-cainc-2025"
+append using "$wid_dir/Country-Updates/Europe/2026_10/europe-ptinc-2026.dta"
+append using "$wid_dir/Country-Updates/Europe/2026_10/europe-cainc-2026.dta"
 
 drop if inlist(iso, "QX", "QY")
 
@@ -81,7 +81,8 @@ replace iso="QM-PPP" if iso=="QM"
 
 // Latin America 						
 drop if inlist(iso, "XL", "XL-MER")
-append using "$wid_dir/Country-Updates/Latin_America/2025/latin-america-2025.dta" 
+append using "$wid_dir/Country-Updates/Latin_America/2026/latin-america-ptinc-2026.dta" 
+append using "$wid_dir/Country-Updates/Latin_America/2026/latin-america-cainc-2026.dta" 
 
 assert !missing(iso, year, widcode)
 duplicates tag iso year p widcode, gen(dup)
@@ -103,7 +104,7 @@ append using "$wid_dir/Country-Updates/posttax/12_2025/post-tax-2025.dta"
 
 // 40 new additional countries accoding to the 2024 extension of the database
 append using "$wid_dir/Country-Updates/Historical_series/2024_May/forty_additional_countries_ptinc_Feb2026.dta"
-keep iso year p widcode value author old data_quality currency
+keep iso year p widcode value author old data_quality 
 
 assert !missing(iso, year, widcode)
 isid iso year p widcode
@@ -146,7 +147,7 @@ merge 1:1 iso year p widcode using "$wid_dir/Country-Updates/Historical_series/2
 
 generate fivelet = substr(widcode, 2, 5)
 drop data_quality
-ds year p widcode value currency author old, not
+ds year p widcode value author old, not
 keep `r(varlist)'
 order iso fivelet source method
 drop if iso == "FR" & missing(source) & fivelet== "ptinc"
