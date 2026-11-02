@@ -19,7 +19,7 @@ use "$work_data/extend-distributions-999-output.dta", clear
 // Retain one grade per country, year, concept and population group.
 preserve
     keep if inlist(widcode, "aptinc992j", "aptinc999j", ///
-                           "ahweal992j", "ahweal999j")
+                           "ahweal992j", "ahweal999j", "acainc992j")
     keep if !inlist(p, "p0p100", "pall")
     gen concept = substr(widcode, 2, 5)
     gen population_group = substr(widcode, 7, 3)
@@ -74,7 +74,7 @@ drop if year<1980 & !inlist(year,1820, 1850, 1880, 1900, 1910, 1920) & !inlist(y
 *Keep relevant variables
 keep if inlist( substr(widcode,1,1),"a","s")
 keep if inlist( substr(widcode,10,1),"j")
-keep if strpos(widcode,"ptinc") | strpos(widcode,"diinc") | strpos(widcode,"hweal") 
+keep if strpos(widcode,"ptinc") | strpos(widcode,"diinc") | strpos(widcode,"hweal") | strpos(widcode,"cainc") 
 keep if inlist( substr(widcode,7,3),"992","999")
 
 // Parse percentiles
@@ -119,6 +119,8 @@ rename valueadiinc992j ad2
 rename valuesdiinc992j sd2
 rename valueahweal992j aw2
 rename valueshweal992j sw2
+rename valueacainc992j ac2
+rename valuescainc992j sc2
 
 rename valueaptinc999j ai9
 rename valuesptinc999j si9
@@ -141,6 +143,9 @@ rename ahweal999i wtot9
 generate dtot2 = itot2
 generate dtot9 = itot9
 
+// cainc aggregate is nninc for now, to be revised. 
+generate ctot2 = itot2
+generate ctot9 = itot9
 
 generate pop2 = n*npopul992i
 generate pop9 = n*npopul999i 
@@ -151,7 +156,7 @@ rename xlcusp999i PPP
 rename xlcusx999i MER
 
 //--- Checkpoint 1 -----------------//
-*save "$work_data/aux.dta", replace
+save "$work_data/aux.dta", replace
 *clear all
 *tempfile combined
 *save `combined', emptyok
@@ -171,7 +176,7 @@ replace region7="WO" if  corecountry==1 					 & year >= 1980
 
 // ---------- 3.2.1 Aggregation of data quality grades for regions 
 // Use total population (999) for both adult (992) and all-age (999) series.
-// Income grades are shared by pretax and posttax; wealth uses wealth grades.
+// Pretax grades are also used for diinc; cainc and wealth use their own grades.
 tempfile regional_quality
 preserve
     clear
@@ -179,18 +184,25 @@ preserve
 restore
 
 foreach u in 2 9 {
-    foreach c in ptinc hweal {
-        local z = cond("`c'" == "ptinc", "i", "w")
+    foreach c in ptinc hweal cainc {
+        // Only adult cainc distributions are currently prepared (ac2).
+        if "`c'" == "cainc" & "`u'" == "9" continue
+        local z = cond("`c'" == "ptinc", "i", cond("`c'" == "hweal", "w", "c"))
         foreach y in MER PPP {
             foreach x of varlist region* {
                 quietly levelsof `x', local(regions)
                 foreach r of local regions {
+					if "`z'" == "c" & "`r'" == "WO" continue // skip World generation for cainc since its only avaialble in latam, europe 
                     preserve
                         keep if `x' == "`r'"
                         drop if substr(iso, 3, 1) == "-" ///
                             & substr(iso, 4, 3) != "`y'"
-                        // Match the available income/wealth distributions.
+                        // Match the countries with an available distribution for this concept.
                         drop if missing(a`z'`u')
+                        if _N == 0 {
+                            restore
+                            continue
+                        }
                         keep iso year npopul999i
                         duplicates drop
 
@@ -240,7 +252,8 @@ restore
 
 foreach u in 2 9 {
 	
-	foreach z in i w d {
+	foreach z in i w d c {
+        if "`z'" == "c" & "`u'" == "9" continue // There is no 999 cainc (ac9)
 
 		foreach y in MER PPP {
 			foreach v of varlist a`z'`u' `z'tot`u'  {
@@ -251,6 +264,7 @@ foreach u in 2 9 {
 				levelsof `x', local(regions)
 				
 				foreach r of local regions {
+					if "`z'" == "c" & "`r'" == "WO" continue // skip World generation for cainc since its only avaialble in latam, europe 
 					preserve
 						di "Calculating region `r'-`y' for 99`u'..."
 						
@@ -267,6 +281,11 @@ foreach u in 2 9 {
 							
 						levelsof iso
 						drop if missing(a`z'`u')
+                        // Some regions have no cainc countries at all.
+                        if _N == 0 {
+                            restore
+                            continue
+                        }
 						gsort year -a`z'`u'_`y' 
 							
 						by year: generate rank = sum(pop`u')
@@ -297,18 +316,28 @@ foreach u in 2 9 {
 
 use "`combined'", clear
 //--- Checkpoint 2 -----------------//
-*save "$work_data/aux2.dta", replace
+save "$work_data/aux2.dta", replace
 *use "$work_data/aux2.dta", clear
 //---------------------------------//
 foreach u in 2 9 {
 	bys iso year p (aw`u'):  replace aw`u' = aw`u'[1]
 	bys iso year p (ai`u'):  replace ai`u' = ai`u'[1]
 	bys iso year p (ad`u'):  replace ad`u' = ad`u'[1]
+    if "`u'" == "2" {
+        bys iso year p (ac2): replace ac2 = ac2[1]
+    }
+
 }
 
 duplicates drop iso year p, force
 
-reshape long a, i(iso year p) j(concept i2 w2 d2 i9 w9 d9)
+reshape long a, i(iso year p) j(concept i2 w2 d2 i9 w9 d9 c2)
+
+// Reshape long creates empty c2 rows for regions without cainc. Remove those
+// groups before the p=0 fallback could turn them into zero-valued series.
+tempvar has_cainc
+bys iso year concept: egen byte `has_cainc' = max(!missing(a)) if concept == "c2"
+drop if concept == "c2" & `has_cainc' == 0
 
 
 *gen x = substr(iso, 4, 3)
@@ -331,7 +360,12 @@ sort concept iso year
 *drop if iso == "OD"
 
 // Rectangularize
-fillin concept iso year p 
+fillin concept iso year p
+// Rectangularization must not create cainc in an uncovered region/year.
+tempvar cainc_covered
+bys iso year concept: egen byte `cainc_covered' = max(`has_cainc')
+drop if concept == "c2" & `cainc_covered' != 1
+drop `has_cainc' `cainc_covered'
 drop _fillin
 sort iso year concept p
 drop if substr(concept,1,1) == "i" & year<1980 & ( substr(iso, 1, 1)== "O" | substr(iso, 1,2)=="QM" ) //QM is a residual region but doesnt start with O
@@ -360,12 +394,12 @@ bys concept iso year (p) : replace t = min(0, 2*a) if missing(t)
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 //--- Checkpoint 2.1 -----------------//
-*save "$work_data/aux2a.dta", replace
+save "$work_data/aux2a.dta", replace
 *use "$work_data/aux2a.dta", clear
 //---------------------------------//
 
 // rescaling averages to macro totals 
-gen 	a2 = (a/average)*anninc992i if inlist(concept, "i2", "d2")
+gen 	a2 = (a/average)*anninc992i if inlist(concept, "i2", "d2", "c2")
 replace a2 = (a/average)*anninc999i if inlist(concept, "i9", "d9")
 replace a2 = (a/average)*ahweal992i if inlist(concept, "w2")
 replace a2 = (a/average)*ahweal999i if inlist(concept, "w9")
@@ -374,7 +408,7 @@ drop a2
 
 // constructing shares based on averages (a) and macro totals 
 *generate s = a*n/1e5/average
-gen 	s = a*(n/1e5)/anninc992i if inlist(concept, "i2", "d2")
+gen 	s = a*(n/1e5)/anninc992i if inlist(concept, "i2", "d2", "c2")
 replace s = a*(n/1e5)/anninc999i if inlist(concept, "i9", "d9")
 replace s = a*(n/1e5)/ahweal992i if inlist(concept, "w2")
 replace s = a*(n/1e5)/ahweal999i if inlist(concept, "w9")
@@ -437,6 +471,7 @@ replace concept = "hweal992j" if concept == "w2"
 replace concept = "hweal999j" if concept == "w9" 
 replace concept = "diinc992j" if concept == "d2" 
 replace concept = "diinc999j" if concept == "d9" 
+replace concept = "cainc992j" if concept == "c2" 
 
 renvars t s a, prefix(value)
 reshape wide valuea valuet values, i(iso year p) j(concept) string
@@ -452,11 +487,6 @@ drop if strpos(widcode, "diinc") & year<1980
 *replace iso = iso+"-"+upper(x) if x=="PPP"
 *drop if x=="PPP"
 *drop x
-
-//--- Checkpoint 3 -----------------//
-*save"$work_data/aux3.dta", replace
-*u "$work_data/aux3.dta", clear
-//----------------------------------//
 
 * Drop $pastyear data if series are no yet available
 generate tag=value if p=="p99p100"
@@ -476,6 +506,11 @@ drop concept pop
 
 tempfile final
 save `final'
+
+//--- Checkpoint 3 -----------------//
+save"$work_data/aux3.dta", replace
+*u "$work_data/aux3.dta", clear
+//----------------------------------//
 
 //-----Append-------//
 
@@ -520,7 +555,7 @@ replace source = ///
 `"Chancel, L., Flores, I., Moshrif, R., Nievas, G., Piketty, T. (2025), "Distributional National Accounts Guidelines: Methods and concepts used in the World Inequality Database" "' + ///
  `"[/URL_TEXT][/URL]"' + ///
 `"[URL][URL_LINK]https://wid.world/document/world-totals-in-wid-core-territories-core-countries-and-core-macro-and-distributional-variables-1820-2023-world-inequality-lab-technical-note-2024-02/[/URL_LINK][URL_TEXT] ; Moshrif, R., Nievas, G., Piketty, T., Sodano, A., Chancel, L., (2024), "World Totals in WID: Core Territories, Core Countries and Core Macro and Distributional Variables, 1820-2023"[/URL_TEXT][/URL]"' ///
-if missing(source) & (strpos(fivelet, "ptinc") | strpos(fivelet, "diinc") | strpos(fivelet, "hweal"))
+if missing(source) & (strpos(fivelet, "ptinc") | strpos(fivelet, "diinc") | strpos(fivelet, "hweal") | strpos(fivelet, "cainc"))
 
 
 // Adding regional technotes to each region 

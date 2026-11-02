@@ -26,7 +26,7 @@ global latam "~/Dropbox/W2ID/Country-Updates/Latin_America/2026"
 local region "latam"
 
 // switch on (1) to use processed data; switch off (0) for the submissions below
-local processed 1
+local processed 0
 
 // Retain unfiltered Europe/Latin America data for cainc comparisons.
 tempfile cainc_input
@@ -108,7 +108,7 @@ else {
     *use "${ssea}/Asia_SSEA_2026.dta", replace
 	*use "${europe}/wid-world-data.dta", replace
 	*use "${naoc}/naoc-ptinc-2026.dta", replace
-	use "${latam}/dina_latam_28Oct2026.dta", replace
+	use "${latam}/dina_latam_2Nov2026.dta", replace
 
 }
 
