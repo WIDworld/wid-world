@@ -149,11 +149,13 @@ bys iso year : replace n = n[_n-1] if p == 99999
 bys iso year : generate x = s if year == min
 bys iso p : egen x2 = mode(x)
 gsort iso p year 
-replace s = x2 if missing(s) & year != $pastyear /* & !inlist(iso, "JP", "KR") */ 
+*replace s = x2 if missing(s) & year != $pastyear /* & !inlist(iso, "JP", "KR") */ 
+replace s = x2 if missing(s) & year < min
 drop x*  
 
 // Extrapolate the bracket shares forwards
-drop if year == $pastyear 
+*drop if year == $pastyear
+drop if year > max
 // bys iso year : generate x = s if year == max
 // bys iso p : egen x2 = mode(x)
 // gsort iso p year 
