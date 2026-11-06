@@ -156,7 +156,7 @@ rename xlcusp999i PPP
 rename xlcusx999i MER
 
 //--- Checkpoint 1 -----------------//
-save "$work_data/aux.dta", replace
+*save "$work_data/aux.dta", replace
 *clear all
 *tempfile combined
 *save `combined', emptyok
@@ -316,7 +316,7 @@ foreach u in 2 9 {
 
 use "`combined'", clear
 //--- Checkpoint 2 -----------------//
-save "$work_data/aux2.dta", replace
+*save "$work_data/aux2.dta", replace
 *use "$work_data/aux2.dta", clear
 //---------------------------------//
 foreach u in 2 9 {
@@ -394,7 +394,7 @@ bys concept iso year (p) : replace t = min(0, 2*a) if missing(t)
 merge n:1 iso year using "`aggregates'", nogenerate keep(master match)
 
 //--- Checkpoint 2.1 -----------------//
-save "$work_data/aux2a.dta", replace
+*save "$work_data/aux2a.dta", replace
 *use "$work_data/aux2a.dta", clear
 //---------------------------------//
 
@@ -508,7 +508,7 @@ tempfile final
 save `final'
 
 //--- Checkpoint 3 -----------------//
-save"$work_data/aux3.dta", replace
+*save"$work_data/aux3.dta", replace
 *u "$work_data/aux3.dta", clear
 //----------------------------------//
 
@@ -562,21 +562,25 @@ if missing(source) & (strpos(fivelet, "ptinc") | strpos(fivelet, "diinc") | strp
 // MENA
 replace source =  source + ///
 `"; Technote for the regional update: "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/2025-dina-update-for-mena/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"El Hariri, D. (2025), "2025 Regional DINA update for the Middle East""' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/document/2026-dina-update-for-mena"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"El Hariri, D. (2026), "2026 Regional DINA update for the Middle East and Northern Africa""' + `"[/URL_TEXT][/URL]"' ///
 if inlist(iso, "XN-PPP", "XN-MER", "OE-PPP", "OE-MER") & strpos(fivelet, "ptinc")
 // SSA
 replace source = source + ///
 `"; Technote for the regional update: "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/2025-dina-update-for-africa/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Robilliard, A.-S. (2025), "2025 DINA Update for countries of the Sub-Saharan Africa Region""' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/document/2026-dina-update-for-africa"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Loubes, R. & Robilliard, A.-S. (2026), "2026 DINA Update for countries of the Sub-Saharan Africa Region""' + `"[/URL_TEXT][/URL]"' ///
 if inlist(iso, "XF-PPP", "XF-MER", "OJ-PPP", "OJ-MER") & strpos(fivelet, "ptinc")
-// ASIA
+// SOUTH & SOUTH-EAST ASIA
 replace source = source + ///
 `"; Technote for the regional update: "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/2025-dina-update-for-asia/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Bharti, N., Mo, Z. (2025), "Technical note for update of Asia - 2025""' + `"[/URL_TEXT][/URL]"' ///
-if inlist(iso, "QL-PPP", "QL-MER", "OB-PPP", "OB-MER", "XS-PPP", "XS-MER", "OI-PPP", "OI-MER") & strpos(fivelet, "ptinc")
+`"[URL][URL_LINK]https://wid.world/document/2026-dina-update-for-east-asia[/URL_LINK][URL_TEXT]Bharti, N. (2026), "Technical Note for the 2026 Update of South and South-East Asia"[/URL_TEXT][/URL]"' ///
+if inlist(iso, "XS-PPP", "XS-MER", "OI-PPP", "OI-MER") & strpos(fivelet, "ptinc")
+// EAST ASIA
+replace source = source + ///
+`"; Technote for the regional update: "' + ///
+`"[URL][URL_LINK]https://wid.world/document/2026-dina-update-for-east-asia[/URL_LINK][URL_TEXT]Mo, Z. (2026), "Technical Note for the 2026 Update of East Asia"[/URL_TEXT][/URL]"' ///
+if inlist(iso, "QL-PPP", "QL-MER", "OB-PPP", "OB-MER") & strpos(fivelet, "ptinc")
 // RUSSIA
 replace source = source + ///
 `"; Technote for the regional update: "' + ///
@@ -595,17 +599,17 @@ replace source = source + ///
 `"[URL][URL_LINK]"' + `"https://wid.world/document/2022-dina-regional-update-for-australia-canada-and-new-zealand-world-inequality-lab-technical-note-2022-07/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Fisher-Post, M. (2022) 2022 DINA Regional Update for North America and Oceania""' + `"[/URL_TEXT][/URL]"' ///
 if inlist(iso, "QP-PPP", "QP-MER", "OK-PPP", "OK-MER") & strpos(fivelet, "ptinc")
-// LATM
+// LATAM
 replace source = source + ///
 `"; Technote for the regional update: "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/2025-dina-update-for-latin-america/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Flores, I., Zuniga-Cordero, A., (2025) "Income inequality series for Latin America""' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/document/2026-dina-update-for-latin-america"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Flores, I., Zuniga-Cordero, A., (2026) "DINA Regional Update for Latin America""' + `"[/URL_TEXT][/URL]"' ///
 if inlist(iso, "XL-PPP", "XL-MER", "OD-PPP", "OD-MER") & strpos(fivelet, "ptinc")
 // EUROPE
 replace source = source + ///
 `"; Technote for the regional update: "' + ///
-`"[URL][URL_LINK]"' + `"https://wid.world/document/2025-dina-update-for-europe/"' + `"[/URL_LINK]"' + ///
-`"[URL_TEXT]"' + `"Andreescu M R., Sodano, A. (2025), "Regional DINA update for Europe""' + `"[/URL_TEXT][/URL]"' ///
+`"[URL][URL_LINK]"' + `"https://wid.world/document/2026-dina-update-for-europe"' + `"[/URL_LINK]"' + ///
+`"[URL_TEXT]"' + `"Andreescu, M-R., Sodano, A. (2026), "Regional DINA update for Europe""' + `"[/URL_TEXT][/URL]"' ///
 if inlist(iso, "QE-PPP", "QE-MER", "OC-PPP", "OC-MER", "QM-PPP", "QM-MER") & strpos(fivelet, "ptinc")
 
 

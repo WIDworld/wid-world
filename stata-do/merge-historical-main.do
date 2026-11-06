@@ -559,6 +559,13 @@ if historicalwealth == 3
 
 drop m1 newmethod method1 // m2 method2 newsource source1 source2
 keep iso fivelet method source
+
+// removing trailing punctuation at the beginning of the strings
+foreach var in source method {
+    replace `var' = ustrregexra(`var', "^[[:punct:][:space:]]+", "")
+}
+
+
 drop if missing(fivelet)
 isid iso fivelet
 

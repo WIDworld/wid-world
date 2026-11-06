@@ -683,12 +683,20 @@ drop technote
 //---  13.  Append to the rest of the data and export  -----------------------//
 gen new=1
 
+// -------- TEMPORARY --------------//
+// 6/11/26: while we wait for macro metadata to become unique at iso-fivelet level
+gen fivelet = substr(sixlet, 2,5)
+drop sixlet
+duplicates drop iso fivelet, force
+// --------------------------------//
 
 append using  "$work_data/correct-widcodes-metadata.dta"
 
-duplicates tag iso sixlet, gen(dup)
+// preserve the macro wealth metadata. In add-wealth-distribution, we add to it
+// the updated distributional wealth metadata. so it can be overwritten here
+duplicates tag iso fivelet, gen(dup)
 drop if dup==1 & new!=1
-duplicates tag iso sixlet, gen(dup2)
+duplicates tag iso fivelet, gen(dup2)
 assert dup2==0
 
 drop new dup*

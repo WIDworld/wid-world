@@ -82,8 +82,8 @@ isid iso year fivelet
 
 // construct weighted average data quality  
 display $pastyear //currently its 2025 
-drop if year == $pastyear-1 // latest year is almost always extrapolated 
-gen d = ($pastyear - 2) - year // distance "how many years back" // "2" until pretax update 2026 is complete
+drop if year == $pastyear // latest year is almost always extrapolated 
+gen d = ($pastyear - 1) - year // distance "how many years back"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // [USER PARAMETERS] established by Central Team based on I. Flores graphs (03.2026)
@@ -103,7 +103,7 @@ isid iso fivelet
 
 // bring data quality scores 
 merge 1:1 iso fivelet using `metadata', nogen 
-assert avg_quality != . if fivelet!="fainc" & !(iso=="TH" & fivelet=="fiinc")
+assert avg_quality != . if fivelet!="fainc" & !(iso=="TH" & fivelet=="fiinc") & !(iso=="US" & fivelet=="cainc")
 
 // =============================================================================
 // ------------------ 3. Add transparency index note ---------------------------
@@ -154,10 +154,27 @@ rename iso alpha2
 order alpha2 twolet threelet method source avg_quality // NB! score has to be last variable for wid.admin
 sort alpha2 twolet threelet
 
-*capture mkdir "$output_dir/$time"
-*capture mkdir "$output_dir/$time/metadata"
+capture mkdir "$output_dir/$time"
+capture mkdir "$output_dir/$time/metadata"
 
-export delimited "$output_dir/$time/metadata/var-notes-$time-all_distributions2025_Update.csv", replace delimiter(";") quote
+export delimited "$output_dir/$time/metadata/var-notes-$time-all_distributions2026_Update.csv", replace delimiter(";") quote
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

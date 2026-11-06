@@ -233,47 +233,46 @@ save "`researchers'"
 // --------------------------- 3. Import Meta Data  --------------------------
 // -----------------------------------------------------------------------------
 
-generate sixlet = substr(widcode, 1, 6)
-ds year p widcode value currency author data_quality, not
-keep `r(varlist)'
-// drop if sixlet=="npopul" & strpos(source,"chancel")>0
+generate fivelet = substr(widcode, 2, 5)
+keep iso fivelet method source
+duplicates drop
 
-duplicates drop iso sixlet, force
-order iso sixlet source method
+// there are 3 iso-fivelets that have duplicates in method/source. Selecting here:
+duplicates tag iso fivelet, gen(dup)
+	drop if iso=="KR" & fivelet=="fiinc" & method=="" & dup==1
+	drop if iso=="GE" & fivelet=="ptinc" & source=="" & dup==1
 
-// --------- Main Pre-Tax Update: modified 20 Oct 2025 by Ana Van Der Ree: -----
+	gen source_length = strlen(source)
+	bysort iso fivelet (source_length): drop if iso=="GB" & fivelet=="fiinc" & dup==1 ///
+    & source_length < source_length[_N]
+	drop source_length dup
+
+duplicates drop
+isid iso fivelet
+order iso fivelet source method
+
+// --------- Main Pre-Tax Update: modified November 2026 by Ana Van Der Ree: -----
 
 // Asia
-// ptinc metadata
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2025/asia-ptinc-2025-metadata.dta", force update replace nogen
-// fiinc metadata (KR, JP)
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2025/asia-fiinc-2025-metadata.dta", force update replace nogen
-// other distributional data 
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Asia/2025/asia-other-macro-dist-2025-metadata.dta", force update replace nogen
+// updated ptinc, fiinc metadata
+merge 1:1 iso fivelet using "$wid_dir/Country-Updates/Asia/2026/asia-ptinc-fiinc-2026-metadata.dta", force update replace nogen
+// metadata for legacy non-updated series 
+merge 1:1 iso fivelet using "$wid_dir/Country-Updates/Asia/2026/asia-legacy-distributions-2026-metadata.dta", force update replace nogen
 	   
 // Mena 
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Middle-East/2025/mena-2025-metadata.dta", force update replace nogen
+merge 1:1 iso fivelet using "$wid_dir/Country-Updates/Middle-East/2026/mena-2026-metadata.dta", force update replace nogen
  			
 // Africa 
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Africa/2025_09/africa-ptinc-2025-metadata.dta", force update replace nogen
+merge 1:1 iso fivelet using "$wid_dir/Country-Updates/Africa/2026_10/africa-ptinc-2026-metadata.dta", force update replace nogen
 
-// North America & Oceania 
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/North_America/2025_10/aucanz-2025-metadata.dta", force update replace nogen            
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/US/2025/us-2025-metadata.dta", force update replace nogen
-
+// North America & Oceania (CA, NZ, US, AU)
+merge 1:1 iso fivelet using "$wid_dir/Country-Updates/North_America/2026_10/naoc-metadata-2026.dta", force update replace nogen            
 // Bauluz & Brassac wealth aggregates (only keeping macro vars in next step)
-merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen
-
-//======================= 3.2. Dropping wealth aggregate sixlets ===============
-
-gen is_wealth_agg = regexm(lower(sixlet), "^(m[cghinp]w[a-z]{3})$") ///
-    | regexm(lower(sixlet), "^wweal[cgnph]$")
-drop if is_wealth_agg
-drop is_wealth_agg    
+*merge 1:1 iso sixlet using "$wid_dir/Country-Updates/Wealth/2021_July/macro-wealth-Jul2021-metadata.dta", update replace nogen  
 
 //=========== 3.3. Cleaning metadata for files we don't update ============
 
-replace extrapolation = "[[1905, 1988], [2018, $pastyear]]" if iso == "RU" & sixlet=="sptinc"
+*replace extrapolation = "[[1905, 1988], [2018, $pastyear]]" if iso == "RU" & sixlet=="sptinc"
 
 // Add sources for US scainc series only 
 replace source = ///
@@ -282,10 +281,10 @@ replace source = ///
 `"[URL_TEXT]"' + `"Piketty, Thomas; Saez, Emmanuel and Zucman, Gabriel (2016). Distributional National Accounts: Methods and Estimates for the United States; "' + `"[/URL_TEXT][/URL]"' + ///
 `"[URL][URL_LINK]"' + `"https://wid.world/document/us-distributional-national-accounts-updates-world-inequality-lab-technical-note-2020-07/"' + `"[/URL_LINK]"' + ///
 `"[URL_TEXT]"' + `"Zucman, Gabriel (2020). Technical Note "US Distributional National Accounts: Updates" "' + `"[/URL_TEXT][/URL]"' ///
-if sixlet=="scainc" & inlist(iso, "US")
+if fivelet=="cainc" & inlist(iso, "US")
 
 
-gduplicates drop iso sixlet, force
+isid iso fivelet
 tempfile meta
 save "`meta'"
 
@@ -399,9 +398,10 @@ save "$work_data/add-researchers-data-output.dta", replace
 //======================= 4.2 Add meta data to WID =============================
 
 use "$work_data/correct-wtid-metadata-output.dta", clear
-merge 1:1 iso sixlet using "`meta'", nogenerate update replace
-
-drop data_points extrapolation data_imputation data_quality arabarometer
+gen fivelet = substr(sixlet, 2,5)
+drop sixlet
+duplicates drop iso fivelet, force 
+merge 1:1 iso fivelet using "`meta'", nogenerate update replace
 
 label data "Generated by add-researchers-data.do"
 save "$work_data/add-researchers-data-metadata.dta", replace
